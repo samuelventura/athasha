@@ -8,6 +8,9 @@ mix deps.get
 mix ecto.create
 mix phx.server
 iex -S mix phx.server
+#config contains a json with bus and points settings
+mix phx.gen.schema Device devices name:string type:string version:integer config:string
+mix ecto.migrate
 ```
 
 ## Architecture
@@ -18,6 +21,7 @@ iex -S mix phx.server
   - API (change and read event)
 - Data Loggers, Web Views, DB Links
   - Connect to io-server API
+- Scripts
 
 ## Use Cases
 
