@@ -4,8 +4,8 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import {useAuth, initialSession} from './Auth'
-import {useAlert} from './Alert'
+import { useAuth, initialSession } from './Auth'
+import { useAlert } from './Alert'
 import './App.css'
 
 function Username() {
@@ -14,7 +14,7 @@ function Username() {
   if (!auth.session.id.startsWith(":")) return (
     <Button variant="link" onClick={handleOnClick} title="Logout">
       {auth.session.username}
-    </Button> 
+    </Button>
   )
   return null
 }
@@ -25,7 +25,7 @@ function showAlert(alert) {
     return (<Alert variant={current.type} dismissible
       onClose={() => alert.clearAlert()}>
       {current.message}
-      </Alert>)
+    </Alert>)
   }
   return null
 }
@@ -39,19 +39,19 @@ function App() {
   return (
     <React.Fragment>
       <Navbar bg="dark" variant="dark">
-      <Container>
-        <Navbar.Brand className="btn" onClick={handleOnClick} 
-          title="Home">Athasha</Navbar.Brand>
-        <Navbar.Toggle />
-        <Navbar.Collapse className="justify-content-end">
-          <Navbar.Text><Username/></Navbar.Text>
-        </Navbar.Collapse>
-      </Container>        
+        <Container>
+          <Navbar.Brand className="btn" onClick={handleOnClick}
+            title="PageHome">Athasha</Navbar.Brand>
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Navbar.Text><Username /></Navbar.Text>
+          </Navbar.Collapse>
+        </Container>
       </Navbar>
       {showAlert(alert)}
       <Container>
         <Outlet />
-      </Container> 
+      </Container>
     </React.Fragment>
   )
 }

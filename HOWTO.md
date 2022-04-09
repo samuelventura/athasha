@@ -21,6 +21,9 @@ yarn start
 yarn test
 yarn add bootstrap react-bootstrap
 yarn add react-router-dom@6 history@5
+
+#file browser from tryout01
+#auth context from tryout03
 ```
 
 ## Development
@@ -30,7 +33,8 @@ yarn add react-router-dom@6 history@5
 ## Strategy
 
 - Avoid abstraction jail
-- Assume single user UI
+- Single concurrent user UI: rest instead of websocket
+- Single super user role: single password to manage
 
 ## Architecture
 
