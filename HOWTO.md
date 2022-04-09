@@ -1,8 +1,8 @@
 # HOWTO
 
 ```bash
-mkdir app
-cd app
+mkdir backend
+cd backend
 mix phx.new . --app athasha --database sqlite3 --live
 mix deps.get
 mix ecto.create
@@ -11,7 +11,26 @@ iex -S mix phx.server
 #config contains a json with bus and points settings
 mix phx.gen.schema Device devices name:string type:string version:integer config:string
 mix ecto.migrate
+
+sudo npm -g install yarn
+brew install yarn
+npx create-react-app frontend
+cd frontend
+yarn start
+#http://localhost:3000/
+yarn test
+yarn add bootstrap react-bootstrap
+yarn add react-router-dom@6 history@5
 ```
+
+## Development
+
+- Pass user/admin as password to assign role
+
+## Strategy
+
+- Avoid abstraction jail
+- Assume single user UI
 
 ## Architecture
 
@@ -21,6 +40,7 @@ mix ecto.migrate
   - API (change and read event)
 - Data Loggers, Web Views, DB Links
   - Connect to io-server API
+- Serial Terminal, Modbus Terminal, ...
 - Scripts
 
 ## Use Cases
