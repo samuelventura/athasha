@@ -37,6 +37,7 @@ function FileBrowser(props) {
 
     return (
         <div className="FileBrowser">
+            <FileNew dispatch={props.dispatch} />
             <table className="FileTable">
                 <thead>
                     <tr>
@@ -45,7 +46,6 @@ function FileBrowser(props) {
                                 filter={filter}
                                 onFilterChange={handleFilterChange}
                             />
-                            <FileNew dispatch={props.dispatch} />
                         </th>
                     </tr>
                     <tr>

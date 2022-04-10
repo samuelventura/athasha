@@ -13,7 +13,7 @@ function Username() {
   const handleOnClick = () => auth.setSession(initialSession)
   if (!auth.session.id.startsWith(":")) return (
     <Button variant="link" onClick={handleOnClick} title="Logout">
-      {auth.session.username}
+      Logout
     </Button>
   )
   return null
