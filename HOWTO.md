@@ -9,7 +9,8 @@ mix ecto.create
 mix phx.server
 iex -S mix phx.server
 #config contains a json with bus and points settings
-mix phx.gen.schema Device devices name:string type:string version:integer config:string
+mix phx.gen.schema Session sessions token:string
+mix phx.gen.schema Item items name:string type:string version:integer config:string
 mix ecto.migrate
 
 sudo npm -g install yarn
@@ -22,8 +23,10 @@ yarn test
 yarn add bootstrap react-bootstrap
 yarn add react-router-dom@6 history@5
 
-#file browser from tryout01
-#auth context from tryout03
+#code editor from https://github.com/YeicoLabs/tryout01_athasha
+#file browser from https://github.com/YeicoLabs/tryout01_athasha
+#auth context from https://github.com/YeicoLabs/tryout02_athasha
+#socket pubsub from https://github.com/YeicoLabs/tryout05_athasha
 ```
 
 ## Development
@@ -35,6 +38,20 @@ yarn add react-router-dom@6 history@5
 - Avoid abstraction jail
 - Single concurrent user UI: rest instead of websocket
 - Single super user role: single password to manage
+
+## Authentication
+
+- Auth over websocket?
+- Single super user
+- Secure even over HTTP
+- GET /logout?sid=SID
+- GET /login?rt=UUID&et=XYZ...
+  - rt: raw token cannot be reused ever
+  - et: oneway password encrypted token
+  - disables any other session
+  - return session id
+- Change password thru localhost ssh app
+- Exported items have their own login system
 
 ## Architecture
 

@@ -1,8 +1,8 @@
-defmodule Athasha.Device do
+defmodule Athasha.Item do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "devices" do
+  schema "items" do
     field :config, :string
     field :name, :string
     field :type, :string
@@ -12,8 +12,8 @@ defmodule Athasha.Device do
   end
 
   @doc false
-  def changeset(device, attrs) do
-    device
+  def changeset(item, attrs) do
+    item
     |> cast(attrs, [:name, :type, :version, :config])
     |> validate_required([:name, :type, :version, :config])
   end

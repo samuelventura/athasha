@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import ItemSearch from "./ItemSearch"
 import ItemHeader from "./ItemHeader"
@@ -11,10 +11,6 @@ function ItemBrowser(props) {
     const [sort, setSort] = useState("asc")
 
     function handleFilterChange(value) {
-        console.log("filter:", value)
-        //fetch data here, even the initial data
-        //because ItemSearch triggers the event
-        //even on initial rendering
         setFilter(value)
     }
 
@@ -22,6 +18,15 @@ function ItemBrowser(props) {
         console.log("sort:", value)
         setSort(value)
     }
+
+    function fetchItems() {
+
+    }
+
+    useEffect(() => {
+        console.log("filter:", filter)
+        fetchItems()
+    }, [filter])
 
     function viewItems() {
         const f = filter.toLowerCase()

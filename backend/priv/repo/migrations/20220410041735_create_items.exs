@@ -1,8 +1,8 @@
-defmodule Athasha.Repo.Migrations.CreateDevices do
+defmodule Athasha.Repo.Migrations.CreateItems do
   use Ecto.Migration
 
   def change do
-    create table(:devices) do
+    create table(:items) do
       add :name, :string
       add :type, :string
       add :version, :integer

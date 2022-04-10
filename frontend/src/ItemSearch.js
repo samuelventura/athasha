@@ -33,9 +33,9 @@ function ItemSearch(props) {
         setFilter("")
     }
 
-    //prevent form submission
     function handleKeyPress(e) {
         if (e.key === 'Enter') {
+            //prevent form submission
             e.preventDefault()
         }
     }
