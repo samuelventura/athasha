@@ -1,24 +1,29 @@
 import React, { useState } from 'react'
 
-import FileSearch from "./FileSearch"
-import FileHeader from "./FileHeader"
-import FileRows from "./FileRows"
-import FileNew from "./FileNew"
+import ItemSearch from "./ItemSearch"
+import ItemHeader from "./ItemHeader"
+import ItemRows from "./ItemRows"
+import ItemNew from "./ItemNew"
 
-function FileBrowser(props) {
+function ItemBrowser(props) {
 
     const [filter, setFilter] = useState("")
     const [sort, setSort] = useState("asc")
 
     function handleFilterChange(value) {
+        console.log("filter:", value)
+        //fetch data here, even the initial data
+        //because ItemSearch triggers thie event
+        //even on initial rendering
         setFilter(value)
     }
 
     function handleSortChange(value) {
+        console.log("sort:", value)
         setSort(value)
     }
 
-    function viewFiles() {
+    function viewItems() {
         const f = filter.toLowerCase()
         const list = Object.values(props.state.files)
         const filtered = list.filter(file =>
@@ -36,13 +41,13 @@ function FileBrowser(props) {
     }
 
     return (
-        <div className="FileBrowser">
-            <FileNew dispatch={props.dispatch} />
-            <table className="FileTable">
+        <div className="ItemBrowser">
+            <ItemNew dispatch={props.dispatch} />
+            <table className="ItemTable">
                 <thead>
                     <tr>
-                        <th className="FileTop">
-                            <FileSearch
+                        <th className="ItemTop">
+                            <ItemSearch
                                 filter={filter}
                                 onFilterChange={handleFilterChange}
                             />
@@ -50,12 +55,12 @@ function FileBrowser(props) {
                     </tr>
                     <tr>
                         <th>
-                            <FileHeader sort={sort}
+                            <ItemHeader sort={sort}
                                 onSortChange={handleSortChange} />
                         </th>
                     </tr>
                 </thead>
-                <FileRows files={viewFiles()}
+                <ItemRows files={viewItems()}
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
             </table>
@@ -63,4 +68,4 @@ function FileBrowser(props) {
     )
 }
 
-export default FileBrowser
+export default ItemBrowser

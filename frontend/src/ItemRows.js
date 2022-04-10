@@ -1,4 +1,4 @@
-function FileRows(props) {
+function ItemRows(props) {
 
     function handleDelete(file) {
         const accept = window.confirm(`Delete file '${file.name}'?`)
@@ -27,21 +27,21 @@ function FileRows(props) {
 
     function selectedClass(file) {
         return file.id === props.selected.id ?
-            "FileSelected" : ""
+            "ItemSelected" : ""
     }
 
     function enabledClass(file) {
         return file.enabled ?
-            "FileEnabled" : "FileDisabled"
+            "ItemEnabled" : "ItemDisabled"
     }
 
     const rows = props.files.map(file =>
         <tr key={file.id}
             onClick={() => handleSelect(file)}
-            className={`FileRow ${selectedClass(file)} ${enabledClass(file)}`}>
+            className={`ItemRow ${selectedClass(file)} ${enabledClass(file)}`}>
             <td>
-                <div className="FileName">{file.name}</div>
-                <div className="FileActions">
+                <div className="ItemName">{file.name}</div>
+                <div className="ItemActions">
                     <button onClick={() => handleEdit(file)}>Edit</button>
                     <button onClick={() => handleDelete(file)}>Delete</button>
                     <button onClick={() => handleRename(file)}>Rename</button>
@@ -53,10 +53,10 @@ function FileRows(props) {
     )
 
     return (
-        <tbody className="FileRows">
+        <tbody className="ItemRows">
             {rows}
         </tbody>
     )
 }
 
-export default FileRows
+export default ItemRows

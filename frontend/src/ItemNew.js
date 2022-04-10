@@ -1,6 +1,6 @@
 import React from 'react'
 
-function FileNew(props) {
+function ItemNew(props) {
 
     function handleNew() {
         const template = "Script"
@@ -11,10 +11,10 @@ function FileNew(props) {
     }
 
     return (
-        <div className="FileNew">
+        <div className="ItemNew">
             <button onClick={handleNew}>New...</button>
         </div>
     )
 }
 
-export default FileNew
+export default ItemNew

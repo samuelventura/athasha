@@ -1,13 +1,13 @@
 import React from 'react'
 
-import FileBrowser from "./FileBrowser"
+import ItemBrowser from "./ItemBrowser"
 
 function handleDispatch({ name, args }) {
 }
 
 function PageHome() {
   return (<div className="App">
-    <FileBrowser
+    <ItemBrowser
       state={{ files: [], selected: {} }}
       dispatch={handleDispatch} />
   </div>)
