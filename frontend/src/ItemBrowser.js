@@ -42,17 +42,23 @@ function ItemBrowser(props) {
 
     return (
         <div className="ItemBrowser">
-            <ItemNew dispatch={props.dispatch} />
-            <table className="ItemTable">
+            <table className="ItemTablePanel">
                 <thead>
                     <tr>
-                        <th className="ItemTop">
+                        <th>
                             <ItemSearch
                                 filter={filter}
                                 onFilterChange={handleFilterChange}
                             />
                         </th>
+                        <th>
+                            <ItemNew dispatch={props.dispatch} />
+                        </th>
                     </tr>
+                </thead>
+            </table>
+            <table className="ItemTableData">
+                <thead>
                     <tr>
                         <th>
                             <ItemHeader sort={sort}

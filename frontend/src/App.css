@@ -4,3 +4,11 @@
     justify-content: center;
     align-items: center;
 }
+
+.ItemBrowser {
+    margin-top: 1.4em;
+}
+
+.ItemTableData {
+    margin-top: 0.4em;
+}

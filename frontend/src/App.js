@@ -44,10 +44,10 @@ function App() {
   const handleOnClick = () => navigate("/", { replace: true })
   return (
     <React.Fragment>
-      <Navbar bg="dark" variant="dark">
+      <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand className="btn" onClick={handleOnClick}
-            title="Home">Athasha</Navbar.Brand>
+            title="Home"><img src="logo28.png"></img></Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text><Logout /></Navbar.Text>
