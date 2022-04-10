@@ -11,8 +11,8 @@ function saveSession(session) {
     return localStorage.setItem("athasha.session", JSON.stringify(session))
 }
 
-function login(username, password) {
-    const session = { id: username }
+function login(password) {
+    const session = { id: "session" }
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             if (validSession(session)) {

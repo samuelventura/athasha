@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from 'react-bootstrap/Button';
 
 function ItemNew(props) {
 
@@ -12,7 +13,7 @@ function ItemNew(props) {
 
     return (
         <div className="ItemNew">
-            <button onClick={handleNew}>New...</button>
+            <Button onClick={handleNew} variant="link">New...</Button>
         </div>
     )
 }

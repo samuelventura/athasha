@@ -58,10 +58,10 @@ function ItemSearch(props) {
 
     return (
         <div className="ItemSearch">
-            <Form className="d-flex">
+            <Form>
                 <InputGroup>
                     <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
-                    <Form.Control value={filter} onChange={handleChange}
+                    <Form.Control autoFocus value={filter} onChange={handleChange}
                         onKeyPress={handleKeyPress} onKeyUp={handleKeyUp}
                         placeholder="Filter..." type="text" ref={input} />
                     <ClearButton />

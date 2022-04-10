@@ -13,7 +13,7 @@ function ItemBrowser(props) {
     function handleFilterChange(value) {
         console.log("filter:", value)
         //fetch data here, even the initial data
-        //because ItemSearch triggers thie event
+        //because ItemSearch triggers the event
         //even on initial rendering
         setFilter(value)
     }

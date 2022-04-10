@@ -6,8 +6,8 @@ import './index.css'
 import App from './App'
 import PageHome from './PageHome'
 import PageAdmin from './PageAdmin'
-import { AlertProvider } from './Alert'
-import { AuthProvider, RequireAuth } from './Auth'
+import { AlertProvider } from './ContextAlert'
+import { AuthProvider, RequireAuth } from './ContextAuth'
 
 ReactDOM.render(
   <React.StrictMode>

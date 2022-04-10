@@ -4,16 +4,18 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import { useAuth, initialSession } from './Auth'
-import { useAlert } from './Alert'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSignOut } from '@fortawesome/free-solid-svg-icons'
+import { useAuth, initialSession } from './ContextAuth'
+import { useAlert } from './ContextAlert'
 import './App.css'
 
-function Username() {
+function Logout() {
   const auth = useAuth()
   const handleOnClick = () => auth.setSession(initialSession)
   if (!auth.session.id.startsWith(":")) return (
     <Button variant="link" onClick={handleOnClick} title="Logout">
-      Logout
+      <FontAwesomeIcon icon={faSignOut} />
     </Button>
   )
   return null
@@ -41,10 +43,10 @@ function App() {
       <Navbar bg="dark" variant="dark">
         <Container>
           <Navbar.Brand className="btn" onClick={handleOnClick}
-            title="PageHome">Athasha</Navbar.Brand>
+            title="Home">Athasha</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text><Username /></Navbar.Text>
+            <Navbar.Text><Logout /></Navbar.Text>
           </Navbar.Collapse>
         </Container>
       </Navbar>
