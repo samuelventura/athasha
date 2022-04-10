@@ -28,7 +28,7 @@ yarn add react-router-dom@6 history@5
 
 ## Development
 
-- Pass user/admin as password to assign role
+- Initial empty password for quick login
 
 ## Strategy
 
