@@ -1,14 +1,10 @@
 function validSession(session) {
-    return session.id !== ":none:"
+    return session.id.length > 0
 }
 
-function fetchSession() {
+function fetchSession(initial) {
     const session = localStorage.getItem("athasha.session")
-    return session ? JSON.parse(session) : null
-}
-
-function saveSession(session) {
-    return localStorage.setItem("athasha.session", JSON.stringify(session))
+    return JSON.parse(session || JSON.stringify(initial))
 }
 
 function login(password) {
@@ -16,6 +12,7 @@ function login(password) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             if (validSession(session)) {
+                localStorage.setItem("athasha.session", JSON.stringify(session))
                 resolve(session)
             } else {
                 reject("Invalid credentials")
@@ -30,7 +27,6 @@ function logout() {
 
 const exports = {
     fetchSession,
-    saveSession,
     validSession,
     login,
     logout,

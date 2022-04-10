@@ -8,12 +8,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { useAuth, initialSession } from './ContextAuth'
 import { useAlert } from './ContextAlert'
+import Api from './Api'
 import './App.css'
 
 function Logout() {
   const auth = useAuth()
-  const handleOnClick = () => auth.setSession(initialSession)
-  if (!auth.session.id.startsWith(":")) return (
+  const handleOnClick = () => {
+    auth.setSession(initialSession)
+    Api.logout()
+  }
+  if (Api.validSession(auth.session)) return (
     <Button variant="link" onClick={handleOnClick} title="Logout">
       <FontAwesomeIcon icon={faSignOut} />
     </Button>
