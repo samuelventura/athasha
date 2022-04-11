@@ -10,6 +10,8 @@ defmodule Athasha.Application do
     children = [
       # Start the Ecto repository
       Athasha.Repo,
+      Athasha.Registry,
+      Athasha.ItemsServer,
       # Start the Telemetry supervisor
       AthashaWeb.Telemetry,
       # Start the PubSub system

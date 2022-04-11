@@ -3,7 +3,7 @@ defmodule Athasha.Repo.Migrations.CreateSessions do
 
   def change do
     create table(:sessions) do
-      add(:token, :string)
+      add :origin, :string
 
       timestamps()
     end

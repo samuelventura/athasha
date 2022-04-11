@@ -19,8 +19,6 @@ defmodule AthashaWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
-    get("/login", PageController, :login)
-    get("/logout", PageController, :logout)
     live("/thermostat", ThermostatLive)
   end
 

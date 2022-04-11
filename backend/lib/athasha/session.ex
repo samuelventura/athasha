@@ -3,7 +3,7 @@ defmodule Athasha.Session do
   import Ecto.Changeset
 
   schema "sessions" do
-    field(:token, :string)
+    field :origin, :string
 
     timestamps()
   end
@@ -11,7 +11,7 @@ defmodule Athasha.Session do
   @doc false
   def changeset(session, attrs) do
     session
-    |> cast(attrs, [:token])
-    |> validate_required([:token])
+    |> cast(attrs, [:origin])
+    |> validate_required([:origin])
   end
 end

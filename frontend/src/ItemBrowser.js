@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import ItemSearch from "./ItemSearch"
 import ItemHeader from "./ItemHeader"
@@ -15,24 +15,14 @@ function ItemBrowser(props) {
     }
 
     function handleSortChange(value) {
-        console.log("sort:", value)
         setSort(value)
     }
 
-    function fetchItems() {
-
-    }
-
-    useEffect(() => {
-        console.log("filter:", filter)
-        fetchItems()
-    }, [filter])
-
     function viewItems() {
         const f = filter.toLowerCase()
-        const list = Object.values(props.state.files)
-        const filtered = list.filter(file =>
-            file.name.toLowerCase().includes(f))
+        const list = Object.values(props.state.items)
+        const filtered = list.filter(item =>
+            item.name.toLowerCase().includes(f))
         switch (sort) {
             case "asc":
                 return filtered.sort((f1, f2) =>
@@ -71,7 +61,7 @@ function ItemBrowser(props) {
                         </th>
                     </tr>
                 </thead>
-                <ItemRows files={viewItems()}
+                <ItemRows items={viewItems()}
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
             </table>

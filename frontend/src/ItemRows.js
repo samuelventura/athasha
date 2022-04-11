@@ -1,52 +1,52 @@
 function ItemRows(props) {
 
-    function handleDelete(file) {
-        const accept = window.confirm(`Delete file '${file.name}'?`)
+    function handleDelete(item) {
+        const accept = window.confirm(`Delete item '${item.name}'?`)
         if (!accept) return
-        props.dispatch({ name: "delete", args: { id: file.id } })
+        props.dispatch({ name: "delete", args: { id: item.id } })
     }
 
-    function handleEdit(file) {
-        //window.open(env.href(`/edit/${file.id}`), '_blank')
+    function handleEdit(item) {
+        //window.open(env.href(`/edit/${item.id}`), '_blank')
     }
 
-    function handleRename(file) {
-        const name = window.prompt(`Rename file '${file.name}'`, file.name)
+    function handleRename(item) {
+        const name = window.prompt(`Rename item '${item.name}'`, item.name)
         if (name === null) return
         if (name.trim().length === 0) return
-        props.dispatch({ name: "rename", args: { id: file.id, name } })
+        props.dispatch({ name: "rename", args: { id: item.id, name } })
     }
 
-    function handleEnable(file, enabled) {
-        props.dispatch({ name: "enable", args: { id: file.id, enabled } })
+    function handleEnable(item, enabled) {
+        props.dispatch({ name: "enable", args: { id: item.id, enabled } })
     }
 
-    function handleSelect(file) {
-        props.dispatch({ name: "select", args: file })
+    function handleSelect(item) {
+        props.dispatch({ name: "select", args: item })
     }
 
-    function selectedClass(file) {
-        return file.id === props.selected.id ?
+    function selectedClass(item) {
+        return item.id === props.selected.id ?
             "ItemSelected" : ""
     }
 
-    function enabledClass(file) {
-        return file.enabled ?
+    function enabledClass(item) {
+        return item.enabled ?
             "ItemEnabled" : "ItemDisabled"
     }
 
-    const rows = props.files.map(file =>
-        <tr key={file.id}
-            onClick={() => handleSelect(file)}
-            className={`ItemRow ${selectedClass(file)} ${enabledClass(file)}`}>
+    const rows = props.items.map(item =>
+        <tr key={item.id}
+            onClick={() => handleSelect(item)}
+            className={`ItemRow ${selectedClass(item)} ${enabledClass(item)}`}>
             <td>
-                <div className="ItemName">{file.name}</div>
+                <div className="ItemName">{item.name}</div>
                 <div className="ItemActions">
-                    <button onClick={() => handleEdit(file)}>Edit</button>
-                    <button onClick={() => handleDelete(file)}>Delete</button>
-                    <button onClick={() => handleRename(file)}>Rename</button>
-                    <button onClick={() => handleEnable(file, true)}>Enable</button>
-                    <button onClick={() => handleEnable(file, false)}>Disable</button>
+                    <button onClick={() => handleEdit(item)}>Edit</button>
+                    <button onClick={() => handleDelete(item)}>Delete</button>
+                    <button onClick={() => handleRename(item)}>Rename</button>
+                    <button onClick={() => handleEnable(item, true)}>Enable</button>
+                    <button onClick={() => handleEnable(item, false)}>Disable</button>
                 </div>
             </td>
         </tr>

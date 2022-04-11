@@ -9,8 +9,9 @@ mix ecto.create
 mix phx.server
 iex -S mix phx.server
 #config contains a json with bus and points settings
-mix phx.gen.schema Session sessions token:string
-mix phx.gen.schema Item items name:string type:string version:integer config:string
+mix phx.gen.schema Session sessions origin:string
+mix phx.gen.schema Item items name:string type:string version:integer enabled:boolean config:string
+mix ecto.drop
 mix ecto.migrate
 
 sudo npm -g install yarn
@@ -21,7 +22,7 @@ yarn start
 #http://localhost:3000/
 yarn test
 yarn add bootstrap react-bootstrap
-yarn add react-router-dom@6 history@5
+yarn add http-proxy-middleware
 
 #code editor from https://github.com/YeicoLabs/tryout01_athasha
 #file browser from https://github.com/YeicoLabs/tryout01_athasha
@@ -82,3 +83,44 @@ yarn add react-router-dom@6 history@5
 - License
 - Setup (TCP ports, ...)
 - HTTPS
+
+## Refereces
+
+- https://kentcdodds.com/blog/how-to-use-react-context-effectively
+- https://gist.github.com/mjackson/d54b40a094277b7afdd6b81f51a0393f
+- https://furlough.merecomplexities.com/elixir/phoenix/tutorial/2021/02/19/binary-websockets-with-elixir-phoenix.html
+- http://saule1508.github.io/create-react-app-proxy-websocket/
+- https://gist.github.com/htp/fbce19069187ec1cc486b594104f01d0
+- https://createreactapp.github.io/proxying-api-request
+
+```bash
+curl --include \
+     --no-buffer \
+     --header "Connection: Upgrade" \
+     --header "Upgrade: websocket" \
+     --header "Host: localhost:4000" \
+     --header "Origin: localhost:4000" \
+     --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+     --header "Sec-WebSocket-Version: 13" \
+     http://localhost:4000/items/websocket
+```
+
+```elixir
+%{
+  connect_info: %{},
+  endpoint: AthashaWeb.Endpoint,
+  options: [
+    path: "/websocket",
+    serializer: [
+      {Phoenix.Socket.V1.JSONSerializer, "~> 1.0.0"},
+      {Phoenix.Socket.V2.JSONSerializer, "~> 2.0.0"}
+    ],
+    error_handler: {Phoenix.Transports.WebSocket, :handle_error, []},
+    timeout: 60000,
+    transport_log: false,
+    compress: false
+  ],
+  params: %{},
+  transport: :websocket
+}
+```

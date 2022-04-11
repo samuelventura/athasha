@@ -4,6 +4,7 @@ defmodule Athasha.Item do
 
   schema "items" do
     field :config, :string
+    field :enabled, :boolean, default: false
     field :name, :string
     field :type, :string
     field :version, :integer
@@ -14,7 +15,7 @@ defmodule Athasha.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:name, :type, :version, :config])
-    |> validate_required([:name, :type, :version, :config])
+    |> cast(attrs, [:name, :type, :version, :enabled, :config])
+    |> validate_required([:name, :type, :version, :enabled, :config])
   end
 end

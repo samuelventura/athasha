@@ -13,9 +13,7 @@ function createSocket(dispatch, path, base) {
 
     function safe(action) {
         try { action() }
-        catch (e) {
-            //env.log("exception", e) 
-        }
+        catch (e) { /* env.log("exception", e) */ }
     }
 
     function dispose() {
@@ -52,10 +50,17 @@ function createSocket(dispatch, path, base) {
             //env.log("ws.message", event, event.data)
             const msg = JSON.parse(event.data)
             env.log("ws.message", msg)
-            if (msg.name === ":ping") {
-                send({ name: ":pong" })
+            switch (msg.name) {
+                case ":ping":
+                    send({ name: ":pong" })
+                    break
+                case ":session":
+
+                    break
+                default:
+                    dispatch(msg)
+                    break
             }
-            else dispatch(msg)
         }
         ws.onerror = (event) => {
             env.log("ws.error", event)

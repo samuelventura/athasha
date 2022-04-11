@@ -1,24 +1,27 @@
 defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
 
-  def child_spec(opts) do
-    # We won't spawn any process, so let's return a dummy task
+  def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
   end
 
   def connect(state) do
-    # Callback to retrieve relevant data from the connection.
-    # The map contains options, params, transport and endpoint keys.
+    IO.inspect(state)
     {:ok, state}
   end
 
   def init(state) do
-    # Now we are effectively inside the process that maintains the socket.
+    send(self(), :login)
     {:ok, state}
   end
 
   def handle_in({text, _opts}, state) do
     {:reply, :ok, {:text, text}, state}
+  end
+
+  def handle_info(:login, state) do
+    event = %{name: "login", token: "1"}
+    {:reply, :ok, {:text, Jason.encode!(event)}, state}
   end
 
   def handle_info(_, state) do
