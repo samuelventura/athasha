@@ -5,9 +5,8 @@ defmodule AthashaWeb.ItemsSocket do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
   end
 
-  def connect(state) do
-    IO.inspect(state)
-    {:ok, state}
+  def connect(_state) do
+    {:ok, %{session: nil}}
   end
 
   def init(state) do

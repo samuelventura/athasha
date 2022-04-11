@@ -13,7 +13,7 @@ function ItemNew(props) {
 
     return (
         <div className="ItemNew">
-            <Button onClick={handleNew} variant="link">New...</Button>
+            <Button onClick={handleNew} variant="light">New...</Button>
         </div>
     )
 }

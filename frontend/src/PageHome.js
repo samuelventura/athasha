@@ -1,10 +1,19 @@
 import React, { useEffect, useReducer } from 'react'
 import ItemBrowser from "./ItemBrowser"
 import Socket from "./Socket"
-import env from "./Environ"
+import Environ from "./Environ"
 
 function PageHome() {
-  //reducer must be pure
+
+  function initial() {
+    return {
+      items: {},
+      selected: {},
+      session: null,
+      send: Socket.send
+    }
+  }
+
   function reducer(state, { name, args, session }) {
     switch (name) {
       case "all": {
@@ -43,32 +52,20 @@ function PageHome() {
         return next
       }
       case "close": {
-        //flickers on navigating back (reconnect)
-        const next = Object.assign({}, state)
-        next.items = {}
-        next.selected = {}
-        next.session = null
-        return next
+        return initial()
       }
-      case "send": {
+      case "open": {
         const next = Object.assign({}, state)
         next.send = args
         return next
       }
       default:
-        env.log("Unknown mutation", name, args, session)
+        Environ.log("Unknown mutation", name, args, session)
         return state
     }
   }
 
-  const initial = {
-    items: {},
-    selected: {},
-    session: null,
-    send: Socket.send
-  }
-
-  const [state, dispatch] = useReducer(reducer, initial)
+  const [state, dispatch] = useReducer(reducer, initial())
 
   function handleDispatch({ name, args }) {
     switch (name) {
@@ -82,7 +79,7 @@ function PageHome() {
         state.send({ name, args })
         break
       default:
-        env.log("Unknown mutation", name, args)
+        Environ.log("unknown mutation", name, args)
     }
   }
 

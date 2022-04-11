@@ -36,8 +36,6 @@ function showAlert(alert) {
   return null
 }
 
-//App component acts like app layout
-//Navbar.Brand made pointer cursor with class btn
 function App() {
   const alert = useAlert()
   const navigate = useNavigate()

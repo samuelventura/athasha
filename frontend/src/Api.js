@@ -25,11 +25,25 @@ function logout() {
     localStorage.removeItem("athasha.session")
 }
 
+async function encode(message) {
+    const msgUint8 = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
+//crypto.randomUUID()
+//await encode("hey")
+//:crypto.hash(:sha256, "hey") |> Base.encode16() |> String.downcase()
+window.encode = encode
+
 const exports = {
     fetchSession,
     validSession,
     login,
     logout,
+    encode,
 }
 
 export default exports

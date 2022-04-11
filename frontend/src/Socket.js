@@ -13,7 +13,7 @@ function createSocket(dispatch, path, base) {
 
     function safe(action) {
         try { action() }
-        catch (e) { /* env.log("exception", e) */ }
+        catch (e) { env.log("exception", e) }
     }
 
     function dispose() {
@@ -51,11 +51,13 @@ function createSocket(dispatch, path, base) {
             const msg = JSON.parse(event.data)
             env.log("ws.message", msg)
             switch (msg.name) {
-                case ":ping":
-                    send({ name: ":pong" })
+                //FIXME close if not received in 5sec
+                case "ping":
+                    send({ name: "pong" })
                     break
-                case ":session":
-
+                case "login":
+                    break
+                case "session":
                     break
                 default:
                     dispatch(msg)
@@ -68,10 +70,8 @@ function createSocket(dispatch, path, base) {
         ws.onopen = (event) => {
             env.log("ws.open", event)
             closed = false
-            dispatch({ name: "open", args: send })
-            //server close conn immediately on invalid path
-            //avoid reconecting at full speed
             toms = 1000
+            dispatch({ name: "open", args: send })
         }
     }
     to = setTimeout(connect, 0)
@@ -82,6 +82,6 @@ function send(msg) {
     env.log("nop.send", msg)
 }
 
-var socket = { create, send }
+var exports = { create, send }
 
-export default socket
+export default exports
