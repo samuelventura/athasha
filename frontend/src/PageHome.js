@@ -2,12 +2,14 @@ import React, { useEffect, useReducer } from 'react'
 import ItemBrowser from "./ItemBrowser"
 import Socket from "./Socket"
 import Environ from "./Environ"
+import Session from "./Session"
 
 function PageHome() {
 
   function initial() {
     return {
       items: {},
+      login: false,
       selected: {},
       session: null,
       send: Socket.send
@@ -59,6 +61,17 @@ function PageHome() {
         next.send = args
         return next
       }
+      case "login": {
+        const next = Object.assign({}, state)
+        next.login = true
+        return next
+      }
+      case "session": {
+        const next = Object.assign({}, state)
+        next.login = false
+        next.session = args
+        return next
+      }
       default:
         Environ.log("Unknown mutation", name, args, session)
         return state
@@ -84,7 +97,7 @@ function PageHome() {
   }
 
   useEffect(() => {
-    return Socket.create(dispatch, "items/websocket")
+    return Socket.create(dispatch, "items")
   }, [])
 
   return (<div className="PageHome">

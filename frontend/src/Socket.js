@@ -1,7 +1,8 @@
-import env from "./Environ"
+import Environ from "./Environ"
+import Session from "./Session"
 
 function create(dispatch, path) {
-    return createSocket(dispatch, path, env.wsURL)
+    return createSocket(dispatch, path, Environ.wsURL)
 }
 
 function createSocket(dispatch, path, base) {
@@ -13,18 +14,18 @@ function createSocket(dispatch, path, base) {
 
     function safe(action) {
         try { action() }
-        catch (e) { env.log("exception", e) }
+        catch (e) { Environ.log("exception", e) }
     }
 
     function dispose() {
-        env.log("dispose", disposed, closed, to, ws)
+        Environ.log("dispose", disposed, closed, to, ws)
         disposed = true
         if (to) clearTimeout(to)
         if (ws) safe(() => ws.close())
     }
 
     function send(msg) {
-        env.log("ws.send", disposed, closed, msg)
+        Environ.log("ws.send", disposed, closed, msg)
         if (disposed) return
         if (closed) return
         safe(() => ws.send(JSON.stringify(msg)))
@@ -34,11 +35,11 @@ function createSocket(dispatch, path, base) {
         //immediate error when navigating back
         //toms is workaround for trottled reconnection
         //safari only, chrome and firefox work ok
-        let url = base + path
+        let url = base + path + "/websocket"
         ws = new WebSocket(url)
-        env.log("connect", to, url, ws)
+        Environ.log("connect", to, url, ws)
         ws.onclose = (event) => {
-            env.log("ws.close", event)
+            Environ.log("ws.close", event)
             closed = true
             if (disposed) return
             dispatch({ name: "close" })
@@ -47,15 +48,17 @@ function createSocket(dispatch, path, base) {
             toms %= 4000
         }
         ws.onmessage = (event) => {
-            //env.log("ws.message", event, event.data)
+            //FIXME close if silent for 10sec
+            //Environ.log("ws.message", event, event.data)
             const msg = JSON.parse(event.data)
-            env.log("ws.message", msg)
+            Environ.log("ws.message", msg)
             switch (msg.name) {
-                //FIXME close if not received in 5sec
                 case "ping":
                     send({ name: "pong" })
                     break
                 case "login":
+                    Session.remove(path)
+                    dispatch(msg)
                     break
                 case "session":
                     break
@@ -65,13 +68,14 @@ function createSocket(dispatch, path, base) {
             }
         }
         ws.onerror = (event) => {
-            env.log("ws.error", event)
+            Environ.log("ws.error", event)
         }
         ws.onopen = (event) => {
-            env.log("ws.open", event)
+            Environ.log("ws.open", event)
             closed = false
             toms = 1000
             dispatch({ name: "open", args: send })
+            send({ ...Session.fetch(path), name: "session" })
         }
     }
     to = setTimeout(connect, 0)
@@ -79,7 +83,7 @@ function createSocket(dispatch, path, base) {
 }
 
 function send(msg) {
-    env.log("nop.send", msg)
+    Environ.log("nop.send", msg)
 }
 
 var exports = { create, send }

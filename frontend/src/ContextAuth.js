@@ -12,14 +12,14 @@ function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-function useAuth() {
-  return useContext(AuthContext)
-}
-
 function RequireAuth({ children }) {
   const auth = useAuth()
   const valid = Api.validSession(auth.session)
   return valid ? children : <PageLogin />
 }
 
-export { AuthProvider, RequireAuth, useAuth, initialSession }
+function useAuth() {
+  return useContext(AuthContext)
+}
+
+export { AuthProvider, RequireAuth, useAuth }

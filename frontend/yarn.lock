@@ -10334,6 +10334,11 @@ strict-uri-encode@^1.0.0:
   resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
   integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
 
+string-encode@^0.2.1:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/string-encode/-/string-encode-0.2.2.tgz#44aac8588c57db19fd5e60c8100ca00da44ce695"
+  integrity sha512-lek1Sd4loeelHin0oCME49h9OdAg9l06682iodjyRvq32Y+fAPfpFOv8BGrkjOG+IVx1EvARIo9MCzeEPdrkXA==
+
 string-length@^4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/string-length/-/string-length-4.0.2.tgz#a8a8dc7bd5c1a82b9b3c8b87e125f66871b6e57a"
@@ -10572,6 +10577,13 @@ symbol-tree@^3.2.4:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
+
+sync-sha1@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sync-sha1/-/sync-sha1-1.0.1.tgz#aa4c593aaa586adf9364346d4c746c4fe0d34529"
+  integrity sha512-1ZuuBoVoGmb8r+fjCLl5SHcrYcrmEHeDQxTdbWZgbK9vmRHeCcnqOtKZm49Qgw0H4f+JBqCPQgDpTx88EwH1/w==
+  dependencies:
+    string-encode "^0.2.1"
 
 table@^6.0.9:
   version "6.8.0"
