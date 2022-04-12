@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react'
+import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react'
 import Socket from './Socket'
 import Session from './Session'
 
@@ -24,25 +24,30 @@ const App = React.createContext({
 })
 
 function AppContext({ path, reducer, initial, children }) {
-  const [state, dispatch] = useReducer(reducer, initial)
+  const [state, dispatch] = useReducer(reducer, initial())
   const [alert, setAlert] = useState(initialAlert())
-  const [session, setSession] = useState(Session.fetch())
+  const [session, setSession] = useState(Session.initial())
   const [logged, setLogged] = useState(false)
   const [login, setLogin] = useState(false)
   const [connected, setConnected] = useState(false)
   const [send, setSend] = useState(() => Socket.send)
+  const clearAlert = useCallback(() => setAlert(initialAlert()), [])
+  const errorAlert = useCallback((message) => setAlert({ type: "danger", message }), [])
+  const warnAlert = useCallback((message) => setAlert({ type: "warning", message }), [])
+  const successAlert = useCallback((message) => setAlert({ type: "success", message }), [])
   const value = {
-    path, state, dispatch,
+    path,
+    state, dispatch,
     session, setSession,
     login, setLogin,
     logged, setLogged,
     connected, setConnected,
     send, setSend,
     alert, setAlert,
-    clearAlert: () => setAlert(initialAlert()),
-    errorAlert: (message) => setAlert({ type: "danger", message }),
-    warnAlert: (message) => setAlert({ type: "warning", message }),
-    successAlert: (message) => setAlert({ type: "success", message }),
+    clearAlert,
+    errorAlert,
+    warnAlert,
+    successAlert,
   }
   useEffect(() => {
     if (alert.type === "success") {
@@ -51,8 +56,46 @@ function AppContext({ path, reducer, initial, children }) {
     }
   }, [alert])
   useEffect(() => {
-    return Socket.create({ path, dispatch })
-  }, [path, dispatch])
+    function intercept({ name, args, session }) {
+      switch (name) {
+        case "close": {
+          clearAlert()
+          setLogged(false)
+          setLogin(false)
+          setConnected(false)
+          setSend(Socket.send)
+          dispatch({ name, args, session })
+          break
+        }
+        case "open": {
+          const send = args
+          setSend(() => send)
+          setConnected(true)
+          const active = false
+          const session = Session.fetch()
+          send({ name: "login", args: { session, active } })
+          break
+        }
+        case "login": {
+          setLogin(true)
+          setSession(Session.initial())
+          if (args) { errorAlert("Login failed") }
+          break
+        }
+        case "session": {
+          clearAlert()
+          const session = args
+          setLogin(false)
+          setLogged(true)
+          setSession(session)
+          break
+        }
+        default:
+          dispatch({ name, args, session })
+      }
+    }
+    return Socket.create({ path, dispatch: intercept })
+  }, [path, initial, reducer, clearAlert, errorAlert])
   return <App.Provider value={value}>{children}</App.Provider>
 }
 

@@ -6,21 +6,35 @@ defmodule AthashaWeb.ItemsSocket do
   end
 
   def connect(_state) do
-    {:ok, %{session: nil}}
+    {:ok, %{logged: false}}
   end
 
   def init(state) do
-    send(self(), :login)
     {:ok, state}
   end
 
   def handle_in({text, _opts}, state) do
-    {:reply, :ok, {:text, text}, state}
-  end
+    event = Jason.decode!(text)
+    IO.inspect(event)
 
-  def handle_info(:login, state) do
-    event = %{name: "login", token: "1"}
-    {:reply, :ok, {:text, Jason.encode!(event)}, state}
+    case event do
+      %{"name" => "login"} ->
+        args = event["args"]
+        session = args["session"]
+
+        case login(session["token"], session["proof"]) do
+          true ->
+            state = Map.put(state, :logged, true)
+            resp = %{name: "session", args: session}
+            json = Jason.encode!(resp)
+            {:reply, :ok, {:text, json}, state}
+
+          false ->
+            resp = %{name: "login", args: args["active"]}
+            json = Jason.encode!(resp)
+            {:reply, :ok, {:text, json}, state}
+        end
+    end
   end
 
   def handle_info(_, state) do
@@ -29,5 +43,17 @@ defmodule AthashaWeb.ItemsSocket do
 
   def terminate(_reason, _state) do
     :ok
+  end
+
+  defp password() do
+    ""
+  end
+
+  defp login(token, proof) do
+    proof == sha1("#{token}:#{password()}")
+  end
+
+  defp sha1(data) do
+    :crypto.hash(:sha, data) |> Base.encode16() |> String.downcase()
   end
 end

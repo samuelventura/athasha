@@ -15,7 +15,7 @@ function ConnectDialog() {
   return (
     <Modal show={!app.connected} backdrop="static" centered>
       <Modal.Body>
-        Connecting to {document.title}...
+        Connecting...
       </Modal.Body>
     </Modal>
   )
@@ -25,9 +25,10 @@ function LoginDialog() {
   const app = useApp()
   const [password, setPassword] = useState("")
   function onLogin() {
-    alert.warnAlert("Logging in...")
+    app.warnAlert("Logging in...")
+    const active = true
     const session = Session.create(password)
-    app.send({ name: "login", args: session })
+    app.send({ name: "login", args: { session, active } })
   }
   function handleKeyUp(e) {
     if (e.key === 'Escape') {

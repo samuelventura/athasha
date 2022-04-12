@@ -1,5 +1,4 @@
 import Environ from "./Environ"
-import Session from "./Session"
 
 function create(app) {
     return createSocket(Environ.wsURL, app)
@@ -69,7 +68,6 @@ function createSocket(base, { path, dispatch }) {
             closed = false
             toms = 1000
             dispatch({ name: "open", args: send })
-            send({ ...Session.fetch(), name: "login" })
         }
     }
     to = setTimeout(connect, 0)
