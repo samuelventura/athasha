@@ -1,11 +1,11 @@
 import Environ from "./Environ"
 import Session from "./Session"
 
-function create(dispatch, path) {
-    return createSocket(dispatch, path, Environ.wsURL)
+function create(app) {
+    return createSocket(Environ.wsURL, app)
 }
 
-function createSocket(dispatch, path, base) {
+function createSocket(base, { path, dispatch }) {
     let toms = 0
     let to = null
     let ws = null
