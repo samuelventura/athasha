@@ -10,7 +10,7 @@ defmodule AthashaWeb.Endpoint do
     signing_salt: "U/xtLbFz"
   ]
 
-  socket("/items", AthashaWeb.ItemsSocket, websocket: true, longpoll: false)
+  socket("/items", AthashaWeb.ItemsSocket, websocket: [timeout: 10000], longpoll: false)
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
 
   # Serve at "/" the static files from "priv/static" directory.

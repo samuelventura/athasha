@@ -1,15 +1,18 @@
 defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
+  @ping 5000
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
   end
 
   def connect(_state) do
+    IO.inspect(_state)
     {:ok, %{logged: false}}
   end
 
   def init(state) do
+    Process.send_after(self(), :ping, @ping)
     {:ok, state}
   end
 
@@ -18,6 +21,10 @@ defmodule AthashaWeb.ItemsSocket do
     IO.inspect(event)
 
     case event do
+      %{"name" => "pong"} ->
+        Process.send_after(self(), :ping, @ping)
+        {:ok, state}
+
       %{"name" => "login"} ->
         args = event["args"]
         session = args["session"]
@@ -35,6 +42,12 @@ defmodule AthashaWeb.ItemsSocket do
             {:reply, :ok, {:text, json}, state}
         end
     end
+  end
+
+  def handle_info(:ping, state) do
+    resp = %{name: "ping"}
+    json = Jason.encode!(resp)
+    {:reply, :ok, {:text, json}, state}
   end
 
   def handle_info(_, state) do
