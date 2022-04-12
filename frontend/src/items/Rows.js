@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 
 function Rows(props) {
@@ -23,12 +24,17 @@ function Rows(props) {
         props.dispatch({ name: "enable", args: { id: item.id, enabled } })
     }
 
+    function isSelected(item) {
+        return item.id === props.selected.id
+    }
+
     function handleSelect(item) {
-        props.dispatch({ name: "select", args: item })
+        const selected = isSelected(item) ? {} : item
+        props.dispatch({ name: "select", args: selected })
     }
 
     function selectedClass(item) {
-        return item.id === props.selected.id ?
+        return isSelected(item) ?
             "table-active" : ""
     }
 
@@ -38,7 +44,7 @@ function Rows(props) {
     }
 
     const rows = props.items.map(item =>
-        <tr key={item.id}
+        <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             className={selectedClass(item)}>
             <td>
@@ -53,6 +59,14 @@ function Rows(props) {
             </td>
         </tr>
     )
+
+    useEffect(() => {
+        if (props.selected.id) {
+            const id = `item_${props.selected.id}`
+            const el = document.getElementById(id)
+            el.scrollIntoViewIfNeeded();
+        }
+    }, [props.selected])
 
     return (
         <tbody>
