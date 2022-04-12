@@ -63,7 +63,7 @@ function AppContext({ path, reducer, initial, children }) {
           setLogged(false)
           setLogin(false)
           setConnected(false)
-          setSend(Socket.send)
+          setSend(() => Socket.send)
           dispatch({ name, args, session })
           break
         }

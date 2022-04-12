@@ -1,26 +1,25 @@
 import Environ from "./Environ"
 
+// requirements
+// - no sense to implement a connection timeout
+// - incremental reconnect timer
+// - 10s idle timeout
 function create(app) {
     return createSocket(Environ.wsURL, app)
 }
 
 function createSocket(base, { path, dispatch }) {
-    let toms = 0
-    let to = null
     let ws = null
+    let reco_ms = 0
+    let reco = null
+    let idle = null
     let closed = true
     let disposed = false
+    const idle_ms = 10000
 
     function safe(action) {
         try { action() }
         catch (e) { Environ.log("exception", e) }
-    }
-
-    function dispose() {
-        Environ.log("dispose", disposed, closed, to, ws)
-        disposed = true
-        if (to) clearTimeout(to)
-        if (ws) safe(() => ws.close())
     }
 
     function send(msg) {
@@ -30,25 +29,49 @@ function createSocket(base, { path, dispatch }) {
         safe(() => ws.send(JSON.stringify(msg)))
     }
 
+    function dispose() {
+        Environ.log("dispose", disposed, closed, reco, idle, ws)
+        disposed = true
+        if (reco) { clearTimeout(reco); reco = null }
+        if (idle) { clearTimeout(idle); idle = null }
+        if (ws) safe(() => ws.close())
+    }
+
+    function close() {
+        Environ.log("close", disposed, closed, reco, idle, ws)
+        if (ws) safe(() => ws.close())
+    }
+
+    function stop_idle() {
+        if (idle) { clearTimeout(idle); idle = null }
+    }
+
+    function reset_idle() {
+        if (idle) { clearTimeout(idle); idle = null }
+        idle = setTimeout(close, idle_ms)
+    }
+
+    function reset_reco() {
+        if (reco) { clearTimeout(reco); reco = null }
+        reco = setTimeout(connect, reco_ms)
+    }
+
     function connect() {
-        //immediate error when navigating back
-        //toms is workaround for trottled reconnection
-        //safari only, chrome and firefox work ok
         let url = base + path + "/websocket"
         ws = new WebSocket(url)
-        Environ.log("connect", to, url, ws)
+        Environ.log("connect", reco, url, ws)
         ws.onclose = (event) => {
             Environ.log("ws.close", event)
             closed = true
+            stop_idle()
             if (disposed) return
             dispatch({ name: "close" })
-            to = setTimeout(connect, toms)
-            toms += 1000
-            toms %= 4000
+            reset_reco()
+            reco_ms += 1000
+            reco_ms %= 4000
         }
         ws.onmessage = (event) => {
-            //FIXME close if silent for 10sec
-            //Environ.log("ws.message", event, event.data)
+            reset_idle()
             const msg = JSON.parse(event.data)
             Environ.log("ws.message", msg)
             switch (msg.name) {
@@ -66,11 +89,12 @@ function createSocket(base, { path, dispatch }) {
         ws.onopen = (event) => {
             Environ.log("ws.open", event)
             closed = false
-            toms = 1000
+            reco_ms = 1000
+            reset_idle()
             dispatch({ name: "open", args: send })
         }
     }
-    to = setTimeout(connect, 0)
+    reco = setTimeout(connect, 0)
     return dispose
 }
 

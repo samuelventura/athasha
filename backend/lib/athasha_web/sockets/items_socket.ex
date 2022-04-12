@@ -7,7 +7,6 @@ defmodule AthashaWeb.ItemsSocket do
   end
 
   def connect(_state) do
-    IO.inspect(_state)
     {:ok, %{logged: false}}
   end
 
