@@ -55,9 +55,9 @@ function Rows(props) {
     )
 
     return (
-        <>
+        <tbody>
             {rows}
-        </>
+        </tbody>
     )
 }
 

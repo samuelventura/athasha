@@ -58,7 +58,7 @@ function Browser(props) {
                     </tr>
                 </thead>
             </table>
-            <Table>
+            <Table className='mt-1 ItemsTable'>
                 <thead>
                     <tr>
                         <th>
@@ -68,11 +68,9 @@ function Browser(props) {
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <Rows items={viewItems()}
-                        dispatch={props.dispatch}
-                        selected={props.state.selected} />
-                </tbody>
+                <Rows items={viewItems()}
+                    dispatch={props.dispatch}
+                    selected={props.state.selected} />
             </Table>
         </div>
     )
