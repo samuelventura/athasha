@@ -1,8 +1,8 @@
 defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
-  alias Athasha.Repo
-  alias Athasha.Item
+  alias Athasha.Registry
+  alias Athasha.ItemsServer
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -20,55 +20,77 @@ defmodule AthashaWeb.ItemsSocket do
   def handle_in({text, _opts}, state) do
     event = Jason.decode!(text)
     IO.inspect(event)
-
-    case event do
-      %{"name" => "pong"} ->
-        Process.send_after(self(), :ping, @ping)
-        {:ok, state}
-
-      %{"name" => "login"} ->
-        args = event["args"]
-        session = args["session"]
-
-        case login(session["token"], session["proof"]) do
-          true ->
-            state = Map.put(state, :logged, true)
-            resp = %{name: "session", args: session}
-            json = Jason.encode!(resp)
-            {:reply, :ok, {:text, json}, state}
-
-          false ->
-            resp = %{name: "login", args: args["active"]}
-            json = Jason.encode!(resp)
-            {:reply, :ok, {:text, json}, state}
-        end
-
-      %{"name" => "create"} ->
-        args = event["args"]
-        {:ok, item} = Item.changeset(%Item{}, args) |> Repo.insert()
-        args = %{id: item.id, select: true, item: Map.put(args, "id", item.id)}
-        resp = %{name: "create", args: args}
-        json = Jason.encode!(resp)
-        {:reply, :ok, {:text, json}, state}
-
-      _ ->
-        IO.inspect(event)
-        {:ok, state}
-    end
+    handle_event(event, state)
   end
 
   def handle_info(:ping, state) do
     resp = %{name: "ping"}
-    json = Jason.encode!(resp)
-    {:reply, :ok, {:text, json}, state}
+    reply_text(resp, state)
   end
 
-  def handle_info(_, state) do
+  def handle_info(:all, state) do
+    {:ok, _} = Registry.register(:items, nil)
+    all = ItemsServer.all()
+    state = Map.put(state, :version, all.version)
+    args = %{items: all.items}
+    resp = %{name: "all", args: args}
+    reply_text(resp, state)
+  end
+
+  def handle_info({:items, nil, {from, version, muta}}, state) do
+    case state.version + 1 do
+      ^version ->
+        args = muta["args"]
+        muta = Map.put(muta, :version, version)
+        muta = Map.put(muta, :self, from == self())
+        muta = Map.put(muta, "args", args)
+        state = Map.put(state, :version, version)
+        reply_text(muta, state)
+
+      _ ->
+        {:ok, state}
+    end
+  end
+
+  def handle_info(any, state) do
+    IO.inspect(any)
     {:ok, state}
   end
 
   def terminate(_reason, _state) do
     :ok
+  end
+
+  defp handle_event(%{"name" => "pong"}, state) do
+    Process.send_after(self(), :ping, @ping)
+    {:ok, state}
+  end
+
+  defp handle_event(event = %{"name" => "login"}, state = %{logged: false}) do
+    args = event["args"]
+    session = args["session"]
+
+    case login(session["token"], session["proof"]) do
+      true ->
+        Process.send_after(self(), :all, 0)
+        state = Map.put(state, :logged, true)
+        resp = %{name: "session", args: session}
+        reply_text(resp, state)
+
+      false ->
+        resp = %{name: "login", args: args["active"]}
+        reply_text(resp, state)
+    end
+  end
+
+  defp handle_event(event = %{"name" => "create"}, state = %{logged: true}) do
+    :ok = ItemsServer.apply(event)
+    {:ok, state}
+  end
+
+  defp reply_text(resp, state) do
+    json = Jason.encode!(resp)
+    {:reply, :ok, {:text, json}, state}
   end
 
   defp password() do

@@ -23,7 +23,7 @@ function New(props) {
 
     return (
         <div>
-            <Button onClick={handleNew} variant="light">New...</Button>
+            <Button onClick={handleNew} variant="primary">New...</Button>
         </div>
     )
 }

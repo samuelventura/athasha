@@ -123,4 +123,8 @@ curl --include \
   params: %{},
   transport: :websocket
 }
+
+recompile
+:observer.start()
+Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
 ```

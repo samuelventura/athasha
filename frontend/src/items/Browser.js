@@ -25,11 +25,17 @@ function Browser(props) {
             item.name.toLowerCase().includes(f))
         switch (sort) {
             case "asc":
-                return filtered.sort((f1, f2) =>
-                    f1.name.localeCompare(f2.name))
+                return filtered.sort((f1, f2) => {
+                    let r = f1.name.localeCompare(f2.name)
+                    if (!r) r = f1.id - f2.id
+                    return r
+                })
             case "desc":
-                return filtered.sort((f1, f2) =>
-                    f2.name.localeCompare(f1.name))
+                return filtered.sort((f2, f1) => {
+                    let r = f1.name.localeCompare(f2.name)
+                    if (!r) r = f1.id - f2.id
+                    return r
+                })
             default:
                 return filtered
         }
@@ -52,7 +58,7 @@ function Browser(props) {
                     </tr>
                 </thead>
             </table>
-            <Table className='mt-1' hover>
+            <Table>
                 <thead>
                     <tr>
                         <th>
@@ -62,9 +68,11 @@ function Browser(props) {
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <Rows items={viewItems()}
-                    dispatch={props.dispatch}
-                    selected={props.state.selected} />
+                <tbody>
+                    <Rows items={viewItems()}
+                        dispatch={props.dispatch}
+                        selected={props.state.selected} />
+                </tbody>
             </Table>
         </div>
     )

@@ -56,7 +56,8 @@ function AppContext({ path, reducer, initial, children }) {
     }
   }, [alert])
   useEffect(() => {
-    function intercept({ name, args }) {
+    function intercept(muta) {
+      const { name, args } = muta
       switch (name) {
         case "close": {
           clearAlert()
@@ -91,7 +92,7 @@ function AppContext({ path, reducer, initial, children }) {
           break
         }
         default:
-          dispatch({ name, args })
+          dispatch(muta)
       }
     }
     return Socket.create({ path, dispatch: intercept })

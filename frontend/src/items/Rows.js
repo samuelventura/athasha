@@ -29,7 +29,7 @@ function Rows(props) {
 
     function selectedClass(item) {
         return item.id === props.selected.id ?
-            "table-warning" : ""
+            "table-active" : ""
     }
 
     function enabledClass(item) {
@@ -42,7 +42,7 @@ function Rows(props) {
             onClick={() => handleSelect(item)}
             className={selectedClass(item)}>
             <td>
-                <p className={enabledClass(item)}>{item.name}</p>
+                <p className={enabledClass(item)}>{item.id} {item.name}</p>
             </td>
             <td>
                 <Button variant="link" onClick={() => handleEdit(item)}>Edit</Button>
@@ -55,9 +55,9 @@ function Rows(props) {
     )
 
     return (
-        <tbody>
+        <>
             {rows}
-        </tbody>
+        </>
     )
 }
 

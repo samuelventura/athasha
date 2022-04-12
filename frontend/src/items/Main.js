@@ -11,7 +11,7 @@ import Browser from "./Browser"
 function Main() {
   const app = useApp()
   return (
-    <div>
+    <div className="vh-100 d-flex flex-column">
       <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand className="btn" title="Home">
@@ -26,7 +26,7 @@ function Main() {
       <AlertBanner />
       <LoginDialog />
       <ConnectDialog />
-      <Container className='mt-3'>
+      <Container className='mt-3 flex-fill'>
         <Browser
           state={app.state}
           dispatch={app.dispatch}

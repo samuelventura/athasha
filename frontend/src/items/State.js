@@ -7,7 +7,7 @@ function initial() {
   }
 }
 
-function reducer(state, { name, args, session }) {
+function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
       const next = Object.assign({}, state)
@@ -18,7 +18,7 @@ function reducer(state, { name, args, session }) {
     case "create": {
       const next = Object.assign({}, state)
       next.items[args.id] = args.item
-      if (args.select) {
+      if (self) {
         next.selected = args.item
       }
       return next
@@ -47,7 +47,7 @@ function reducer(state, { name, args, session }) {
       return initial()
     }
     default:
-      Environ.log("Unknown mutation", name, args, session)
+      Environ.log("Unknown mutation", name, args, self)
       return state
   }
 }
