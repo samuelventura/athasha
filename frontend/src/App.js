@@ -56,7 +56,7 @@ function AppContext({ path, reducer, initial, children }) {
     }
   }, [alert])
   useEffect(() => {
-    function intercept({ name, args, session }) {
+    function intercept({ name, args }) {
       switch (name) {
         case "close": {
           clearAlert()
@@ -64,7 +64,7 @@ function AppContext({ path, reducer, initial, children }) {
           setLogin(false)
           setConnected(false)
           setSend(() => Socket.send)
-          dispatch({ name, args, session })
+          dispatch({ name, args })
           break
         }
         case "open": {
@@ -91,7 +91,7 @@ function AppContext({ path, reducer, initial, children }) {
           break
         }
         default:
-          dispatch({ name, args, session })
+          dispatch({ name, args })
       }
     }
     return Socket.create({ path, dispatch: intercept })

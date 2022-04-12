@@ -1,6 +1,8 @@
 defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
+  alias Athasha.Repo
+  alias Athasha.Item
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -40,6 +42,18 @@ defmodule AthashaWeb.ItemsSocket do
             json = Jason.encode!(resp)
             {:reply, :ok, {:text, json}, state}
         end
+
+      %{"name" => "create"} ->
+        args = event["args"]
+        {:ok, item} = Item.changeset(%Item{}, args) |> Repo.insert()
+        args = %{id: item.id, select: true, item: Map.put(args, "id", item.id)}
+        resp = %{name: "create", args: args}
+        json = Jason.encode!(resp)
+        {:reply, :ok, {:text, json}, state}
+
+      _ ->
+        IO.inspect(event)
+        {:ok, state}
     end
   end
 

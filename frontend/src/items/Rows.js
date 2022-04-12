@@ -1,3 +1,5 @@
+import Button from 'react-bootstrap/Button'
+
 function Rows(props) {
 
     function handleDelete(item) {
@@ -27,27 +29,27 @@ function Rows(props) {
 
     function selectedClass(item) {
         return item.id === props.selected.id ?
-            "ItemSelected" : ""
+            "table-warning" : ""
     }
 
     function enabledClass(item) {
         return item.enabled ?
-            "ItemEnabled" : "ItemDisabled"
+            "fw-normal" : "fst-italic"
     }
 
     const rows = props.items.map(item =>
         <tr key={item.id}
             onClick={() => handleSelect(item)}
-            className={`ItemRow ${selectedClass(item)} ${enabledClass(item)}`}>
+            className={selectedClass(item)}>
             <td>
-                <div>{item.name}</div>
-                <div>
-                    <button onClick={() => handleEdit(item)}>Edit</button>
-                    <button onClick={() => handleDelete(item)}>Delete</button>
-                    <button onClick={() => handleRename(item)}>Rename</button>
-                    <button onClick={() => handleEnable(item, true)}>Enable</button>
-                    <button onClick={() => handleEnable(item, false)}>Disable</button>
-                </div>
+                <p className={enabledClass(item)}>{item.name}</p>
+            </td>
+            <td>
+                <Button variant="link" onClick={() => handleEdit(item)}>Edit</Button>
+                <Button variant="link" onClick={() => handleDelete(item)}>Delete</Button>
+                <Button variant="link" onClick={() => handleRename(item)}>Rename</Button>
+                <Button variant="link" onClick={() => handleEnable(item, true)}>Enable</Button>
+                <Button variant="link" onClick={() => handleEnable(item, false)}>Disable</Button>
             </td>
         </tr>
     )

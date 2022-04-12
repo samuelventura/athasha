@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+import Table from 'react-bootstrap/Table'
 import Search from "./Search"
 import Header from "./Header"
 import Rows from "./Rows"
@@ -47,24 +47,25 @@ function Browser(props) {
                             />
                         </th>
                         <th>
-                            <New dispatch={props.dispatch} />
+                            <New send={props.send} />
                         </th>
                     </tr>
                 </thead>
             </table>
-            <table>
+            <Table className='mt-1' hover>
                 <thead>
                     <tr>
                         <th>
                             <Header sort={sort}
                                 onSortChange={handleSortChange} />
                         </th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <Rows items={viewItems()}
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
-            </table>
+            </Table>
         </div>
     )
 }

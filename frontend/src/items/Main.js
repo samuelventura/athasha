@@ -5,8 +5,11 @@ import { ConnectDialog } from '../AppUI'
 import { LoginDialog } from '../AppUI'
 import { LogoutButton } from '../AppUI'
 import { AlertBanner } from '../AppUI'
+import { useApp } from '../App'
+import Browser from "./Browser"
 
-function Main({ children }) {
+function Main() {
+  const app = useApp()
   return (
     <div>
       <Navbar bg="light" variant="light">
@@ -23,8 +26,12 @@ function Main({ children }) {
       <AlertBanner />
       <LoginDialog />
       <ConnectDialog />
-      <Container>
-        {children}
+      <Container className='mt-3'>
+        <Browser
+          state={app.state}
+          dispatch={app.dispatch}
+          send={app.send}
+        />
       </Container>
     </div>
   )
