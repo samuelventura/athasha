@@ -1,7 +1,7 @@
 import React from 'react'
 import Button from 'react-bootstrap/Button';
 
-function ItemNew(props) {
+function New(props) {
 
     function handleNew() {
         const template = "Script"
@@ -12,10 +12,10 @@ function ItemNew(props) {
     }
 
     return (
-        <div className="ItemNew">
+        <div>
             <Button onClick={handleNew} variant="light">New...</Button>
         </div>
     )
 }
 
-export default ItemNew
+export default New

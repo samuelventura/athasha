@@ -6,16 +6,16 @@ import Button from 'react-bootstrap/Button';
 //requirements
 //- triggers on click
 //- standard focus handling
-function ItemHeader(props) {
+function Header(props) {
 
     function handleSortChange(value) {
         props.onSortChange(value)
     }
 
     return (
-        <div className="ItemHeader">
-            <span className="ItemName">Name</span>
-            <span className="ItemSort">
+        <div>
+            <span>Name</span>
+            <span>
                 <Button onClick={() => handleSortChange("asc")} variant="link"
                     size="sm" title="Sort Ascending">
                     <FontAwesomeIcon icon={faArrowUp} /></Button>
@@ -27,4 +27,4 @@ function ItemHeader(props) {
     )
 }
 
-export default ItemHeader
+export default Header

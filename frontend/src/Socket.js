@@ -56,12 +56,6 @@ function createSocket(dispatch, path, base) {
                 case "ping":
                     send({ name: "pong" })
                     break
-                case "login":
-                    Session.remove(path)
-                    dispatch(msg)
-                    break
-                case "session":
-                    break
                 default:
                     dispatch(msg)
                     break
@@ -75,7 +69,7 @@ function createSocket(dispatch, path, base) {
             closed = false
             toms = 1000
             dispatch({ name: "open", args: send })
-            send({ ...Session.fetch(path), name: "session" })
+            send({ ...Session.fetch(), name: "login" })
         }
     }
     to = setTimeout(connect, 0)

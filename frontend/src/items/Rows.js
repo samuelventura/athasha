@@ -1,4 +1,4 @@
-function ItemRows(props) {
+function Rows(props) {
 
     function handleDelete(item) {
         const accept = window.confirm(`Delete item '${item.name}'?`)
@@ -40,8 +40,8 @@ function ItemRows(props) {
             onClick={() => handleSelect(item)}
             className={`ItemRow ${selectedClass(item)} ${enabledClass(item)}`}>
             <td>
-                <div className="ItemName">{item.name}</div>
-                <div className="ItemActions">
+                <div>{item.name}</div>
+                <div>
                     <button onClick={() => handleEdit(item)}>Edit</button>
                     <button onClick={() => handleDelete(item)}>Delete</button>
                     <button onClick={() => handleRename(item)}>Rename</button>
@@ -53,10 +53,10 @@ function ItemRows(props) {
     )
 
     return (
-        <tbody className="ItemRows">
+        <tbody>
             {rows}
         </tbody>
     )
 }
 
-export default ItemRows
+export default Rows

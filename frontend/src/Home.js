@@ -1,10 +1,9 @@
 import React, { useEffect, useReducer } from 'react'
-import ItemBrowser from "./ItemBrowser"
+import Browser from "./items/Browser"
 import Socket from "./Socket"
 import Environ from "./Environ"
-import Session from "./Session"
 
-function PageHome() {
+function Home() {
 
   function initial() {
     return {
@@ -80,7 +79,7 @@ function PageHome() {
 
   const [state, dispatch] = useReducer(reducer, initial())
 
-  function handleDispatch({ name, args }) {
+  function upDispatch({ name, args }) {
     switch (name) {
       case "select":
         dispatch({ name, args })
@@ -100,11 +99,11 @@ function PageHome() {
     return Socket.create(dispatch, "items")
   }, [])
 
-  return (<div className="PageHome">
-    <ItemBrowser
+  return (<div>
+    <Browser
       state={state}
-      dispatch={handleDispatch} />
+      dispatch={upDispatch} />
   </div>)
 }
 
-export default PageHome
+export default Home

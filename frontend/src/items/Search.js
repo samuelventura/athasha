@@ -13,7 +13,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 //- triggers on any change
 //- enables clear button on non-empty
 //  spaces do count to match placeholder behaviour
-function ItemSearch(props) {
+function Search(props) {
 
     const input = useRef(null);
     const [filter, setFilter] = useState("")
@@ -57,7 +57,7 @@ function ItemSearch(props) {
     }
 
     return (
-        <div className="ItemSearch">
+        <div>
             <Form>
                 <InputGroup>
                     <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
@@ -71,4 +71,4 @@ function ItemSearch(props) {
     )
 }
 
-export default ItemSearch
+export default Search

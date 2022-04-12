@@ -1,28 +1,24 @@
 import sha1 from 'sync-sha1/rawSha1'
 
-const initial = {
-    token: "",
-    proof: "",
+function initial() { return { token: "", proof: "" } }
+
+const key = "athasha.session"
+
+function fetch() {
+    const session = localStorage.getItem(key)
+    return session ? JSON.parse(session) : initial()
 }
 
-function key(path) {
-    return `athasha.session.${path}`
+function remove() {
+    localStorage.removeItem(key)
 }
 
-function fetch(path) {
-    const session = localStorage.getItem(key(path))
-    return JSON.parse(session || JSON.stringify(initial))
-}
-
-function remove(path) {
-    localStorage.removeItem(key(path))
-}
-
-function create(path, password) {
+function create(password) {
     const token = crypto.randomUUID();
     const proof = encode(`${token}:${password}`);
     const session = { token, proof }
-    localStorage.setItem(key(path), JSON.stringify(session))
+    localStorage.setItem(key, JSON.stringify(session))
+    return session
 }
 
 //encode("uuid")
@@ -38,6 +34,7 @@ const exports = {
     fetch,
     remove,
     create,
+    initial,
 }
 
 export default exports

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 
-import ItemSearch from "./ItemSearch"
-import ItemHeader from "./ItemHeader"
-import ItemRows from "./ItemRows"
-import ItemNew from "./ItemNew"
+import Search from "./Search"
+import Header from "./Header"
+import Rows from "./Rows"
+import New from "./New"
 
-function ItemBrowser(props) {
+function Browser(props) {
 
     const [filter, setFilter] = useState("")
     const [sort, setSort] = useState("asc")
@@ -36,32 +36,32 @@ function ItemBrowser(props) {
     }
 
     return (
-        <div className="ItemBrowser">
-            <table className="ItemTablePanel">
+        <div>
+            <table>
                 <thead>
                     <tr>
                         <th>
-                            <ItemSearch
+                            <Search
                                 filter={filter}
                                 onFilterChange={handleFilterChange}
                             />
                         </th>
                         <th>
-                            <ItemNew dispatch={props.dispatch} />
+                            <New dispatch={props.dispatch} />
                         </th>
                     </tr>
                 </thead>
             </table>
-            <table className="ItemTableData">
+            <table>
                 <thead>
                     <tr>
                         <th>
-                            <ItemHeader sort={sort}
+                            <Header sort={sort}
                                 onSortChange={handleSortChange} />
                         </th>
                     </tr>
                 </thead>
-                <ItemRows items={viewItems()}
+                <Rows items={viewItems()}
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
             </table>
@@ -69,4 +69,4 @@ function ItemBrowser(props) {
     )
 }
 
-export default ItemBrowser
+export default Browser

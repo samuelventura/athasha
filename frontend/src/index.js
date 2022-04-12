@@ -1,29 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 import App from './App'
-import PageHome from './PageHome'
-import PageAdmin from './PageAdmin'
-import { AlertProvider } from './ContextAlert'
-import { AuthProvider, RequireAuth } from './ContextAuth'
+import Home from './Home'
+import { AlertProvider } from './Alert'
+import { AuthProvider } from './Auth'
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <AlertProvider>
-          <Routes>
-            <Route path="/" element={<App />}>
-              <Route path="" element={<RequireAuth><PageHome /></RequireAuth>} />
-              <Route path="/admin" element={<RequireAuth><PageAdmin /></RequireAuth>} />
-              <Route path="*" element={<div>404</div>} />
-            </Route>
-          </Routes>
-        </AlertProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <AlertProvider>
+        <App>
+          <Home />
+        </App>
+      </AlertProvider>
+    </AuthProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )
