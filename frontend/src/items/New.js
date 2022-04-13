@@ -7,24 +7,18 @@ function New(props) {
     const app = useApp()
     const [newItem, setNewItem] = useState(false)
 
-    function item(name, type, version, config) {
-        return {
-            name,
-            type,
-            config,
-            version,
-            enabled: false,
-        }
-    }
-
     function showNew() {
         setNewItem(true)
     }
 
-    function handleNew(name) {
+    function handleNew(name, type) {
         setNewItem(false)
-        if (!name.trim().length) return
-        const args = item(name, "Script", 1, "Script Content")
+        const args = {
+            name,
+            type,
+            config: "{}",
+            enabled: false,
+        }
         props.send({ name: "create", args })
     }
 

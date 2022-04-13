@@ -5,12 +5,14 @@ import State from "./State"
 import { useApp } from '../App';
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
+import { EditItem } from "./Editor"
 
 function Rows(props) {
     const app = useApp()
     const noneItem = State.initial().selected
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
+    const [editItem, setEditItem] = useState(noneItem)
 
     function isSelected(item) {
         return item.id === props.selected.id
@@ -49,12 +51,22 @@ function Rows(props) {
         setRenameItem(noneItem)
     }
 
+    function handleEdit(item, config) {
+        setEditItem(noneItem)
+        props.send({ name: "edit", args: { id: item.id, config } })
+    }
+
+    function clearEdit() {
+        setEditItem(noneItem)
+    }
+
     function handleClick(e, action, item, args) {
+        e.preventDefault() //avoid double click
         e.stopPropagation() //avoid unselection
         props.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
-                //window.open(env.href(`/edit/${item.id}`), '_blank')
+                setEditItem(item)
                 break
             }
             case "delete": {
@@ -77,6 +89,7 @@ function Rows(props) {
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
+            onDoubleClick={() => setEditItem(item)}
             className={selectedClass(item)}>
             <td>
                 <p className={enabledClass(item)}>{item.id} {item.name}</p>
@@ -104,11 +117,14 @@ function Rows(props) {
             const noneItem = State.initial().selected
             setDeleteItem(noneItem)
             setRenameItem(noneItem)
+            setEditItem(noneItem)
         }
     }, [app.logged])
 
     return (
         <tbody>
+            <EditItem item={editItem}
+                accept={handleEdit} cancel={clearEdit} />
             <DeleteItem item={deleteItem}
                 accept={handleDelete} cancel={clearDelete} />
             <RenameItem item={renameItem}

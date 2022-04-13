@@ -46,6 +46,7 @@ defmodule Athasha.ItemsServer do
       {:reply, :ok, state}
     rescue
       e ->
+        IO.inspect(e)
         {:reply, {:error, e}, state}
     end
   end
@@ -70,6 +71,10 @@ defmodule Athasha.ItemsServer do
   end
 
   defp apply_muta(muta = %{"name" => "enable"}, from, state) do
+    apply_muta(:update, muta, from, state)
+  end
+
+  defp apply_muta(muta = %{"name" => "edit"}, from, state) do
     apply_muta(:update, muta, from, state)
   end
 
@@ -112,6 +117,6 @@ defmodule Athasha.ItemsServer do
   end
 
   defp strip_item(item) do
-    Map.take(item, [:id, :config, :enabled, :name, :type, :version])
+    Map.take(item, [:id, :name, :type, :enabled, :config])
   end
 end

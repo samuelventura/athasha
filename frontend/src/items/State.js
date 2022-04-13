@@ -38,6 +38,11 @@ function reducer(state, { name, args, self }) {
       next.items[args.id].enabled = args.enabled
       return next
     }
+    case "edit": {
+      const next = Object.assign({}, state)
+      next.items[args.id].config = args.config
+      return next
+    }
     case "select": {
       const next = Object.assign({}, state)
       next.selected = args

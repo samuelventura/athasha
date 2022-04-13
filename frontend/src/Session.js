@@ -21,8 +21,6 @@ function create(password) {
     return session
 }
 
-//encode("uuid")
-//:crypto.hash(:sha, "uuid") |> Base.encode16() |> String.downcase()
 function encode(message) {
     const msgUint8 = new TextEncoder().encode(message);
     const hashBuffer = sha1(msgUint8);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -59,12 +59,16 @@ function RenameItem(props) {
 }
 
 function NewItem(props) {
+    const nameEl = useRef(null);
     const [name, setName] = useState("")
+    const [type, setType] = useState("")
+    const [prev, setPrev] = useState("")
     function enabled() {
-        return (name.trim().length > 0)
+        return (name.trim().length > 0
+            && type.trim().length > 0)
     }
     function accept() {
-        props.accept(name)
+        props.accept(name, type)
     }
     function handleKeyPress(e) {
         if (e.key === 'Enter') {
@@ -73,15 +77,43 @@ function NewItem(props) {
             }
         }
     }
+    function option(type) {
+        return (<option value={type}>{type}</option>)
+    }
+    useEffect(() => { setPrev(type) }, [type])
+    useEffect(() => {
+        if (!name.trim().length && type.trim().length > 0 && prev !== type) {
+            const token = crypto.randomUUID();
+            setName(type + " " + token.substring(0, 6))
+            nameEl.current.focus()
+        }
+    }, [name, prev, type])
+    useEffect(() => {
+        if (props.show) setType("Modbus Device")
+        else {
+            setName("")
+            setType("")
+        }
+    }, [props.show])
     return (
         <Modal show={props.show} onHide={props.cancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>New</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Control autoFocus type="text" placeholder="Name"
-                    onKeyPress={handleKeyPress}
-                    value={name} onChange={e => setName(e.target.value)} />
+                <Form.Group className="mb-3">
+                    <Form.Label>Type</Form.Label>
+                    <Form.Select autoFocus value={type} onChange={e => setType(e.target.value)}>
+                        {option("Modbus Device")}
+                        {option("")}
+                    </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control ref={nameEl} type="text" placeholder="Name"
+                        onKeyPress={handleKeyPress}
+                        value={name} onChange={e => setName(e.target.value)} />
+                </Form.Group>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.cancel}>

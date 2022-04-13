@@ -3,11 +3,10 @@ defmodule Athasha.Item do
   import Ecto.Changeset
 
   schema "items" do
-    field :config, :string
-    field :enabled, :boolean, default: false
-    field :name, :string
-    field :type, :string
-    field :version, :integer
+    field(:name, :string)
+    field(:type, :string)
+    field(:enabled, :boolean, default: false)
+    field(:config, :string)
 
     timestamps()
   end
@@ -15,7 +14,7 @@ defmodule Athasha.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:name, :type, :version, :enabled, :config])
-    |> validate_required([:name, :type, :version, :enabled, :config])
+    |> cast(attrs, [:name, :type, :enabled, :config])
+    |> validate_required([:name, :type, :enabled, :config])
   end
 end
