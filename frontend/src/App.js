@@ -8,8 +8,6 @@ const App = React.createContext({
   path: "",
   state: {},
   dispatch: () => { },
-  session: Session.initial(),
-  setSession: () => { },
   logged: false,
   setLogged: () => { },
   login: false,
@@ -26,7 +24,6 @@ const App = React.createContext({
 function AppContext({ path, reducer, initial, children }) {
   const [state, dispatch] = useReducer(reducer, initial())
   const [alert, setAlert] = useState(initialAlert())
-  const [session, setSession] = useState(Session.initial())
   const [logged, setLogged] = useState(false)
   const [login, setLogin] = useState(false)
   const [connected, setConnected] = useState(false)
@@ -38,7 +35,6 @@ function AppContext({ path, reducer, initial, children }) {
   const value = {
     path,
     state, dispatch,
-    session, setSession,
     login, setLogin,
     logged, setLogged,
     connected, setConnected,
@@ -79,16 +75,13 @@ function AppContext({ path, reducer, initial, children }) {
         }
         case "login": {
           setLogin(true)
-          setSession(Session.initial())
           if (args) { errorAlert("Login failed") }
           break
         }
         case "session": {
           clearAlert()
-          const session = args
           setLogin(false)
           setLogged(true)
-          setSession(session)
           break
         }
         default:

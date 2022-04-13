@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button';
+import { useApp } from '../App';
 import { NewItem } from "./Dialogs"
 
 function New(props) {
+    const app = useApp()
     const [newItem, setNewItem] = useState(false)
 
     function item(name, type, version, config) {
@@ -29,6 +31,10 @@ function New(props) {
     function clearNew() {
         setNewItem(false)
     }
+
+    useEffect(() => {
+        if (!app.logged) setNewItem(false)
+    }, [app.logged])
 
     return (
         <div>

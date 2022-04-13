@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Environ from "../Environ"
 import State from "./State"
+import { useApp } from '../App';
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
 
 function Rows(props) {
-
+    const app = useApp()
     const noneItem = State.initial().selected
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
@@ -97,6 +98,14 @@ function Rows(props) {
             if (el) el.scrollIntoViewIfNeeded();
         }
     }, [props])
+
+    useEffect(() => {
+        if (!app.logged) {
+            const noneItem = State.initial().selected
+            setDeleteItem(noneItem)
+            setRenameItem(noneItem)
+        }
+    }, [app.logged])
 
     return (
         <tbody>
