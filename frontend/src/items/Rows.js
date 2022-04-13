@@ -86,10 +86,15 @@ function Rows(props) {
         }
     }
 
+    function handleDoubleClick(item) {
+        props.dispatch({ name: "select", args: item })
+        setEditItem(item)
+    }
+
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
-            onDoubleClick={() => setEditItem(item)}
+            onDoubleClick={() => handleDoubleClick(item)}
             className={selectedClass(item)}>
             <td>
                 <p className={enabledClass(item)}>{item.name}</p>

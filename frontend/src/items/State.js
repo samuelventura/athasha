@@ -40,7 +40,11 @@ function reducer(state, { name, args, self }) {
     }
     case "edit": {
       const next = Object.assign({}, state)
-      next.items[args.id].config = args.config
+      const item = next.items[args.id]
+      item.config = args.config
+      if (self) {
+        next.selected = item
+      }
       return next
     }
     case "select": {
