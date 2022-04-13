@@ -32,7 +32,6 @@ function LoginDialog() {
   }
   function handleKeyUp(e) {
     if (e.key === 'Escape') {
-      e.preventDefault()
       setPassword("")
     }
   }

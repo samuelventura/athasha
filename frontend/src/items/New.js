@@ -1,7 +1,9 @@
-import React from 'react'
+import { useState } from 'react'
 import Button from 'react-bootstrap/Button';
+import { NewItem } from "./Dialogs"
 
 function New(props) {
+    const [newItem, setNewItem] = useState(false)
 
     function item(name, type, version, config) {
         return {
@@ -13,17 +15,25 @@ function New(props) {
         }
     }
 
-    function handleNew() {
-        const template = "Script"
-        const name = window.prompt(`Name for New ${template}`, `New ${template}`)
-        if (name === null) return
+    function showNew() {
+        setNewItem(true)
+    }
+
+    function handleNew(name) {
+        setNewItem(false)
+        if (!name.trim().length) return
         const args = item(name, "Script", 1, "Script Content")
         props.send({ name: "create", args })
     }
 
+    function clearNew() {
+        setNewItem(false)
+    }
+
     return (
         <div>
-            <Button onClick={handleNew} variant="primary">New...</Button>
+            <NewItem show={newItem} accept={handleNew} cancel={clearNew} />
+            <Button onClick={showNew} variant="primary">New...</Button>
         </div>
     )
 }

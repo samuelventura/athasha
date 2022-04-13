@@ -1,10 +1,10 @@
 import React from 'react'
 import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
-import { ConnectDialog } from '../AppUI'
-import { LoginDialog } from '../AppUI'
-import { LogoutButton } from '../AppUI'
-import { AlertBanner } from '../AppUI'
+import { ConnectDialog } from '../Dialogs'
+import { LoginDialog } from '../Dialogs'
+import { LogoutButton } from '../Dialogs'
+import { AlertBanner } from '../Dialogs'
 import { useApp } from '../App'
 import Browser from "./Browser"
 

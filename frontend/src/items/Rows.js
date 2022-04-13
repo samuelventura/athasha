@@ -1,15 +1,22 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Environ from "../Environ"
+import State from "./State"
+import { DeleteItem } from "./Dialogs"
+import { RenameItem } from "./Dialogs"
 
 function Rows(props) {
+
+    const noneItem = State.initial().selected
+    const [deleteItem, setDeleteItem] = useState(noneItem)
+    const [renameItem, setRenameItem] = useState(noneItem)
 
     function isSelected(item) {
         return item.id === props.selected.id
     }
 
     function handleSelect(item) {
-        const selected = isSelected(item) ? {} : item
+        const selected = isSelected(item) ? noneItem : item
         props.dispatch({ name: "select", args: selected })
     }
 
@@ -23,6 +30,24 @@ function Rows(props) {
             "fw-normal" : "fst-italic"
     }
 
+    function handleDelete(item) {
+        setDeleteItem(noneItem)
+        props.send({ name: "delete", args: { id: item.id } })
+    }
+
+    function clearDelete() {
+        setDeleteItem(noneItem)
+    }
+
+    function handleRename(item, name) {
+        setRenameItem(noneItem)
+        props.send({ name: "rename", args: { id: item.id, name } })
+    }
+
+    function clearRename() {
+        setRenameItem(noneItem)
+    }
+
     function handleClick(e, action, item, args) {
         e.stopPropagation() //avoid unselection
         props.dispatch({ name: "select", args: item })
@@ -32,16 +57,11 @@ function Rows(props) {
                 break
             }
             case "delete": {
-                const accept = window.confirm(`Delete item '${item.name}'?`)
-                if (!accept) return
-                props.send({ name: "delete", args: { id: item.id } })
+                setDeleteItem(item)
                 break
             }
             case "rename": {
-                const name = window.prompt(`Rename item '${item.name}'`, item.name)
-                if (name === null) return
-                if (name.trim().length === 0) return
-                props.send({ name: "rename", args: { id: item.id, name } })
+                setRenameItem(item)
                 break
             }
             case "enable": {
@@ -80,6 +100,10 @@ function Rows(props) {
 
     return (
         <tbody>
+            <DeleteItem item={deleteItem}
+                accept={handleDelete} cancel={clearDelete} />
+            <RenameItem item={renameItem}
+                accept={handleRename} cancel={clearRename} />
             {rows}
         </tbody>
     )
