@@ -61,7 +61,6 @@ function Rows(props) {
     }
 
     function handleClick(e, action, item, args) {
-        e.preventDefault() //avoid double click
         e.stopPropagation() //avoid unselection
         props.dispatch({ name: "select", args: item })
         switch (action) {
@@ -91,6 +90,12 @@ function Rows(props) {
         setEditItem(item)
     }
 
+    function Action({ onClick, label }) {
+        function onDoubleClick(e) { e.stopPropagation() }
+        return (<Button variant="link" onClick={onClick}
+            onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
+    }
+
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
@@ -100,11 +105,11 @@ function Rows(props) {
                 <p className={enabledClass(item)}>{item.name}</p>
             </td>
             <td>
-                <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>Edit</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'delete', item)}>Delete</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'rename', item)}>Rename</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Button>
+                <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />
+                <Action onClick={(e) => handleClick(e, 'delete', item)} label="Delete" />
+                <Action onClick={(e) => handleClick(e, 'rename', item)} label="Rename" />
+                <Action onClick={(e) => handleClick(e, 'enable', item, true)} label="Enable" />
+                <Action onClick={(e) => handleClick(e, 'enable', item, false)} label="Disable" />
             </td>
         </tr>
     )
