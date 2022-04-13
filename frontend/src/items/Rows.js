@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
+import Badge from 'react-bootstrap/Badge'
 import Environ from "../Environ"
 import State from "./State"
 import { useApp } from '../App';
@@ -96,6 +97,16 @@ function Rows(props) {
             onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
     }
 
+    function StatusEnabled({ item }) {
+        return (
+            <Badge pill bg={item.enabled ? "primary" : "secondary"}
+                className='ms-2 user-select-none'
+                title={item.enabled ? "Enabled" : "Disabled"}>
+                {item.enabled ? "E" : "D"}
+            </Badge>
+        )
+    }
+
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
@@ -103,8 +114,11 @@ function Rows(props) {
             className={selectedClass(item)}>
             <td className={enabledClass(item)}>
                 <img src={SvgIcon(item.type)} width="20"
-                    alt={item.type} className='me-2 mb-1' />
-                {item.name}
+                    alt={item.type} />
+                <p className='ms-2 d-inline'>
+                    {item.name}
+                </p>
+                <StatusEnabled item={item} />
             </td>
             <td>
                 <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />

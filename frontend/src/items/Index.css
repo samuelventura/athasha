@@ -21,3 +21,7 @@ table.ItemsTable tr {
     display: table;
     table-layout: fixed;
 }
+
+table.ItemsTable td * {
+    vertical-align: middle;
+}
