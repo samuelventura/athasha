@@ -2,22 +2,26 @@ import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import { useApp } from '../App'
+import State from "./State"
 import Edit from './Edit'
 import ModbusDeviceEditor from '../editors/Modbus'
 
 function EditItem(props) {
     const app = useApp()
+    const noneItem = State.initial().selected
     const [valid, setValid] = useState(false)
     const [state, setState] = useState({})
     const [config, setConfig] = useState("")
-    const [item, setItem] = useState({})
+    const [item, setItem] = useState(noneItem)
     function accept() {
         if (valid) {
-            props.accept(item, config)
+            setItem(noneItem)
             Edit.remove()
+            props.accept(item, config)
         }
     }
     function cancel() {
+        setItem(noneItem)
         Edit.remove()
         props.cancel()
     }
