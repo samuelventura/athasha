@@ -14,7 +14,7 @@ function Main() {
     <div className="vh-100 d-flex flex-column">
       <Navbar bg="light" variant="light">
         <Container>
-          <Navbar.Brand className="btn" title="Home">
+          <Navbar.Brand title="Home">
             <img src="logo28.png" alt="Athasha"></img>
           </Navbar.Brand>
           <Navbar.Toggle />
