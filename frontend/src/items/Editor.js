@@ -6,6 +6,8 @@ import State from "./State"
 import Edit from './Edit'
 import ModbusDeviceEditor from '../editors/Modbus'
 
+// props | store > items + initial state > UI > dirty state > store | config
+// cancel | accept > clear store
 function EditItem(props) {
     const app = useApp()
     const noneItem = State.initial().selected
@@ -13,25 +15,28 @@ function EditItem(props) {
     const [state, setState] = useState({})
     const [config, setConfig] = useState("")
     const [item, setItem] = useState(noneItem)
+    function clearState() {
+        setItem(noneItem)
+        setValid(false)
+        setConfig("")
+        setState({})
+        Edit.remove()
+    }
     function accept() {
         if (valid) {
-            setItem(noneItem)
-            Edit.remove()
+            clearState()
             props.accept(item, config)
         }
     }
     function cancel() {
-        setItem(noneItem)
-        Edit.remove()
+        clearState()
         props.cancel()
-    }
-    function store(state) {
-        if (item.id) Edit.create({ item, state })
     }
     useEffect(() => {
         const item = props.item
         setItem(item)
-        if (item.id) setState(JSON.parse(item.config))
+        setValid(false)
+        setState(item.id ? JSON.parse(item.config) : {})
     }, [props.item])
     useEffect(() => {
         if (app.logged) {
@@ -39,10 +44,17 @@ function EditItem(props) {
             if (stored) {
                 setState(stored.state)
                 setItem(stored.item)
+                setValid(false)
             }
         }
     }, [app.logged])
-    const eprops = { state, store, setConfig, setValid }
+    function store(state) {
+        if (item.id) {
+            Edit.create({ item, state })
+            setConfig(JSON.stringify(state))
+        }
+    }
+    const eprops = { state, store, setValid }
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static" centered>

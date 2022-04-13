@@ -1,33 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 
+// conditional rendering to avoid store calls from all editors
+// props.children always changes preventing a generic If implementation
+function IfEditor(props) {
+    return props.show ? (<Editor {...props} />) : null
+}
+
 function Editor(props) {
-    const state = props.state
     const [name, setName] = useState("")
-    //initialize spread state here
+    // initialize spread state here
     useEffect(() => {
+        const state = props.state
         setName(state.name || "")
-    }, [state])
-    //rebuild state back here
+    }, [props.state])
+    // rebuild state back here
     useEffect(() => {
         let valid = true
         valid = valid && (name.trim().length > 0)
         props.setValid(valid)
-        const state = {
+        props.store({
             name
-        }
-        props.store(state)
-        props.setConfig(JSON.stringify(state))
-    })
-    return props.show ? (
-        <>
-            <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control autoFocus type="text" placeholder="Name"
-                    value={name} onChange={e => setName(e.target.value)} />
-            </Form.Group>
-        </>
-    ) : null
+        })
+    }, [props, name])
+    return (
+        <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control autoFocus type="text" placeholder="Name"
+                value={name} onChange={e => setName(e.target.value)} />
+        </Form.Group>
+    )
 }
 
-export default Editor
+export default IfEditor
