@@ -89,14 +89,13 @@ defmodule Athasha.ItemsServer do
         :del -> Map.delete(items, item.id)
       end
 
-    Map.put(state, :items, items)
     version = state.version + 1
     Registry.dispatch(:items, {from, version, muta})
+    state = Map.put(state, :items, items)
     Map.put(state, :version, version)
   end
 
   defp start(item) do
-    # IO.inspect(item)
     {item.id, item}
   end
 
