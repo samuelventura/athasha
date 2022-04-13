@@ -7,12 +7,13 @@ import ModbusDeviceEditor from '../editors/Modbus'
 
 function EditItem(props) {
     const app = useApp()
-    const [enabled, setEnabled] = useState(false)
+    const [valid, setValid] = useState(false)
     const [state, setState] = useState({})
+    const [config, setConfig] = useState("")
     const [item, setItem] = useState({})
     function accept() {
-        if (enabled) {
-            props.accept(item, JSON.stringify(state))
+        if (valid) {
+            props.accept(item, config)
             Edit.remove()
         }
     }
@@ -20,14 +21,14 @@ function EditItem(props) {
         Edit.remove()
         props.cancel()
     }
+    function store(state) {
+        if (item.id) Edit.create({ item, state })
+    }
     useEffect(() => {
         const item = props.item
         setItem(item)
         if (item.id) setState(JSON.parse(item.config))
     }, [props.item])
-    useEffect(() => {
-        if (item.id) Edit.create({ item, state })
-    }, [item.id, state])
     useEffect(() => {
         if (app.logged) {
             const stored = Edit.fetch()
@@ -37,7 +38,7 @@ function EditItem(props) {
             }
         }
     }, [app.logged])
-    const eprops = { item, state, setState, enabled, setEnabled }
+    const eprops = { state, store, setConfig, setValid }
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static" centered>
@@ -51,7 +52,7 @@ function EditItem(props) {
                 <Button variant="secondary" onClick={cancel}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={accept} disabled={!enabled}>
+                <Button variant="primary" onClick={accept} disabled={!valid}>
                     Save
                 </Button>
             </Modal.Footer>

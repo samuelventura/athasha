@@ -92,7 +92,7 @@ function Rows(props) {
             onDoubleClick={() => setEditItem(item)}
             className={selectedClass(item)}>
             <td>
-                <p className={enabledClass(item)}>{item.id} {item.name}</p>
+                <p className={enabledClass(item)}>{item.name}</p>
             </td>
             <td>
                 <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>Edit</Button>
