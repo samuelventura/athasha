@@ -9,12 +9,12 @@ function IfEditor(props) {
 
 function Editor(props) {
     const [name, setName] = useState("")
-    // initialize spread state here
+    // initialize local state
     useEffect(() => {
         const state = props.state
         setName(state.name || "")
     }, [props.state])
-    // rebuild state back here
+    // rebuild and store state
     useEffect(() => {
         let valid = true
         valid = valid && (name.trim().length > 0)

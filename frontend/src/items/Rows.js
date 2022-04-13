@@ -5,7 +5,7 @@ import State from "./State"
 import { useApp } from '../App';
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
-import { EditItem } from "./Editor"
+import { EditItem, SvgIcon } from "./Editor"
 
 function Rows(props) {
     const app = useApp()
@@ -101,8 +101,10 @@ function Rows(props) {
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
             className={selectedClass(item)}>
-            <td>
-                <p className={enabledClass(item)}>{item.name}</p>
+            <td className={enabledClass(item)}>
+                <img src={SvgIcon(item.type)} width="20"
+                    alt={item.type} className='me-2 mb-1' />
+                {item.name}
             </td>
             <td>
                 <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />
