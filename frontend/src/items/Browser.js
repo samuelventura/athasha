@@ -69,6 +69,7 @@ function Browser(props) {
                     </tr>
                 </thead>
                 <Rows items={viewItems()}
+                    send={props.send}
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
             </Table>

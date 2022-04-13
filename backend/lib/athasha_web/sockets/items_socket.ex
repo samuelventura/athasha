@@ -19,7 +19,6 @@ defmodule AthashaWeb.ItemsSocket do
 
   def handle_in({text, _opts}, state) do
     event = Jason.decode!(text)
-    IO.inspect(event)
     handle_event(event, state)
   end
 
@@ -37,6 +36,10 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
+  def handle_info({:items, nil, :init}, state) do
+    {:stop, :init, state}
+  end
+
   def handle_info({:items, nil, {from, version, muta}}, state) do
     case state.version + 1 do
       ^version ->
@@ -50,11 +53,6 @@ defmodule AthashaWeb.ItemsSocket do
       _ ->
         {:ok, state}
     end
-  end
-
-  def handle_info(any, state) do
-    IO.inspect(any)
-    {:ok, state}
   end
 
   def terminate(_reason, _state) do
@@ -83,8 +81,9 @@ defmodule AthashaWeb.ItemsSocket do
     end
   end
 
-  defp handle_event(event = %{"name" => "create"}, state = %{logged: true}) do
-    :ok = ItemsServer.apply(event)
+  defp handle_event(event, state = %{logged: true}) do
+    # ignore event collision (do not check :ok =)
+    ItemsServer.apply(event)
     {:ok, state}
   end
 

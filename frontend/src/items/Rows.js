@@ -1,28 +1,8 @@
 import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
+import Environ from "../Environ"
 
 function Rows(props) {
-
-    function handleDelete(item) {
-        const accept = window.confirm(`Delete item '${item.name}'?`)
-        if (!accept) return
-        props.dispatch({ name: "delete", args: { id: item.id } })
-    }
-
-    function handleEdit(item) {
-        //window.open(env.href(`/edit/${item.id}`), '_blank')
-    }
-
-    function handleRename(item) {
-        const name = window.prompt(`Rename item '${item.name}'`, item.name)
-        if (name === null) return
-        if (name.trim().length === 0) return
-        props.dispatch({ name: "rename", args: { id: item.id, name } })
-    }
-
-    function handleEnable(item, enabled) {
-        props.dispatch({ name: "enable", args: { id: item.id, enabled } })
-    }
 
     function isSelected(item) {
         return item.id === props.selected.id
@@ -43,6 +23,36 @@ function Rows(props) {
             "fw-normal" : "fst-italic"
     }
 
+    function handleClick(e, action, item, args) {
+        e.stopPropagation() //avoid unselection
+        props.dispatch({ name: "select", args: item })
+        switch (action) {
+            case "edit": {
+                //window.open(env.href(`/edit/${item.id}`), '_blank')
+                break
+            }
+            case "delete": {
+                const accept = window.confirm(`Delete item '${item.name}'?`)
+                if (!accept) return
+                props.send({ name: "delete", args: { id: item.id } })
+                break
+            }
+            case "rename": {
+                const name = window.prompt(`Rename item '${item.name}'`, item.name)
+                if (name === null) return
+                if (name.trim().length === 0) return
+                props.send({ name: "rename", args: { id: item.id, name } })
+                break
+            }
+            case "enable": {
+                props.send({ name: "enable", args: { id: item.id, enabled: args } })
+                break
+            }
+            default:
+                Environ.log("Unknown action", action, item)
+        }
+    }
+
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
@@ -51,11 +61,11 @@ function Rows(props) {
                 <p className={enabledClass(item)}>{item.id} {item.name}</p>
             </td>
             <td>
-                <Button variant="link" onClick={() => handleEdit(item)}>Edit</Button>
-                <Button variant="link" onClick={() => handleDelete(item)}>Delete</Button>
-                <Button variant="link" onClick={() => handleRename(item)}>Rename</Button>
-                <Button variant="link" onClick={() => handleEnable(item, true)}>Enable</Button>
-                <Button variant="link" onClick={() => handleEnable(item, false)}>Disable</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>Edit</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'delete', item)}>Delete</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'rename', item)}>Rename</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Button>
             </td>
         </tr>
     )
@@ -64,9 +74,9 @@ function Rows(props) {
         if (props.selected.id) {
             const id = `item_${props.selected.id}`
             const el = document.getElementById(id)
-            el.scrollIntoViewIfNeeded();
+            if (el) el.scrollIntoViewIfNeeded();
         }
-    }, [props.selected])
+    }, [props])
 
     return (
         <tbody>

@@ -19,6 +19,7 @@ defmodule Athasha.ItemsServer do
       Repo.all(Item)
       |> Enum.into(%{}, &start/1)
 
+    Registry.dispatch(:items, :init)
     {:ok, %{version: 0, items: items}}
   end
 
@@ -40,18 +41,57 @@ defmodule Athasha.ItemsServer do
   end
 
   def handle_call({:apply, from, muta}, _from, state) do
-    state = apply_muta(muta, from, state)
-    {:reply, :ok, state}
+    try do
+      state = apply_muta(muta, from, state)
+      {:reply, :ok, state}
+    rescue
+      e ->
+        {:reply, {:error, e}, state}
+    end
   end
 
   defp apply_muta(muta = %{"name" => "create"}, from, state) do
     args = muta["args"]
     {:ok, item} = insert(args)
-    args = %{item: strip_item(item)}
+    args = strip_item(item)
     muta = Map.put(muta, "args", args)
+    apply_muta(:put, item, muta, from, state)
+  end
+
+  defp apply_muta(muta = %{"name" => "delete"}, from, state) do
+    args = muta["args"]
+    item = state.items[args["id"]]
+    {:ok, _} = Repo.delete(%Item{id: item.id})
+    apply_muta(:del, item, muta, from, state)
+  end
+
+  defp apply_muta(muta = %{"name" => "rename"}, from, state) do
+    apply_muta(:update, muta, from, state)
+  end
+
+  defp apply_muta(muta = %{"name" => "enable"}, from, state) do
+    apply_muta(:update, muta, from, state)
+  end
+
+  defp apply_muta(:update, muta, from, state) do
+    args = muta["args"]
+    item = state.items[args["id"]]
+    {:ok, item} = update(item, args)
+    apply_muta(:put, item, muta, from, state)
+  end
+
+  defp apply_muta(action, item, muta, from, state) do
+    items = state.items
+
+    items =
+      case action do
+        :put -> Map.put(items, item.id, item)
+        :del -> Map.delete(items, item.id)
+      end
+
+    Map.put(state, :items, items)
     version = state.version + 1
     Registry.dispatch(:items, {from, version, muta})
-    state = put_item(state, item)
     Map.put(state, :version, version)
   end
 
@@ -60,12 +100,12 @@ defmodule Athasha.ItemsServer do
     {item.id, item}
   end
 
-  defp insert(args) do
-    Item.changeset(%Item{}, args) |> Repo.insert()
+  defp update(item, args) do
+    Item.changeset(item, args) |> Repo.update()
   end
 
-  defp put_item(state, item) do
-    put_in(state.items[item.id], item)
+  defp insert(args) do
+    Item.changeset(%Item{}, args) |> Repo.insert()
   end
 
   defp strip_tuple({_id, item}) do

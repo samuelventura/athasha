@@ -17,9 +17,9 @@ function reducer(state, { name, args, self }) {
     }
     case "create": {
       const next = Object.assign({}, state)
-      next.items[args.id] = args.item
+      next.items[args.id] = args
       if (self) {
-        next.selected = args.item
+        next.selected = args
       }
       return next
     }
