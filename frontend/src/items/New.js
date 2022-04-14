@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import { useApp } from '../App';
 import { NewItem } from "./Dialogs"
+import { InitialState } from "./Editor"
 
 function New(props) {
     const app = useApp()
@@ -13,12 +14,9 @@ function New(props) {
 
     function handleNew(name, type) {
         setNewItem(false)
-        const args = {
-            name,
-            type,
-            config: "{}",
-            enabled: false,
-        }
+        const initial = InitialState(type)
+        const config = JSON.stringify(initial)
+        const args = { name, type, config, enabled: false }
         props.send({ name: "create", args })
     }
 

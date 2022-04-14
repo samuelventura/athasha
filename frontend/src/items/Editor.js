@@ -4,7 +4,8 @@ import Modal from 'react-bootstrap/Modal'
 import { useApp } from '../App'
 import State from "./State"
 import Edit from './Edit'
-import ModbusDeviceEditor from '../editors/Modbus'
+import { ModbusDeviceEditor } from '../editors/Modbus'
+import { ModbusDeviceInitial } from '../editors/Modbus'
 import ModbusIcon from '../editors/Modbus.svg'
 
 // props | store > items + initial state > UI > dirty state > store | config
@@ -58,7 +59,8 @@ function EditItem(props) {
     const eprops = { state, store, setValid }
     function eshow(type) { return item.type === type }
     return (
-        <Modal show={item.id} onHide={cancel} backdrop="static" centered>
+        <Modal show={item.id} onHide={cancel} backdrop="static"
+            centered dialogClassName="EditorModal">
             <Modal.Header closeButton>
                 <Modal.Title>{item.name}</Modal.Title>
             </Modal.Header>
@@ -86,4 +88,13 @@ function SvgIcon(type) {
     }
 }
 
-export { EditItem, SvgIcon }
+function InitialState(type) {
+    switch (type) {
+        case "Modbus Device":
+            return ModbusDeviceInitial()
+        default:
+            return null
+    }
+}
+
+export { EditItem, SvgIcon, InitialState }

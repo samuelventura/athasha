@@ -22,6 +22,18 @@ table.ItemsTable tr {
     table-layout: fixed;
 }
 
+table.ItemsTable td {
+    vertical-align: middle;
+}
+
 table.ItemsTable td * {
     vertical-align: middle;
+}
+
+table.PointsTable td {
+    vertical-align: middle;
+}
+
+.EditorModal {
+    max-width: 90% !important; 
 }
