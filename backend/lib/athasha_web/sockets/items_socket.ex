@@ -109,6 +109,12 @@ defmodule AthashaWeb.ItemsSocket do
               config: args["config"]
             }
           }
+
+        "start" ->
+          %{name: "start", args: %{id: args["id"]}}
+
+        "stop" ->
+          %{name: "stop", args: %{id: args["id"]}}
       end
 
     # ignore event collision (do not check :ok =)

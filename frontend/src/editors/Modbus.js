@@ -16,7 +16,7 @@ function ExportedEditor(props) {
 }
 
 function initialState() {
-    return { host: "127.0.0.1", port: 5000, points: [initialPoint()] }
+    return { host: "127.0.0.1", port: 5000, delay: 10, points: [initialPoint()] }
 }
 
 function initialPoint() {
@@ -35,6 +35,7 @@ function checkNotBlack(value) {
 function Editor(props) {
     const [host, setName] = useState("")
     const [port, setPort] = useState(0)
+    const [delay, setDelay] = useState(0)
     const [points, setPoints] = useState([])
     // initialize local state
     useEffect(() => {
@@ -42,6 +43,7 @@ function Editor(props) {
         const state = props.state
         setName(state.host || init.host)
         setPort(state.port || init.port)
+        setDelay(state.delay || init.delay)
         setPoints(state.points || init.points)
     }, [props.state])
     // rebuild and store state
@@ -49,6 +51,7 @@ function Editor(props) {
         let valid = true
         valid = valid && checkNotBlack(host)
         valid = valid && checkRange(port, 1, 65535)
+        valid = valid && checkRange(delay, 0, 1000)
         valid = valid && points.length > 0
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkRange(point.slave, 1, 65535)
@@ -59,9 +62,9 @@ function Editor(props) {
         }, true)
         props.setValid(valid)
         props.store({
-            host, port, points,
+            host, port, delay, points,
         })
-    }, [props, host, port, points])
+    }, [props, host, port, delay, points])
     function setPoint(index, name, value) {
         const next = [...points]
         next[index][name] = value
@@ -124,7 +127,12 @@ function Editor(props) {
                             value={port} onChange={e => setPort(e.target.value)} />
                     </FloatingLabel>
                 </Col>
-                <Col></Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Delay (ms)">
+                        <Form.Control type="number" required min="0" max="1000" placeholder="Delay (ms)"
+                            value={delay} onChange={e => setDelay(e.target.value)} />
+                    </FloatingLabel>
+                </Col>
             </Row>
             <Table className='PointsTable'>
                 <thead>

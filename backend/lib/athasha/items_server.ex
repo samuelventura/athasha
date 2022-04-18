@@ -17,7 +17,7 @@ defmodule Athasha.ItemsServer do
   def init(_initial) do
     items =
       Repo.all(Item)
-      |> Enum.into(%{}, &start/1)
+      |> Enum.into(%{}, &{&1.id, &1})
 
     state = %{version: 0, items: items}
     all = get_all(state)
@@ -101,10 +101,6 @@ defmodule Athasha.ItemsServer do
   defp get_all(state) do
     items = state.items |> Enum.map(&strip_tuple/1)
     %{version: state.version, items: items}
-  end
-
-  defp start(item) do
-    {item.id, item}
   end
 
   defp update(item, args) do

@@ -22,7 +22,7 @@ defmodule Athasha.ItemsRunner do
   end
 
   def handle_info({:items, nil, {:init, _all}}, state) do
-    {:stop, :normal, state}
+    {:stop, :init, state}
   end
 
   def handle_info({:items, nil, {_from, version, muta}}, state) do
