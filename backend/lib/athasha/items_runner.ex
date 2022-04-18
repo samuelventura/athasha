@@ -16,22 +16,46 @@ defmodule Athasha.ItemsRunner do
   def init(_initial) do
     {:ok, _} = Bus.register(:items, nil)
     all = ItemsServer.all()
-    state = %{version: all.version}
+    items = all.items |> Enum.into(%{}, &{&1.id, &1})
+    state = %{version: all.version, items: items}
     {:ok, state}
   end
 
   def handle_info({:items, nil, {:init, _all}}, state) do
-    {:stop, :init, state}
+    {:stop, :normal, state}
   end
 
-  def handle_info({:items, nil, {_from, version, _muta}}, state) do
+  def handle_info({:items, nil, {_from, version, muta}}, state) do
     case state.version + 1 do
       ^version ->
         state = Map.put(state, :version, version)
-        {:ok, state}
+
+        args = muta.args
+
+        state =
+          case muta.name do
+            "create" ->
+              put_in(state, [:items, args.id], args)
+
+            "rename" ->
+              put_in(state, [:items, args.id, :name], args.name)
+
+            "enable" ->
+              put_in(state, [:items, args.id, :enabled], args.enabled)
+
+            "edit" ->
+              put_in(state, [:items, args.id, :config], args.config)
+
+            "delete" ->
+              {_, state} = pop_in(state, [:items, args.id])
+              state
+          end
+
+        IO.inspect(state)
+        {:noreply, state}
 
       _ ->
-        {:ok, state}
+        {:noreply, state}
     end
   end
 end

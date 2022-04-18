@@ -49,36 +49,36 @@ defmodule Athasha.ItemsServer do
     end
   end
 
-  defp apply_muta(muta = %{"name" => "create"}, from, state) do
-    args = muta["args"]
+  defp apply_muta(muta = %{name: "create"}, from, state) do
+    args = muta.args
     {:ok, item} = insert(args)
     args = strip_item(item)
-    muta = Map.put(muta, "args", args)
+    muta = Map.put(muta, :args, args)
     apply_muta(:put, item, muta, from, state)
   end
 
-  defp apply_muta(muta = %{"name" => "delete"}, from, state) do
-    args = muta["args"]
-    item = state.items[args["id"]]
+  defp apply_muta(muta = %{name: "delete"}, from, state) do
+    args = muta.args
+    item = state.items[args.id]
     {:ok, _} = Repo.delete(%Item{id: item.id})
     apply_muta(:del, item, muta, from, state)
   end
 
-  defp apply_muta(muta = %{"name" => "rename"}, from, state) do
+  defp apply_muta(muta = %{name: "rename"}, from, state) do
     apply_muta(:update, muta, from, state)
   end
 
-  defp apply_muta(muta = %{"name" => "enable"}, from, state) do
+  defp apply_muta(muta = %{name: "enable"}, from, state) do
     apply_muta(:update, muta, from, state)
   end
 
-  defp apply_muta(muta = %{"name" => "edit"}, from, state) do
+  defp apply_muta(muta = %{name: "edit"}, from, state) do
     apply_muta(:update, muta, from, state)
   end
 
   defp apply_muta(:update, muta, from, state) do
-    args = muta["args"]
-    item = state.items[args["id"]]
+    args = muta.args
+    item = state.items[args.id]
     {:ok, item} = update(item, args)
     apply_muta(:put, item, muta, from, state)
   end

@@ -127,4 +127,5 @@ curl --include \
 recompile
 :observer.start()
 Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
+Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
 ```

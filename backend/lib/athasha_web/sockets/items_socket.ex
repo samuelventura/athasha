@@ -43,10 +43,10 @@ defmodule AthashaWeb.ItemsSocket do
   def handle_info({:items, nil, {from, version, muta}}, state) do
     case state.version + 1 do
       ^version ->
-        args = muta["args"]
+        args = muta.args
         muta = Map.put(muta, :version, version)
         muta = Map.put(muta, :self, from == self())
-        muta = Map.put(muta, "args", args)
+        muta = Map.put(muta, :args, args)
         state = Map.put(state, :version, version)
         reply_text(muta, state)
 
@@ -82,6 +82,35 @@ defmodule AthashaWeb.ItemsSocket do
   end
 
   defp handle_event(event, state = %{logged: true}) do
+    name = event["name"]
+    args = event["args"]
+
+    event =
+      case name do
+        "rename" ->
+          %{name: "rename", args: %{id: args["id"], name: args["name"]}}
+
+        "enable" ->
+          %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
+
+        "edit" ->
+          %{name: "edit", args: %{id: args["id"], config: args["config"]}}
+
+        "delete" ->
+          %{name: "delete", args: %{id: args["id"]}}
+
+        "create" ->
+          %{
+            name: "create",
+            args: %{
+              name: args["name"],
+              type: args["type"],
+              enabled: args["enabled"],
+              config: args["config"]
+            }
+          }
+      end
+
     # ignore event collision (do not check :ok =)
     ItemsServer.apply(event)
     {:ok, state}
