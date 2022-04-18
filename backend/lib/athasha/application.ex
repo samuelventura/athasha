@@ -9,9 +9,10 @@ defmodule Athasha.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
+      Athasha.Bus,
       Athasha.Repo,
-      Athasha.Registry,
       Athasha.ItemsServer,
+      Athasha.ItemsRunner,
       # Start the Telemetry supervisor
       AthashaWeb.Telemetry,
       # Start the PubSub system

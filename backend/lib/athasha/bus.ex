@@ -1,4 +1,4 @@
-defmodule Athasha.Registry do
+defmodule Athasha.Bus do
   alias Athasha.Spec
 
   def child_spec(_) do

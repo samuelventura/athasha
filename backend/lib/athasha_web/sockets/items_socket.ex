@@ -1,7 +1,7 @@
 defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
-  alias Athasha.Registry
+  alias Athasha.Bus
   alias Athasha.ItemsServer
 
   def child_spec(_opts) do
@@ -28,7 +28,7 @@ defmodule AthashaWeb.ItemsSocket do
   end
 
   def handle_info(:all, state) do
-    {:ok, _} = Registry.register(:items, nil)
+    {:ok, _} = Bus.register(:items, nil)
     all = ItemsServer.all()
     state = Map.put(state, :version, all.version)
     args = %{items: all.items}
@@ -36,7 +36,7 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
-  def handle_info({:items, nil, :init}, state) do
+  def handle_info({:items, nil, {:init, _all}}, state) do
     {:stop, :init, state}
   end
 
