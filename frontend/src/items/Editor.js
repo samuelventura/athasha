@@ -6,7 +6,10 @@ import State from "./State"
 import Edit from './Edit'
 import { ModbusDeviceEditor } from '../editors/Modbus'
 import { ModbusDeviceInitial } from '../editors/Modbus'
+import { DatabaseWriterEditor } from '../editors/Database'
+import { DatabaseWriterInitial } from '../editors/Database'
 import ModbusIcon from '../editors/Modbus.svg'
+import DatabaseIcon from '../editors/Database.svg'
 
 // props | store > items + initial state > UI > dirty state > store | config
 // cancel | accept > clear store
@@ -65,7 +68,8 @@ function EditItem(props) {
                 <Modal.Title>{item.name}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ModbusDeviceEditor {...eprops} show={eshow("Modbus Device")} />
+                <ModbusDeviceEditor {...eprops} show={eshow("Modbus Reader")} />
+                <DatabaseWriterEditor {...eprops} show={eshow("Database Writer")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -81,8 +85,10 @@ function EditItem(props) {
 
 function SvgIcon(type) {
     switch (type) {
-        case "Modbus Device":
+        case "Modbus Reader":
             return ModbusIcon
+        case "Database Writer":
+            return DatabaseIcon
         default:
             return null
     }
@@ -90,8 +96,10 @@ function SvgIcon(type) {
 
 function InitialState(type) {
     switch (type) {
-        case "Modbus Device":
+        case "Modbus Reader":
             return ModbusDeviceInitial()
+        case "Database Writer":
+            return DatabaseWriterInitial()
         default:
             return null
     }

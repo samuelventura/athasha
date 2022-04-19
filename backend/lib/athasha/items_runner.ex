@@ -84,7 +84,7 @@ defmodule Athasha.ItemsRunner do
   defp start(state, item) do
     modu =
       case item.type do
-        "Modbus Device" -> Athasha.RunnerModbus
+        "Modbus Reader" -> Athasha.RunnerModbus
       end
 
     # assert

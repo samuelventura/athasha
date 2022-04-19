@@ -82,14 +82,14 @@ function NewItem(props) {
     }
     useEffect(() => { setPrev(type) }, [type])
     useEffect(() => {
-        if (!name.trim().length && type.trim().length > 0 && prev !== type) {
+        if (type.trim().length > 0 && prev !== type) {
             const token = crypto.randomUUID();
             setName(type + " " + token.substring(0, 6))
             nameEl.current.focus()
         }
     }, [name, prev, type])
     useEffect(() => {
-        if (props.show) setType("Modbus Device")
+        if (props.show) setType("Modbus Reader")
         else {
             setName("")
             setType("")
@@ -104,7 +104,8 @@ function NewItem(props) {
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
                     <Form.Select autoFocus value={type} onChange={e => setType(e.target.value)}>
-                        {option("Modbus Device")}
+                        {option("Modbus Reader")}
+                        {option("Database Writer")}
                         {option("")}
                     </Form.Select>
                 </Form.Group>
