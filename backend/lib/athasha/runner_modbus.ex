@@ -1,8 +1,22 @@
 defmodule Athasha.RunnerModbus do
+  use GenServer
   alias Modbus.Master
   alias Athasha.Bus
 
   def start_link(item) do
+    GenServer.start_link(__MODULE__, item)
+  end
+
+  def stop(pid) do
+    GenServer.stop(pid)
+  end
+
+  def terminate(_reason, %{master: master}) do
+    if master != nil, do: Master.stop(master)
+  end
+
+  def init(item) do
+    Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
     host = config["host"]
@@ -23,59 +37,71 @@ defmodule Athasha.RunnerModbus do
       end)
 
     config = %{host: host, port: port, delay: delay, points: points}
-    spawn(fn -> loop(item, config) end)
+    Process.send_after(self(), :run, 0)
+    {:ok, %{item: item, config: config, master: nil}}
   end
 
-  def stop(pid) do
-    Process.exit(pid, :stop)
+  def handle_info({:EXIT, pid, _reason}, state = %{master: master}) do
+    state =
+      case master do
+        ^pid -> Map.put(state, :master, nil)
+        _ -> state
+      end
+
+    {:noreply, state}
   end
 
-  defp loop(item, config) do
+  def handle_info(:run, state = %{item: item, config: config}) do
     try do
-      loop_cycle(item, config)
+      state = connect(state)
+
+      state =
+        case run_once(state) do
+          true ->
+            state
+
+          false ->
+            Master.stop(state.master)
+            Map.put(state, :master, nil)
+        end
+
+      case state.master do
+        nil -> Process.send_after(self(), :run, 1000)
+        _ -> Process.send_after(self(), :run, config.delay)
+      end
+
+      {:noreply, state}
     rescue
       e ->
-        status(item.id, :error, "#{inspect(e)}")
-        # IO.inspect(e)
+        IO.inspect({e, __STACKTRACE__})
+        dispatch_status(item.id, :error, "#{inspect(e)}")
+        Process.send_after(self(), :run, 1000)
+        {:noreply, state}
     end
-
-    status(item.id, :info, "Sleeping...")
-    :timer.sleep(1000)
-    loop(item, config)
   end
 
-  defp loop_cycle(item, config) do
-    status(item.id, :info, "Connecting...")
+  defp connect(state = %{item: item, config: config, master: nil}) do
+    dispatch_status(item.id, :info, "Connecting...")
 
-    case connect(config) do
+    case connect_master(config) do
       {:ok, master} ->
-        status(item.id, :success, "Connected")
-        loop_cycle(item, config, master)
-        Master.stop(master)
+        dispatch_status(item.id, :success, "Connected")
+        Map.put(state, :master, master)
 
       {:error, reason} ->
-        status(item.id, :error, "#{inspect(reason)}")
+        dispatch_status(item.id, :error, "#{inspect(reason)}")
+        state
     end
   end
 
-  defp loop_cycle(item, config, master) do
-    Stream.iterate(0, &(&1 + 1))
-    |> Enum.reduce_while(true, fn _i, res ->
-      res =
-        Enum.reduce(config.points, res, fn point, res ->
-          case res do
-            true -> exec_point(item, master, point)
-            false -> false
-          end
-        end)
+  defp connect(state), do: state
+  defp run_once(state = %{master: nil}), do: state
 
+  defp run_once(%{item: item, config: config, master: master}) do
+    Enum.reduce(config.points, true, fn point, res ->
       case res do
-        true ->
-          :timer.sleep(config.delay)
-          {:cont, true}
-
-        false ->
-          {:halt, false}
+        true -> exec_point(item, master, point)
+        false -> false
       end
     end)
   end
@@ -96,18 +122,18 @@ defmodule Athasha.RunnerModbus do
   end
 
   defp point_error(id, point, reason) do
-    status(
+    dispatch_status(
       id,
       :error,
       "#{point.slave}:#{point.address}:#{point.code}:#{point.name} #{inspect(reason)}"
     )
   end
 
-  defp status(id, type, msg) do
+  defp dispatch_status(id, type, msg) do
     Bus.dispatch(:status, %{id: id, type: type, msg: msg})
   end
 
-  defp connect(config) do
+  defp connect_master(config) do
     case :inet.getaddr(String.to_charlist(config.host), :inet) do
       {:ok, ip} -> Master.start_link(ip: ip, port: config.port)
       any -> any

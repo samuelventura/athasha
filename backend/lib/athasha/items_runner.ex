@@ -63,7 +63,10 @@ defmodule Athasha.ItemsRunner do
             put_in(state, [:items, args.id, :config], args.config)
 
           "delete" ->
-            {_, state} = pop_in(state, [:items, args.id])
+            id = args.id
+            item = state.items[id]
+            state = stop_if(state, id, item.enabled)
+            {_, state} = pop_in(state, [:items, id])
             state
         end
 
@@ -86,13 +89,13 @@ defmodule Athasha.ItemsRunner do
 
     # assert
     false = Map.has_key?(state, item.id)
-    pid = modu.start_link(item)
+    {:ok, pid} = modu.start_link(item)
     Map.put(state, item.id, {modu, pid})
   end
 
   defp stop(state, id) do
     {modu, pid} = state[id]
-    true = modu.stop(pid)
+    :ok = modu.stop(pid)
     Map.delete(state, id)
   end
 end

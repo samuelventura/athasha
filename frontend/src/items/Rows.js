@@ -97,24 +97,14 @@ function Rows(props) {
             onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
     }
 
-    function StatusEnabled({ item }) {
+    function StatusBadge({ item }) {
         return (
-            <Badge pill bg={item.enabled ? "primary" : "secondary"}
-                className='ms-2 user-select-none'
-                title={item.enabled ? "Enabled" : "Disabled"}>
-                {item.enabled ? "E" : "D"}
-            </Badge>
-        )
-    }
-
-    function StatusLog({ item }) {
-        return item.status.length ? (
             <Badge pill bg={item.enabled ? "primary" : "secondary"}
                 className='ms-2 user-select-none'
                 title={item.enabled ? "Enabled" : "Disabled"}>
                 {item.status.length}
             </Badge>
-        ) : null
+        )
     }
 
     const rows = props.items.map(item =>
@@ -128,8 +118,7 @@ function Rows(props) {
                 <p className='ms-2 d-inline'>
                     {item.name}
                 </p>
-                <StatusEnabled item={item} />
-                <StatusLog item={item} />
+                <StatusBadge item={item} />
             </td>
             <td>
                 <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />
