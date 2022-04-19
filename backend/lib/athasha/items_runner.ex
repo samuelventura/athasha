@@ -85,7 +85,7 @@ defmodule Athasha.ItemsRunner do
 
   defp stop(state, id) do
     {modu, pid} = state[id]
-    :ok = modu.stop(pid)
+    :ok = modu.stop(pid, id)
     Map.delete(state, id)
   end
 end

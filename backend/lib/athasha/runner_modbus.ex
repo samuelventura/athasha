@@ -26,7 +26,17 @@ defmodule Athasha.RunnerModbus do
     spawn_link(fn -> loop(item, config) end)
   end
 
-  def stop(pid) do
+  def stop(pid, id) do
+    spawn(fn ->
+      Process.flag(:trap_exit, true)
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          status(id, :info, "Stopped")
+      end
+    end)
+
     Process.exit(pid, :stop)
   end
 

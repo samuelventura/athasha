@@ -76,6 +76,10 @@ yarn add http-proxy-middleware
   - Digital or analog
   - Widget
 
+## Simplifications
+
+- Client side logs are most valuable for devices failing to connect so no need to cache the logs for troubleshooting, just show those generated after client connects.
+
 ## Research
 
 - Installer
@@ -83,6 +87,7 @@ yarn add http-proxy-middleware
 - License
 - Setup (TCP ports, ...)
 - HTTPS
+- Unbounded erlang integer to JSON
 
 ## Refereces
 
