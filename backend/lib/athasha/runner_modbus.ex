@@ -44,7 +44,7 @@ defmodule Athasha.RunnerModbus do
   def handle_info({:EXIT, pid, _reason}, state = %{master: master}) do
     state =
       case master do
-        ^pid -> Map.put(state, :master, nil)
+        ^pid -> stop_master(state)
         _ -> state
       end
 
@@ -61,8 +61,7 @@ defmodule Athasha.RunnerModbus do
             state
 
           false ->
-            Master.stop(state.master)
-            Map.put(state, :master, nil)
+            stop_master(state)
         end
 
       case state.master do
@@ -81,7 +80,7 @@ defmodule Athasha.RunnerModbus do
   end
 
   defp connect(state = %{item: item, config: config, master: nil}) do
-    dispatch_status(item.id, :info, "Connecting...")
+    dispatch_status(item.id, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
@@ -95,7 +94,7 @@ defmodule Athasha.RunnerModbus do
   end
 
   defp connect(state), do: state
-  defp run_once(state = %{master: nil}), do: state
+  defp run_once(%{master: nil}), do: false
 
   defp run_once(%{item: item, config: config, master: master}) do
     Enum.reduce(config.points, true, fn point, res ->
@@ -138,5 +137,12 @@ defmodule Athasha.RunnerModbus do
       {:ok, ip} -> Master.start_link(ip: ip, port: config.port)
       any -> any
     end
+  end
+
+  defp stop_master(state = %{master: nil}), do: state
+
+  defp stop_master(state = %{master: master}) do
+    Master.stop(master)
+    Map.put(state, :master, nil)
   end
 end

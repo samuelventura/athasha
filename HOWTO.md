@@ -79,6 +79,8 @@ yarn add http-proxy-middleware
 ## Simplifications
 
 - Client side logs are most valuable for devices failing to connect so no need to cache the logs for troubleshooting, just show those generated after client connects.
+- Last status is what matters. Timestamps are not really neaded and must be server side for first render to be in sync.
+- No need to show updated status in first render. Blue enabled is ok.
 
 ## Research
 

@@ -8,11 +8,11 @@ function initial() {
 }
 
 function status(type, msg) {
-  return { msg, type, dt: Date.now() }
+  return { msg, type }
 }
 
-function clone_object(status) {
-  return JSON.parse(JSON.stringify(status))
+function clone_object(object) {
+  return Object.assign({}, object)
 }
 
 function reducer(state, { name, args, self }) {
@@ -21,7 +21,7 @@ function reducer(state, { name, args, self }) {
       const next = clone_object(state)
       next.items = {}
       args.items.forEach(item => {
-        item.status = []
+        item.status = {}
         next.items[item.id] = item
       })
       return next
@@ -29,7 +29,7 @@ function reducer(state, { name, args, self }) {
     case "create": {
       const next = clone_object(state)
       const item = clone_object(args)
-      item.status = []
+      item.status = {}
       next.items[args.id] = item
       if (self) {
         next.selected = item
@@ -50,8 +50,7 @@ function reducer(state, { name, args, self }) {
       const next = clone_object(state)
       const item = next.items[args.id]
       item.enabled = args.enabled
-      item.status = [...item.status, status("info", args.enabled ?
-        "Started" : "Stopped")]
+      item.status = status("info", args.enabled ? "Started" : "Stopped")
       return next
     }
     case "edit": {
@@ -66,7 +65,7 @@ function reducer(state, { name, args, self }) {
     case "status": {
       const next = clone_object(state)
       const item = next.items[args.id]
-      item.status = [...item.status, status(args.type, args.msg)]
+      item.status = status(args.type, args.msg)
       return next
     }
     case "select": {

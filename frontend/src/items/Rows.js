@@ -97,12 +97,33 @@ function Rows(props) {
             onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
     }
 
+    function statusMsg(item) {
+        if (!item.enabled) {
+            return "Disabled"
+        }
+        if (!item.status.type) {
+            return "Enabled"
+        }
+        return item.status.msg
+    }
+
+    function statusBg(item) {
+        if (!item.enabled) {
+            return "secondary"
+        }
+        switch (item.status.type) {
+            case "success": return "success"
+            case "warn": return "warning"
+            case "error": return "danger"
+            default: return "primary"
+        }
+    }
+
     function StatusBadge({ item }) {
         return (
-            <Badge pill bg={item.enabled ? "primary" : "secondary"}
-                className='ms-2 user-select-none'
-                title={item.enabled ? "Enabled" : "Disabled"}>
-                {item.status.length}
+            <Badge pill bg={statusBg(item)}
+                className='ms-2 user-select-none'>
+                {statusMsg(item)}
             </Badge>
         )
     }
