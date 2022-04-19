@@ -49,6 +49,7 @@ defmodule Athasha.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:modbus, "~> 0.4.0"},
+      {:tds, "~> 2.3"},
       {:plug_cowboy, "~> 2.5"}
     ]
   end

@@ -128,4 +128,8 @@ recompile
 :observer.start()
 Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
 Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
+#SQL Server Tryout
+{:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "tryout", password: "tryout", database: "tryout", port: 1433])
+Tds.query!(pid, "insert into dbo.Table1 (ID, NAME) values (@p1, @p2)", [%Tds.Parameter{name: "@p1", value: "1"}, %Tds.Parameter{name: "@p2", value: "NAME1"}])
+Tds.query!(pid, "select * from dbo.Table1", [])
 ```
