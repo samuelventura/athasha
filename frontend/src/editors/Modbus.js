@@ -16,7 +16,7 @@ function ExportedEditor(props) {
 }
 
 function initialState() {
-    return { host: "127.0.0.1", port: 5000, delay: 10, points: [initialPoint()] }
+    return { host: "127.0.0.1", port: "5000", delay: "10", points: [initialPoint()] }
 }
 
 function initialPoint() {

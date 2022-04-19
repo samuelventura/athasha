@@ -27,8 +27,14 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
+  def handle_info({:status, nil, status}, state) do
+    resp = %{name: "status", args: status}
+    reply_text(resp, state)
+  end
+
   def handle_info(:all, state) do
     {:ok, _} = Bus.register(:items, nil)
+    {:ok, _} = Bus.register(:status, nil)
     all = ItemsServer.all()
     state = Map.put(state, :version, all.version)
     args = %{items: all.items}
@@ -109,16 +115,11 @@ defmodule AthashaWeb.ItemsSocket do
               config: args["config"]
             }
           }
-
-        "start" ->
-          %{name: "start", args: %{id: args["id"]}}
-
-        "stop" ->
-          %{name: "stop", args: %{id: args["id"]}}
       end
 
     # ignore event collision (do not check :ok =)
     ItemsServer.apply(event)
+
     {:ok, state}
   end
 

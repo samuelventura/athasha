@@ -18,6 +18,7 @@ defmodule Athasha.ItemsRunner do
     all = ItemsServer.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: all.version, items: items}
+    state = all.items |> Enum.reduce(state, &init_if/2)
     {:ok, state}
   end
 
@@ -29,19 +30,24 @@ defmodule Athasha.ItemsRunner do
     case state.version + 1 do
       ^version ->
         state = Map.put(state, :version, version)
-
         args = muta.args
 
         state =
           case muta.name do
             "create" ->
+              state = start_if(state, args)
               put_in(state, [:items, args.id], args)
 
             "rename" ->
               put_in(state, [:items, args.id, :name], args.name)
 
             "enable" ->
-              put_in(state, [:items, args.id, :enabled], args.enabled)
+              id = args.id
+              item = state.items[id]
+              state = stop_if(state, id, item.enabled)
+              item = Map.put(item, :enabled, args.enabled)
+              state = start_if(state, item)
+              put_in(state, [:items, id], item)
 
             "edit" ->
               put_in(state, [:items, args.id, :config], args.config)
@@ -51,11 +57,35 @@ defmodule Athasha.ItemsRunner do
               state
           end
 
-        IO.inspect(state)
+        # IO.inspect(state)
         {:noreply, state}
 
       _ ->
         {:noreply, state}
     end
+  end
+
+  defp init_if(item, state), do: start_if(state, item)
+  defp start_if(state, item = %{enabled: true}), do: start(state, item)
+  defp start_if(state, %{enabled: false}), do: state
+  defp stop_if(state, id, true), do: stop(state, id)
+  defp stop_if(state, _id, false), do: state
+
+  defp start(state, item) do
+    modu =
+      case item.type do
+        "Modbus Device" -> Athasha.RunnerModbus
+      end
+
+    # assert
+    false = Map.has_key?(state, item.id)
+    pid = modu.start_link(item)
+    Map.put(state, item.id, {modu, pid})
+  end
+
+  defp stop(state, id) do
+    {modu, pid} = state[id]
+    :ok = modu.stop(pid)
+    Map.delete(state, id)
   end
 end
