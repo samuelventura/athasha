@@ -44,7 +44,7 @@ defmodule Athasha.ItemsServer do
       {:reply, :ok, state}
     rescue
       e ->
-        # IO.inspect(e)
+        IO.inspect({e, __STACKTRACE__})
         {:reply, {:error, e}, state}
     end
   end

@@ -107,6 +107,16 @@ function Rows(props) {
         )
     }
 
+    function StatusLog({ item }) {
+        return item.status.length ? (
+            <Badge pill bg={item.enabled ? "primary" : "secondary"}
+                className='ms-2 user-select-none'
+                title={item.enabled ? "Enabled" : "Disabled"}>
+                {item.status.length}
+            </Badge>
+        ) : null
+    }
+
     const rows = props.items.map(item =>
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
@@ -119,6 +129,7 @@ function Rows(props) {
                     {item.name}
                 </p>
                 <StatusEnabled item={item} />
+                <StatusLog item={item} />
             </td>
             <td>
                 <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />

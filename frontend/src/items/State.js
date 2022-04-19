@@ -7,39 +7,55 @@ function initial() {
   }
 }
 
+function status(type, msg) {
+  return { msg, type, dt: Date.now() }
+}
+
+function clone_object(status) {
+  return JSON.parse(JSON.stringify(status))
+}
+
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
-      const next = Object.assign({}, state)
+      const next = clone_object(state)
       next.items = {}
-      args.items.forEach(i => next.items[i.id] = i)
+      args.items.forEach(item => {
+        item.status = []
+        next.items[item.id] = item
+      })
       return next
     }
     case "create": {
-      const next = Object.assign({}, state)
-      next.items[args.id] = args
+      const next = clone_object(state)
+      const item = clone_object(args)
+      item.status = []
+      next.items[args.id] = item
       if (self) {
-        next.selected = args
+        next.selected = item
       }
       return next
     }
     case "delete": {
-      const next = Object.assign({}, state)
+      const next = clone_object(state)
       delete next.items[args.id]
       return next
     }
     case "rename": {
-      const next = Object.assign({}, state)
+      const next = clone_object(state)
       next.items[args.id].name = args.name
       return next
     }
     case "enable": {
-      const next = Object.assign({}, state)
-      next.items[args.id].enabled = args.enabled
+      const next = clone_object(state)
+      const item = next.items[args.id]
+      item.enabled = args.enabled
+      item.status = [...item.status, status("info", args.enabled ?
+        "Started" : "Stopped")]
       return next
     }
     case "edit": {
-      const next = Object.assign({}, state)
+      const next = clone_object(state)
       const item = next.items[args.id]
       item.config = args.config
       if (self) {
@@ -47,8 +63,14 @@ function reducer(state, { name, args, self }) {
       }
       return next
     }
+    case "status": {
+      const next = clone_object(state)
+      const item = next.items[args.id]
+      item.status = [...item.status, status(args.type, args.msg)]
+      return next
+    }
     case "select": {
-      const next = Object.assign({}, state)
+      const next = clone_object(state)
       next.selected = args
       return next
     }

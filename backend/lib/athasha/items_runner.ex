@@ -27,41 +27,48 @@ defmodule Athasha.ItemsRunner do
   end
 
   def handle_info({:items, nil, {_from, version, muta}}, state) do
+    try do
+      state = apply_muta(version, muta, state)
+      {:noreply, state}
+    rescue
+      e ->
+        IO.inspect({e, __STACKTRACE__})
+        {:noreply, state}
+    end
+  end
+
+  def apply_muta(version, muta, state) do
     case state.version + 1 do
       ^version ->
         state = Map.put(state, :version, version)
         args = muta.args
 
-        state =
-          case muta.name do
-            "create" ->
-              state = start_if(state, args)
-              put_in(state, [:items, args.id], args)
+        case muta.name do
+          "create" ->
+            state = start_if(state, args)
+            put_in(state, [:items, args.id], args)
 
-            "rename" ->
-              put_in(state, [:items, args.id, :name], args.name)
+          "rename" ->
+            put_in(state, [:items, args.id, :name], args.name)
 
-            "enable" ->
-              id = args.id
-              item = state.items[id]
-              state = stop_if(state, id, item.enabled)
-              item = Map.put(item, :enabled, args.enabled)
-              state = start_if(state, item)
-              put_in(state, [:items, id], item)
+          "enable" ->
+            id = args.id
+            item = state.items[id]
+            state = stop_if(state, id, item.enabled)
+            item = Map.put(item, :enabled, args.enabled)
+            state = start_if(state, item)
+            put_in(state, [:items, id], item)
 
-            "edit" ->
-              put_in(state, [:items, args.id, :config], args.config)
+          "edit" ->
+            put_in(state, [:items, args.id, :config], args.config)
 
-            "delete" ->
-              {_, state} = pop_in(state, [:items, args.id])
-              state
-          end
-
-        # IO.inspect(state)
-        {:noreply, state}
+          "delete" ->
+            {_, state} = pop_in(state, [:items, args.id])
+            state
+        end
 
       _ ->
-        {:noreply, state}
+        state
     end
   end
 
@@ -85,7 +92,7 @@ defmodule Athasha.ItemsRunner do
 
   defp stop(state, id) do
     {modu, pid} = state[id]
-    :ok = modu.stop(pid, id)
+    true = modu.stop(pid)
     Map.delete(state, id)
   end
 end

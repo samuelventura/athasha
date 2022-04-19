@@ -23,20 +23,10 @@ defmodule Athasha.RunnerModbus do
       end)
 
     config = %{host: host, port: port, delay: delay, points: points}
-    spawn_link(fn -> loop(item, config) end)
+    spawn(fn -> loop(item, config) end)
   end
 
-  def stop(pid, id) do
-    spawn(fn ->
-      Process.flag(:trap_exit, true)
-      ref = Process.monitor(pid)
-
-      receive do
-        {:DOWN, ^ref, _, _, _} ->
-          status(id, :info, "Stopped")
-      end
-    end)
-
+  def stop(pid) do
     Process.exit(pid, :stop)
   end
 
@@ -114,10 +104,7 @@ defmodule Athasha.RunnerModbus do
   end
 
   defp status(id, type, msg) do
-    Bus.dispatch(
-      :status,
-      %{id: id, type: type, msg: msg, dt: System.os_time(:millisecond)}
-    )
+    Bus.dispatch(:status, %{id: id, type: type, msg: msg})
   end
 
   defp connect(config) do
