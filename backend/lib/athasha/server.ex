@@ -1,10 +1,11 @@
-defmodule Athasha.ItemsServer do
+defmodule Athasha.Server do
   use GenServer
 
   alias Athasha.Bus
   alias Athasha.Spec
   alias Athasha.Repo
   alias Athasha.Item
+  alias Athasha.Items
 
   def child_spec(_) do
     Spec.for(__MODULE__)
@@ -15,9 +16,9 @@ defmodule Athasha.ItemsServer do
   end
 
   def init(_initial) do
-    items =
-      Repo.all(Item)
-      |> Enum.into(%{}, &{&1.id, &1})
+    items = Repo.all(Item)
+    Items.register(:items, {0, items})
+    items = items |> Enum.into(%{}, &{&1.id, &1})
 
     state = %{version: 0, items: items}
     all = get_all(state)
@@ -93,6 +94,7 @@ defmodule Athasha.ItemsServer do
       end
 
     version = state.version + 1
+    Items.update(:items, {version, items})
     Bus.dispatch(:items, {from, version, muta})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)

@@ -2,7 +2,7 @@ defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   alias Athasha.Bus
-  alias Athasha.ItemsServer
+  alias Athasha.Server
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -35,7 +35,7 @@ defmodule AthashaWeb.ItemsSocket do
   def handle_info(:all, state) do
     {:ok, _} = Bus.register(:items, nil)
     {:ok, _} = Bus.register(:status, nil)
-    all = ItemsServer.all()
+    all = Server.all()
     state = Map.put(state, :version, all.version)
     args = %{items: all.items}
     resp = %{name: "all", args: args}
@@ -118,7 +118,7 @@ defmodule AthashaWeb.ItemsSocket do
       end
 
     # ignore event collision (do not check :ok =)
-    ItemsServer.apply(event)
+    Server.apply(event)
 
     {:ok, state}
   end

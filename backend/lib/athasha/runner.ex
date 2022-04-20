@@ -1,9 +1,10 @@
-defmodule Athasha.ItemsRunner do
+defmodule Athasha.Runner do
   use GenServer
 
   alias Athasha.Bus
   alias Athasha.Spec
-  alias Athasha.ItemsServer
+  alias Athasha.Items
+  alias Athasha.Server
 
   def child_spec(_) do
     Spec.for(__MODULE__)
@@ -13,9 +14,11 @@ defmodule Athasha.ItemsRunner do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  def status(id, type, msg), do: %{id: id, type: type, msg: msg}
+
   def init(_initial) do
     {:ok, _} = Bus.register(:items, nil)
-    all = ItemsServer.all()
+    all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: all.version, items: items}
     state = all.items |> Enum.reduce(state, &init_if/2)
@@ -84,13 +87,15 @@ defmodule Athasha.ItemsRunner do
   defp start(state, item) do
     modu =
       case item.type do
-        "Modbus Reader" -> Athasha.RunnerModbus
+        "Modbus Reader" -> Athasha.Modbus.Runner
       end
 
     # assert
-    false = Map.has_key?(state, item.id)
-    {:ok, pid} = modu.start_link(item)
-    Map.put(state, item.id, {modu, pid})
+    id = item.id
+    false = Map.has_key?(state, id)
+    name = {:via, Registry, {Items, :runner, item}}
+    {:ok, pid} = modu.start_link(item, name)
+    Map.put(state, id, {modu, pid})
   end
 
   defp stop(state, id) do

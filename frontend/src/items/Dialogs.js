@@ -104,9 +104,9 @@ function NewItem(props) {
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
                     <Form.Select autoFocus value={type} onChange={e => setType(e.target.value)}>
+                        {option("")}
                         {option("Modbus Reader")}
                         {option("Database Writer")}
-                        {option("")}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">

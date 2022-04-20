@@ -1,10 +1,12 @@
-defmodule Athasha.RunnerModbus do
+defmodule Athasha.Modbus.Runner do
   use GenServer
   alias Modbus.Master
+  alias Athasha.Runner
+  alias Athasha.Items
   alias Athasha.Bus
 
-  def start_link(item) do
-    GenServer.start_link(__MODULE__, item)
+  def start_link(item, name) do
+    GenServer.start_link(__MODULE__, item, name: name)
   end
 
   def stop(pid) do
@@ -16,6 +18,7 @@ defmodule Athasha.RunnerModbus do
   end
 
   def init(item) do
+    register_status(item.id, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -128,8 +131,19 @@ defmodule Athasha.RunnerModbus do
     )
   end
 
-  defp dispatch_status(id, type, msg) do
-    Bus.dispatch(:status, %{id: id, type: type, msg: msg})
+  defp register_status(id, type, msg) do
+    dispatch_status(id, type, msg, true)
+  end
+
+  defp dispatch_status(id, type, msg, first \\ false) do
+    status = Runner.status(id, type, msg)
+
+    case first do
+      true -> Items.register(:status, status)
+      false -> Items.update(:status, status)
+    end
+
+    Bus.dispatch(:status, status)
   end
 
   defp connect_master(config) do
