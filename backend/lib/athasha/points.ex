@@ -17,9 +17,18 @@ defmodule Athasha.Points do
     Registry.update_value(__MODULE__, key, fn _ -> value end)
   end
 
+  def lookup(key) do
+    Registry.lookup(__MODULE__, key)
+  end
+
+  def select(query) do
+    Registry.select(__MODULE__, query)
+  end
+
+  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+
   def all() do
-    all = [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
-    Registry.select(__MODULE__, all)
+    select(@all)
   end
 
   def one(id) do

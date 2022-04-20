@@ -97,7 +97,7 @@ function Rows(props) {
             onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
     }
 
-    function statusMsg(item) {
+    function statusTitle(item) {
         if (!item.enabled) {
             return "Disabled"
         }
@@ -105,6 +105,13 @@ function Rows(props) {
             return "Enabled"
         }
         return item.status.msg
+    }
+
+    function statusMsg(item) {
+        if (!item.enabled) {
+            return "Disabled"
+        }
+        return "Enabled"
     }
 
     function statusBg(item) {
@@ -121,7 +128,7 @@ function Rows(props) {
 
     function StatusBadge({ item }) {
         return (
-            <Badge pill bg={statusBg(item)}
+            <Badge pill bg={statusBg(item)} title={statusTitle(item)}
                 className='ms-2 user-select-none'>
                 {statusMsg(item)}
             </Badge>

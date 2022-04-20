@@ -137,6 +137,13 @@ recompile
 :observer.start()
 Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
 Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
+Ecto.Adapters.SQL.query(Repo, "select * from items")
+iex(4)> Application.fetch_env!(:athasha, Athasha.Repo)
+[
+  database: "/home/samuel/github/athasha/backend/athasha_dev.db",
+  pool_size: 5,
+  show_sensitive_data_on_connection_error: true
+]
 #SQL Server Tryout
 {:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "tryout", password: "tryout", database: "tryout", port: 1433])
 Tds.query!(pid, "insert into dbo.Table1 (ID, NAME) values (@p1, @p2)", [%Tds.Parameter{name: "@p1", value: "1"}, %Tds.Parameter{name: "@p2", value: "NAME1"}])
@@ -145,6 +152,6 @@ Tds.query!(pid, "select * from dbo.Table1", [])
 {:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "sa", password: "123", database: "datalog", port: 1433])
 Tds.query!(pid, "insert into dbo.Table1 (COL1) values (@1)", [%Tds.Parameter{name: "@1", value: "1"}])
 Tds.query!(pid, "select * from dbo.Table1", [])
-#Tryouts with
+#SQL Server data types and defaults
 int, float, datetime = (getdate())
 ```

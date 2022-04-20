@@ -29,11 +29,12 @@ defmodule Athasha.Database.Runner do
     database = config["database"]
     username = config["username"]
     password = config["password"]
-    query = config["query"]
+    command = config["command"]
 
     points =
-      Enum.map(config["points"], fn {point, index} ->
-        %{index: index, id: point["id"]}
+      Enum.with_index(config["points"])
+      |> Enum.map(fn {point, index} ->
+        %{index: index, id: point["id"], param: "@#{index + 1}"}
       end)
 
     config = %{
@@ -44,7 +45,7 @@ defmodule Athasha.Database.Runner do
       database: database,
       username: username,
       password: password,
-      query: query
+      command: command
     }
 
     Process.send_after(self(), :run, 0)
@@ -111,17 +112,23 @@ defmodule Athasha.Database.Runner do
 
   defp run_once(%{config: config, dbconn: dbconn}) do
     params =
-      Enum.map(config.points, fn {point, index} ->
+      Enum.map(config.points, fn point ->
         value =
           case Points.one(point.id) do
             [{:read, _, {_, value}}] -> value
             _ -> nil
           end
 
-        %Tds.Parameter{name: "@#{index + 1}", value: value}
+        %Tds.Parameter{name: point.param, value: value}
       end)
 
-    Tds.query!(dbconn, config.query, params)
+    case Tds.query(dbconn, config.command, params) do
+      {:ok, _res} ->
+        true
+
+      _ ->
+        false
+    end
   end
 
   defp connect_dbconn(config) do

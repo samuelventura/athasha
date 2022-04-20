@@ -22,8 +22,8 @@ defmodule Athasha.Runner do
     status = %{id: id, type: type, msg: msg}
 
     case first do
-      true -> Items.register(:status, status)
-      false -> Items.update(:status, status)
+      true -> Items.register({:status, id}, {type, msg})
+      false -> Items.update({:status, id}, {type, msg})
     end
 
     Bus.dispatch(:status, status)
@@ -107,7 +107,7 @@ defmodule Athasha.Runner do
     # assert
     id = item.id
     false = Map.has_key?(state, id)
-    name = {:via, Registry, {Items, :runner, item}}
+    name = {:via, Registry, {Items, {:runner, item.id}, item}}
     {:ok, pid} = modu.start_link(item, name)
     Map.put(state, id, {modu, pid})
   end
