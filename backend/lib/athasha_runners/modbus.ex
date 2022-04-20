@@ -1,6 +1,7 @@
 defmodule Athasha.Modbus.Runner do
   use GenServer
   alias Modbus.Master
+  alias Modbus.Float
   alias Athasha.Runner
   alias Athasha.Points
   alias Athasha.Bus
@@ -40,8 +41,7 @@ defmodule Athasha.Modbus.Runner do
         %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
       end)
 
-    now = System.monotonic_time(:millisecond)
-    points |> Enum.each(&Points.register({&1.id, :read}, {now, nil}))
+    reg_points(points)
     config = %{host: host, port: port, delay: delay, points: points}
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
@@ -67,8 +67,6 @@ defmodule Athasha.Modbus.Runner do
             state
 
           false ->
-            now = System.monotonic_time(:millisecond)
-            config.points |> Enum.each(&Points.update({&1.id, :read}, {now, nil}))
             stop_master(state)
         end
 
@@ -83,6 +81,7 @@ defmodule Athasha.Modbus.Runner do
         IO.inspect({e, __STACKTRACE__})
         Runner.dispatch_status(item.id, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
+        nil_points(config.points)
         state = stop_master(state)
         {:noreply, state}
     end
@@ -103,32 +102,82 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp connect(state), do: state
-  defp run_once(%{master: nil}), do: false
+
+  defp run_once(%{config: config, master: nil}) do
+    nil_points(config.points)
+    false
+  end
 
   defp run_once(%{item: item, config: config, master: master}) do
     Enum.reduce(config.points, true, fn point, res ->
       case res do
-        true -> exec_point(item, master, point)
-        false -> false
+        true ->
+          case exec_point(master, point) do
+            {:ok, value} ->
+              set_point(point, value)
+              Bus.dispatch(:points, {item.id, point.name, value})
+              true
+
+            {:error, reason} ->
+              set_point(point, nil)
+              point_error(item.id, point, reason)
+              false
+          end
+
+        false ->
+          set_point(point, nil)
+          false
       end
     end)
   end
 
-  defp exec_point(item, master, point) do
+  defp set_point(point, value) do
+    now = System.monotonic_time(:millisecond)
+    Points.update({point.id, :read}, {now, value})
+  end
+
+  defp nil_points(points) do
+    now = System.monotonic_time(:millisecond)
+    points |> Enum.each(&Points.update({&1.id, :read}, {now, nil}))
+  end
+
+  defp reg_points(points) do
+    now = System.monotonic_time(:millisecond)
+    points |> Enum.each(&Points.register({&1.id, :read}, {now, nil}))
+  end
+
+  defp exec_point(master, point) do
     case point.code do
       "01" ->
         case Master.exec(master, {:rc, point.slave, point.address, 1}) do
-          {:ok, [value]} ->
-            now = System.monotonic_time(:millisecond)
-            Points.update({point.id, :read}, {now, value})
-            Bus.dispatch(:points, {item.id, point.name, value})
-            true
+          {:ok, [value]} -> {:ok, value}
+          any -> any
+        end
 
-          {:error, reason} ->
-            now = System.monotonic_time(:millisecond)
-            Points.update({point.id, :read}, {now, nil})
-            point_error(item.id, point, reason)
-            false
+      "02" ->
+        case Master.exec(master, {:ri, point.slave, point.address, 1}) do
+          {:ok, [value]} -> {:ok, value}
+          any -> any
+        end
+
+      "20" ->
+        case Master.exec(master, {:rir, point.slave, point.address, 2}) do
+          {:ok, values} ->
+            [value] = Float.from_be(values)
+            {:ok, value}
+
+          any ->
+            any
+        end
+
+      "21" ->
+        case Master.exec(master, {:rhr, point.slave, point.address, 2}) do
+          {:ok, values} ->
+            [value] = Float.from_be(values)
+            {:ok, value}
+
+          any ->
+            any
         end
     end
   end
