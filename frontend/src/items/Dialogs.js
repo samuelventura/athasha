@@ -154,7 +154,7 @@ function BackupButton() {
         element.style.display = 'none';
         element.click();
     }
-    return app.logged ? (
+    return app.logged && Object.keys(app.state.items).length > 0 ? (
         <Button variant="link" onClick={handleOnClick} title="Backup">
             <FontAwesomeIcon icon={faDownload} />
         </Button>
@@ -181,7 +181,7 @@ function RestoreButton() {
         };
         input.click();
     }
-    return app.logged ? (
+    return app.logged && Object.keys(app.state.items).length === 0 ? (
         <Button variant="link" onClick={handleOnClick} title="Restore">
             <FontAwesomeIcon icon={faUpload} />
         </Button>

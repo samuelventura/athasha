@@ -22,8 +22,8 @@ function Main() {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
-              <BackupButton />
               <RestoreButton />
+              <BackupButton />
               <LogoutButton />
             </Navbar.Text>
           </Navbar.Collapse>
