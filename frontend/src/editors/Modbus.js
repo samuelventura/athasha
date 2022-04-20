@@ -89,10 +89,10 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Select value={points[index].code} required onChange={e => setPoint(index, "code", e.target.value)}>
-                    <option value="01">01 Read Coil 0=OFF 1=ON</option>
-                    <option value="02">02 Read Input 0=OFF 1=ON</option>
-                    <option value="20">20 Read Float32 03:W0W1</option>
-                    <option value="21">21 Read Float32 04:W0W1</option>
+                    <option value="01">01 Read DO 0=OFF 1=ON</option>
+                    <option value="02">02 Read DI 0=OFF 1=ON</option>
+                    <option value="20">20 Read AO Float32 03:W0W1</option>
+                    <option value="21">21 Read AI Float32 04:W0W1</option>
                     {/* <option value="03">03 Read Holding Registers</option>
                     <option value="04">04 Read Input Registers</option> */}
                 </Form.Select>
