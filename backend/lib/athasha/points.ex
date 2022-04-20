@@ -23,7 +23,7 @@ defmodule Athasha.Points do
   end
 
   def one(id, name) do
-    one1 = [{{{id, name, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
-    Registry.select(__MODULE__, one1)
+    one = [{{{id, name, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+    Registry.select(__MODULE__, one)
   end
 end
