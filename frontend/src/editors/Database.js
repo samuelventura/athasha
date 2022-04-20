@@ -111,6 +111,7 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Select value={points[index].id} required onChange={e => setPoint(index, "id", e.target.value)}>
+                    <option value=""></option>
                     {options}
                 </Form.Select>
             </td>

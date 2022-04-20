@@ -162,7 +162,11 @@ function Rows(props) {
         if (props.selected.id) {
             const id = `item_${props.selected.id}`
             const el = document.getElementById(id)
-            if (el) el.scrollIntoViewIfNeeded();
+            if (el) {
+                el.scrollIntoViewIfNeeded ?
+                    el.scrollIntoViewIfNeeded() :
+                    el.scrollIntoView();
+            }
         }
     }, [props])
 

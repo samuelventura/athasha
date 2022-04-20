@@ -52,9 +52,7 @@ defmodule Athasha.Database.Runner do
     {:ok, %{item: item, config: config, dbconn: nil}}
   end
 
-  def handle_info({:EXIT, pid, reason}, state = %{dbconn: dbconn}) do
-    IO.inspect({:EXIT, pid, reason})
-
+  def handle_info({:EXIT, pid, _reason}, state = %{dbconn: dbconn}) do
     state =
       case dbconn do
         ^pid -> stop_dbconn(state)
@@ -110,7 +108,7 @@ defmodule Athasha.Database.Runner do
   defp connect(state), do: state
   defp run_once(%{dbconn: nil}), do: false
 
-  defp run_once(%{config: config, dbconn: dbconn}) do
+  defp run_once(%{item: item, config: config, dbconn: dbconn}) do
     params =
       Enum.map(config.points, fn point ->
         value =
@@ -126,7 +124,8 @@ defmodule Athasha.Database.Runner do
       {:ok, _res} ->
         true
 
-      _ ->
+      {:error, reason} ->
+        Runner.dispatch_status(item.id, :error, "#{inspect(reason)}")
         false
     end
   end

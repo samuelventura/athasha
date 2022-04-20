@@ -75,6 +75,7 @@ yarn add http-proxy-middleware
 - Modbus Monitor
   - Digital or analog
   - Widget
+- Datalogger
 
 ## Simplifications
 
@@ -83,6 +84,20 @@ yarn add http-proxy-middleware
 - No need to show updated status in first render. Blue enabled is ok.
 - No need to check for point name uniqueness because second regiter failes and second update overwrites.
 - Timestaps can be automatically created on insert by specifying a timestamp default for that column.
+- No need to reset id sequence during item by item restore since ecto keeps track of the largest id inserted.
+
+## First Beta
+
+- Modbus Reader + MSSQL Database Writer
+- Opto22 float and Laurel reading
+- Backdoor: 
+  - Local setup only
+  - Full database reset (for unrecoverable errors)
+  - Password reset / change
+  - Nerves IP setup
+- Rock solid
+  - Runner crash reconvery
+  - Process count
 
 ## Research
 
@@ -138,12 +153,23 @@ recompile
 Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
 Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
 Ecto.Adapters.SQL.query(Repo, "select * from items")
+samuel@p3420:~/github/athasha/backend$ sqlite3 athasha_dev.db
+SQLite version 3.31.1 2020-01-27 19:55:54
+Enter ".help" for usage hints.
+sqlite> .schema
+CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" INTEGER PRIMARY KEY, "inserted_at" TEXT_DATETIME);
+CREATE TABLE IF NOT EXISTS "items" ("id" INTEGER PRIMARY KEY, "name" TEXT, "type" TEXT, "enabled" BOOLEAN DEFAULT false NOT NULL, "config" TEXT, "inserted_at" TEXT_DATETIME NOT NULL, "updated_at" TEXT_DATETIME NOT NULL);
+
 iex(4)> Application.fetch_env!(:athasha, Athasha.Repo)
 [
   database: "/home/samuel/github/athasha/backend/athasha_dev.db",
   pool_size: 5,
   show_sensitive_data_on_connection_error: true
 ]
+item = %{id: 9999, name: "name", type: "type", enabled: false, config: "{}"}
+Item.changeset(%Item{}, item) |> Repo.insert()
+Item.changeset(%Item{}, item, :id) |> Repo.insert()
+Repo.delete(%Item{id: 9999})
 #SQL Server Tryout
 {:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "tryout", password: "tryout", database: "tryout", port: 1433])
 Tds.query!(pid, "insert into dbo.Table1 (ID, NAME) values (@p1, @p2)", [%Tds.Parameter{name: "@p1", value: "1"}, %Tds.Parameter{name: "@p2", value: "NAME1"}])
@@ -155,3 +181,7 @@ Tds.query!(pid, "select * from dbo.Table1", [])
 #SQL Server data types and defaults
 int, float, datetime = (getdate())
 ```
+
+## Unsupported
+
+- scrollIntoViewIfNeeded ff 99.0 (64-bit)

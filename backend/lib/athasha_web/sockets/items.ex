@@ -88,7 +88,21 @@ defmodule AthashaWeb.ItemsSocket do
   end
 
   defp handle_event(event = %{"name" => "restore"}, state = %{logged: true}) do
-    IO.inspect({"FIXME", event})
+    name = event["name"]
+
+    args =
+      Enum.map(event["args"], fn item ->
+        %{
+          id: item["id"],
+          name: item["name"],
+          type: item["type"],
+          enabled: item["enabled"],
+          config: item["config"]
+        }
+      end)
+
+    Server.apply(%{name: name, args: args})
+
     {:ok, state}
   end
 

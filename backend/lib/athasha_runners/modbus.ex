@@ -67,6 +67,8 @@ defmodule Athasha.Modbus.Runner do
             state
 
           false ->
+            now = System.monotonic_time(:millisecond)
+            config.points |> Enum.each(&Points.update({&1.id, :read}, {now, nil}))
             stop_master(state)
         end
 
@@ -123,6 +125,8 @@ defmodule Athasha.Modbus.Runner do
             true
 
           {:error, reason} ->
+            now = System.monotonic_time(:millisecond)
+            Points.update({point.id, :read}, {now, nil})
             point_error(item.id, point, reason)
             false
         end

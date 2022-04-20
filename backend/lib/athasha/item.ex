@@ -17,4 +17,8 @@ defmodule Athasha.Item do
     |> cast(attrs, [:name, :type, :enabled, :config])
     |> validate_required([:name, :type, :enabled, :config])
   end
+
+  def changeset(item, attrs, :id) do
+    changeset(item, attrs) |> cast(attrs, [:id])
+  end
 end

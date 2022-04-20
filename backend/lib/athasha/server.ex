@@ -50,6 +50,15 @@ defmodule Athasha.Server do
     end
   end
 
+  defp apply_muta(muta = %{name: "restore"}, from, state = %{items: %{}}) do
+    Enum.reduce(muta.args, state, fn item, state ->
+      {:ok, item} = insert(item, :id)
+      args = strip_item(item)
+      muta = %{name: "create", args: args}
+      apply_muta(:put, item, muta, from, state)
+    end)
+  end
+
   defp apply_muta(muta = %{name: "create"}, from, state) do
     args = muta.args
     {:ok, item} = insert(args)
@@ -111,6 +120,10 @@ defmodule Athasha.Server do
 
   defp insert(args) do
     Item.changeset(%Item{}, args) |> Repo.insert()
+  end
+
+  defp insert(args, :id) do
+    Item.changeset(%Item{}, args, :id) |> Repo.insert()
   end
 
   defp strip_tuple({_id, item}) do
