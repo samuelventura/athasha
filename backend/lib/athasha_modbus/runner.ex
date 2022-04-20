@@ -41,7 +41,8 @@ defmodule Athasha.Modbus.Runner do
         %{slave: slave, address: address, code: code, name: name}
       end)
 
-    points |> Enum.each(fn point -> Points.register({id, point.name}, nil) end)
+    now = System.monotonic_time(:millisecond)
+    points |> Enum.each(fn point -> Points.register({id, point.name, :read}, {now, nil}) end)
     config = %{host: host, port: port, delay: delay, points: points}
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
@@ -81,6 +82,8 @@ defmodule Athasha.Modbus.Runner do
         IO.inspect({e, __STACKTRACE__})
         dispatch_status(item.id, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
+        # recompile gets me here, reconnect to get UI status updated
+        state = stop_master(state)
         {:noreply, state}
     end
   end
@@ -116,7 +119,8 @@ defmodule Athasha.Modbus.Runner do
       "01" ->
         case Master.exec(master, {:rc, point.slave, point.address, 1}) do
           {:ok, [value]} ->
-            Points.update({item.id, point.name}, value)
+            now = System.monotonic_time(:millisecond)
+            Points.update({item.id, point.name, :read}, {now, value})
             Bus.dispatch(:points, {item.id, point.name, value})
             true
 

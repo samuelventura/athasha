@@ -1,8 +1,6 @@
 defmodule Athasha.Points do
   alias Athasha.Spec
 
-  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
-
   def child_spec(_) do
     Spec.for(__MODULE__)
   end
@@ -20,6 +18,12 @@ defmodule Athasha.Points do
   end
 
   def all() do
-    Registry.select(__MODULE__, @all)
+    all = [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+    Registry.select(__MODULE__, all)
+  end
+
+  def one(id, name) do
+    one1 = [{{{id, name, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+    Registry.select(__MODULE__, one1)
   end
 end
