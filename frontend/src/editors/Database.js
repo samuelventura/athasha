@@ -8,19 +8,21 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { useApp } from '../App'
 
-// conditional rendering to avoid store calls from all editors
-// props.children always changes preventing a generic If implementation
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
 
 function initialState() {
-    return { host: "127.0.0.1", port: "5000", delay: "10", points: [initialPoint()] }
+    return {
+        host: "127.0.0.1", port: "1433", period: "1000", points: [initialPoint()],
+        database: "datalog", username: "sa", password: "", command: "insert into dbo.Table1 (COL1) values (@1)",
+    }
 }
 
 function initialPoint() {
-    return { slave: "1", code: "01", address: "0", name: "Point 1" }
+    return { id: "" }
 }
 
 function checkRange(value, min, max) {
@@ -28,43 +30,53 @@ function checkRange(value, min, max) {
     return min <= value && value <= max
 }
 
-function checkNotBlack(value) {
+function checkNotBlank(value) {
     return `${value}`.trim().length > 0
 }
 
 function Editor(props) {
+    const app = useApp()
     const [host, setName] = useState("")
     const [port, setPort] = useState(0)
-    const [delay, setDelay] = useState(0)
+    const [period, setPeriod] = useState(0)
     const [points, setPoints] = useState([])
+    const [database, setDatabase] = useState("")
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
+    const [command, setCommand] = useState("")
     // initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
         setName(state.host || init.host)
         setPort(state.port || init.port)
-        setDelay(state.delay || init.delay)
+        setPeriod(state.period || init.period)
         setPoints(state.points || init.points)
+        setDatabase(state.database || init.database)
+        setUsername(state.username || init.username)
+        setPassword(state.password || init.password)
+        setCommand(state.command || init.command)
     }, [props.state])
     // rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlack(host)
+        valid = valid && checkNotBlank(host)
         valid = valid && checkRange(port, 1, 65535)
-        valid = valid && checkRange(delay, 0, 1000)
+        valid = valid && checkRange(period, 0, 1000)
         valid = valid && points.length > 0
+        valid = valid && checkNotBlank(database)
+        valid = valid && checkNotBlank(username)
+        valid = valid && checkNotBlank(password)
+        valid = valid && checkNotBlank(command)
         valid = valid && points.reduce((valid, point) => {
-            valid = valid && checkRange(point.slave, 1, 65535)
-            valid = valid && checkRange(point.address, 0, 65535)
-            valid = valid && checkNotBlack(point.name)
-            valid = valid && checkNotBlack(point.code)
+            valid = valid && checkNotBlank(point.id)
             return valid
         }, true)
         props.setValid(valid)
         props.store({
-            host, port, delay, points,
+            host, port, period, points, database, username, password, command
         })
-    }, [props, host, port, delay, points])
+    }, [props, host, port, period, points, database, username, password, command])
     function setPoint(index, name, value) {
         const next = [...points]
         next[index][name] = value
@@ -73,7 +85,6 @@ function Editor(props) {
     function addPoint() {
         const next = [...points]
         const point = initialPoint()
-        point.name = `Point ${next.length + 1}`
         next.push(point)
         setPoints(next)
     }
@@ -82,28 +93,26 @@ function Editor(props) {
         next.splice(index, 1)
         setPoints(next)
     }
+    const items = Object.values(app.state.items).filter(item => item.type === 'Modbus Reader')
+    const options = items.map((item) => {
+        const config = JSON.parse(item.config)
+        return config.points.map((point, index) => {
+            const id = `${item.id} ${point.name}`
+            const desc = `${item.name}/${point.name}`
+            return <option key={"option_" + item.id + "_" + index} value={id}>{desc}</option>
+        })
+    }
+    ).flat()
     const rows = points.map((point, index) =>
         <tr key={index} id={"point_" + index}>
             <td>{index + 1}</td>
             <td>
-                <Form.Control type="number" required min="1" max="65535" placeholder="Slave ID"
-                    value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value)} />
+                {"@" + (index + 1)}
             </td>
             <td>
-                <Form.Select value={points[index].code} required onChange={e => setPoint(index, "code", e.target.value)}>
-                    <option value="01">01 Read Coil Status</option>
-                    <option value="02">02 Read Input Status</option>
-                    <option value="03">03 Read Holding Registers</option>
-                    <option value="04">04 Read Input Registers</option>
+                <Form.Select value={points[index].id} required onChange={e => setPoint(index, "id", e.target.value)}>
+                    {options}
                 </Form.Select>
-            </td>
-            <td>
-                <Form.Control type="number" required min="0" max="65535" placeholder="Address"
-                    value={points[index].address} onChange={e => setPoint(index, "address", e.target.value)} />
-            </td>
-            <td>
-                <Form.Control type="text" required placeholder="Point Name"
-                    value={points[index].name} onChange={e => setPoint(index, "name", e.target.value)} />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}>
@@ -128,20 +137,47 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Delay (ms)">
-                        <Form.Control type="number" required min="0" max="1000" placeholder="Delay (ms)"
-                            value={delay} onChange={e => setDelay(e.target.value)} />
+                    <FloatingLabel label="Period (ms)">
+                        <Form.Control type="number" required min="0" max="1000" placeholder="Period (ms)"
+                            value={period} onChange={e => setPeriod(e.target.value)} />
                     </FloatingLabel>
                 </Col>
             </Row>
+            <Row>
+                <Col xs={3}>
+                    <FloatingLabel label="Database">
+                        <Form.Control autoFocus required type="text" placeholder="Database"
+                            value={database} onChange={e => setDatabase(e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={3}>
+                    <FloatingLabel label="Username">
+                        <Form.Control type="text" required placeholder="Username"
+                            value={username} onChange={e => setUsername(e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={3}>
+                    <FloatingLabel label="Password">
+                        <Form.Control type="password" required placeholder="Password"
+                            value={password} onChange={e => setPassword(e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={9}>
+                    <FloatingLabel label="Command">
+                        <Form.Control autoFocus required type="text" placeholder="Command"
+                            value={command} onChange={e => setCommand(e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+            </Row>
+
             <Table className='PointsTable'>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Slave ID</th>
-                        <th>Function Code</th>
-                        <th>Address</th>
-                        <th>Point Name</th>
+                        <th>Param</th>
+                        <th>Point</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addPoint}>
                                 <FontAwesomeIcon icon={faPlus} />

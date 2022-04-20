@@ -82,6 +82,7 @@ yarn add http-proxy-middleware
 - Last status is what matters. Timestamps are not really neaded and must be server side for first render to be in sync.
 - No need to show updated status in first render. Blue enabled is ok.
 - No need to check for point name uniqueness because second regiter failes and second update overwrites.
+- Timestaps can be automatically created on insert by specifying a timestamp default for that column.
 
 ## Research
 
@@ -140,4 +141,10 @@ Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
 {:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "tryout", password: "tryout", database: "tryout", port: 1433])
 Tds.query!(pid, "insert into dbo.Table1 (ID, NAME) values (@p1, @p2)", [%Tds.Parameter{name: "@p1", value: "1"}, %Tds.Parameter{name: "@p2", value: "NAME1"}])
 Tds.query!(pid, "select * from dbo.Table1", [])
+#SQL Server datalog
+{:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "sa", password: "123", database: "datalog", port: 1433])
+Tds.query!(pid, "insert into dbo.Table1 (COL1) values (@1)", [%Tds.Parameter{name: "@1", value: "1"}])
+Tds.query!(pid, "select * from dbo.Table1", [])
+#Tryouts with
+int, float, datetime = (getdate())
 ```

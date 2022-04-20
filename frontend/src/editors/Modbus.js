@@ -9,8 +9,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
-// conditional rendering to avoid store calls from all editors
-// props.children always changes preventing a generic If implementation
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
@@ -28,7 +26,7 @@ function checkRange(value, min, max) {
     return min <= value && value <= max
 }
 
-function checkNotBlack(value) {
+function checkNotBlank(value) {
     return `${value}`.trim().length > 0
 }
 
@@ -49,15 +47,15 @@ function Editor(props) {
     // rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlack(host)
+        valid = valid && checkNotBlank(host)
         valid = valid && checkRange(port, 1, 65535)
         valid = valid && checkRange(delay, 0, 1000)
         valid = valid && points.length > 0
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkRange(point.slave, 1, 65535)
             valid = valid && checkRange(point.address, 0, 65535)
-            valid = valid && checkNotBlack(point.name)
-            valid = valid && checkNotBlack(point.code)
+            valid = valid && checkNotBlank(point.name)
+            valid = valid && checkNotBlank(point.code)
             return valid
         }, true)
         props.setValid(valid)

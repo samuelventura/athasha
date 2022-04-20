@@ -3,7 +3,6 @@ defmodule Athasha.Modbus.Runner do
   alias Modbus.Master
   alias Athasha.Runner
   alias Athasha.Points
-  alias Athasha.Items
   alias Athasha.Bus
 
   def start_link(item, name) do
@@ -14,13 +13,13 @@ defmodule Athasha.Modbus.Runner do
     GenServer.stop(pid)
   end
 
-  def terminate(_reason, %{master: master}) do
-    if master != nil, do: Master.stop(master)
+  def terminate(_reason, state) do
+    stop_master(state)
   end
 
   def init(item) do
     id = item.id
-    register_status(id, :warn, "Starting...")
+    Runner.register_status(id, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -38,11 +37,11 @@ defmodule Athasha.Modbus.Runner do
         {address, _} = Integer.parse(address)
         code = point["code"]
         name = point["name"]
-        %{slave: slave, address: address, code: code, name: name}
+        %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
       end)
 
     now = System.monotonic_time(:millisecond)
-    points |> Enum.each(fn point -> Points.register({id, point.name, :read}, {now, nil}) end)
+    points |> Enum.each(&Points.register({&1.id, :read}, {now, nil}))
     config = %{host: host, port: port, delay: delay, points: points}
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
@@ -80,24 +79,23 @@ defmodule Athasha.Modbus.Runner do
     rescue
       e ->
         IO.inspect({e, __STACKTRACE__})
-        dispatch_status(item.id, :error, "#{inspect(e)}")
+        Runner.dispatch_status(item.id, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
-        # recompile gets me here, reconnect to get UI status updated
         state = stop_master(state)
         {:noreply, state}
     end
   end
 
   defp connect(state = %{item: item, config: config, master: nil}) do
-    dispatch_status(item.id, :warn, "Connecting...")
+    Runner.dispatch_status(item.id, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        dispatch_status(item.id, :success, "Connected")
+        Runner.dispatch_status(item.id, :success, "Connected")
         Map.put(state, :master, master)
 
       {:error, reason} ->
-        dispatch_status(item.id, :error, "#{inspect(reason)}")
+        Runner.dispatch_status(item.id, :error, "#{inspect(reason)}")
         state
     end
   end
@@ -120,7 +118,7 @@ defmodule Athasha.Modbus.Runner do
         case Master.exec(master, {:rc, point.slave, point.address, 1}) do
           {:ok, [value]} ->
             now = System.monotonic_time(:millisecond)
-            Points.update({item.id, point.name, :read}, {now, value})
+            Points.update({point.id, :read}, {now, value})
             Bus.dispatch(:points, {item.id, point.name, value})
             true
 
@@ -132,26 +130,11 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp point_error(id, point, reason) do
-    dispatch_status(
+    Runner.dispatch_status(
       id,
       :error,
       "#{point.slave}:#{point.address}:#{point.code}:#{point.name} #{inspect(reason)}"
     )
-  end
-
-  defp register_status(id, type, msg) do
-    dispatch_status(id, type, msg, true)
-  end
-
-  defp dispatch_status(id, type, msg, first \\ false) do
-    status = Runner.status(id, type, msg)
-
-    case first do
-      true -> Items.register(:status, status)
-      false -> Items.update(:status, status)
-    end
-
-    Bus.dispatch(:status, status)
   end
 
   defp connect_master(config) do

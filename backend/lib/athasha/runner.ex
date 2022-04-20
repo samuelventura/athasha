@@ -14,7 +14,20 @@ defmodule Athasha.Runner do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def status(id, type, msg), do: %{id: id, type: type, msg: msg}
+  def register_status(id, type, msg) do
+    dispatch_status(id, type, msg, true)
+  end
+
+  def dispatch_status(id, type, msg, first \\ false) do
+    status = %{id: id, type: type, msg: msg}
+
+    case first do
+      true -> Items.register(:status, status)
+      false -> Items.update(:status, status)
+    end
+
+    Bus.dispatch(:status, status)
+  end
 
   def init(_initial) do
     {:ok, _} = Bus.register(:items, nil)
@@ -88,6 +101,7 @@ defmodule Athasha.Runner do
     modu =
       case item.type do
         "Modbus Reader" -> Athasha.Modbus.Runner
+        "Database Writer" -> Athasha.Database.Runner
       end
 
     # assert
