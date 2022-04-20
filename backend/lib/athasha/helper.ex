@@ -7,6 +7,9 @@ defmodule Athasha.Helper do
   # returns list of versioned items
   def items(), do: Athasha.Items.lookup(:items)
 
+  # returns list of points
+  def points(), do: Athasha.Points.all()
+
   # returns list of running item runners
   def runners(), do: Athasha.Items.lookup(:runner)
 

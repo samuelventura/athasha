@@ -2,6 +2,7 @@ defmodule Athasha.Modbus.Runner do
   use GenServer
   alias Modbus.Master
   alias Athasha.Runner
+  alias Athasha.Points
   alias Athasha.Items
   alias Athasha.Bus
 
@@ -18,7 +19,8 @@ defmodule Athasha.Modbus.Runner do
   end
 
   def init(item) do
-    register_status(item.id, :warn, "Starting...")
+    id = item.id
+    register_status(id, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -39,6 +41,7 @@ defmodule Athasha.Modbus.Runner do
         %{slave: slave, address: address, code: code, name: name}
       end)
 
+    points |> Enum.each(fn point -> Points.register({id, point.name}, nil) end)
     config = %{host: host, port: port, delay: delay, points: points}
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
@@ -113,6 +116,7 @@ defmodule Athasha.Modbus.Runner do
       "01" ->
         case Master.exec(master, {:rc, point.slave, point.address, 1}) do
           {:ok, [value]} ->
+            Points.update({item.id, point.name}, value)
             Bus.dispatch(:points, {item.id, point.name, value})
             true
 

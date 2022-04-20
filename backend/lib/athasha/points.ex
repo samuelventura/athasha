@@ -1,6 +1,8 @@
 defmodule Athasha.Points do
   alias Athasha.Spec
 
+  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+
   def child_spec(_) do
     Spec.for(__MODULE__)
   end
@@ -13,7 +15,11 @@ defmodule Athasha.Points do
     Registry.register(__MODULE__, key, args)
   end
 
-  def lookup(key) do
-    Registry.lookup(__MODULE__, key)
+  def update(key, value) do
+    Registry.update_value(__MODULE__, key, fn _ -> value end)
+  end
+
+  def all() do
+    Registry.select(__MODULE__, @all)
   end
 end

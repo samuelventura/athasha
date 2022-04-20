@@ -14,7 +14,7 @@ defmodule Athasha.Items do
   end
 
   def update(key, value) do
-    Registry.update_value(__MODULE__, key, fn old -> value end)
+    Registry.update_value(__MODULE__, key, fn _ -> value end)
   end
 
   def lookup(key) do

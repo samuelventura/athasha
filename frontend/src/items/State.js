@@ -50,7 +50,7 @@ function reducer(state, { name, args, self }) {
       const next = clone_object(state)
       const item = next.items[args.id]
       item.enabled = args.enabled
-      item.status = status("info", args.enabled ? "Started" : "Stopped")
+      item.status = status("info", args.enabled ? "Enabled" : "Disabled")
       return next
     }
     case "edit": {
