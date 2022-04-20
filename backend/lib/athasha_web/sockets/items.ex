@@ -87,6 +87,11 @@ defmodule AthashaWeb.ItemsSocket do
     end
   end
 
+  defp handle_event(event = %{"name" => "restore"}, state = %{logged: true}) do
+    IO.inspect({"FIXME", event})
+    {:ok, state}
+  end
+
   defp handle_event(event, state = %{logged: true}) do
     name = event["name"]
     args = event["args"]

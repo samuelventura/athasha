@@ -6,6 +6,7 @@ defmodule Athasha.Helper do
 
   # returns list of versioned items
   def items(), do: Athasha.Items.items()
+
   # returns list of points
   def points(), do: Athasha.Points.all()
 

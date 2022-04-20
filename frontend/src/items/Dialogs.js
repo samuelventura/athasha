@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faDownload } from '@fortawesome/free-solid-svg-icons'
+import { faUpload } from '@fortawesome/free-solid-svg-icons'
+import { useApp } from '../App'
 
 function DeleteItem(props) {
     const item = props.item
@@ -128,4 +132,60 @@ function NewItem(props) {
     )
 }
 
-export { NewItem, DeleteItem, RenameItem }
+function BackupButton() {
+    const app = useApp()
+    const handleOnClick = () => {
+        const items = Object.values(app.state.items).map(item => {
+            return {
+                id: item.id,
+                name: item.name,
+                type: item.type,
+                enabled: item.enabled,
+                config: item.config,
+            }
+        })
+        const json = JSON.stringify(items)
+        const element = document.createElement('a');
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(json));
+        element.setAttribute('download', `${filename}.athasha.backup.json`);
+        element.style.display = 'none';
+        element.click();
+    }
+    return app.logged ? (
+        <Button variant="link" onClick={handleOnClick} title="Backup">
+            <FontAwesomeIcon icon={faDownload} />
+        </Button>
+    ) : null
+}
+
+function RestoreButton() {
+    const app = useApp()
+    const handleOnClick = () => {
+        const input = document.createElement('input');
+        input.setAttribute('accept', ".athasha.backup.json");
+        input.type = 'file';
+        input.onchange = _ => {
+            const files = Array.from(input.files);
+            const reader = new FileReader();
+            reader.addEventListener('load', (event) => {
+                const uri = event.target.result;
+                const base64 = uri.substring("data:application/json;base64,".length)
+                const json = atob(base64);
+                const items = JSON.parse(json)
+                app.send({ name: "restore", args: items })
+            });
+            reader.readAsDataURL(files[0]);
+        };
+        input.click();
+    }
+    return app.logged ? (
+        <Button variant="link" onClick={handleOnClick} title="Restore">
+            <FontAwesomeIcon icon={faUpload} />
+        </Button>
+    ) : null
+}
+
+export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton }

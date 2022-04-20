@@ -5,6 +5,8 @@ import { ConnectDialog } from '../Dialogs'
 import { LoginDialog } from '../Dialogs'
 import { LogoutButton } from '../Dialogs'
 import { AlertBanner } from '../Dialogs'
+import { BackupButton } from './Dialogs'
+import { RestoreButton } from './Dialogs'
 import { useApp } from '../App'
 import Browser from "./Browser"
 
@@ -19,7 +21,11 @@ function Main() {
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text><LogoutButton /></Navbar.Text>
+            <Navbar.Text>
+              <BackupButton />
+              <RestoreButton />
+              <LogoutButton />
+            </Navbar.Text>
           </Navbar.Collapse>
         </Container>
       </Navbar>
