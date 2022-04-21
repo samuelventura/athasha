@@ -16,13 +16,12 @@ mix ecto.migrate
 
 sudo npm -g install yarn
 brew install yarn
-npx create-react-app frontend
+yarn create vite
 cd frontend
-yarn start
+yarn dev
 #http://localhost:3000/
-yarn test
-yarn add bootstrap react-bootstrap
-yarn add http-proxy-middleware
+yarn build
+yarn preview
 
 #code editor from https://github.com/YeicoLabs/tryout01_athasha
 #file browser from https://github.com/YeicoLabs/tryout01_athasha

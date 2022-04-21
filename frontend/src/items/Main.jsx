@@ -9,6 +9,7 @@ import { BackupButton } from './Dialogs'
 import { RestoreButton } from './Dialogs'
 import { useApp } from '../App'
 import Browser from "./Browser"
+import Logo from '../logo.svg'
 
 function Main() {
   const app = useApp()
@@ -17,7 +18,7 @@ function Main() {
       <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand title="Home">
-            <img src="logo28.png" alt="Athasha"></img>
+            <img src={Logo} alt="Athasha" height="32"></img>
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
