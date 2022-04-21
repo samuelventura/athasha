@@ -48,8 +48,10 @@ defmodule Athasha.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
-      {:modbus, "~> 0.4.0"},
       {:tds, "~> 2.3"},
+      # {:baud, "~> 0.6.0"},
+      # {:baud, git: "https://github.com/samuelventura/sniff.git", tag: "0.6.0"},
+      {:baud, path: "../../baud"},
       {:plug_cowboy, "~> 2.5"}
     ]
   end

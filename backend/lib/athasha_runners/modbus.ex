@@ -24,11 +24,17 @@ defmodule Athasha.Modbus.Runner do
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
+    trans = config["trans"]
+    proto = config["proto"]
     host = config["host"]
-    delay = config["delay"]
-    {delay, _} = Integer.parse(delay)
     port = config["port"]
     {port, _} = Integer.parse(port)
+    tty = config["tty"]
+    speed = config["speed"]
+    {speed, _} = Integer.parse(speed)
+    dbpsb = config["dbpsb"]
+    delay = config["delay"]
+    {delay, _} = Integer.parse(delay)
 
     points =
       Enum.map(config["points"], fn point ->
@@ -42,7 +48,19 @@ defmodule Athasha.Modbus.Runner do
       end)
 
     reg_points(item, points)
-    config = %{host: host, port: port, delay: delay, points: points}
+
+    config = %{
+      trans: trans,
+      proto: proto,
+      host: host,
+      port: port,
+      tty: tty,
+      speed: speed,
+      dbpsb: dbpsb,
+      delay: delay,
+      points: points
+    }
+
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
   end
@@ -170,20 +188,30 @@ defmodule Athasha.Modbus.Runner do
           any -> any
         end
 
-      "20" ->
-        case Master.exec(master, {:rir, point.slave, point.address, 2}) do
-          {:ok, values} ->
-            [value] = Float.from_be(values)
+      "21" ->
+        # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
+        # point.address is the number of places to shift left the decimal point
+        case Master.exec(master, {:rir, point.slave, 3, 2}) do
+          {:ok, [w0, w1]} ->
+            <<sign::1, reading::31>> = <<w0::16, w1::16>>
+
+            sign =
+              case sign do
+                1 -> -1
+                0 -> 1
+              end
+
+            value = Decimal.new(sign, reading, -point.address)
             {:ok, value}
 
           any ->
             any
         end
 
-      "21" ->
-        case Master.exec(master, {:rhr, point.slave, point.address, 2}) do
-          {:ok, values} ->
-            [value] = Float.from_be(values)
+      "22" ->
+        case Master.exec(master, {:rir, point.slave, point.address, 2}) do
+          {:ok, [w0, w1]} ->
+            [value] = Float.from_be([w0, w1])
             {:ok, value}
 
           any ->
@@ -200,10 +228,31 @@ defmodule Athasha.Modbus.Runner do
     )
   end
 
+  defp modbus_proto(%{proto: "TCP"}), do: Modbus.Tcp.Protocol
+  defp modbus_proto(%{proto: "RTU"}), do: Modbus.Rtu.Protocol
+
   defp connect_master(config) do
-    case :inet.getaddr(String.to_charlist(config.host), :inet) do
-      {:ok, ip} -> Master.start_link(ip: ip, port: config.port)
-      any -> any
+    proto = modbus_proto(config)
+
+    case config.trans do
+      "Socket" ->
+        trans = Modbus.Tcp.Transport
+
+        case :inet.getaddr(String.to_charlist(config.host), :inet) do
+          {:ok, ip} -> Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
+          any -> any
+        end
+
+      "Serial" ->
+        trans = Baud.Transport
+
+        Master.start_link(
+          trans: trans,
+          proto: proto,
+          device: config.tty,
+          speed: config.speed,
+          config: config.dbpsb
+        )
     end
   end
 
