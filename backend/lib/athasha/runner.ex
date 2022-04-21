@@ -14,16 +14,17 @@ defmodule Athasha.Runner do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def register_status(id, type, msg) do
-    :ok = dispatch_status(id, type, msg, true)
+  def register_status(item, type, msg) do
+    :ok = dispatch_status(item, type, msg, true)
   end
 
-  def dispatch_status(id, type, msg, first \\ false) do
+  def dispatch_status(item, type, msg, first \\ false) do
+    id = item.id
     status = %{id: id, type: type, msg: msg}
 
     case first do
-      true -> Items.register({:status, id}, {type, msg})
-      false -> Items.update({:status, id}, {type, msg})
+      true -> Items.register({:status, id}, {item.name, item.type, type, msg})
+      false -> Items.update({:status, id}, {item.name, item.type, type, msg})
     end
 
     Bus.dispatch(:status, status)

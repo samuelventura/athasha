@@ -16,8 +16,7 @@ defmodule Athasha.Database.Runner do
   end
 
   def init(item) do
-    id = item.id
-    Runner.register_status(id, :warn, "Starting...")
+    Runner.register_status(item, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -84,7 +83,7 @@ defmodule Athasha.Database.Runner do
     rescue
       e ->
         IO.inspect({e, __STACKTRACE__})
-        Runner.dispatch_status(item.id, :error, "#{inspect(e)}")
+        Runner.dispatch_status(item, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
         state = stop_dbconn(state)
         {:noreply, state}
@@ -92,15 +91,15 @@ defmodule Athasha.Database.Runner do
   end
 
   defp connect(state = %{item: item, config: config, dbconn: nil}) do
-    Runner.dispatch_status(item.id, :warn, "Connecting...")
+    Runner.dispatch_status(item, :warn, "Connecting...")
 
     case connect_dbconn(config) do
       {:ok, dbconn} ->
-        Runner.dispatch_status(item.id, :success, "Connected")
+        Runner.dispatch_status(item, :success, "Connected")
         Map.put(state, :dbconn, dbconn)
 
       {:error, reason} ->
-        Runner.dispatch_status(item.id, :error, "#{inspect(reason)}")
+        Runner.dispatch_status(item, :error, "#{inspect(reason)}")
         state
     end
   end
@@ -125,7 +124,7 @@ defmodule Athasha.Database.Runner do
         true
 
       {:error, reason} ->
-        Runner.dispatch_status(item.id, :error, "#{inspect(reason)}")
+        Runner.dispatch_status(item, :error, "#{inspect(reason)}")
         false
     end
   end

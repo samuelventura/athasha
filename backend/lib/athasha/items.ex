@@ -31,14 +31,14 @@ defmodule Athasha.Items do
 
   @runner [{{{:runner, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
   @status [{{{:status, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
-  @items [{{{:item, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+  @list [{{{:item, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
 
   def all() do
     lookup(:all)
   end
 
-  def items() do
-    select(@items)
+  def list() do
+    select(@list)
   end
 
   def runners() do
