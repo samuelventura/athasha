@@ -13,6 +13,10 @@ defmodule Athasha.Points do
     Registry.register(__MODULE__, key, args)
   end
 
+  def unregister(key) do
+    Registry.unregister(__MODULE__, key)
+  end
+
   def update(key, value) do
     Registry.update_value(__MODULE__, key, fn _ -> value end)
   end

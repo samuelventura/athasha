@@ -13,6 +13,10 @@ defmodule Athasha.Items do
     Registry.register(__MODULE__, key, args)
   end
 
+  def unregister(key) do
+    Registry.unregister(__MODULE__, key)
+  end
+
   def update(key, value) do
     Registry.update_value(__MODULE__, key, fn _ -> value end)
   end
@@ -25,16 +29,16 @@ defmodule Athasha.Items do
     Registry.select(__MODULE__, query)
   end
 
-  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
   @runner [{{{:runner, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
   @status [{{{:status, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+  @items [{{{:item, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
 
   def all() do
-    select(@all)
+    lookup(:all)
   end
 
   def items() do
-    lookup(:items)
+    select(@items)
   end
 
   def runners() do

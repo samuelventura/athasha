@@ -95,8 +95,9 @@ yarn add http-proxy-middleware
   - Full database reset (for unrecoverable errors)
   - Password reset / change
   - Nerves IP setup
+  - App restart
 - Rock solid
-  - Runner crash reconvery
+  - Process crash/kill recovery
   - Process count
 
 ## Research
@@ -151,8 +152,14 @@ curl --include \
 
 recompile
 :observer.start()
+Application.stop(:athasha)
+Application.start(:athasha)
+Process.list()
+Process.info(self())
 Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("Athasha")))
-Process.exit(Process.whereis(Athasha.ItemsServer), :kill)
+Process.registered() |> Enum.filter(&(Atom.to_string(&1) |> String.contains?("DB")))
+Process.whereis(Athasha.Server) |> Process.exit(:kill)
+Process.whereis(Athasha.Runner) |> Process.exit(:kill)
 Ecto.Adapters.SQL.query(Repo, "select * from items")
 samuel@p3420:~/github/athasha/backend$ sqlite3 athasha_dev.db
 SQLite version 3.31.1 2020-01-27 19:55:54

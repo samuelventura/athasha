@@ -17,7 +17,8 @@ defmodule Athasha.Server do
 
   def init(_initial) do
     items = Repo.all(Item)
-    Items.register(:items, {0, items})
+    {:ok, _} = Items.register(:all, {0, items})
+    items |> Enum.each(fn item -> {:ok, _} = Items.register({:item, item.id}, item) end)
     items = items |> Enum.into(%{}, &{&1.id, &1})
 
     state = %{version: 0, items: items}
@@ -55,7 +56,7 @@ defmodule Athasha.Server do
       {:ok, item} = insert(item, :id)
       args = strip_item(item)
       muta = %{name: "create", args: args}
-      apply_muta(:put, item, muta, from, state)
+      apply_muta(:set, item, muta, from, state)
     end)
   end
 
@@ -64,7 +65,7 @@ defmodule Athasha.Server do
     {:ok, item} = insert(args)
     args = strip_item(item)
     muta = Map.put(muta, :args, args)
-    apply_muta(:put, item, muta, from, state)
+    apply_muta(:set, item, muta, from, state)
   end
 
   defp apply_muta(muta = %{name: "delete"}, from, state) do
@@ -95,15 +96,25 @@ defmodule Athasha.Server do
 
   defp apply_muta(action, item, muta, from, state) do
     items = state.items
+    id = item.id
 
     items =
       case action do
-        :put -> Map.put(items, item.id, item)
-        :del -> Map.delete(items, item.id)
+        :set ->
+          {:ok, _} = Items.register({:item, id}, item)
+          Map.put(items, id, item)
+
+        :put ->
+          {_, _} = Items.update({:item, id}, item)
+          Map.put(items, id, item)
+
+        :del ->
+          :ok = Items.unregister({:item, id})
+          Map.delete(items, id)
       end
 
     version = state.version + 1
-    Items.update(:items, {version, items})
+    {_, _} = Items.update(:all, {version, items})
     Bus.dispatch(:items, {from, version, muta})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)

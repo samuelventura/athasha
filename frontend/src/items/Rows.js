@@ -142,7 +142,7 @@ function Rows(props) {
             className={selectedClass(item)}>
             <td className={enabledClass(item)}>
                 <img src={SvgIcon(item.type)} width="20"
-                    alt={item.type} class='me-2' />
+                    alt={item.type} className='me-2' />
                 <span>{item.name}</span>
                 <StatusBadge item={item} />
             </td>

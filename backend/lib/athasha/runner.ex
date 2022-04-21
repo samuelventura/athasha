@@ -15,7 +15,7 @@ defmodule Athasha.Runner do
   end
 
   def register_status(id, type, msg) do
-    dispatch_status(id, type, msg, true)
+    :ok = dispatch_status(id, type, msg, true)
   end
 
   def dispatch_status(id, type, msg, first \\ false) do
@@ -106,8 +106,9 @@ defmodule Athasha.Runner do
 
     # assert
     id = item.id
+    :ok = kill_and_join(id)
     false = Map.has_key?(state, id)
-    name = {:via, Registry, {Items, {:runner, item.id}, item}}
+    name = {:via, Registry, {Items, {:runner, id}, item}}
     {:ok, pid} = modu.start_link(item, name)
     Map.put(state, id, {modu, pid})
   end
@@ -115,6 +116,21 @@ defmodule Athasha.Runner do
   defp stop(state, id) do
     {modu, pid} = state[id]
     :ok = modu.stop(pid)
+    :ok = kill_and_join(id)
     Map.delete(state, id)
+  end
+
+  defp kill_and_join(id) do
+    q = [{{{:runner, id}, :"$2", :"$3"}, [], [{{:"$2"}}]}]
+
+    case Items.select(q) do
+      [{pid}] ->
+        Process.exit(pid, :kill)
+        :timer.sleep(1)
+        kill_and_join(id)
+
+      [] ->
+        :ok
+    end
   end
 end

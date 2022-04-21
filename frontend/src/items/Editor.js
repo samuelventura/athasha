@@ -66,9 +66,9 @@ function EditItem(props) {
             centered dialogClassName="EditorModal">
             <Modal.Header closeButton>
                 <Modal.Title>
-                    <img class="align-middle me-2" src={SvgIcon(item.type)} width="24"
+                    <img className="align-middle me-2" src={SvgIcon(item.type)} width="24"
                         alt={item.type} />
-                    <span class="align-middle">{item.name}</span>
+                    <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
