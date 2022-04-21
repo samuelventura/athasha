@@ -65,7 +65,11 @@ function EditItem(props) {
         <Modal show={item.id} onHide={cancel} backdrop="static"
             centered dialogClassName="EditorModal">
             <Modal.Header closeButton>
-                <Modal.Title>{item.name}</Modal.Title>
+                <Modal.Title>
+                    <img class="align-middle me-2" src={SvgIcon(item.type)} width="24"
+                        alt={item.type} />
+                    <span class="align-middle">{item.name}</span>
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <ModbusDeviceEditor {...eprops} show={eshow("Modbus Reader")} />

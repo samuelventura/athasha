@@ -116,6 +116,7 @@ yarn add http-proxy-middleware
 - http://saule1508.github.io/create-react-app-proxy-websocket/
 - https://gist.github.com/htp/fbce19069187ec1cc486b594104f01d0
 - https://createreactapp.github.io/proxying-api-request
+- https://github.com/samuelventura/SharpMaster/blob/master/SharpMaster/ReadFloatControl.cs
 
 ```bash
 curl --include \
