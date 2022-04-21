@@ -41,7 +41,7 @@ defmodule Athasha.Modbus.Runner do
         %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
       end)
 
-    reg_points(points)
+    reg_points(item, points)
     config = %{host: host, port: port, delay: delay, points: points}
     Process.send_after(self(), :run, 0)
     {:ok, %{item: item, config: config, master: nil}}
@@ -81,7 +81,7 @@ defmodule Athasha.Modbus.Runner do
         IO.inspect({e, __STACKTRACE__})
         Runner.dispatch_status(item, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
-        nil_points(config.points)
+        nil_points(item, config.points)
         state = stop_master(state)
         {:noreply, state}
     end
@@ -103,8 +103,8 @@ defmodule Athasha.Modbus.Runner do
 
   defp connect(state), do: state
 
-  defp run_once(%{config: config, master: nil}) do
-    nil_points(config.points)
+  defp run_once(%{item: item, config: config, master: nil}) do
+    nil_points(item, config.points)
     false
   end
 
@@ -114,43 +114,45 @@ defmodule Athasha.Modbus.Runner do
         true ->
           case exec_point(master, point) do
             {:ok, value} ->
-              set_point(point, value)
+              set_point(item, point, value)
               Bus.dispatch(:points, {item.id, point.name, value})
               true
 
             {:error, reason} ->
-              set_point(point, nil)
+              set_point(item, point, nil)
               point_error(item, point, reason)
               false
           end
 
         false ->
-          set_point(point, nil)
+          set_point(item, point, nil)
           false
       end
     end)
   end
 
-  defp set_point(point, value) do
+  defp set_point(item, point, value) do
     now = System.monotonic_time(:millisecond)
-    {_, _} = Points.update({point.id, :read}, {now, value})
+    {_, _} = Points.update({point.id, item.id, point.name, :read}, {now, value})
   end
 
-  defp nil_points(points) do
+  defp nil_points(item, points) do
     now = System.monotonic_time(:millisecond)
+    id = item.id
 
     points
     |> Enum.each(fn point ->
-      {_, _} = Points.update({point.id, :read}, {now, nil})
+      {_, _} = Points.update({point.id, id, point.name, :read}, {now, nil})
     end)
   end
 
-  defp reg_points(points) do
+  defp reg_points(item, points) do
     now = System.monotonic_time(:millisecond)
+    id = item.id
 
     points
     |> Enum.each(fn point ->
-      {:ok, _} = Points.register({point.id, :read}, {now, nil})
+      {:ok, _} = Points.register({point.id, id, point.name, :read}, {now, nil})
     end)
   end
 

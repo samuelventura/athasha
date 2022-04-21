@@ -110,9 +110,13 @@ defmodule Athasha.Database.Runner do
   defp run_once(%{item: item, config: config, dbconn: dbconn}) do
     params =
       Enum.map(config.points, fn point ->
+        match = {{point.id, :_, :_, :read}, :"$1", :"$2"}
+        select = {{:"$1", :"$2"}}
+        one = [{match, [], [select]}]
+
         value =
-          case Points.one(point.id) do
-            [{:read, _, {_, value}}] -> value
+          case Points.select(one) do
+            [{_, {_, value}}] -> value
             _ -> nil
           end
 
