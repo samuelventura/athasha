@@ -131,6 +131,7 @@ curl --include \
 ```
 
 ```elixir
+export ERL_AFLAGS="-kernel shell_history enabled"
 %{
   connect_info: %{},
   endpoint: AthashaWeb.Endpoint,
