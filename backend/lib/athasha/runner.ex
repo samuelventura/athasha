@@ -5,9 +5,10 @@ defmodule Athasha.Runner do
   alias Athasha.Spec
   alias Athasha.Items
   alias Athasha.Server
+  alias Athasha.Runners
 
   def child_spec(_) do
-    Spec.for(__MODULE__)
+    Spec.forWorker(__MODULE__)
   end
 
   def start_link() do
@@ -15,11 +16,12 @@ defmodule Athasha.Runner do
   end
 
   def init(_initial) do
+    {:ok, _} = Runners.start_link()
     {:ok, _} = Bus.register(:items, nil)
     all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: all.version, items: items}
-    state = all.items |> Enum.reduce(state, &init_if/2)
+    all.items |> Enum.each(&start_if/1)
     {:ok, state}
   end
 
@@ -28,92 +30,79 @@ defmodule Athasha.Runner do
   end
 
   def handle_info({:items, nil, {_from, version, muta}}, state) do
-    try do
-      state = apply_muta(version, muta, state)
-      {:noreply, state}
-    rescue
-      e ->
-        IO.inspect({e, __STACKTRACE__})
-        {:noreply, state}
-    end
+    state =
+      case state.version + 1 do
+        ^version -> apply_muta(version, muta, state)
+        _ -> state
+      end
+
+    {:noreply, state}
   end
 
   def apply_muta(version, muta, state) do
-    case state.version + 1 do
-      ^version ->
-        state = Map.put(state, :version, version)
-        args = muta.args
+    state = Map.put(state, :version, version)
+    args = muta.args
 
-        case muta.name do
-          "create" ->
-            state = start_if(state, args)
-            put_in(state, [:items, args.id], args)
+    case muta.name do
+      "create" ->
+        start_if(args)
+        put_in(state, [:items, args.id], args)
 
-          "rename" ->
-            put_in(state, [:items, args.id, :name], args.name)
+      "rename" ->
+        put_in(state, [:items, args.id, :name], args.name)
 
-          "enable" ->
-            id = args.id
-            item = state.items[id]
-            state = stop_if(state, id, item.enabled)
-            item = Map.put(item, :enabled, args.enabled)
-            state = start_if(state, item)
-            put_in(state, [:items, id], item)
+      "enable" ->
+        id = args.id
+        item = state.items[id]
+        stop_if(id, item.enabled)
+        item = Map.put(item, :enabled, args.enabled)
+        start_if(item)
+        put_in(state, [:items, id], item)
 
-          "edit" ->
-            put_in(state, [:items, args.id, :config], args.config)
+      "edit" ->
+        put_in(state, [:items, args.id, :config], args.config)
 
-          "delete" ->
-            id = args.id
-            item = state.items[id]
-            state = stop_if(state, id, item.enabled)
-            {_, state} = pop_in(state, [:items, id])
-            state
-        end
-
-      _ ->
+      "delete" ->
+        id = args.id
+        item = state.items[id]
+        stop_if(id, item.enabled)
+        {_, state} = pop_in(state, [:items, id])
         state
     end
   end
 
-  defp init_if(item, state), do: start_if(state, item)
-  defp start_if(state, item = %{enabled: true}), do: start(state, item)
-  defp start_if(state, %{enabled: false}), do: state
-  defp stop_if(state, id, true), do: stop(state, id)
-  defp stop_if(state, _id, false), do: state
+  defp start_if(item = %{enabled: true}), do: start(item)
+  defp start_if(%{enabled: false}), do: nil
+  defp stop_if(id, true), do: stop(id)
+  defp stop_if(_id, false), do: nil
 
-  defp start(state, item) do
+  defp start(item) do
     modu =
       case item.type do
         "Modbus Reader" -> Athasha.Modbus.Runner
         "Database Writer" -> Athasha.Database.Runner
       end
 
-    # assert
     id = item.id
-    :ok = kill_and_join(id)
-    false = Map.has_key?(state, id)
+    :ok = join_runner(id)
     name = Items.item_name(item)
-    {:ok, pid} = modu.start_link(item, name)
-    Map.put(state, id, {modu, pid})
+    spec = Spec.forRunner(modu, id, [item, name])
+    {:ok, _} = Runners.add(spec)
   end
 
-  defp stop(state, id) do
-    {modu, pid} = state[id]
-    :ok = modu.stop(pid)
-    :ok = kill_and_join(id)
-    Map.delete(state, id)
+  defp stop(id) do
+    :ok = Runners.remove(id)
+    :ok = join_runner(id)
   end
 
-  defp kill_and_join(id) do
+  defp join_runner(id) do
     case Items.runner_pid(id) do
       nil ->
         :ok
 
-      pid ->
-        Process.exit(pid, :kill)
+      _ ->
         :timer.sleep(1)
-        kill_and_join(id)
+        join_runner(id)
     end
   end
 end

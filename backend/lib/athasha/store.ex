@@ -2,7 +2,7 @@ defmodule Athasha.Store do
   alias Athasha.Spec
 
   def child_spec(_) do
-    Spec.for(__MODULE__)
+    Spec.forWorker(__MODULE__)
   end
 
   def start_link() do

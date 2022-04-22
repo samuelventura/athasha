@@ -8,7 +8,7 @@ defmodule Athasha.Server do
   alias Athasha.Items
 
   def child_spec(_) do
-    Spec.for(__MODULE__)
+    Spec.forWorker(__MODULE__)
   end
 
   def start_link() do
@@ -40,13 +40,18 @@ defmodule Athasha.Server do
     {:reply, all, state}
   end
 
+  # rescue from multi user race conditions for instance
+  # restore below will throw if items not empty
+  # in any other case the changeset and database
+  # should throw on out of sync conditions
+  # the key is to dispatch only after success
   def handle_call({:apply, from, muta}, _from, state) do
     try do
       state = apply_muta(muta, from, state)
       {:reply, :ok, state}
     rescue
       e ->
-        IO.inspect({e, __STACKTRACE__})
+        IO.inspect({e, __STACKTRACE__, from, muta, state})
         {:reply, {:error, e}, state}
     end
   end
