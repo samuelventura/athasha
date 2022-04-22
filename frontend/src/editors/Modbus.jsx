@@ -122,8 +122,11 @@ function Editor(props) {
                 <Form.Select value={points[index].code} required onChange={e => setPoint(index, "code", e.target.value)}>
                     <option value="01">01 DO 0=OFF 1=ON</option>
                     <option value="02">02 DI 0=OFF 1=ON</option>
-                    <option value="21">21 Laurel Reading</option>
                     <option value="22">22 Opto22 Float32</option>
+                    <option value="30">30 Laurel Reading</option>
+                    <option value="31">31 Laurel Peak</option>
+                    <option value="32">32 Laurel Valley</option>
+                    <option value="33">33 Laurel Alarm</option>
                 </Form.Select>
             </td>
             <td>

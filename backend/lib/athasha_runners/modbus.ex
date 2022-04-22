@@ -188,26 +188,7 @@ defmodule Athasha.Modbus.Runner do
           any -> any
         end
 
-      "21" ->
-        # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
-        # point.address is the number of places to shift left the decimal point
-        case Master.exec(master, {:rir, point.slave, 3, 2}) do
-          {:ok, [w0, w1]} ->
-            <<sign::1, reading::31>> = <<w0::16, w1::16>>
-
-            sign =
-              case sign do
-                1 -> -1
-                0 -> 1
-              end
-
-            value = Decimal.new(sign, reading, -point.address)
-            {:ok, value}
-
-          any ->
-            any
-        end
-
+      # 22 Opto22 Float32
       "22" ->
         case Master.exec(master, {:rir, point.slave, point.address, 2}) do
           {:ok, [w0, w1]} ->
@@ -217,6 +198,66 @@ defmodule Athasha.Modbus.Runner do
           any ->
             any
         end
+
+      # 30 Laurel Reading
+      "30" ->
+        laurel_decimal(master, point, 3)
+
+      "31" ->
+        laurel_decimal(master, point, 5)
+
+      "32" ->
+        laurel_decimal(master, point, 7)
+
+      "33" ->
+        laurel_alarm(master, point)
+    end
+  end
+
+  defp laurel_decimal(master, point, address) do
+    # slave 2 is timing out randomly
+    :timer.sleep(5)
+    # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
+    # point.address is the number of places to shift left the decimal point
+    case Master.exec(master, {:rir, point.slave, address, 2}) do
+      {:ok, [w0, w1]} ->
+        <<sign::1, reading::31>> = <<w0::16, w1::16>>
+
+        sign =
+          case sign do
+            1 -> -1
+            0 -> 1
+          end
+
+        value = Decimal.new(sign, reading, -point.address)
+        {:ok, value}
+
+      any ->
+        any
+    end
+  end
+
+  defp laurel_alarm(master, point) do
+    # slave 2 is timing out randomly
+    :timer.sleep(5)
+
+    case Master.exec(master, {:rir, point.slave, 1, 2}) do
+      {:ok, [w0, w1]} ->
+        <<_unused::28, a4::1, a3::1, a2::1, a1::1>> = <<w0::16, w1::16>>
+
+        value =
+          case point.address do
+            1 -> a1
+            2 -> a2
+            3 -> a3
+            4 -> a4
+            _ -> 0
+          end
+
+        {:ok, value}
+
+      any ->
+        any
     end
   end
 
