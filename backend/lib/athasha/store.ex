@@ -29,9 +29,9 @@ defmodule Athasha.Store do
     Registry.select(__MODULE__, query)
   end
 
-  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
-
-  def all() do
-    select(@all)
+  def dump() do
+    matcher = {:"$1", :"$2", :"$3"}
+    selector = [{{:"$1", :"$2", :"$3"}}]
+    select([{matcher, [], selector}])
   end
 end

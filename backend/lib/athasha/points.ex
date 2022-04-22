@@ -1,7 +1,7 @@
 defmodule Athasha.Points do
   alias Athasha.Store
 
-  def all() do
+  def list() do
     match = {{:point, :"$1", :_, :_, :read}, :"$2", :"$3"}
     select = {{:"$1", :"$2", :"$3"}}
     query = [{match, [], [select]}]
