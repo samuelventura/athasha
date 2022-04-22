@@ -14,22 +14,6 @@ defmodule Athasha.Runner do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def register_status(item, type, msg) do
-    :ok = dispatch_status(item, type, msg, true)
-  end
-
-  def dispatch_status(item, type, msg, first \\ false) do
-    id = item.id
-    status = %{id: id, type: type, msg: msg}
-
-    case first do
-      true -> Items.register({:status, id}, {item.name, item.type, type, msg})
-      false -> Items.update({:status, id}, {item.name, item.type, type, msg})
-    end
-
-    Bus.dispatch(:status, status)
-  end
-
   def init(_initial) do
     {:ok, _} = Bus.register(:items, nil)
     all = Server.all()
@@ -109,7 +93,7 @@ defmodule Athasha.Runner do
     id = item.id
     :ok = kill_and_join(id)
     false = Map.has_key?(state, id)
-    name = {:via, Registry, {Items, {:runner, id}, item}}
+    name = Items.item_name(item)
     {:ok, pid} = modu.start_link(item, name)
     Map.put(state, id, {modu, pid})
   end
@@ -122,16 +106,14 @@ defmodule Athasha.Runner do
   end
 
   defp kill_and_join(id) do
-    q = [{{{:runner, id}, :"$2", :"$3"}, [], [{{:"$2"}}]}]
+    case Items.runner_pid(id) do
+      nil ->
+        :ok
 
-    case Items.select(q) do
-      [{pid}] ->
+      pid ->
         Process.exit(pid, :kill)
         :timer.sleep(1)
         kill_and_join(id)
-
-      [] ->
-        :ok
     end
   end
 end

@@ -17,8 +17,8 @@ defmodule Athasha.Server do
 
   def init(_initial) do
     items = Repo.all(Item)
-    {:ok, _} = Items.register(:all, {0, items})
-    items |> Enum.each(fn item -> {:ok, _} = Items.register({:item, item.id}, item) end)
+    Items.register_all!(items)
+    items |> Enum.each(fn item -> Items.register_item!(item) end)
     items = items |> Enum.into(%{}, &{&1.id, &1})
 
     state = %{version: 0, items: items}
@@ -101,20 +101,20 @@ defmodule Athasha.Server do
     items =
       case action do
         :set ->
-          {:ok, _} = Items.register({:item, id}, item)
+          Items.register_item!(item)
           Map.put(items, id, item)
 
         :put ->
-          {_, _} = Items.update({:item, id}, item)
+          Items.update_item!(item)
           Map.put(items, id, item)
 
         :del ->
-          :ok = Items.unregister({:item, id})
+          Items.unregister_item!(item)
           Map.delete(items, id)
       end
 
     version = state.version + 1
-    {_, _} = Items.update(:all, {version, items})
+    Items.update_all!(items, version)
     Bus.dispatch(:items, {from, version, muta})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)

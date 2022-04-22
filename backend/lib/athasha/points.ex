@@ -1,45 +1,48 @@
 defmodule Athasha.Points do
-  alias Athasha.Spec
-
-  def child_spec(_) do
-    Spec.for(__MODULE__)
-  end
-
-  def start_link() do
-    Registry.start_link(keys: :unique, name: __MODULE__)
-  end
-
-  def register(key, args \\ nil) do
-    Registry.register(__MODULE__, key, args)
-  end
-
-  def unregister(key) do
-    Registry.unregister(__MODULE__, key)
-  end
-
-  def update(key, value) do
-    Registry.update_value(__MODULE__, key, fn _ -> value end)
-  end
-
-  def lookup(key) do
-    Registry.lookup(__MODULE__, key)
-  end
-
-  def select(query) do
-    Registry.select(__MODULE__, query)
-  end
-
-  @all [{{:"$1", :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+  alias Athasha.Store
 
   def all() do
-    select(@all)
+    match = {{:point, :"$1", :_, :_, :read}, :"$2", :"$3"}
+    select = {{:"$1", :"$2", :"$3"}}
+    query = [{match, [], [select]}]
+    Store.select(query)
   end
 
-  def one(id) do
-    match = {{id, :"$1", :"$2", :"$3"}, :"$4", :"$5"}
-    select = {{id, :"$1", :"$2", :"$3", :"$4", :"$5"}}
-    one = [{match, [], [select]}]
+  def register_read!(item, point) do
+    now = System.monotonic_time(:millisecond)
+    key = {:point, point.id, item.id, point.name, :read}
 
-    Registry.select(__MODULE__, one)
+    case Store.register(key, {now, nil}) do
+      {:ok, _} ->
+        :ok
+
+      {:error, reason} ->
+        raise {"Point read registration error", {item, point}, reason}
+    end
+  end
+
+  def update_read!(item, point, value) do
+    now = System.monotonic_time(:millisecond)
+    key = {:point, point.id, item.id, point.name, :read}
+
+    case Store.update(key, fn _ -> {now, value} end) do
+      {_, _} ->
+        :ok
+
+      :error ->
+        raise {"Point read update error", {item, point, value}}
+    end
+  end
+
+  def get_read_value(id) do
+    match = {{:point, id, :_, :_, :read}, :_, {:_, :"$1"}}
+    select = {{:"$1"}}
+    query = [{match, [], [select]}]
+
+    # select throws on argument error
+    case Store.select(query) do
+      [{value}] -> value
+      [] -> nil
+    end
   end
 end

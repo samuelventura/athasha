@@ -2,7 +2,7 @@ defmodule Athasha.Modbus.Runner do
   use GenServer
   alias Modbus.Master
   alias Modbus.Float
-  alias Athasha.Runner
+  alias Athasha.Items
   alias Athasha.Points
   alias Athasha.Bus
 
@@ -20,7 +20,7 @@ defmodule Athasha.Modbus.Runner do
 
   def init(item) do
     id = item.id
-    Runner.register_status(item, :warn, "Starting...")
+    Items.register_status!(item, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -97,7 +97,7 @@ defmodule Athasha.Modbus.Runner do
     rescue
       e ->
         IO.inspect({e, __STACKTRACE__})
-        Runner.dispatch_status(item, :error, "#{inspect(e)}")
+        Items.update_status!(item, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
         nil_points(item, config.points)
         state = stop_master(state)
@@ -106,15 +106,15 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp connect(state = %{item: item, config: config, master: nil}) do
-    Runner.dispatch_status(item, :warn, "Connecting...")
+    Items.update_status!(item, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        Runner.dispatch_status(item, :success, "Connected")
+        Items.update_status!(item, :success, "Connected")
         Map.put(state, :master, master)
 
       {:error, reason} ->
-        Runner.dispatch_status(item, :error, "#{inspect(reason)}")
+        Items.update_status!(item, :error, "#{inspect(reason)}")
         state
     end
   end
@@ -150,28 +150,15 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp set_point(item, point, value) do
-    now = System.monotonic_time(:millisecond)
-    {_, _} = Points.update({point.id, item.id, point.name, :read}, {now, value})
+    Points.update_read!(item, point, value)
   end
 
   defp nil_points(item, points) do
-    now = System.monotonic_time(:millisecond)
-    id = item.id
-
-    points
-    |> Enum.each(fn point ->
-      {_, _} = Points.update({point.id, id, point.name, :read}, {now, nil})
-    end)
+    points |> Enum.each(fn point -> Points.update_read!(item, point, nil) end)
   end
 
   defp reg_points(item, points) do
-    now = System.monotonic_time(:millisecond)
-    id = item.id
-
-    points
-    |> Enum.each(fn point ->
-      {:ok, _} = Points.register({point.id, id, point.name, :read}, {now, nil})
-    end)
+    points |> Enum.each(fn point -> Points.register_read!(item, point) end)
   end
 
   defp exec_point(master, point) do
@@ -262,7 +249,7 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp point_error(item, point, reason) do
-    Runner.dispatch_status(
+    Items.update_status!(
       item,
       :error,
       "#{point.slave}:#{point.address}:#{point.code}:#{point.name} #{inspect(reason)}"

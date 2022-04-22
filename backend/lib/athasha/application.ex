@@ -11,8 +11,7 @@ defmodule Athasha.Application do
       # Start the Ecto repository
       Athasha.Bus,
       Athasha.Repo,
-      Athasha.Items,
-      Athasha.Points,
+      Athasha.Store,
       Athasha.Server,
       Athasha.Runner,
       # Start the Telemetry supervisor

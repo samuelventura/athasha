@@ -1,6 +1,6 @@
 defmodule Athasha.Database.Runner do
   use GenServer
-  alias Athasha.Runner
+  alias Athasha.Items
   alias Athasha.Points
 
   def start_link(item, name) do
@@ -16,7 +16,7 @@ defmodule Athasha.Database.Runner do
   end
 
   def init(item) do
-    Runner.register_status(item, :warn, "Starting...")
+    Items.register_status!(item, :warn, "Starting...")
     Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
@@ -83,7 +83,7 @@ defmodule Athasha.Database.Runner do
     rescue
       e ->
         IO.inspect({e, __STACKTRACE__})
-        Runner.dispatch_status(item, :error, "#{inspect(e)}")
+        Items.update_status!(item, :error, "#{inspect(e)}")
         Process.send_after(self(), :run, 1000)
         state = stop_dbconn(state)
         {:noreply, state}
@@ -91,15 +91,15 @@ defmodule Athasha.Database.Runner do
   end
 
   defp connect(state = %{item: item, config: config, dbconn: nil}) do
-    Runner.dispatch_status(item, :warn, "Connecting...")
+    Items.update_status!(item, :warn, "Connecting...")
 
     case connect_dbconn(config) do
       {:ok, dbconn} ->
-        Runner.dispatch_status(item, :success, "Connected")
+        Items.update_status!(item, :success, "Connected")
         Map.put(state, :dbconn, dbconn)
 
       {:error, reason} ->
-        Runner.dispatch_status(item, :error, "#{inspect(reason)}")
+        Items.update_status!(item, :error, "#{inspect(reason)}")
         state
     end
   end
@@ -110,16 +110,7 @@ defmodule Athasha.Database.Runner do
   defp run_once(%{item: item, config: config, dbconn: dbconn}) do
     params =
       Enum.map(config.points, fn point ->
-        match = {{point.id, :_, :_, :read}, :"$1", :"$2"}
-        select = {{:"$1", :"$2"}}
-        one = [{match, [], [select]}]
-
-        value =
-          case Points.select(one) do
-            [{_, {_, value}}] -> value
-            _ -> nil
-          end
-
+        value = Points.get_read_value(point.id)
         %Tds.Parameter{name: point.param, value: value}
       end)
 
@@ -128,7 +119,7 @@ defmodule Athasha.Database.Runner do
         true
 
       {:error, reason} ->
-        Runner.dispatch_status(item, :error, "#{inspect(reason)}")
+        Items.update_status!(item, :error, "#{inspect(reason)}")
         false
     end
   end

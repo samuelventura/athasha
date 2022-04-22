@@ -1,6 +1,7 @@
 alias Athasha.Bus
 alias Athasha.Repo
 alias Athasha.Item
+alias Athasha.Store
 alias Athasha.Items
 alias Athasha.Points
 alias Athasha.Server
