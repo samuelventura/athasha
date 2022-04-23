@@ -1,27 +1,13 @@
 defmodule Athasha.Modbus.Runner do
-  use GenServer
   alias Modbus.Master
   alias Modbus.Float
   alias Athasha.Items
+  alias Athasha.Raise
   alias Athasha.Points
   alias Athasha.Bus
 
-  def start_link(item, name) do
-    GenServer.start_link(__MODULE__, item, name: name)
-  end
-
-  def stop(pid) do
-    GenServer.stop(pid)
-  end
-
-  def terminate(_reason, state) do
-    stop_master(state)
-  end
-
-  def init(item) do
+  def run(item) do
     id = item.id
-    Items.register_status!(item, :warn, "Starting...")
-    Process.flag(:trap_exit, true)
     config = Jason.decode!(item.config)
 
     trans = config["trans"]
@@ -47,9 +33,8 @@ defmodule Athasha.Modbus.Runner do
         %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
       end)
 
-    reg_points(item, points)
-
     config = %{
+      item: Map.take(item, [:id, :name, :type]),
       trans: trans,
       proto: proto,
       host: host,
@@ -61,104 +46,44 @@ defmodule Athasha.Modbus.Runner do
       points: points
     }
 
-    Process.send_after(self(), :run, 0)
-    {:ok, %{item: item, config: config, master: nil}}
-  end
-
-  def handle_info({:EXIT, pid, _reason}, state = %{master: master}) do
-    state =
-      case master do
-        ^pid -> stop_master(state)
-        _ -> state
-      end
-
-    {:noreply, state}
-  end
-
-  def handle_info(:run, state = %{item: item, config: config}) do
-    try do
-      state = connect(state)
-
-      state =
-        case run_once(state) do
-          true ->
-            state
-
-          false ->
-            stop_master(state)
-        end
-
-      case state.master do
-        nil -> Process.send_after(self(), :run, 1000)
-        _ -> Process.send_after(self(), :run, config.delay)
-      end
-
-      {:noreply, state}
-    rescue
-      e ->
-        IO.inspect({e, __STACKTRACE__})
-        Items.update_status!(item, :error, "#{inspect(e)}")
-        Process.send_after(self(), :run, 1000)
-        nil_points(item, config.points)
-        state = stop_master(state)
-        {:noreply, state}
-    end
-  end
-
-  defp connect(state = %{item: item, config: config, master: nil}) do
     Items.update_status!(item, :warn, "Connecting...")
+
+    # modbus/baud stop process on connect/open error
+    # and the link kills this process no giving time
+    # for proper delay and status notification
+    # it also impacts the supervisor restart intensity
+    Process.flag(:trap_exit, true)
 
     case connect_master(config) do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
-        Map.put(state, :master, master)
+        points |> Enum.each(&Points.register_read!(item, &1))
+        run_loop(item, config, master)
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(reason)}")
-        state
+        Raise.error({"Master connection error", config, reason})
     end
   end
 
-  defp connect(state), do: state
-
-  defp run_once(%{item: item, config: config, master: nil}) do
-    nil_points(item, config.points)
-    false
+  defp run_loop(item, config, master) do
+    run_once(item, config, master)
+    :timer.sleep(config.delay)
+    run_loop(item, config, master)
   end
 
-  defp run_once(%{item: item, config: config, master: master}) do
-    Enum.reduce(config.points, true, fn point, res ->
-      case res do
-        true ->
-          case exec_point(master, point) do
-            {:ok, value} ->
-              set_point(item, point, value)
-              Bus.dispatch(:points, {item.id, point.name, value})
-              true
+  defp run_once(item, config, master) do
+    Enum.each(config.points, fn point ->
+      case exec_point(master, point) do
+        {:ok, value} ->
+          Points.update_read!(item, point, value)
+          Bus.dispatch(:points, {item.id, point.name, value})
 
-            {:error, reason} ->
-              set_point(item, point, nil)
-              point_error(item, point, reason)
-              false
-          end
-
-        false ->
-          set_point(item, point, nil)
-          false
+        {:error, reason} ->
+          Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
+          Raise.error({"Point read error", point, reason})
       end
     end)
-  end
-
-  defp set_point(item, point, value) do
-    Points.update_read!(item, point, value)
-  end
-
-  defp nil_points(item, points) do
-    points |> Enum.each(fn point -> Points.update_read!(item, point, nil) end)
-  end
-
-  defp reg_points(item, points) do
-    points |> Enum.each(fn point -> Points.register_read!(item, point) end)
   end
 
   defp exec_point(master, point) do
@@ -248,14 +173,6 @@ defmodule Athasha.Modbus.Runner do
     end
   end
 
-  defp point_error(item, point, reason) do
-    Items.update_status!(
-      item,
-      :error,
-      "#{point.slave}:#{point.address}:#{point.code}:#{point.name} #{inspect(reason)}"
-    )
-  end
-
   defp modbus_proto(%{proto: "TCP"}), do: Modbus.Tcp.Protocol
   defp modbus_proto(%{proto: "RTU"}), do: Modbus.Rtu.Protocol
 
@@ -267,8 +184,11 @@ defmodule Athasha.Modbus.Runner do
         trans = Modbus.Tcp.Transport
 
         case :inet.getaddr(String.to_charlist(config.host), :inet) do
-          {:ok, ip} -> Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
-          any -> any
+          {:ok, ip} ->
+            Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
+
+          any ->
+            any
         end
 
       "Serial" ->
@@ -282,12 +202,5 @@ defmodule Athasha.Modbus.Runner do
           config: config.dbpsb
         )
     end
-  end
-
-  defp stop_master(state = %{master: nil}), do: state
-
-  defp stop_master(state = %{master: master}) do
-    Master.stop(master)
-    Map.put(state, :master, nil)
   end
 end

@@ -1,23 +1,9 @@
 defmodule Athasha.Database.Runner do
-  use GenServer
   alias Athasha.Items
+  alias Athasha.Raise
   alias Athasha.Points
 
-  def start_link(item, name) do
-    GenServer.start_link(__MODULE__, item, name: name)
-  end
-
-  def stop(pid) do
-    GenServer.stop(pid)
-  end
-
-  def terminate(_reason, state) do
-    stop_dbconn(state)
-  end
-
-  def init(item) do
-    Items.register_status!(item, :warn, "Starting...")
-    Process.flag(:trap_exit, true)
+  def run(item) do
     config = Jason.decode!(item.config)
 
     host = config["host"]
@@ -37,6 +23,7 @@ defmodule Athasha.Database.Runner do
       end)
 
     config = %{
+      item: Map.take(item, [:id, :name, :type]),
       host: host,
       port: port,
       period: period,
@@ -47,67 +34,26 @@ defmodule Athasha.Database.Runner do
       command: command
     }
 
-    Process.send_after(self(), :run, 0)
-    {:ok, %{item: item, config: config, dbconn: nil}}
-  end
-
-  def handle_info({:EXIT, pid, _reason}, state = %{dbconn: dbconn}) do
-    state =
-      case dbconn do
-        ^pid -> stop_dbconn(state)
-        _ -> state
-      end
-
-    {:noreply, state}
-  end
-
-  def handle_info(:run, state = %{item: item, config: config}) do
-    try do
-      state = connect(state)
-
-      state =
-        case run_once(state) do
-          true ->
-            state
-
-          false ->
-            stop_dbconn(state)
-        end
-
-      case state.dbconn do
-        nil -> Process.send_after(self(), :run, 1000)
-        _ -> Process.send_after(self(), :run, config.period)
-      end
-
-      {:noreply, state}
-    rescue
-      e ->
-        IO.inspect({e, __STACKTRACE__})
-        Items.update_status!(item, :error, "#{inspect(e)}")
-        Process.send_after(self(), :run, 1000)
-        state = stop_dbconn(state)
-        {:noreply, state}
-    end
-  end
-
-  defp connect(state = %{item: item, config: config, dbconn: nil}) do
     Items.update_status!(item, :warn, "Connecting...")
 
     case connect_dbconn(config) do
       {:ok, dbconn} ->
         Items.update_status!(item, :success, "Connected")
-        Map.put(state, :dbconn, dbconn)
+        run_loop(item, config, dbconn)
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(reason)}")
-        state
+        Raise.error({"Database connection error", config, reason})
     end
   end
 
-  defp connect(state), do: state
-  defp run_once(%{dbconn: nil}), do: false
+  defp run_loop(item, config, dbconn) do
+    run_once(item, config, dbconn)
+    :timer.sleep(config.period * 1000)
+    run_loop(item, config, dbconn)
+  end
 
-  defp run_once(%{item: item, config: config, dbconn: dbconn}) do
+  defp run_once(item, config, dbconn) do
     params =
       Enum.map(config.points, fn point ->
         value = Points.get_read_value(point.id)
@@ -116,11 +62,11 @@ defmodule Athasha.Database.Runner do
 
     case Tds.query(dbconn, config.command, params) do
       {:ok, _res} ->
-        true
+        :ok
 
       {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(reason)}")
-        false
+        Items.update_status!(item, :error, "#{inspect(params)} #{inspect(reason)}")
+        Raise.error({"Database command error", params, reason})
     end
   end
 
@@ -132,12 +78,5 @@ defmodule Athasha.Database.Runner do
       database: config.database,
       port: config.port
     )
-  end
-
-  defp stop_dbconn(state = %{dbconn: nil}), do: state
-
-  defp stop_dbconn(state = %{dbconn: dbconn}) do
-    Process.exit(dbconn, :stop)
-    Map.put(state, :dbconn, nil)
   end
 end

@@ -1,4 +1,5 @@
 defmodule Athasha.Items do
+  alias Athasha.Raise
   alias Athasha.Store
   alias Athasha.Bus
 
@@ -22,8 +23,14 @@ defmodule Athasha.Items do
     Store.select(@status)
   end
 
-  def item_name(item) do
-    {:via, Registry, {Store, {:runner, item.id}, item}}
+  def register_runner!(item) do
+    case Store.register({:runner, item.id}, item) do
+      {:ok, _} ->
+        :ok
+
+      {:error, reason} ->
+        Raise.error({"Item register runner error", item, reason})
+    end
   end
 
   def register_all!(items) do
@@ -32,7 +39,7 @@ defmodule Athasha.Items do
         :ok
 
       {:error, reason} ->
-        raise {"Item register all error", items, reason}
+        Raise.error({"Item register all error", items, reason})
     end
   end
 
@@ -42,7 +49,7 @@ defmodule Athasha.Items do
         :ok
 
       :error ->
-        raise {"Item update all error", items}
+        Raise.error({"Item update all error", items})
     end
   end
 
@@ -52,7 +59,7 @@ defmodule Athasha.Items do
         :ok
 
       {:error, reason} ->
-        raise {"Item register error", item, reason}
+        Raise.error({"Item register error", item, reason})
     end
   end
 
@@ -62,7 +69,7 @@ defmodule Athasha.Items do
         :ok
 
       {:error, reason} ->
-        raise {"Item unregister error", item, reason}
+        Raise.error({"Item unregister error", item, reason})
     end
   end
 
@@ -72,7 +79,7 @@ defmodule Athasha.Items do
         :ok
 
       :error ->
-        raise {"Item update error", item}
+        Raise.error({"Item update error", item})
     end
   end
 
@@ -92,7 +99,7 @@ defmodule Athasha.Items do
             :ok
 
           {:error, reason} ->
-            raise {"Item register status error", {item, type, msg, first}, reason}
+            Raise.error({"Item register status error", {item, type, msg, first}, reason})
         end
 
       false ->
@@ -103,7 +110,7 @@ defmodule Athasha.Items do
             :ok
 
           :error ->
-            raise {"Item update status error", {item, type, msg, first}}
+            Raise.error({"Item update status error", {item, type, msg, first}})
         end
     end
 
@@ -114,7 +121,7 @@ defmodule Athasha.Items do
         :ok
 
       {:error, reason} ->
-        raise {"Item dispatch status error", {item, type, msg, first}, reason}
+        Raise.error({"Item dispatch status error", {item, type, msg, first}, reason})
     end
   end
 

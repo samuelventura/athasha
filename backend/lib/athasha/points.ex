@@ -1,4 +1,5 @@
 defmodule Athasha.Points do
+  alias Athasha.Raise
   alias Athasha.Store
 
   def list() do
@@ -17,7 +18,7 @@ defmodule Athasha.Points do
         :ok
 
       {:error, reason} ->
-        raise {"Point read registration error", {item, point}, reason}
+        Raise.error({"Point read registration error", {item, point}, reason})
     end
   end
 
@@ -30,7 +31,7 @@ defmodule Athasha.Points do
         :ok
 
       :error ->
-        raise {"Point read update error", {item, point, value}}
+        Raise.error({"Point read update error", {item, point, value}})
     end
   end
 

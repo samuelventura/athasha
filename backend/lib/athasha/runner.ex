@@ -71,6 +71,26 @@ defmodule Athasha.Runner do
     end
   end
 
+  # initial/rescue 1s delay to avoid exceeding
+  # the default supervisor restart intensity
+  def start_runner(modu, item) do
+    pid =
+      spawn_link(fn ->
+        try do
+          Items.register_runner!(item)
+          Items.register_status!(item, :warn, "Starting...")
+          :timer.sleep(1000)
+          modu.run(item)
+        rescue
+          e ->
+            :timer.sleep(1000)
+            IO.inspect({e, __STACKTRACE__})
+        end
+      end)
+
+    {:ok, pid}
+  end
+
   defp start_if(item = %{enabled: true}), do: start(item)
   defp start_if(%{enabled: false}), do: nil
   defp stop_if(id, true), do: stop(id)
@@ -85,14 +105,23 @@ defmodule Athasha.Runner do
 
     id = item.id
     :ok = join_runner(id)
-    name = Items.item_name(item)
-    spec = Spec.forRunner(modu, id, [item, name])
+    spec = spec(modu, item)
     {:ok, _} = Runners.add(spec)
   end
 
   defp stop(id) do
     :ok = Runners.remove(id)
     :ok = join_runner(id)
+  end
+
+  defp spec(modu, item) do
+    %{
+      id: item.id,
+      start: {__MODULE__, :start_runner, [modu, item]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: :brutal_kill
+    }
   end
 
   defp join_runner(id) do

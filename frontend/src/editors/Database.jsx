@@ -16,7 +16,7 @@ function ExportedEditor(props) {
 
 function initialState() {
     return {
-        host: "127.0.0.1", port: "1433", period: "1000", points: [initialPoint()],
+        host: "127.0.0.1", port: "1433", period: "1", points: [initialPoint()],
         database: "datalog", username: "sa", password: "", command: "insert into dbo.Table1 (COL1) values (@1)",
     }
 }
@@ -62,7 +62,7 @@ function Editor(props) {
         let valid = true
         valid = valid && checkNotBlank(host)
         valid = valid && checkRange(port, 1, 65535)
-        valid = valid && checkRange(period, 0, 1000)
+        valid = valid && checkRange(period, 0, 65535)
         valid = valid && points.length > 0
         valid = valid && checkNotBlank(database)
         valid = valid && checkNotBlank(username)
@@ -138,8 +138,8 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Period (ms)">
-                        <Form.Control type="number" required min="0" max="1000" placeholder="Period (ms)"
+                    <FloatingLabel label="Period (s)">
+                        <Form.Control type="number" required min="0" max="65535" placeholder="Period (ms)"
                             value={period} onChange={e => setPeriod(e.target.value)} />
                     </FloatingLabel>
                 </Col>

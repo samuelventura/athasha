@@ -9,16 +9,6 @@ defmodule Athasha.Spec do
     }
   end
 
-  def forRunner(module, id, args) do
-    %{
-      id: id,
-      start: {module, :start_link, args},
-      type: :worker,
-      restart: :permanent,
-      shutdown: :brutal_kill
-    }
-  end
-
   def forSuper(module) do
     %{
       id: module,
