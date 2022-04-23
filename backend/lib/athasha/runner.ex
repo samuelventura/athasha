@@ -3,6 +3,7 @@ defmodule Athasha.Runner do
 
   alias Athasha.Bus
   alias Athasha.Spec
+  alias Athasha.Raise
   alias Athasha.Items
   alias Athasha.Server
   alias Athasha.Runners
@@ -81,6 +82,7 @@ defmodule Athasha.Runner do
           Items.register_status!(item, :warn, "Starting...")
           :timer.sleep(1000)
           modu.run(item)
+          Raise.error({"Runner normal exit", item})
         rescue
           e ->
             :timer.sleep(1000)

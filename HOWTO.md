@@ -38,6 +38,7 @@ yarn preview
 - Avoid abstraction jail
 - Single concurrent user UI: rest instead of websocket
 - Single super user role: single password to manage
+- First complete a usable set of UI based features (for technicians)
 
 ## Authentication
 
@@ -195,3 +196,56 @@ int, float, datetime = (getdate())
 ## Unsupported
 
 - scrollIntoViewIfNeeded ff 99.0 (64-bit)
+
+## TODO and IDEA box
+
+- Raise even on normal runner exit: defensive?
+- UUID for item ids
+- Screen designer
+- Widget designer and publisher: cloud, svg, liveview?...
+- Simple table based point viewer
+- Data viewer (from database)
+- REST/WS point exporter
+- Separated page editors
+- Code editor/runner (like notebook)
+- Backup/restore individual items
+- Replace sniff with sport (security and no polling)
+- Multi database support for database runner
+- Shared queues, stacks, maps, ...
+- Native PLC drivers: AB, Fanuc, Siemens, ...
+- Modbus ASCII support
+- Output IO support for modbus runner
+- Opto22 native driver runner (module + point addresses, edge detectors, counters, ...)
+- Sandbox runner dependencies: Tds, Baud, ...
+- Runners on their own beam node or port
+- SharpTerminal/SharpMaster similar tools
+- Modbus slave editor / viewer
+- USB serial ports persistent names
+- Bluetooth + smartphone setup
+- Windows installer and config editor (port / password)
+- Precompiled plugin repository
+- Pre Built port based plugin drivers
+- Plugin = module + native port (c/c++/go/rust)
+- Channel manager clone
+- Multi project/user
+- Hide action links until item selected
+- Item status/log viewer (popup?)
+
+- EXTENSIBLES
+- Device/PAC/PLC/instrument drivers
+- Database drivers
+- Widgets
+- Elixir packages: Excel parser, Google Drive, ...
+
+- RESEARCH
+- Publish prebuild NIFs and PORTS in hex
+- LiveView advanced client side interactions: forms, modals, d&d
+- elixir Livebook code editor with intellisense
+- React state change event to avoid useEffect hacks
+- Elixir Desktop: convert app from web to desktop
+- Grisp vs nerves
+
+- OTHER IDEAS
+- Scenic html canvas driver
+- raspberry pi display scenic industrial HMI
+- x86 NUC nerves + scenic
