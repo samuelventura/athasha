@@ -48,8 +48,8 @@ defmodule Athasha.Modbus.Runner do
 
     Items.update_status!(item, :warn, "Connecting...")
 
-    # modbus/baud stop process on connect/open error
-    # and the link kills this process no giving time
+    # modbus/baud stops process on connect/open error
+    # and the link kills this process not giving time
     # for proper delay and status notification
     # it also impacts the supervisor restart intensity
     Process.flag(:trap_exit, true)
