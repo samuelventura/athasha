@@ -33,7 +33,3 @@ table.ItemsTable td * {
 table.PointsTable td {
     vertical-align: middle;
 }
-
-.EditorModal {
-    max-width: 90% !important; 
-}

@@ -63,7 +63,7 @@ function EditItem(props) {
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
-            centered dialogClassName="EditorModal">
+            centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
                     <img className="align-middle me-2" src={SvgIcon(item.type)} width="24"

@@ -239,7 +239,7 @@ int, float, datetime = (getdate())
 
 - RESEARCH
 - Publish prebuild NIFs and PORTS in hex
-- LiveView advanced client side interactions: forms, modals, d&d
+- LiveView advanced client side interactions: forms, modals, d&d, rest, ws, ...
 - elixir Livebook code editor with intellisense
 - React state change event to avoid useEffect hacks
 - Elixir Desktop: convert app from web to desktop
