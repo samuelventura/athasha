@@ -102,8 +102,8 @@ defmodule Athasha.Runner do
   defp start(item) do
     modu =
       case item.type do
-        "Modbus Reader" -> Athasha.Modbus.Runner
-        "Database Writer" -> Athasha.Database.Runner
+        "Modbus" -> Athasha.Modbus.Runner
+        "Database" -> Athasha.Database.Runner
       end
 
     id = item.id

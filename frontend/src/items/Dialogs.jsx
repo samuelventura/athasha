@@ -93,7 +93,7 @@ function NewItem(props) {
         }
     }, [name, prev, type])
     useEffect(() => {
-        if (props.show) setType("Modbus Reader")
+        if (props.show) setType("Modbus")
         else {
             setName("")
             setType("")
@@ -109,8 +109,8 @@ function NewItem(props) {
                     <Form.Label>Type</Form.Label>
                     <Form.Select autoFocus value={type} onChange={e => setType(e.target.value)}>
                         {option("")}
-                        {option("Modbus Reader")}
-                        {option("Database Writer")}
+                        {option("Modbus")}
+                        {option("Database")}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">

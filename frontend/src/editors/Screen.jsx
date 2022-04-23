@@ -244,6 +244,6 @@ function Editor(props) {
 }
 
 export {
-    ExportedEditor as ModbusEditor,
-    initialState as ModbusInitial,
+    ExportedEditor as ScreenEditor,
+    initialState as ScreenInitial,
 }

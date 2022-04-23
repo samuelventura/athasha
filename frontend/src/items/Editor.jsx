@@ -4,12 +4,15 @@ import Modal from 'react-bootstrap/Modal'
 import { useApp } from '../App'
 import State from "./State"
 import Edit from './Edit'
-import { ModbusDeviceEditor } from '../editors/Modbus'
-import { ModbusDeviceInitial } from '../editors/Modbus'
-import { DatabaseWriterEditor } from '../editors/Database'
-import { DatabaseWriterInitial } from '../editors/Database'
+import { ModbusEditor } from '../editors/Modbus'
+import { ModbusInitial } from '../editors/Modbus'
+import { DatabaseEditor } from '../editors/Database'
+import { DatabaseInitial } from '../editors/Database'
+import { ScreenEditor } from '../editors/Screen'
+import { ScreenInitial } from '../editors/Screen'
 import ModbusIcon from '../editors/Modbus.svg'
 import DatabaseIcon from '../editors/Database.svg'
+import ScreenIcon from '../editors/Screen.svg'
 
 // props | store > items + initial state > UI > dirty state > store | config
 // cancel | accept > clear store
@@ -72,8 +75,9 @@ function EditItem(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ModbusDeviceEditor {...eprops} show={eshow("Modbus Reader")} />
-                <DatabaseWriterEditor {...eprops} show={eshow("Database Writer")} />
+                <ModbusEditor {...eprops} show={eshow("Modbus")} />
+                <DatabaseEditor {...eprops} show={eshow("Database")} />
+                <ScreenEditor {...eprops} show={eshow("Screen")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -89,10 +93,12 @@ function EditItem(props) {
 
 function SvgIcon(type) {
     switch (type) {
-        case "Modbus Reader":
+        case "Modbus":
             return ModbusIcon
-        case "Database Writer":
+        case "Database":
             return DatabaseIcon
+        case "Screen":
+            return ScreenIcon
         default:
             return null
     }
@@ -100,10 +106,12 @@ function SvgIcon(type) {
 
 function InitialState(type) {
     switch (type) {
-        case "Modbus Reader":
-            return ModbusDeviceInitial()
-        case "Database Writer":
-            return DatabaseWriterInitial()
+        case "Modbus":
+            return ModbusInitial()
+        case "Database":
+            return DatabaseInitial()
+        case "Screen":
+            return ScreenInitial()
         default:
             return null
     }

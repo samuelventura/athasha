@@ -93,7 +93,7 @@ function Editor(props) {
         next.splice(index, 1)
         setPoints(next)
     }
-    const items = Object.values(app.state.items).filter(item => item.type === 'Modbus Reader')
+    const items = Object.values(app.state.items).filter(item => item.type === 'Modbus')
     const options = items.map((item) => {
         const config = JSON.parse(item.config)
         return config.points.map((point, index) => {
@@ -195,6 +195,6 @@ function Editor(props) {
 }
 
 export {
-    ExportedEditor as DatabaseWriterEditor,
-    initialState as DatabaseWriterInitial,
+    ExportedEditor as DatabaseEditor,
+    initialState as DatabaseInitial,
 }
