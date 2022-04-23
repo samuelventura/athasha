@@ -83,8 +83,9 @@ defmodule Athasha.Runner do
           modu.run(item)
         rescue
           e ->
-            IO.inspect({e, __STACKTRACE__})
             :timer.sleep(1000)
+            # nifs not closed on normal exit
+            reraise e, __STACKTRACE__
         end
       end)
 
