@@ -83,8 +83,8 @@ defmodule Athasha.Runner do
           modu.run(item)
         rescue
           e ->
-            :timer.sleep(1000)
             IO.inspect({e, __STACKTRACE__})
+            :timer.sleep(1000)
         end
       end)
 
