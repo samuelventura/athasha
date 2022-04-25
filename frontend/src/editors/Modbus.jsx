@@ -112,8 +112,8 @@ function Editor(props) {
         setPoints(next)
     }
     const rows = points.map((point, index) =>
-        <tr key={index} id={"point_" + index}>
-            <td>{index + 1}</td>
+        <tr key={index} id={"point_" + index} className='align-middle'>
+            <td >{index + 1}</td>
             <td>
                 <Form.Control type="number" required min="1" max="65535" placeholder="Slave ID"
                     value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value)} />
@@ -220,7 +220,7 @@ function Editor(props) {
                 <Col></Col>
             </Row>
             {transEditor}
-            <Table className='PointsTable'>
+            <Table>
                 <thead>
                     <tr>
                         <th>#</th>

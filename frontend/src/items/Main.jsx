@@ -14,7 +14,7 @@ import Logo from '../logo.svg'
 function Main() {
   const app = useApp()
   return (
-    <div className="vh-100 d-flex flex-column">
+    <>
       <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand title="Home">
@@ -33,14 +33,14 @@ function Main() {
       <AlertBanner />
       <LoginDialog />
       <ConnectDialog />
-      <Container className='mt-3 flex-fill'>
+      <Container className='mt-3'>
         <Browser
           state={app.state}
           dispatch={app.dispatch}
           send={app.send}
         />
       </Container>
-    </div>
+    </>
   )
 }
 

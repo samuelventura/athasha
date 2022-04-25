@@ -104,7 +104,7 @@ function Editor(props) {
     }
     ).flat()
     const rows = points.map((point, index) =>
-        <tr key={index} id={"point_" + index}>
+        <tr key={index} id={"point_" + index} className='align-middle'>
             <td>{index + 1}</td>
             <td>
                 {"@" + (index + 1)}
@@ -173,7 +173,7 @@ function Editor(props) {
                 </Col>
             </Row>
 
-            <Table className='PointsTable'>
+            <Table>
                 <thead>
                     <tr>
                         <th>#</th>

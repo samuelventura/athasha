@@ -1,35 +1,21 @@
-table.ItemsTable {
+table.items {
     display: flex;
     flex-flow: column;
-    width: 100%;
     height: calc(100vh - 10em);
 }
 
-table.ItemsTable thead {
+table.items thead {
     flex: 0 0 auto;
 }
 
-table.ItemsTable tbody {
+table.items tbody {
     flex: 1 1 auto;
-    display: block;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-table.ItemsTable tr {
+table.items tr {
     width: 100%;
     display: table;
     table-layout: fixed;
-}
-
-table.ItemsTable td {
-    vertical-align: middle;
-}
-
-table.ItemsTable td * {
-    vertical-align: middle;
-}
-
-table.PointsTable td {
-    vertical-align: middle;
 }

@@ -41,8 +41,16 @@ function Browser(props) {
         }
     }
 
+    const bodyStyle = {
+        height: 'calc(100vh - 10em)',
+        minHeight: 'calc(100vh - 10em)',
+        maxHeight: 'calc(100vh - 10em)',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+    }
+
     return (
-        <div>
+        <>
             <table>
                 <thead>
                     <tr>
@@ -58,7 +66,7 @@ function Browser(props) {
                     </tr>
                 </thead>
             </table>
-            <Table className='mt-1 ItemsTable'>
+            <Table className='items mt-1'>
                 <thead>
                     <tr>
                         <th>
@@ -73,7 +81,7 @@ function Browser(props) {
                     dispatch={props.dispatch}
                     selected={props.state.selected} />
             </Table>
-        </div>
+        </>
     )
 }
 

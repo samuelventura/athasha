@@ -30,8 +30,11 @@ function Editor(props) {
         props.store({})
     }, [props])
     return (
-        <Form>
-        </Form>
+        <Row className="h-100">
+            <Col>Left</Col>
+            <Col md="auto" className="bg-warning">Center</Col>
+            <Col>Right</Col>
+        </Row>
     )
 }
 

@@ -139,11 +139,11 @@ function Rows(props) {
         <tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
-            className={selectedClass(item)}>
+            className={selectedClass(item) + ' align-middle'}>
             <td className={enabledClass(item)}>
                 <img src={SvgIcon(item.type)} width="20"
                     alt={item.type} className='me-2' />
-                <span>{item.name}</span>
+                <span className='align-middle'>{item.name}</span>
                 <StatusBadge item={item} />
             </td>
             <td>
@@ -186,7 +186,7 @@ function Rows(props) {
             <RenameItem item={renameItem}
                 accept={handleRename} cancel={clearRename} />
             {rows}
-        </tbody>
+        </ tbody>
     )
 }
 
