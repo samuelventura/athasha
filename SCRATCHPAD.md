@@ -10,6 +10,7 @@
 - Separated page editors
 - Code editor/runner (like notebook)
 - Backup/restore individual items
+- Clone selected item
 - Replace sniff with sport (security and no polling)
 - Multi database support for database runner
 - Shared queues, stacks, maps, ...
@@ -31,7 +32,9 @@
 - Multi project/user
 - Hide action links until item selected
 - Item status/log viewer (popup?)
-- Per device custom function code names (avoid criptic ones)
+- Per device custom function code names (avoid cryptic ones)
+- Disable/enable all action
+- Serial port selector
 
 - EXTENSIBLES
 - Device/PAC/PLC/instrument drivers
