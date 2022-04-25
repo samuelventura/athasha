@@ -115,11 +115,11 @@ function Editor(props) {
         <tr key={index} id={"point_" + index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
-                <Form.Control type="number" required min="1" max="65535" placeholder="Slave ID"
+                <Form.Control type="number" min="1" max="65535" placeholder="Slave ID"
                     value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value)} />
             </td>
             <td>
-                <Form.Select value={points[index].code} required onChange={e => setPoint(index, "code", e.target.value)}>
+                <Form.Select value={points[index].code} onChange={e => setPoint(index, "code", e.target.value)}>
                     <option value="01">01 DO 0=OFF 1=ON</option>
                     <option value="02">02 DI 0=OFF 1=ON</option>
                     <option value="22">22 Opto22 Float32</option>
@@ -130,11 +130,11 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" required min="0" max="65535" placeholder="Address"
+                <Form.Control type="number" min="0" max="65535" placeholder="Address"
                     value={points[index].address} onChange={e => setPoint(index, "address", e.target.value)} />
             </td>
             <td>
-                <Form.Control type="text" required placeholder="Point Name"
+                <Form.Control type="text" placeholder="Point Name"
                     value={points[index].name} onChange={e => setPoint(index, "name", e.target.value)} />
             </td>
             <td>
@@ -147,13 +147,13 @@ function Editor(props) {
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
-                <Form.Control autoFocus required type="text" placeholder="Hostname/IP Address"
+                <Form.Control autoFocus type="text" placeholder="Hostname/IP Address"
                     value={host} onChange={e => setName(e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Port">
-                <Form.Control type="number" required min="1" max="65535" placeholder="Port"
+                <Form.Control type="number" min="1" max="65535" placeholder="Port"
                     value={port} onChange={e => setPort(e.target.value)} />
             </FloatingLabel>
         </Col>
@@ -161,19 +161,19 @@ function Editor(props) {
     const transSerial = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
-                <Form.Control autoFocus required type="text" placeholder="Serial Port Name"
+                <Form.Control autoFocus type="text" placeholder="Serial Port Name"
                     value={tty} onChange={e => setTty(e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Baud Rate">
-                <Form.Control type="number" required min="1" max="2147483647" placeholder="Baud Rate"
+                <Form.Control type="number" min="1" max="2147483647" placeholder="Baud Rate"
                     value={speed} onChange={e => setSpeed(e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Config">
-                <Form.Select value={dbpsb} required onChange={e => setDbpsb(e.target.value)}>
+                <Form.Select value={dbpsb} onChange={e => setDbpsb(e.target.value)}>
                     <option value="8N1">8N1</option>
                     <option value="8E1">8E1</option>
                     <option value="8O1">8O1</option>
@@ -197,7 +197,7 @@ function Editor(props) {
             <Row>
                 <Col xs={4}>
                     <FloatingLabel label="Transport">
-                        <Form.Select value={trans} required onChange={e => setTrans(e.target.value)}>
+                        <Form.Select value={trans} onChange={e => setTrans(e.target.value)}>
                             <option value="Socket">Socket</option>
                             <option value="Serial">Serial</option>
                         </Form.Select>
@@ -205,7 +205,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Protocol">
-                        <Form.Select value={proto} required onChange={e => setProto(e.target.value)}>
+                        <Form.Select value={proto} onChange={e => setProto(e.target.value)}>
                             <option value="TCP">TCP</option>
                             <option value="RTU">RTU</option>
                         </Form.Select>
@@ -213,7 +213,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Delay (ms)">
-                        <Form.Control type="number" required min="0" max="1000" placeholder="Delay (ms)"
+                        <Form.Control type="number" min="0" max="1000" placeholder="Delay (ms)"
                             value={delay} onChange={e => setDelay(e.target.value)} />
                     </FloatingLabel>
                 </Col>
