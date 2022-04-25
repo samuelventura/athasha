@@ -15,6 +15,7 @@ function Main() {
   const app = useApp()
   return (
     <>
+      <AlertBanner />
       <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand title="Home">
@@ -30,7 +31,6 @@ function Main() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <AlertBanner />
       <LoginDialog />
       <ConnectDialog />
       <Container className='mt-3'>

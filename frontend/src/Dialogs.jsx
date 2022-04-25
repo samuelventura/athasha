@@ -78,6 +78,8 @@ function AlertBanner() {
   const alert = app.alert
   return alert.type ? (
     <Alert variant={alert.type} dismissible
+      style={{ zIndex: '9999' }}
+      className='fixed-top'
       onClose={() => app.clearAlert()}>
       {alert.message}
     </Alert>

@@ -3,6 +3,8 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Card from 'react-bootstrap/Card'
+import ListGroup from 'react-bootstrap/ListGroup'
 import Table from 'react-bootstrap/Table'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -31,9 +33,24 @@ function Editor(props) {
     }, [props])
     return (
         <Row className="h-100">
-            <Col>Left</Col>
-            <Col md="auto" className="bg-warning">Center</Col>
-            <Col>Right</Col>
+            <Col xs={3}>
+                <Card>
+                    <Card.Header>Components</Card.Header>
+                    <ListGroup variant="flush">
+                        <ListGroup.Item>Wire Frame</ListGroup.Item>
+                        <ListGroup.Item>Wire Frame</ListGroup.Item>
+                        <ListGroup.Item>Wire Frame</ListGroup.Item>
+                    </ListGroup>
+                </Card>
+            </Col>
+            <Col className="bg-light">
+                Preview
+            </Col>
+            <Col xs={3}>
+                <Card>
+                    <Card.Header>Settings</Card.Header>
+                </Card>
+            </Col>
         </Row>
     )
 }
