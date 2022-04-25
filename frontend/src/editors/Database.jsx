@@ -127,19 +127,19 @@ function Editor(props) {
             <Row>
                 <Col xs={4}>
                     <FloatingLabel label="Hostname/IP Address">
-                        <Form.Control autoFocus type="text" placeholder="Hostname/IP Address"
+                        <Form.Control autoFocus type="text"
                             value={host} onChange={e => setName(e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Port">
-                        <Form.Control type="number" min="1" max="65535" placeholder="Port"
+                        <Form.Control type="number" min="1" max="65535"
                             value={port} onChange={e => setPort(e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Period (s)">
-                        <Form.Control type="number" min="0" max="65535" placeholder="Period (ms)"
+                        <Form.Control type="number" min="0" max="65535"
                             value={period} onChange={e => setPeriod(e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -147,19 +147,19 @@ function Editor(props) {
             <Row>
                 <Col xs={3}>
                     <FloatingLabel label="Database">
-                        <Form.Control autoFocus type="text" placeholder="Database"
+                        <Form.Control autoFocus type="text"
                             value={database} onChange={e => setDatabase(e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={3}>
                     <FloatingLabel label="Username">
-                        <Form.Control type="text" placeholder="Username"
+                        <Form.Control type="text"
                             value={username} onChange={e => setUsername(e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={3}>
                     <FloatingLabel label="Password">
-                        <Form.Control type="password" placeholder="Password"
+                        <Form.Control type="password"
                             value={password} onChange={e => setPassword(e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -167,7 +167,7 @@ function Editor(props) {
             <Row>
                 <Col xs={9}>
                     <FloatingLabel label="Command">
-                        <Form.Control autoFocus type="text" placeholder="Command"
+                        <Form.Control autoFocus type="text"
                             value={command} onChange={e => setCommand(e.target.value)} />
                     </FloatingLabel>
                 </Col>

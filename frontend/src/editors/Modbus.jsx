@@ -147,13 +147,13 @@ function Editor(props) {
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
-                <Form.Control autoFocus type="text" placeholder="Hostname/IP Address"
-                    value={host} onChange={e => setName(e.target.value)} />
+                <Form.Control autoFocus type="text"
+                    value={host} onChange={e => setHost(e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Port">
-                <Form.Control type="number" min="1" max="65535" placeholder="Port"
+                <Form.Control type="number" min="1" max="65535"
                     value={port} onChange={e => setPort(e.target.value)} />
             </FloatingLabel>
         </Col>
@@ -161,13 +161,13 @@ function Editor(props) {
     const transSerial = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
-                <Form.Control autoFocus type="text" placeholder="Serial Port Name"
+                <Form.Control autoFocus type="text"
                     value={tty} onChange={e => setTty(e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Baud Rate">
-                <Form.Control type="number" min="1" max="2147483647" placeholder="Baud Rate"
+                <Form.Control type="number" min="1" max="2147483647"
                     value={speed} onChange={e => setSpeed(e.target.value)} />
             </FloatingLabel>
         </Col>
@@ -213,7 +213,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Delay (ms)">
-                        <Form.Control type="number" min="0" max="1000" placeholder="Delay (ms)"
+                        <Form.Control type="number" min="0" max="1000"
                             value={delay} onChange={e => setDelay(e.target.value)} />
                     </FloatingLabel>
                 </Col>
