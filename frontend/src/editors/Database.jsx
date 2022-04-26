@@ -46,14 +46,14 @@ function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(initialState().setts)
     const [points, setPoints] = useState(initialState().points)
-    // initialize local state
+    //initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
         setSetts(state.setts || init.setts)
         setPoints(state.points || init.points)
     }, [props.state])
-    // rebuild and store state
+    //rebuild and store state
     useEffect(() => {
         let valid = true
         valid = valid && checkNotBlank(setts.host)

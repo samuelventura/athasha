@@ -12,7 +12,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 //- gets focus on load
 //- triggers on any change
 //- enables clear button on non-empty
-//  spaces do count to match placeholder behaviour
+// spaces do count to match placeholder behaviour
 function Search(props) {
 
     const input = useRef(null)

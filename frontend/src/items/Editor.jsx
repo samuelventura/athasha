@@ -14,8 +14,8 @@ import ModbusIcon from '../editors/Modbus.svg'
 import DatabaseIcon from '../editors/Database.svg'
 import ScreenIcon from '../editors/Screen.svg'
 
-// props | store > items + initial state > UI > dirty state > store | config
-// cancel | accept > clear store
+//props | store > items + initial state > UI > dirty state > store | config
+//cancel | accept > clear store
 function EditItem(props) {
     const app = useApp()
     const noneItem = State.initial().selected
