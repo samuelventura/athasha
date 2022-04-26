@@ -103,11 +103,17 @@ function SvgWindow({ sett }) {
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb } = calcGeom(parent, sett)
+    const { H, W, vb, sx, sy } = calcGeom(parent, sett)
     return (<svg ref={ref} width="100%" height="100%" overflow="scroll">
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
+            <defs>
+                <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
+                    <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none" stroke="gray" stroke-width="1" />
+                </pattern>
+            </defs>
             <rect width={W} height={H} fill={sett.bgColor} stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill="url(#grid)" />
         </svg>
     </svg >)
 }
@@ -160,7 +166,7 @@ function RightPanel({ sett, setProp }) {
                         </Form.Select>
                     </FloatingLabel>
                     <FloatingLabel label="Width">
-                        <Form.Control type="number" min="1" value={sett.width} onChange={e => setProp("width", e.target.value)} />
+                        <Form.Control type="number" required min="1" value={sett.width} onChange={e => setProp("width", e.target.value)} />
                     </FloatingLabel>
                     <FloatingLabel label="Height">
                         <Form.Control type="number" min="1" value={sett.height} onChange={e => setProp("height", e.target.value)} />
