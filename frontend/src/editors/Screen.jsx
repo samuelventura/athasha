@@ -22,7 +22,7 @@ function initialState() {
 }
 
 function initialGeom() {
-    return { scale: 'fit-width', width: '400', height: '1200', gridX: '10', gridY: '10' }
+    return { scale: 'stretch', width: '400', height: '1200', gridX: '10', gridY: '10' }
 }
 
 function setGeomProp(setter, current, name, value) {
@@ -96,10 +96,6 @@ function calcGeom(parent, geom) {
             break
         }
     }
-    x = x || 0
-    y = y || 0
-    w = w || 0
-    h = h || 0
     const vb = `${x} ${y} ${w} ${h}`
     return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
 }
@@ -120,7 +116,7 @@ function SvgWindow({ geom }) {
     console.log(parent, W, H, vb)
     return (<svg ref={ref} width="100%" height="100%">
         <rect width="100%" height="100%" fill="white" stroke="gray" strokeWidth="20" />
-        <svg width="100%" height="100%" viewBox={vb}>
+        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
             <rect width={W} height={H} fill="white" stroke="orange" strokeWidth="10" />
         </svg>
     </svg >)
