@@ -22,7 +22,7 @@ function initialState() {
 }
 
 function initialGeom() {
-    return { scale: 'stretch', width: '400', height: '1200', gridX: '10', gridY: '10' }
+    return { scale: 'fit', align: 'start', width: '640', height: '480', gridX: '10', gridY: '10' }
 }
 
 function setGeomProp(setter, current, name, value) {
@@ -30,6 +30,12 @@ function setGeomProp(setter, current, name, value) {
         case 'scale': {
             const next = { ...current }
             next.scale = value
+            setter(next)
+            break
+        }
+        case 'align': {
+            const next = { ...current }
+            next.align = value
             setter(next)
             break
         }
@@ -60,7 +66,22 @@ function setGeomProp(setter, current, name, value) {
     }
 }
 
+function calcAlign(align, d, D) {
+    switch (align) {
+        case 'start': {
+            return 0
+        }
+        case 'center': {
+            return (D - d) / 2
+        }
+        case 'end': {
+            return (D - d)
+        }
+    }
+}
+
 function calcGeom(parent, geom) {
+    const align = geom.align
     const W = Number(geom.width)
     const H = Number(geom.height)
     const gx = Number(geom.gridX)
@@ -79,20 +100,20 @@ function calcGeom(parent, geom) {
             const r = wr > hr ? wr : hr
             w = parent.pw * r
             h = parent.ph * r
-            x = (W - w) / 2
-            y = (H - h) / 2
+            x = calcAlign(align, w, W)
+            y = calcAlign(align, h, H)
             break
         }
         case 'fit-width': {
             w = W
             h = W / pr
-            y = (H - h) / 2
+            y = calcAlign(align, h, H)
             break
         }
         case 'fit-height': {
             h = H
             w = H * pr
-            x = (W - w) / 2
+            x = calcAlign(align, w, W)
             break
         }
     }
@@ -102,22 +123,22 @@ function calcGeom(parent, geom) {
 
 function SvgWindow({ geom }) {
     //size reported here grows with svg content
-    const { ref } = useResizeDetector();
-    let width = 1
-    let height = 1
+    const { ref, width, height } = useResizeDetector();
+    console.log("useResizeDetector", width, height)
+    let cw = 1
+    let ch = 1
     if (ref.current) {
         // size reported here is stable
         const style = window.getComputedStyle(ref.current)
-        width = Number(style.getPropertyValue("width").replace("px", ""))
-        height = Number(style.getPropertyValue("height").replace("px", ""))
+        cw = Number(style.getPropertyValue("width").replace("px", ""))
+        ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
-    const parent = { pw: width, ph: height }
+    const parent = { pw: cw, ph: ch }
     const { H, W, vb } = calcGeom(parent, geom)
     console.log(parent, W, H, vb)
-    return (<svg ref={ref} width="100%" height="100%">
-        <rect width="100%" height="100%" fill="white" stroke="gray" strokeWidth="20" />
+    return (<svg ref={ref} width="100%" height="100%" overflow="scroll">
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
-            <rect width={W} height={H} fill="white" stroke="orange" strokeWidth="10" />
+            <rect width={W} height={H} fillOpacity="0" stroke="orange" strokeWidth="20" />
         </svg>
     </svg >)
 }
@@ -168,6 +189,13 @@ function Editor(props) {
                                     <option value="fit-width">Fit Width</option>
                                     <option value="fit-height">Fit Height</option>
                                     <option value="stretch">Stretch</option>
+                                </Form.Select>
+                            </FloatingLabel>
+                            <FloatingLabel label="Align">
+                                <Form.Select size="sm" value={geom.align} onChange={e => setProp("align", e.target.value)}>
+                                    <option value="start">Start</option>
+                                    <option value="center">Center</option>
+                                    <option value="end">End</option>
                                 </Form.Select>
                             </FloatingLabel>
                             <FloatingLabel label="Width">
