@@ -63,7 +63,7 @@ function RenameItem(props) {
 }
 
 function NewItem(props) {
-    const nameEl = useRef(null);
+    const nameEl = useRef(null)
     const [name, setName] = useState("")
     const [type, setType] = useState("")
     const [prev, setPrev] = useState("")
@@ -87,7 +87,7 @@ function NewItem(props) {
     useEffect(() => { setPrev(type) }, [type])
     useEffect(() => {
         if (type.trim().length > 0 && prev !== type) {
-            const token = crypto.randomUUID();
+            const token = crypto.randomUUID()
             setName(type + " " + token.substring(0, 6))
             nameEl.current.focus()
         }
@@ -146,14 +146,14 @@ function BackupButton() {
             }
         })
         const json = JSON.stringify(items)
-        const element = document.createElement('a');
+        const element = document.createElement('a')
         const now = new Date()
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
         const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(json));
-        element.setAttribute('download', `${filename}.athasha.backup.json`);
-        element.style.display = 'none';
-        element.click();
+        element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(json))
+        element.setAttribute('download', `${filename}.athasha.backup.json`)
+        element.style.display = 'none'
+        element.click()
     }
     return app.logged && Object.keys(app.state.items).length > 0 ? (
         <Button variant="link" onClick={handleOnClick} title="Backup">
@@ -165,22 +165,22 @@ function BackupButton() {
 function RestoreButton() {
     const app = useApp()
     const handleOnClick = () => {
-        const input = document.createElement('input');
-        input.setAttribute('accept', ".athasha.backup.json");
-        input.type = 'file';
+        const input = document.createElement('input')
+        input.setAttribute('accept', ".athasha.backup.json")
+        input.type = 'file'
         input.onchange = _ => {
-            const files = Array.from(input.files);
-            const reader = new FileReader();
+            const files = Array.from(input.files)
+            const reader = new FileReader()
             reader.addEventListener('load', (event) => {
-                const uri = event.target.result;
-                const base64 = uri.substring("data:application/json;base64,".length)
-                const json = atob(base64);
+                const uri = event.target.result
+                const base64 = uri.substring("data:application/jsonbase64,".length)
+                const json = atob(base64)
                 const items = JSON.parse(json)
                 app.send({ name: "restore", args: items })
-            });
-            reader.readAsDataURL(files[0]);
-        };
-        input.click();
+            })
+            reader.readAsDataURL(files[0])
+        }
+        input.click()
     }
     return app.logged && Object.keys(app.state.items).length === 0 ? (
         <Button variant="link" onClick={handleOnClick} title="Restore">

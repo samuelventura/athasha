@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
@@ -15,7 +15,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 //  spaces do count to match placeholder behaviour
 function Search(props) {
 
-    const input = useRef(null);
+    const input = useRef(null)
     const [filter, setFilter] = useState("")
 
     function handleChange(e) {

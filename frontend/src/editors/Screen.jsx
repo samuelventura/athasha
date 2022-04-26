@@ -10,7 +10,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { useResizeDetector } from 'react-resize-detector';
+import { useResizeDetector } from 'react-resize-detector'
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -74,10 +74,12 @@ function calcGeom(parent, geom) {
     return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
 }
 
-//TODO FIXME pattern grid, background color picker
+//mouser scroll conflicts with align setting, 
+//better to provide a separate window preview link
 function SvgWindow({ geom }) {
     //size reported here grows with svg content/viewBox
-    const { ref } = useResizeDetector();
+    //generated size change events are still valuable
+    const { ref } = useResizeDetector()
     let cw = 1
     let ch = 1
     if (ref.current) {

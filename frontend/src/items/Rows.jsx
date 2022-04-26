@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import Environ from "../Environ"
 import State from "./State"
-import { useApp } from '../App';
+import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
 import { EditItem, SvgIcon } from "./Editor"
@@ -163,7 +163,7 @@ function Rows(props) {
             if (el) {
                 el.scrollIntoViewIfNeeded ?
                     el.scrollIntoViewIfNeeded() :
-                    el.scrollIntoView();
+                    el.scrollIntoView()
             }
         }
     }, [props])

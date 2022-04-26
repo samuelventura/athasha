@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import Button from 'react-bootstrap/Button';
-import { useApp } from '../App';
+import Button from 'react-bootstrap/Button'
+import { useApp } from '../App'
 import { NewItem } from "./Dialogs"
 import { InitialState } from "./Editor"
 
