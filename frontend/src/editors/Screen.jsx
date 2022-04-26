@@ -41,6 +41,13 @@ function initialControl() {
     }
 }
 
+function initialSelected() {
+    return {
+        index: -1,
+        control: {},
+    }
+}
+
 function initialControlSetts() {
     return {
         posX: '0', posY: '0',
@@ -164,12 +171,12 @@ function SvgWindow({ setts, controls, selected, setSelected }) {
         const y = setts.posY * sy
         const w = setts.width * sx
         const h = setts.height * sy
-        const isSelected = selected === control
+        const isSelected = selected.control === control
         const borderStroke = isSelected ? "4" : "2"
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
             event.stopPropagation()
-            setSelected(control)
+            setSelected({ index, control })
         }
         return (
             <svg key={index} x={x} y={y} width={w} height={h} onClick={e => onClickControl(e, index, control)}>
@@ -179,7 +186,7 @@ function SvgWindow({ setts, controls, selected, setSelected }) {
         )
     })
     function onClickScreen() {
-        setSelected({})
+        setSelected(initialSelected())
     }
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
@@ -263,7 +270,8 @@ function ScreenEditor({ setShow, setts, setProp }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, setts, setProp, maxX, maxY, remove }) {
+function ControlEditor({ setShow, control, setProp, maxX, maxY, delControl }) {
+    const setts = control.setts
     return (
         <Card>
             <Card.Header>
@@ -272,7 +280,7 @@ function ControlEditor({ setShow, setts, setProp, maxX, maxY, remove }) {
                 </Button>
                 Control Settings
                 <Button variant='outline-danger' size="sm" className="float-end"
-                    onClick={() => remove()} title="Remove Selected Control">
+                    onClick={() => delControl(control)} title="Remove Selected Control">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </Card.Header>
@@ -296,12 +304,13 @@ function ControlEditor({ setShow, setts, setProp, maxX, maxY, remove }) {
 }
 
 function RightPanel({ setts, setProp, selected, delControl, setControlProp }) {
+    const { index, control } = selected
     const [show, setShow] = useState(true)
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} />
-    const controlEditor = <ControlEditor setShow={setShow} setts={selected.setts}
-        setProp={(name, value) => setControlProp(selected, name, value)}
-        maxX={setts.gridX - 1} maxY={setts.gridY - 1} remove={() => delControl(selected)} />
-    return show ? (selected.setts ? controlEditor : screenEditor) : (
+    const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
+        setProp={(name, value) => setControlProp(control, name, value)}
+        maxX={setts.gridX - 1} maxY={setts.gridY - 1} delControl={delControl} />
+    return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
             <FontAwesomeIcon icon={faAnglesLeft} />
         </Button>
@@ -311,7 +320,7 @@ function RightPanel({ setts, setProp, selected, delControl, setControlProp }) {
 function Editor(props) {
     const [setts, setSetts] = useState(initialState().setts)
     const [controls, setControls] = useState(initialState().controls)
-    const [selected, setSelected] = useState({})
+    const [selected, setSelected] = useState(() => initialSelected())
     //initialize local state
     useEffect(() => {
         const init = initialState()
@@ -339,18 +348,19 @@ function Editor(props) {
     function addControl(type) {
         const next = [...controls]
         const control = initialControl()
+        const index = next.length
         control.type = type
         next.push(control)
         setControls(next)
-        setSelected(control)
+        setSelected({ index, control })
     }
     function delControl(control) {
         const next = [...controls]
         const index = next.indexOf(control)
         next.splice(index, 1)
         setControls(next)
-        if (control === selected) {
-            setSelected({})
+        if (control === selected.control) {
+            setSelected(initialSelected())
         }
     }
     return (
