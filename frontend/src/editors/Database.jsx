@@ -16,8 +16,16 @@ function ExportedEditor(props) {
 
 function initialState() {
     return {
-        host: "127.0.0.1", port: "1433", period: "1", points: [initialPoint()],
-        database: "datalog", username: "sa", password: "", command: "insert into dbo.Table1 (COL1) values (@1)",
+        setts: initialSetts(),
+        points: [initialPoint()],
+    }
+}
+
+function initialSetts() {
+    return {
+        host: "127.0.0.1", port: "1433", period: "1",
+        database: "datalog", username: "sa", password: "",
+        command: "insert into dbo.Table1 (COL1) values (@1)",
     }
 }
 
@@ -36,47 +44,33 @@ function checkNotBlank(value) {
 
 function Editor(props) {
     const app = useApp()
-    const [host, setName] = useState("")
-    const [port, setPort] = useState(0)
-    const [period, setPeriod] = useState(0)
-    const [points, setPoints] = useState([])
-    const [database, setDatabase] = useState("")
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [command, setCommand] = useState("")
+    const [setts, setSetts] = useState(initialState().setts)
+    const [points, setPoints] = useState(initialState().points)
     // initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
-        setName(state.host || init.host)
-        setPort(state.port || init.port)
-        setPeriod(state.period || init.period)
+        setSetts(state.setts || init.setts)
         setPoints(state.points || init.points)
-        setDatabase(state.database || init.database)
-        setUsername(state.username || init.username)
-        setPassword(state.password || init.password)
-        setCommand(state.command || init.command)
     }, [props.state])
     // rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlank(host)
-        valid = valid && checkRange(port, 1, 65535)
-        valid = valid && checkRange(period, 0, 65535)
+        valid = valid && checkNotBlank(setts.host)
+        valid = valid && checkRange(setts.port, 1, 65535)
+        valid = valid && checkRange(setts.period, 0, 65535)
         valid = valid && points.length > 0
-        valid = valid && checkNotBlank(database)
-        valid = valid && checkNotBlank(username)
-        valid = valid && checkNotBlank(password)
-        valid = valid && checkNotBlank(command)
+        valid = valid && checkNotBlank(setts.database)
+        valid = valid && checkNotBlank(setts.username)
+        valid = valid && checkNotBlank(setts.password)
+        valid = valid && checkNotBlank(setts.command)
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkNotBlank(point.id)
             return valid
         }, true)
         props.setValid(valid)
-        props.store({
-            host, port, period, points, database, username, password, command
-        })
-    }, [props, host, port, period, points, database, username, password, command])
+        props.store({ setts, points })
+    }, [props, setts, points])
     function setPoint(index, name, value) {
         const next = [...points]
         next[index][name] = value
@@ -92,6 +86,11 @@ function Editor(props) {
         const next = [...points]
         next.splice(index, 1)
         setPoints(next)
+    }
+    function setProp(name, value) {
+        const next = { ...setts }
+        next[name] = value
+        setSetts(next)
     }
     const items = Object.values(app.state.items).filter(item => item.type === 'Modbus')
     const options = items.map((item) => {
@@ -128,19 +127,19 @@ function Editor(props) {
                 <Col xs={4}>
                     <FloatingLabel label="Hostname/IP Address">
                         <Form.Control autoFocus type="text"
-                            value={host} onChange={e => setName(e.target.value)} />
+                            value={setts.host} onChange={e => setProp("host", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Port">
                         <Form.Control type="number" min="1" max="65535"
-                            value={port} onChange={e => setPort(e.target.value)} />
+                            value={setts.port} onChange={e => setProp("port", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Period (s)">
                         <Form.Control type="number" min="0" max="65535"
-                            value={period} onChange={e => setPeriod(e.target.value)} />
+                            value={setts.period} onChange={e => setProp("period", e.target.value)} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -148,19 +147,19 @@ function Editor(props) {
                 <Col xs={3}>
                     <FloatingLabel label="Database">
                         <Form.Control autoFocus type="text"
-                            value={database} onChange={e => setDatabase(e.target.value)} />
+                            value={setts.database} onChange={e => setProp("database", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={3}>
                     <FloatingLabel label="Username">
                         <Form.Control type="text"
-                            value={username} onChange={e => setUsername(e.target.value)} />
+                            value={setts.username} onChange={e => setProp("username", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={3}>
                     <FloatingLabel label="Password">
                         <Form.Control type="password"
-                            value={password} onChange={e => setPassword(e.target.value)} />
+                            value={setts.password} onChange={e => setProp("password", e.target.value)} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -168,7 +167,7 @@ function Editor(props) {
                 <Col xs={9}>
                     <FloatingLabel label="Command">
                         <Form.Control autoFocus type="text"
-                            value={command} onChange={e => setCommand(e.target.value)} />
+                            value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>
                 </Col>
             </Row>

@@ -9,17 +9,17 @@ defmodule Athasha.Modbus.Runner do
   def run(item) do
     id = item.id
     config = Jason.decode!(item.config)
-
-    trans = config["trans"]
-    proto = config["proto"]
-    host = config["host"]
-    port = config["port"]
+    setts = config["setts"]
+    trans = setts["trans"]
+    proto = setts["proto"]
+    host = setts["host"]
+    port = setts["port"]
     {port, _} = Integer.parse(port)
-    tty = config["tty"]
-    speed = config["speed"]
+    tty = setts["tty"]
+    speed = setts["speed"]
     {speed, _} = Integer.parse(speed)
-    dbpsb = config["dbpsb"]
-    delay = config["delay"]
+    dbpsb = setts["dbpsb"]
+    delay = setts["delay"]
     {delay, _} = Integer.parse(delay)
 
     points =

@@ -1,5 +1,6 @@
 ## TODO and IDEA box
 
+- Monitored parsers to store expose the available points (and other features), to implement point pickers. Modbus items would expose their available points even when not runner yet.
 - Raise even on normal runner exit: defensive?
 - UUID for item ids
 - Screen designer

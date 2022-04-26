@@ -18,10 +18,12 @@ function ExportedEditor(props) {
 
 function initialState() {
     return {
+        setts: initialSetts(),
+        controls: [],
     }
 }
 
-function initialSett() {
+function initialSetts() {
     return {
         scale: 'fit', align: 'center',
         width: '640', height: '480',
@@ -77,12 +79,12 @@ function invertColor(hex, bw) {
     return "#" + padZero(r) + padZero(g) + padZero(b);
 }
 
-function calcGeom(parent, sett) {
-    const align = sett.align
-    const W = Number(sett.width)
-    const H = Number(sett.height)
-    const gx = Number(sett.gridX)
-    const gy = Number(sett.gridY)
+function calcGeom(parent, setts) {
+    const align = setts.align
+    const W = Number(setts.width)
+    const H = Number(setts.height)
+    const gx = Number(setts.gridX)
+    const gy = Number(setts.gridY)
     const pr = parent.pw / parent.ph
     const sx = W / gx
     const sy = H / gy
@@ -90,7 +92,7 @@ function calcGeom(parent, sett) {
     let h = H
     let x = 0
     let y = 0
-    switch (sett.scale) {
+    switch (setts.scale) {
         case 'fit': {
             const wr = W / parent.pw
             const hr = H / parent.ph
@@ -122,9 +124,9 @@ function calcGeom(parent, sett) {
     return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
 }
 
-//mouser scroll conflicts with align setting, 
+//mouser scroll conflicts with align settsing, 
 //better to provide a separate window preview link
-function SvgWindow({ sett }) {
+function SvgWindow({ setts }) {
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const { ref } = useResizeDetector()
@@ -137,22 +139,22 @@ function SvgWindow({ sett }) {
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb, sx, sy } = calcGeom(parent, sett)
+    const { H, W, vb, sx, sy } = calcGeom(parent, setts)
     return (<svg ref={ref} width="100%" height="100%" overflow="scroll">
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
-                    <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none" stroke={invertColor(sett.bgColor, true)} strokeWidth="1" />
+                    <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none" stroke={invertColor(setts.bgColor, true)} strokeWidth="1" />
                 </pattern>
             </defs>
-            <rect width={W} height={H} fill={sett.bgColor} stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" />
             <rect width={W} height={H} fill="url(#grid)" />
         </svg>
     </svg >)
 }
 
-function LeftPanel() {
+function LeftPanel(props) {
     const [show, setShow] = useState(true)
     return show ? (
         <Card>
@@ -162,7 +164,7 @@ function LeftPanel() {
                 </Button>
             </Card.Header>
             <ListGroup variant="flush">
-                <ListGroup.Item>Wire Frame</ListGroup.Item>
+                <ListGroup.Item action onClick={() => props.addControl('Wire Frame')}>Wire Frame</ListGroup.Item>
                 <ListGroup.Item>Wire Frame</ListGroup.Item>
                 <ListGroup.Item>Wire Frame</ListGroup.Item>
             </ListGroup>
@@ -173,7 +175,7 @@ function LeftPanel() {
     )
 }
 
-function RightPanel({ sett, setProp }) {
+function RightPanel({ setts, setProp }) {
     const [show, setShow] = useState(true)
     return show ? (
         <Card>
@@ -185,7 +187,7 @@ function RightPanel({ sett, setProp }) {
             <ListGroup variant="flush">
                 <ListGroup.Item>
                     <FloatingLabel label="Scale">
-                        <Form.Select size="sm" value={sett.scale} onChange={e => setProp("scale", e.target.value)}>
+                        <Form.Select size="sm" value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
                             <option value="fit">Fit</option>
                             <option value="fit-width">Fit Width</option>
                             <option value="fit-height">Fit Height</option>
@@ -193,26 +195,26 @@ function RightPanel({ sett, setProp }) {
                         </Form.Select>
                     </FloatingLabel>
                     <FloatingLabel label="Align">
-                        <Form.Select size="sm" value={sett.align} onChange={e => setProp("align", e.target.value)}>
+                        <Form.Select size="sm" value={setts.align} onChange={e => setProp("align", e.target.value)}>
                             <option value="start">Start</option>
                             <option value="center">Center</option>
                             <option value="end">End</option>
                         </Form.Select>
                     </FloatingLabel>
                     <FloatingLabel label="Width">
-                        <Form.Control type="number" required min="1" value={sett.width} onChange={e => setProp("width", e.target.value)} />
+                        <Form.Control type="number" required min="1" value={setts.width} onChange={e => setProp("width", e.target.value)} />
                     </FloatingLabel>
                     <FloatingLabel label="Height">
-                        <Form.Control type="number" min="1" value={sett.height} onChange={e => setProp("height", e.target.value)} />
+                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value)} />
                     </FloatingLabel>
                     <FloatingLabel label="Grid X">
-                        <Form.Control type="number" min="1" max="100" value={sett.gridX} onChange={e => setProp("gridX", e.target.value)} />
+                        <Form.Control type="number" min="1" max="100" value={setts.gridX} onChange={e => setProp("gridX", e.target.value)} />
                     </FloatingLabel>
                     <FloatingLabel label="Grid Y">
-                        <Form.Control type="number" min="1" max="100" value={sett.gridY} onChange={e => setProp("gridY", e.target.value)} />
+                        <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value)} />
                     </FloatingLabel>
                     <InputGroup>
-                        <Form.Control type="color" label="Background Color" value={sett.bgColor} onChange={e => setProp("bgColor", e.target.value)} />
+                        <Form.Control type="color" label="Background Color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)} />
                         <Button variant="outline-secondary" disabled>Background Color</Button>
                     </InputGroup>
                 </ListGroup.Item>
@@ -225,33 +227,40 @@ function RightPanel({ sett, setProp }) {
 }
 
 function Editor(props) {
-    const [sett, setSett] = useState(() => initialSett())
+    const [setts, setSetts] = useState(initialState().setts)
+    const [controls, setControls] = useState(initialState().controls)
     // initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
+        setSetts(state.setts || init.setts)
+        setControls(state.controls || init.controls)
+        console.log(state.setts)
     }, [props.state])
     // rebuild and store state
     useEffect(() => {
         let valid = true
         props.setValid(valid)
-        props.store({})
-    }, [props])
+        props.store({ setts, controls })
+    }, [props, setts, controls])
     function setProp(name, value) {
-        const next = { ...sett }
+        const next = { ...setts }
         next[name] = value
-        setSett(next)
+        setSetts(next)
+    }
+    function addControl(type) {
+
     }
     return (
         <Row className="h-100">
             <Col md="auto">
-                <LeftPanel />
+                <LeftPanel addControl={addControl} />
             </Col>
             <Col className="gx-0 bg-light">
-                <SvgWindow sett={sett} />
+                <SvgWindow setts={setts} />
             </Col>
             <Col md="auto">
-                <RightPanel sett={sett} setProp={setProp} />
+                <RightPanel setts={setts} setProp={setProp} />
             </Col>
         </Row>
     )

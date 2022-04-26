@@ -15,6 +15,13 @@ function ExportedEditor(props) {
 
 function initialState() {
     return {
+        setts: initialSetts(),
+        points: [initialPoint()]
+    }
+}
+
+function initialSetts() {
+    return {
         proto: "TCP",    //RTU
         trans: "Socket", //Serial
         host: "127.0.0.1",
@@ -23,7 +30,6 @@ function initialState() {
         speed: "9600",
         dbpsb: "8N1",
         delay: "10",
-        points: [initialPoint()]
     }
 }
 
@@ -41,46 +47,32 @@ function checkNotBlank(value) {
 }
 
 function Editor(props) {
-    const [proto, setProto] = useState("")
-    const [trans, setTrans] = useState("")
-    const [host, setHost] = useState("")
-    const [port, setPort] = useState(0)
-    const [tty, setTty] = useState("")
-    const [speed, setSpeed] = useState(0)
-    const [dbpsb, setDbpsb] = useState("")
-    const [delay, setDelay] = useState(0)
-    const [points, setPoints] = useState([])
+    const [setts, setSetts] = useState(initialState().setts)
+    const [points, setPoints] = useState(initialState().points)
     // initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
-        setProto(state.proto || init.proto)
-        setTrans(state.trans || init.trans)
-        setHost(state.host || init.host)
-        setPort(state.port || init.port)
-        setTty(state.tty || init.tty)
-        setSpeed(state.speed || init.speed)
-        setDbpsb(state.dbpsb || init.dbpsb)
-        setDelay(state.delay || init.delay)
+        setSetts(state.setts || init.setts)
         setPoints(state.points || init.points)
     }, [props.state])
     // rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlank(proto)
-        valid = valid && checkNotBlank(trans)
-        switch (trans) {
+        valid = valid && checkNotBlank(setts.proto)
+        valid = valid && checkNotBlank(setts.trans)
+        switch (setts.trans) {
             case "Socket":
-                valid = valid && checkNotBlank(host)
-                valid = valid && checkRange(port, 1, 65535)
+                valid = valid && checkNotBlank(setts.host)
+                valid = valid && checkRange(setts.port, 1, 65535)
                 break
             case "Serial":
-                valid = valid && checkNotBlank(tty)
-                valid = valid && checkRange(speed, 1, 2147483647)
-                valid = valid && checkNotBlank(dbpsb)
+                valid = valid && checkNotBlank(setts.tty)
+                valid = valid && checkRange(setts.speed, 1, 2147483647)
+                valid = valid && checkNotBlank(setts.dbpsb)
                 break
         }
-        valid = valid && checkRange(delay, 0, 10000)
+        valid = valid && checkRange(setts.delay, 0, 10000)
         valid = valid && points.length > 0
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkRange(point.slave, 1, 65535)
@@ -90,10 +82,8 @@ function Editor(props) {
             return valid
         }, true)
         props.setValid(valid)
-        props.store({
-            proto, trans, host, port, tty, speed, dbpsb, delay, points,
-        })
-    }, [props, proto, trans, host, port, tty, speed, dbpsb, delay, points])
+        props.store({ setts, points })
+    }, [props, setts, points])
     function setPoint(index, name, value) {
         const next = [...points]
         next[index][name] = value
@@ -110,6 +100,11 @@ function Editor(props) {
         const next = [...points]
         next.splice(index, 1)
         setPoints(next)
+    }
+    function setProp(name, value) {
+        const next = { ...setts }
+        next[name] = value
+        setSetts(next)
     }
     const rows = points.map((point, index) =>
         <tr key={index} id={"point_" + index} className='align-middle'>
@@ -148,13 +143,13 @@ function Editor(props) {
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
                 <Form.Control autoFocus type="text"
-                    value={host} onChange={e => setHost(e.target.value)} />
+                    value={setts.host} onChange={e => setProp("host", e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Port">
                 <Form.Control type="number" min="1" max="65535"
-                    value={port} onChange={e => setPort(e.target.value)} />
+                    value={setts.port} onChange={e => setProp("port", e.target.value)} />
             </FloatingLabel>
         </Col>
     </Row>)
@@ -162,18 +157,18 @@ function Editor(props) {
         <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
                 <Form.Control autoFocus type="text"
-                    value={tty} onChange={e => setTty(e.target.value)} />
+                    value={setts.tty} onChange={e => setProp("tty", e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Baud Rate">
                 <Form.Control type="number" min="1" max="2147483647"
-                    value={speed} onChange={e => setSpeed(e.target.value)} />
+                    value={setts.speed} onChange={e => setProp("speed", e.target.value)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Config">
-                <Form.Select value={dbpsb} onChange={e => setDbpsb(e.target.value)}>
+                <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
                     <option value="8N1">8N1</option>
                     <option value="8E1">8E1</option>
                     <option value="8O1">8O1</option>
@@ -191,13 +186,13 @@ function Editor(props) {
         </Col>
 
     </Row>)
-    const transEditor = trans === "Serial" ? transSerial : transSocket
+    const transEditor = setts.trans === "Serial" ? transSerial : transSocket
     return (
         <Form>
             <Row>
                 <Col xs={4}>
                     <FloatingLabel label="Transport">
-                        <Form.Select value={trans} onChange={e => setTrans(e.target.value)}>
+                        <Form.Select value={setts.trans} onChange={e => setProp("trans", e.target.value)}>
                             <option value="Socket">Socket</option>
                             <option value="Serial">Serial</option>
                         </Form.Select>
@@ -205,7 +200,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Protocol">
-                        <Form.Select value={proto} onChange={e => setProto(e.target.value)}>
+                        <Form.Select value={setts.proto} onChange={e => setProp("proto", e.target.value)}>
                             <option value="TCP">TCP</option>
                             <option value="RTU">RTU</option>
                         </Form.Select>
@@ -214,7 +209,7 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label="Delay (ms)">
                         <Form.Control type="number" min="0" max="1000"
-                            value={delay} onChange={e => setDelay(e.target.value)} />
+                            value={setts.delay} onChange={e => setProp("delay", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>

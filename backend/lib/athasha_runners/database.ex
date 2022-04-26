@@ -5,16 +5,16 @@ defmodule Athasha.Database.Runner do
 
   def run(item) do
     config = Jason.decode!(item.config)
-
-    host = config["host"]
-    period = config["period"]
+    setts = config["setts"]
+    host = setts["host"]
+    period = setts["period"]
     {period, _} = Integer.parse(period)
-    port = config["port"]
+    port = setts["port"]
     {port, _} = Integer.parse(port)
-    database = config["database"]
-    username = config["username"]
-    password = config["password"]
-    command = config["command"]
+    database = setts["database"]
+    username = setts["username"]
+    password = setts["password"]
+    command = setts["command"]
 
     points =
       Enum.with_index(config["points"])
