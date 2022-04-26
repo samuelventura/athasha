@@ -5,11 +5,11 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import ListGroup from 'react-bootstrap/ListGroup'
-import Table from 'react-bootstrap/Table'
+import InputGroup from 'react-bootstrap/InputGroup'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 
 function ExportedEditor(props) {
@@ -21,8 +21,13 @@ function initialState() {
     }
 }
 
-function initialGeom() {
-    return { scale: 'fit', align: 'start', width: '640', height: '480', gridX: '10', gridY: '10' }
+function initialSett() {
+    return {
+        scale: 'fit', align: 'center',
+        width: '640', height: '480',
+        gridX: '10', gridY: '10',
+        bgColor: "#FFFFFF"
+    }
 }
 
 function calcAlign(align, d, D) {
@@ -33,12 +38,17 @@ function calcAlign(align, d, D) {
     }
 }
 
-function calcGeom(parent, geom) {
-    const align = geom.align
-    const W = Number(geom.width)
-    const H = Number(geom.height)
-    const gx = Number(geom.gridX)
-    const gy = Number(geom.gridY)
+function fixNum(v) {
+    v = v || 0
+    return isFinite(v) ? v : 0;
+}
+
+function calcGeom(parent, sett) {
+    const align = sett.align
+    const W = Number(sett.width)
+    const H = Number(sett.height)
+    const gx = Number(sett.gridX)
+    const gy = Number(sett.gridY)
     const pr = parent.pw / parent.ph
     const sx = W / gx
     const sy = H / gy
@@ -46,7 +56,7 @@ function calcGeom(parent, geom) {
     let h = H
     let x = 0
     let y = 0
-    switch (geom.scale) {
+    switch (sett.scale) {
         case 'fit': {
             const wr = W / parent.pw
             const hr = H / parent.ph
@@ -70,13 +80,17 @@ function calcGeom(parent, geom) {
             break
         }
     }
+    x = fixNum(x)
+    y = fixNum(y)
+    w = fixNum(w)
+    h = fixNum(h)
     const vb = `${x} ${y} ${w} ${h}`
     return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
 }
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
-function SvgWindow({ geom }) {
+function SvgWindow({ sett }) {
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const { ref } = useResizeDetector()
@@ -89,23 +103,89 @@ function SvgWindow({ geom }) {
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb } = calcGeom(parent, geom)
+    const { H, W, vb } = calcGeom(parent, sett)
     return (<svg ref={ref} width="100%" height="100%" overflow="scroll">
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
-            <rect width={W} height={H} fill="white" stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill={sett.bgColor} stroke="gray" strokeWidth="1" />
         </svg>
     </svg >)
 }
 
-function SvgScreen({ W, H }) {
-    return false ? (<svg width={W} height={H} className="position-absolute">
-        <rect width="100%" height="100%" fill="white" stroke="orange" strokeWidth="3" />
-    </svg>) : null
+function LeftPanel() {
+    const [show, setShow] = useState(true)
+    return show ? (
+        <Card>
+            <Card.Header>Components
+                <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
+                    <FontAwesomeIcon icon={faAnglesLeft} />
+                </Button>
+            </Card.Header>
+            <ListGroup variant="flush">
+                <ListGroup.Item>Wire Frame</ListGroup.Item>
+                <ListGroup.Item>Wire Frame</ListGroup.Item>
+                <ListGroup.Item>Wire Frame</ListGroup.Item>
+            </ListGroup>
+        </Card>) : (
+        <Button variant='link' size="sm" onClick={() => setShow(true)} title="Components">
+            <FontAwesomeIcon icon={faAnglesRight} />
+        </Button>
+    )
+}
+
+function RightPanel({ sett, setProp }) {
+    const [show, setShow] = useState(true)
+    return show ? (
+        <Card>
+            <Card.Header>
+                <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
+                    <FontAwesomeIcon icon={faAnglesRight} />
+                </Button>Settings
+            </Card.Header>
+            <ListGroup variant="flush">
+                <ListGroup.Item>
+                    <FloatingLabel label="Scale">
+                        <Form.Select size="sm" value={sett.scale} onChange={e => setProp("scale", e.target.value)}>
+                            <option value="fit">Fit</option>
+                            <option value="fit-width">Fit Width</option>
+                            <option value="fit-height">Fit Height</option>
+                            <option value="stretch">Stretch</option>
+                        </Form.Select>
+                    </FloatingLabel>
+                    <FloatingLabel label="Align">
+                        <Form.Select size="sm" value={sett.align} onChange={e => setProp("align", e.target.value)}>
+                            <option value="start">Start</option>
+                            <option value="center">Center</option>
+                            <option value="end">End</option>
+                        </Form.Select>
+                    </FloatingLabel>
+                    <FloatingLabel label="Width">
+                        <Form.Control type="number" min="1" value={sett.width} onChange={e => setProp("width", e.target.value)} />
+                    </FloatingLabel>
+                    <FloatingLabel label="Height">
+                        <Form.Control type="number" min="1" value={sett.height} onChange={e => setProp("height", e.target.value)} />
+                    </FloatingLabel>
+                    <FloatingLabel label="Grid X">
+                        <Form.Control type="number" min="1" max="100" value={sett.gridX} onChange={e => setProp("gridX", e.target.value)} />
+                    </FloatingLabel>
+                    <FloatingLabel label="Grid Y">
+                        <Form.Control type="number" min="1" max="100" value={sett.gridY} onChange={e => setProp("gridY", e.target.value)} />
+                    </FloatingLabel>
+                    <InputGroup>
+                        <Form.Control type="color" label="Background Color" value={sett.bgColor} onChange={e => setProp("bgColor", e.target.value)} />
+                        <Button variant="outline-secondary" disabled>Background Color</Button>
+                    </InputGroup>
+                </ListGroup.Item>
+            </ListGroup>
+        </Card>) : (
+        <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
+            <FontAwesomeIcon icon={faAnglesLeft} />
+        </Button>
+    )
 }
 
 function Editor(props) {
-    const [geom, setGeom] = useState(() => initialGeom())
+    const [sett, setSett] = useState(() => initialSett())
     // initialize local state
     useEffect(() => {
         const init = initialState()
@@ -118,60 +198,20 @@ function Editor(props) {
         props.store({})
     }, [props])
     function setProp(name, value) {
-        const next = { ...geom }
+        const next = { ...sett }
         next[name] = value
-        setGeom(next)
+        setSett(next)
     }
     return (
         <Row className="h-100">
-            <Col xs={3}>
-                <Card>
-                    <Card.Header>Components</Card.Header>
-                    <ListGroup variant="flush">
-                        <ListGroup.Item>Wire Frame</ListGroup.Item>
-                        <ListGroup.Item>Wire Frame</ListGroup.Item>
-                        <ListGroup.Item>Wire Frame</ListGroup.Item>
-                    </ListGroup>
-                </Card>
+            <Col md="auto">
+                <LeftPanel />
             </Col>
             <Col className="gx-0 bg-light">
-                <SvgWindow geom={geom} />
+                <SvgWindow sett={sett} />
             </Col>
-            <Col xs={3}>
-                <Card>
-                    <Card.Header>Settings</Card.Header>
-                    <ListGroup variant="flush">
-                        <ListGroup.Item>
-                            <FloatingLabel label="Scale">
-                                <Form.Select size="sm" value={geom.scale} onChange={e => setProp("scale", e.target.value)}>
-                                    <option value="fit">Fit</option>
-                                    <option value="fit-width">Fit Width</option>
-                                    <option value="fit-height">Fit Height</option>
-                                    <option value="stretch">Stretch</option>
-                                </Form.Select>
-                            </FloatingLabel>
-                            <FloatingLabel label="Align">
-                                <Form.Select size="sm" value={geom.align} onChange={e => setProp("align", e.target.value)}>
-                                    <option value="start">Start</option>
-                                    <option value="center">Center</option>
-                                    <option value="end">End</option>
-                                </Form.Select>
-                            </FloatingLabel>
-                            <FloatingLabel label="Width">
-                                <Form.Control type="number" min="1" value={geom.width} onChange={e => setProp("width", e.target.value)} />
-                            </FloatingLabel>
-                            <FloatingLabel label="Height">
-                                <Form.Control type="number" min="1" value={geom.height} onChange={e => setProp("height", e.target.value)} />
-                            </FloatingLabel>
-                            <FloatingLabel label="Grid X">
-                                <Form.Control type="number" min="1" max="100" value={geom.gridX} onChange={e => setProp("gridX", e.target.value)} />
-                            </FloatingLabel>
-                            <FloatingLabel label="Grid Y">
-                                <Form.Control type="number" min="1" max="100" value={geom.gridY} onChange={e => setProp("gridY", e.target.value)} />
-                            </FloatingLabel>
-                        </ListGroup.Item>
-                    </ListGroup>
-                </Card>
+            <Col md="auto">
+                <RightPanel sett={sett} setProp={setProp} />
             </Col>
         </Row>
     )
