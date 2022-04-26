@@ -25,58 +25,11 @@ function initialGeom() {
     return { scale: 'fit', align: 'start', width: '640', height: '480', gridX: '10', gridY: '10' }
 }
 
-function setGeomProp(setter, current, name, value) {
-    switch (name) {
-        case 'scale': {
-            const next = { ...current }
-            next.scale = value
-            setter(next)
-            break
-        }
-        case 'align': {
-            const next = { ...current }
-            next.align = value
-            setter(next)
-            break
-        }
-        case 'width': {
-            const next = { ...current }
-            next.width = value
-            setter(next)
-            break
-        }
-        case 'height': {
-            const next = { ...current }
-            next.height = value
-            setter(next)
-            break
-        }
-        case 'gridX': {
-            const next = { ...current }
-            next.gridX = value
-            setter(next)
-            break
-        }
-        case 'gridY': {
-            const next = { ...current }
-            next.gridY = value
-            setter(next)
-            break
-        }
-    }
-}
-
 function calcAlign(align, d, D) {
     switch (align) {
-        case 'start': {
-            return 0
-        }
-        case 'center': {
-            return (D - d) / 2
-        }
-        case 'end': {
-            return (D - d)
-        }
+        case 'start': return 0
+        case 'center': return (D - d) / 2
+        case 'end': return (D - d)
     }
 }
 
@@ -121,10 +74,10 @@ function calcGeom(parent, geom) {
     return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
 }
 
+//TODO FIXME pattern grid, background color picker
 function SvgWindow({ geom }) {
-    //size reported here grows with svg content
-    const { ref, width, height } = useResizeDetector();
-    console.log("useResizeDetector", width, height)
+    //size reported here grows with svg content/viewBox
+    const { ref } = useResizeDetector();
     let cw = 1
     let ch = 1
     if (ref.current) {
@@ -135,17 +88,17 @@ function SvgWindow({ geom }) {
     }
     const parent = { pw: cw, ph: ch }
     const { H, W, vb } = calcGeom(parent, geom)
-    console.log(parent, W, H, vb)
     return (<svg ref={ref} width="100%" height="100%" overflow="scroll">
+        <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
-            <rect width={W} height={H} fillOpacity="0" stroke="orange" strokeWidth="20" />
+            <rect width={W} height={H} fill="white" stroke="gray" strokeWidth="1" />
         </svg>
     </svg >)
 }
 
 function SvgScreen({ W, H }) {
     return false ? (<svg width={W} height={H} className="position-absolute">
-        <rect width="100%" height="100%" fill="white" stroke="orange" stroke-width="3" />
+        <rect width="100%" height="100%" fill="white" stroke="orange" strokeWidth="3" />
     </svg>) : null
 }
 
@@ -162,7 +115,11 @@ function Editor(props) {
         props.setValid(valid)
         props.store({})
     }, [props])
-    function setProp(name, value) { setGeomProp(setGeom, geom, name, value) }
+    function setProp(name, value) {
+        const next = { ...geom }
+        next[name] = value
+        setGeom(next)
+    }
     return (
         <Row className="h-100">
             <Col xs={3}>
@@ -175,7 +132,7 @@ function Editor(props) {
                     </ListGroup>
                 </Card>
             </Col>
-            <Col className="bg-light gx-0">
+            <Col className="gx-0 bg-light">
                 <SvgWindow geom={geom} />
             </Col>
             <Col xs={3}>
@@ -204,10 +161,10 @@ function Editor(props) {
                             <FloatingLabel label="Height">
                                 <Form.Control type="number" min="1" value={geom.height} onChange={e => setProp("height", e.target.value)} />
                             </FloatingLabel>
-                            <FloatingLabel label="Snap Grid X">
+                            <FloatingLabel label="Grid X">
                                 <Form.Control type="number" min="1" max="100" value={geom.gridX} onChange={e => setProp("gridX", e.target.value)} />
                             </FloatingLabel>
-                            <FloatingLabel label="Snap Grid Y">
+                            <FloatingLabel label="Grid Y">
                                 <Form.Control type="number" min="1" max="100" value={geom.gridY} onChange={e => setProp("gridY", e.target.value)} />
                             </FloatingLabel>
                         </ListGroup.Item>

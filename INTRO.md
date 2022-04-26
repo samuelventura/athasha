@@ -87,3 +87,6 @@
 - https://gist.github.com/htp/fbce19069187ec1cc486b594104f01d0
 - https://createreactapp.github.io/proxying-api-request
 - https://github.com/samuelventura/SharpMaster/blob/master/SharpMaster/ReadFloatControl.cs
+- https://www.sarasoueidan.com/blog/svg-coordinate-systems/
+- https://www.sarasoueidan.com/blog/mimic-relative-positioning-in-svg/
+- https://www.sarasoueidan.com/demos/interactive-svg-coordinate-system/
