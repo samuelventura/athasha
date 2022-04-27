@@ -12,6 +12,7 @@ import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import ControlLabel from '../controls/Label'
 import ControlEmpty from '../controls/Empty'
@@ -420,6 +421,10 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
                             onClick={() => actionControl('up', control)} title="Selected Control Up">
                             <FontAwesomeIcon icon={faArrowUp} />
                         </Button>
+                        <Button variant='outline-secondary' size="sm"
+                            onClick={() => actionControl('clone', control)} title="Clone Selected Control">
+                            <FontAwesomeIcon icon={faClone} />
+                        </Button>
                     </ListGroup.Item>
                     <ListGroup.Item>
                         <FormEntry label="Position X">
@@ -542,6 +547,11 @@ function Editor(props) {
         next.splice(index - 1, 0, control)
         setControls(next)
     }
+    function cloneControl(control) {
+        const next = [...controls]
+        next.push(JSON.parse(JSON.stringify(control)))
+        setControls(next)
+    }
     function actionControl(action, control) {
         switch (action) {
             case "del": {
@@ -554,6 +564,10 @@ function Editor(props) {
             }
             case "down": {
                 downControl(control)
+                break
+            }
+            case "clone": {
+                cloneControl(control)
                 break
             }
         }

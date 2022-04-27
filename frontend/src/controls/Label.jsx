@@ -13,6 +13,7 @@ const Type = "Label"
 function Init() {
     return {
         text: "Label",
+        align: "Center",
         bgEnabled: false,
         bgColor: "#FFFFFF",
         fgColor: "#000000",
@@ -26,6 +27,7 @@ function Validator(control) {
     let valid = true
     valid = valid && checkBoolean(data.bgEnabled)
     valid = valid && checkNotBlank(data.text)
+    valid = valid && checkNotBlank(data.align)
     valid = valid && checkNotBlank(data.bgColor)
     valid = valid && checkNotBlank(data.fgColor)
     valid = valid && checkNotBlank(data.fontFamily)
@@ -36,6 +38,8 @@ function Validator(control) {
 //upgrade data format
 function fixData(data) {
     const next = { ...data }
+    const init = Init()
+    next.align = next.align || init.align
     return next
 }
 
@@ -45,6 +49,13 @@ function Editor({ control, setProp }) {
         <FormEntry label="Text">
             <Form.Control type="text" value={data.text}
                 onChange={e => setProp("text", e.target.value)} />
+        </FormEntry>
+        <FormEntry label="Align">
+            <Form.Select value={data.align} onChange={e => setProp("align", e.target.value)}>
+                <option value="Center">Center</option>
+                <option value="Left">Left</option>
+                <option value="Right">Right</option>
+            </Form.Select>
         </FormEntry>
         <FormEntry label="Background">
             <InputGroup>
@@ -78,6 +89,19 @@ function Editor({ control, setProp }) {
                 <option value="Barcode39Text">Barcode39 Text</option>
                 <option value="Barcode128Regular">Barcode128 Regular</option>
                 <option value="Barcode128Text">Barcode128 Text</option>
+                <option value="OxaniumExtraLight">Oxanium Extra Light</option>
+                <option value="OxaniumLight">Oxanium Light</option>
+                <option value="OxaniumRegular">Oxanium Regular</option>
+                <option value="OxaniumMedium">Oxanium Medium</option>
+                <option value="OxaniumSemiBold">Oxanium Semi Bold</option>
+                <option value="OxaniumBold">Oxanium Bold</option>
+                <option value="OxaniumExtraBold">Oxanium Extra Bold</option>
+                <option value="OrbitronRegular">OrbitronRegular</option>
+                <option value="OrbitronMedium">OrbitronMedium</option>
+                <option value="OrbitronSemiBold">OrbitronSemiBold</option>
+                <option value="OrbitronBold">OrbitronBold</option>
+                <option value="OrbitronExtraBold">OrbitronExtraBold</option>
+                <option value="OrbitronBlack">OrbitronBlack</option>
             </Form.Select>
         </FormEntry>
     </>)
@@ -87,11 +111,25 @@ function Renderer({ control, size }) {
     const setts = control.setts
     const data = fixData(control.data)
     const fill = data.bgEnabled ? data.bgColor : "none"
+    let x = "50%"
+    let textAnchor = "middle"
+    switch (data.align) {
+        case "Left": {
+            x = "0%"
+            textAnchor = "start"
+            break
+        }
+        case "Right": {
+            x = "100%"
+            textAnchor = "end"
+            break
+        }
+    }
     return (
         <svg>
             <rect width="100%" height="100%" fill={fill} />
-            <text x="50%" y="50%" dominantBaseline="middle" fill={data.fgColor}
-                textAnchor="middle" fontSize={data.fontSize} fontFamily={data.fontFamily}>
+            <text x={x} y="50%" dominantBaseline="middle" fill={data.fgColor}
+                textAnchor={textAnchor} fontSize={data.fontSize} fontFamily={data.fontFamily}>
                 {data.text}
             </text>
         </svg>

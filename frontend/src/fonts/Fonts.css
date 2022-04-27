@@ -93,3 +93,81 @@
     src: local("Barcode128Text"), url("./LibreBarcode128Text-Regular.ttf") format("truetype");
     font-weight: normal;
 }
+
+@font-face {
+    font-family: "OxaniumBold";
+    src: local("OxaniumBold"), url("./Oxanium-Bold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumExtraBold";
+    src: local("OxaniumExtraBold"), url("./Oxanium-ExtraBold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumExtraLight";
+    src: local("OxaniumExtraLight"), url("./Oxanium-ExtraLight.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumLight";
+    src: local("OxaniumLight"), url("./Oxanium-Light.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumMedium";
+    src: local("OxaniumMedium"), url("./Oxanium-Medium.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumRegular";
+    src: local("OxaniumRegular"), url("./Oxanium-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OxaniumSemiBold";
+    src: local("OxaniumSemiBold"), url("./Oxanium-SemiBold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronBlack";
+    src: local("OrbitronBlack"), url("./Orbitron-Black.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronBold";
+    src: local("OrbitronBold"), url("./Orbitron-Bold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronExtraBold";
+    src: local("OrbitronExtraBold"), url("./Orbitron-ExtraBold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronMedium";
+    src: local("OrbitronMedium"), url("./Orbitron-Medium.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronRegular";
+    src: local("OrbitronRegular"), url("./Orbitron-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "OrbitronSemiBold";
+    src: local("OrbitronSemiBold"), url("./Orbitron-SemiBold.ttf") format("truetype");
+    font-weight: normal;
+}
