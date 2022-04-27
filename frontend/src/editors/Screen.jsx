@@ -34,7 +34,8 @@ function register(control, hide) {
     registeredMap[control.Type] = control
 }
 
-register(ControlEmpty)
+//https://vitejs.dev/guide/env-and-mode.html
+register(ControlEmpty, import.meta.env.VITE_DEV)
 register(ControlLabel)
 
 function getController(type) {
@@ -193,14 +194,25 @@ function calcGeom(parent, setts) {
     return { gx, gy, sx, sy, W, H, vb, vp }
 }
 
+function initialDragged() {
+    return {
+        index: -1,
+        control: {},
+        cleanup: function () { }
+    }
+}
+
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
-function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
+function SvgWindow({ setts, controls, selected, setSelected, setControlProp, preview }) {
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
-    const { ref } = useResizeDetector()
-    const [dragged, setDragged] = useState(() => initialSelected())
+    const resize = useResizeDetector()
+    const [dragged, setDragged] = useState(() => initialDragged())
     const [offset, setOffset] = useState({ x: 0, y: 0 })
+    const ref = resize.ref
+    //prevent false positive drags on resize event after control click
+    useEffect(() => { dragged.cleanup() }, [resize.width, resize.height])
     let cw = 1
     let ch = 1
     if (ref.current) {
@@ -232,7 +244,11 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
             const posY = Number(setts.posY)
             const point = svgCoord(ref.current, e)
             setOffset({ x: point.posX - posX, y: point.posY - posY })
-            setDragged({ index, control })
+            const cleanup = function () {
+                setDragged(initialDragged())
+                e.target.releasePointerCapture(e.pointerId)
+            }
+            setDragged({ index, control, cleanup })
             setSelected({ index, control })
             e.target.setPointerCapture(e.pointerId)
         }
@@ -268,27 +284,29 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
         function onPointerUp(e) {
             if (dragged.index >= 0) {
                 moveControl(e)
-                setDragged(initialSelected())
-                e.target.releasePointerCapture(e.pointerId)
+                dragged.cleanup()
             }
         }
         const controller = getController(control.type)
         const size = { width: w, height: h }
         const controlInstance = controller.Renderer({ control, size })
+        const controlBorder = !preview ? (
+            <rect width="100%" height="100%" fill="white" fillOpacity="0" stroke={invertedBgC}
+                strokeWidth={borderStroke} />) : null
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
                 onPointerDown={e => onPointerDown(e, index, control)}
                 onPointerMove={e => onPointerMove(e)} onPointerUp={e => onPointerUp(e)}
                 onClick={e => onClickControl(e, index, control)}>
                 {controlInstance}
-                <rect width="100%" height="100%" fill="white" fillOpacity="0" stroke={invertedBgC}
-                    strokeWidth={borderStroke} />
+                {controlBorder}
             </svg>
         )
     })
     function onClickScreen() {
         setSelected(initialSelected())
     }
+    const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" />) : null
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
@@ -299,7 +317,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
                 </pattern>
             </defs>
             <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" />
-            <rect width={W} height={H} fill="url(#grid)" />
+            {gridRect}
             {controlList}
         </svg>
     </svg >)
@@ -330,7 +348,7 @@ function LeftPanel(props) {
     )
 }
 
-function ScreenEditor({ setShow, setts, setProp, save, valid }) {
+function ScreenEditor({ setShow, setts, setProp, preview }) {
     //preview saves before launching viewer
     return (
         <Card>
@@ -338,10 +356,7 @@ function ScreenEditor({ setShow, setts, setProp, save, valid }) {
                 <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
                     <FontAwesomeIcon icon={faAnglesRight} />
                 </Button>Screen Settings
-                <Button variant='link' size="sm" title="Preview" className="float-end"
-                    disabled={!valid} onClick={save}>
-                    Preview
-                </Button>
+                {preview}
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
@@ -383,7 +398,7 @@ function ScreenEditor({ setShow, setts, setProp, save, valid }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp }) {
+function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp, preview }) {
     const setts = control.setts
     const controller = getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
@@ -406,6 +421,7 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
                         <FontAwesomeIcon icon={faAnglesRight} />
                     </Button>
                     Control Settings
+                    {preview}
                 </Card.Header>
                 <ListGroup variant="flush">
                     <ListGroup.Item>
@@ -447,13 +463,17 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     )
 }
 
-function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp, save, valid }) {
+function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp, save, valid, preview, setPreview }) {
     const { index, control } = selected
     const [show, setShow] = useState(true)
-    const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} save={save} valid={valid} />
+    const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp}
+        save={save} valid={valid}
+        preview={preview} setPreview={setPreview} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
         setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
+        save={save} valid={valid}
+        preview={preview} setPreview={setPreview}
         actionControl={actionControl} />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
@@ -462,17 +482,41 @@ function RightPanel({ setts, setProp, selected, actionControl, setControlProp, s
     )
 }
 
+function PreviewControl({ save, valid, preview, setPreview }) {
+    //checkbox valignment was tricky
+    return (<span className="float-end">
+        <Form.Check size="sm" type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
+            title="Toggle Preview Mode" className="d-inline align-middle">
+        </Form.Check>
+        <Button variant='link' size="sm" title="Launch Preview" className="p-0 ms-1"
+            disabled={!valid} onClick={save}>
+            Preview
+        </Button>
+    </span>)
+}
+
 function Editor(props) {
     const [setts, setSetts] = useState(initialState().setts)
     const [controls, setControls] = useState(initialState().controls)
     const [selected, setSelected] = useState(() => initialSelected())
+    const [preview, setPreview] = useState(false)
     //initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
         setSetts(state.setts || init.setts)
-        setControls(state.controls || init.controls)
-        console.log(state.setts)
+        const previous = state.controls || init.controls
+        const upgraded = previous.map(control => {
+            const controller = getController(control.type)
+            const upgrade = controller.Upgrade
+            if (upgrade) {
+                const next = { ...control }
+                next.data = upgrade(next.data)
+                return next
+            }
+            return control
+        })
+        setControls(upgraded)
     }, [props.state])
     //rebuild and store state
     useEffect(() => {
@@ -572,6 +616,8 @@ function Editor(props) {
             }
         }
     }
+    const previewControl = <PreviewControl valid={props.valid} save={props.save}
+        preview={preview} setPreview={setPreview} />
     return (
         <Row className="h-100">
             <Col md="auto">
@@ -579,13 +625,12 @@ function Editor(props) {
             </Col>
             <Col className="gx-0 bg-light">
                 <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
-                    selected={selected} setSelected={setSelected} />
+                    selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
             <Col md="auto">
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
-                    valid={props.valid} save={props.save}
                     actionControl={actionControl} setControlProp={setControlProp}
-                    setDataProp={setDataProp} />
+                    setDataProp={setDataProp} preview={previewControl} />
             </Col>
         </Row>
     )

@@ -18,8 +18,11 @@ function Init() {
         bgEnabled: false,
         bgColor: "#FFFFFF",
         fgColor: "#000000",
-        fontSize: "10",
-        fontFamily: "RobotoThin",
+        ftSize: "10",
+        ftFamily: "RobotoThin",
+        brColor: "#000000",
+        brWidth: "0",
+        brRadius: "0",
     }
 }
 
@@ -31,21 +34,27 @@ function Validator(control) {
     valid = valid && checkNotBlank(data.align)
     valid = valid && checkNotBlank(data.bgColor)
     valid = valid && checkNotBlank(data.fgColor)
-    valid = valid && checkNotBlank(data.fontFamily)
-    valid = valid && checkRange(data.fontSize, 1)
+    valid = valid && checkNotBlank(data.ftFamily)
+    valid = valid && checkRange(data.ftSize, 1)
+    valid = valid && checkNotBlank(data.brColor)
+    valid = valid && checkRange(data.brWidth, 0)
+    valid = valid && checkRange(data.brRadius, 0)
     return valid
 }
 
-//upgrade data format
-function fixData(data) {
+function Upgrade(data) {
     const next = { ...data }
     const init = Init()
-    next.align = next.align || init.align
+    next.ftSize = next.ftSize || next.fontSize
+    next.ftFamily = next.ftFamily || next.fontFamily
+    Object.keys(init).forEach((k) => {
+        next[k] = next[k] || init[k]
+    })
     return next
 }
 
 function Editor({ control, setProp }) {
-    const data = fixData(control.data)
+    const data = control.data
     return (<>
         <FormEntry label="Text">
             <Form.Control type="text" value={data.text}
@@ -58,17 +67,7 @@ function Editor({ control, setProp }) {
                 <option value="Right">Right</option>
             </Form.Select>
         </FormEntry>
-        <FormEntry label="Background">
-            <InputGroup>
-                <InputGroup.Checkbox checked={data.bgEnabled}
-                    onChange={e => setProp("bgEnabled", e.target.checked)}
-                    title="Enable Background Color" />
-                <Form.Control type="color" value={data.bgColor}
-                    onChange={e => setProp("bgColor", e.target.value)}
-                    title={data.bgColor} />
-            </InputGroup>
-        </FormEntry>
-        <FormEntry label="Foreground">
+        <FormEntry label="Text Color">
             <InputGroup>
                 <Form.Control type="color" value={data.fgColor}
                     onChange={e => setProp("fgColor", e.target.value)}
@@ -76,10 +75,11 @@ function Editor({ control, setProp }) {
             </InputGroup>
         </FormEntry>
         <FormEntry label="Font Size">
-            <Form.Control type="number" min="1" value={data.fontSize} onChange={e => setProp("fontSize", e.target.value, e)} />
+            <Form.Control type="number" min="1" value={data.ftSize}
+                onChange={e => setProp("ftSize", e.target.value, e)} />
         </FormEntry>
         <FormEntry label="Font Family">
-            <Form.Select value={data.fontFamily} onChange={e => setProp("fontFamily", e.target.value)}>
+            <Form.Select value={data.ftFamily} onChange={e => setProp("ftFamily", e.target.value)}>
                 <option value="RobotoThin">Roboto Thin</option>
                 <option value="RobotoLight">Roboto Light</option>
                 <option value="RobotoRegular">Roboto Regular</option>
@@ -105,12 +105,37 @@ function Editor({ control, setProp }) {
                 <option value="OrbitronBlack">Orbitron Black</option>
             </Form.Select>
         </FormEntry>
+        <FormEntry label="Background">
+            <InputGroup>
+                <InputGroup.Checkbox checked={data.bgEnabled}
+                    onChange={e => setProp("bgEnabled", e.target.checked)}
+                    title="Enable Background Color" />
+                <Form.Control type="color" value={data.bgColor}
+                    onChange={e => setProp("bgColor", e.target.value)}
+                    title={data.bgColor} />
+            </InputGroup>
+        </FormEntry>
+        <FormEntry label="Border Width">
+            <Form.Control type="number" min="0" value={data.brWidth}
+                onChange={e => setProp("brWidth", e.target.value, e)} />
+        </FormEntry>
+        <FormEntry label="Border Color">
+            <InputGroup>
+                <Form.Control type="color" value={data.brColor}
+                    onChange={e => setProp("brColor", e.target.value)}
+                    title={data.brColor} />
+            </InputGroup>
+        </FormEntry>
+        <FormEntry label="Border Radius">
+            <Form.Control type="number" min="0" max="1" step="0.01" value={data.brRadius}
+                onChange={e => setProp("brRadius", e.target.value, e)} />
+        </FormEntry>
     </>)
 }
 
 function Renderer({ control, size }) {
     const setts = control.setts
-    const data = fixData(control.data)
+    const data = control.data
     const fill = data.bgEnabled ? data.bgColor : "none"
     let x = "50%"
     let textAnchor = "middle"
@@ -126,15 +151,19 @@ function Renderer({ control, size }) {
             break
         }
     }
+    const radious = `${data.brRadius * 100}%`
+    const halfBorder = Math.ceil(data.brWidth / 2)
+    const fullBorder = 2 * halfBorder
     return (
         <svg>
-            <rect width="100%" height="100%" fill={fill} />
-            <text x={x} y="50%" dominantBaseline="middle" fill={data.fgColor}
-                textAnchor={textAnchor} fontSize={data.fontSize} fontFamily={data.fontFamily}>
+            <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
+                fill={fill} strokeWidth={data.brWidth} stroke={data.brColor} ry={radious} />
+            <text x={x} y="50%" dominantBaseline="central" fill={data.fgColor}
+                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
                 {data.text}
             </text>
         </svg>
     )
 }
 
-export default { Type, Init, Editor, Renderer, Validator }
+export default { Type, Init, Upgrade, Editor, Renderer, Validator }
