@@ -323,8 +323,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
     </svg >)
 }
 
-function LeftPanel(props) {
-    const [show, setShow] = useState(true)
+function LeftPanel({ show, setShow }) {
     const controlList = registeredList.map((controler, index) => {
         return (<ListGroup.Item action key={index}
             title={`Add new ${controler.Type}`}
@@ -334,7 +333,8 @@ function LeftPanel(props) {
     return show ? (
         <Card>
             <Card.Header>Controls
-                <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
+                <Button variant='link' size="sm" onClick={() => setShow(false)}
+                    title="Hide">
                     <FontAwesomeIcon icon={faAnglesLeft} />
                 </Button>
             </Card.Header>
@@ -463,9 +463,10 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     )
 }
 
-function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp, save, valid, preview, setPreview }) {
+function RightPanel({ show, setShow,
+    setts, setProp, selected, actionControl, setControlProp,
+    setDataProp, save, valid, preview, setPreview }) {
     const { index, control } = selected
-    const [show, setShow] = useState(true)
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp}
         save={save} valid={valid}
         preview={preview} setPreview={setPreview} />
@@ -500,6 +501,8 @@ function Editor(props) {
     const [controls, setControls] = useState(initialState().controls)
     const [selected, setSelected] = useState(() => initialSelected())
     const [preview, setPreview] = useState(false)
+    const [right, setRight] = useState(true)
+    const [left, setLeft] = useState(true)
     //initialize local state
     useEffect(() => {
         const init = initialState()
@@ -616,22 +619,30 @@ function Editor(props) {
             }
         }
     }
+    function FixedHideCol({ ems, show, children }) {
+        return show ? (<Col style={{ flex: `0 0 ${ems}em` }}>
+            {children}
+        </Col>) : (<Col sm="auto">
+            {children}
+        </Col>)
+    }
     const previewControl = <PreviewControl valid={props.valid} save={props.save}
         preview={preview} setPreview={setPreview} />
     return (
         <Row className="h-100">
-            <Col md="auto">
-                <LeftPanel addControl={addControl} />
-            </Col>
+            <FixedHideCol ems={16} show={left}>
+                <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
+            </FixedHideCol>
             <Col className="gx-0 bg-light">
                 <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
-            <Col md="auto">
+            <FixedHideCol ems={28} show={right}>
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
                     actionControl={actionControl} setControlProp={setControlProp}
-                    setDataProp={setDataProp} preview={previewControl} />
-            </Col>
+                    setDataProp={setDataProp} preview={previewControl}
+                    show={right} setShow={setRight} />
+            </FixedHideCol>
         </Row>
     )
 }
