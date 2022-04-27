@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
@@ -11,10 +11,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
+import ControlLabel from '../controls/Label'
+import ControlEmpty from '../controls/Empty'
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
+}
+
+const registeredMap = {}
+const registeredList = []
+
+function register(control, hide) {
+    if (!hide) {
+        registeredList.push(control)
+    }
+    registeredMap[control.Type] = control
+}
+
+register(ControlEmpty, true)
+register(ControlLabel)
+
+function getController(type) {
+    return registeredMap[type] || ControlEmpty
 }
 
 function initialState() {
@@ -248,11 +269,15 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
                 e.target.releasePointerCapture(e.pointerId)
             }
         }
+        const controller = getController(control.type)
+        const size = { width: w, height: h }
+        const controlInstance = controller.Renderer({ control, size })
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
                 onPointerDown={e => onPointerDown(e, index, control)}
                 onPointerMove={e => onPointerMove(e)} onPointerUp={e => onPointerUp(e)}
                 onClick={e => onClickControl(e, index, control)}>
+                {controlInstance}
                 <rect width="100%" height="100%" fill="white" fillOpacity="0" stroke={invertedBgC}
                     strokeWidth={borderStroke} />
             </svg>
@@ -279,6 +304,12 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
 
 function LeftPanel(props) {
     const [show, setShow] = useState(true)
+    const controlList = registeredList.map((controler, index) => {
+        return (<ListGroup.Item action key={index}
+            title={`Add new ${controler.Type}`}
+            onClick={() => props.addControl(controler)}>
+            {controler.Type}</ListGroup.Item>)
+    })
     return show ? (
         <Card>
             <Card.Header>Controls
@@ -287,7 +318,7 @@ function LeftPanel(props) {
                 </Button>
             </Card.Header>
             <ListGroup variant="flush">
-                <ListGroup.Item action onClick={() => props.addControl('Wire Frame')}>Wire Frame</ListGroup.Item>
+                {controlList}
             </ListGroup>
         </Card>) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Controls">
@@ -343,8 +374,12 @@ function ScreenEditor({ setShow, setts, setProp }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, control, setProp, maxX, maxY, delControl }) {
+function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp }) {
     const setts = control.setts
+    const controller = getController(control.type)
+    const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
+    const editor = controller.Editor({ control, setProp: dataSetProp })
+    const header = editor ? (<><hr />{control.type}</>) : null
     return (
         <Card>
             <Card.Header>
@@ -352,12 +387,22 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, delControl }) {
                     <FontAwesomeIcon icon={faAnglesRight} />
                 </Button>
                 Control Settings
-                <Button variant='outline-danger' size="sm" className="float-end"
-                    onClick={() => delControl(control)} title="Remove Selected Control">
-                    <FontAwesomeIcon icon={faTimes} />
-                </Button>
             </Card.Header>
             <ListGroup variant="flush">
+                <ListGroup.Item>
+                    <Button variant='outline-danger' size="sm" className="float-end"
+                        onClick={() => actionControl('del', control)} title="Remove Selected Control">
+                        <FontAwesomeIcon icon={faTimes} />
+                    </Button>
+                    <Button variant='outline-secondary' size="sm"
+                        onClick={() => actionControl('down', control)} title="Selected Control Down">
+                        <FontAwesomeIcon icon={faArrowDown} />
+                    </Button>
+                    <Button variant='outline-secondary' size="sm"
+                        onClick={() => actionControl('up', control)} title="Selected Control Up">
+                        <FontAwesomeIcon icon={faArrowUp} />
+                    </Button>
+                </ListGroup.Item>
                 <ListGroup.Item>
                     <FloatingLabel label="Pos X">
                         <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
@@ -371,18 +416,21 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, delControl }) {
                     <FloatingLabel label="Height">
                         <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
                     </FloatingLabel>
+                    {header}
+                    {editor}
                 </ListGroup.Item>
             </ListGroup>
         </Card>)
 }
 
-function RightPanel({ setts, setProp, selected, delControl, setControlProp }) {
+function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp }) {
     const { index, control } = selected
     const [show, setShow] = useState(true)
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
-        maxX={setts.gridX - 1} maxY={setts.gridY - 1} delControl={delControl} />
+        setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
+        actionControl={actionControl} />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
             <FontAwesomeIcon icon={faAnglesLeft} />
@@ -420,11 +468,18 @@ function Editor(props) {
         control.setts[name] = value
         setControls(next)
     }
-    function addControl(type) {
+    function setDataProp(control, name, value, e) {
+        value = fixInputMinMax(e, value)
+        const next = [...controls]
+        control.data[name] = value
+        setControls(next)
+    }
+    function addControl(controller) {
         const next = [...controls]
         const control = initialControl()
         const index = next.length
-        control.type = type
+        control.type = controller.Type
+        control.data = controller.Init()
         next.push(control)
         setControls(next)
         setSelected({ index, control })
@@ -438,6 +493,38 @@ function Editor(props) {
             setSelected(initialSelected())
         }
     }
+    function upControl(control) {
+        const next = [...controls]
+        const index = next.indexOf(control)
+        next.splice(index, 1)
+        next.splice(index + 1, 0, control)
+        setControls(next)
+        console.log(index, next.length)
+    }
+    function downControl(control) {
+        const next = [...controls]
+        const index = next.indexOf(control)
+        next.splice(index, 1)
+        next.splice(index - 1, 0, control)
+        setControls(next)
+        console.log(index, next.length)
+    }
+    function actionControl(action, control) {
+        switch (action) {
+            case "del": {
+                delControl(control)
+                break
+            }
+            case "up": {
+                upControl(control)
+                break
+            }
+            case "down": {
+                downControl(control)
+                break
+            }
+        }
+    }
     return (
         <Row className="h-100">
             <Col md="auto">
@@ -449,7 +536,8 @@ function Editor(props) {
             </Col>
             <Col md="auto">
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
-                    delControl={delControl} setControlProp={setControlProp} />
+                    actionControl={actionControl} setControlProp={setControlProp}
+                    setDataProp={setDataProp} />
             </Col>
         </Row>
     )
