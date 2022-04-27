@@ -52,8 +52,8 @@ function Rows(props) {
         setRenameItem(noneItem)
     }
 
-    function handleEdit(item, config) {
-        setEditItem(noneItem)
+    function handleEdit(item, config, keep) {
+        if (!keep) setEditItem(noneItem)
         props.send({ name: "edit", args: { id: item.id, config } })
     }
 

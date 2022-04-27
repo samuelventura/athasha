@@ -2,22 +2,11 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Helper'
-import '../fonts/Roboto-Black.ttf';
-import '../fonts/Roboto-BlackItalic.ttf';
-import '../fonts/Roboto-Bold.ttf';
-import '../fonts/Roboto-BoldItalic.ttf';
-import '../fonts/Roboto-Italic.ttf';
-import '../fonts/Roboto-Light.ttf';
-import '../fonts/Roboto-LightItalic.ttf';
-import '../fonts/Roboto-Medium.ttf';
-import '../fonts/Roboto-MediumItalic.ttf';
-import '../fonts/Roboto-Regular.ttf';
-import '../fonts/Roboto-Thin.ttf';
-import '../fonts/Roboto-ThinItalic.ttf';
-import '../fonts/LibreBarcode39-Regular.ttf';
-import '../fonts/LibreBarcode39Text-Regular.ttf';
-import '../fonts/LibreBarcode128Text-Regular.ttf';
-import '../fonts/LibreBarcode128-Regular.ttf';
+import "../fonts/Fonts.css"
+import "../fonts/Fonts"
+import { checkRange } from "../editors/Validation"
+import { checkNotBlank } from "../editors/Validation"
+import { checkBoolean } from "../editors/Validation"
 
 const Type = "Label"
 
@@ -32,9 +21,21 @@ function Init() {
     }
 }
 
+function Validator(control) {
+    const data = control.data
+    let valid = true
+    valid = valid && checkBoolean(data.bgEnabled)
+    valid = valid && checkNotBlank(data.text)
+    valid = valid && checkNotBlank(data.bgColor)
+    valid = valid && checkNotBlank(data.fgColor)
+    valid = valid && checkNotBlank(data.fontFamily)
+    valid = valid && checkRange(data.fontSize, 1)
+    return valid
+}
+
+//upgrade data format
 function fixData(data) {
     const next = { ...data }
-    next.fontFamily = data.fontFamily || "RobotoThin"
     return next
 }
 
@@ -82,7 +83,6 @@ function Editor({ control, setProp }) {
     </>)
 }
 
-//https://fonts.google.com/
 function Renderer({ control, size }) {
     const setts = control.setts
     const data = fixData(control.data)
@@ -98,4 +98,4 @@ function Renderer({ control, size }) {
     )
 }
 
-export default { Type, Init, Editor, Renderer }
+export default { Type, Init, Editor, Renderer, Validator }

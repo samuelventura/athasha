@@ -8,6 +8,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { checkRange } from "./Validation"
+import { checkNotBlank } from "./Validation"
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -35,15 +37,6 @@ function initialSetts() {
 
 function initialPoint() {
     return { slave: "1", code: "01", address: "0", name: "Point 1" }
-}
-
-function checkRange(value, min, max) {
-    value = parseInt(`${value}`)
-    return min <= value && value <= max
-}
-
-function checkNotBlank(value) {
-    return `${value}`.trim().length > 0
 }
 
 function fixInputMinMax(e, value) {
@@ -89,7 +82,7 @@ function Editor(props) {
                 break
             case "Serial":
                 valid = valid && checkNotBlank(setts.tty)
-                valid = valid && checkRange(setts.speed, 1, 2147483647)
+                valid = valid && checkRange(setts.speed, 1)
                 valid = valid && checkNotBlank(setts.dbpsb)
                 break
         }
@@ -185,7 +178,7 @@ function Editor(props) {
         </Col>
         <Col xs={2}>
             <FloatingLabel label="Baud Rate">
-                <Form.Control type="number" min="1" max="2147483647"
+                <Form.Control type="number" min="1"
                     value={setts.speed} onChange={e => setProp("speed", e.target.value, e)} />
             </FloatingLabel>
         </Col>

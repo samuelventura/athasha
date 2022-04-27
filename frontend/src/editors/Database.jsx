@@ -8,6 +8,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { checkRange } from "./Validation"
+import { checkNotBlank } from "./Validation"
 import { useApp } from '../App'
 
 function ExportedEditor(props) {
@@ -31,15 +33,6 @@ function initialSetts() {
 
 function initialPoint() {
     return { id: "" }
-}
-
-function checkRange(value, min, max) {
-    value = parseInt(`${value}`)
-    return min <= value && value <= max
-}
-
-function checkNotBlank(value) {
-    return `${value}`.trim().length > 0
 }
 
 function fixInputMinMax(e, value) {

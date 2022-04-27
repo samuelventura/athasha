@@ -16,6 +16,8 @@ import { useResizeDetector } from 'react-resize-detector'
 import ControlLabel from '../controls/Label'
 import ControlEmpty from '../controls/Empty'
 import { FormEntry } from '../controls/Helper'
+import { checkRange } from "./Validation"
+import { checkNotBlank } from "./Validation"
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -31,7 +33,7 @@ function register(control, hide) {
     registeredMap[control.Type] = control
 }
 
-register(ControlEmpty, true)
+register(ControlEmpty)
 register(ControlLabel)
 
 function getController(type) {
@@ -327,13 +329,18 @@ function LeftPanel(props) {
     )
 }
 
-function ScreenEditor({ setShow, setts, setProp }) {
+function ScreenEditor({ setShow, setts, setProp, save, valid }) {
+    //preview saves before launching viewer
     return (
         <Card>
             <Card.Header>
                 <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
                     <FontAwesomeIcon icon={faAnglesRight} />
                 </Button>Screen Settings
+                <Button variant='link' size="sm" title="Preview" className="float-end"
+                    disabled={!valid} onClick={save}>
+                    Preview
+                </Button>
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
@@ -364,7 +371,7 @@ function ScreenEditor({ setShow, setts, setProp }) {
                     <FormEntry label="Grid Y">
                         <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value, e)} />
                     </FormEntry>
-                    <FormEntry label="Background Color">
+                    <FormEntry label="Background">
                         <InputGroup>
                             <Form.Control type="color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
                                 title={setts.bgColor} />
@@ -379,7 +386,7 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     const setts = control.setts
     const controller = getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor({ control, setProp: dataSetProp })
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -435,10 +442,10 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     )
 }
 
-function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp }) {
+function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp, save, valid }) {
     const { index, control } = selected
     const [show, setShow] = useState(true)
-    const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} />
+    const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} save={save} valid={valid} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
         setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
@@ -465,6 +472,20 @@ function Editor(props) {
     //rebuild and store state
     useEffect(() => {
         let valid = true
+        valid = valid && checkNotBlank(setts.scale)
+        valid = valid && checkNotBlank(setts.align)
+        valid = valid && checkRange(setts.width, 1)
+        valid = valid && checkRange(setts.height, 1)
+        valid = valid && checkRange(setts.gridX, 1, 100)
+        valid = valid && checkRange(setts.gridY, 1, 100)
+        valid = valid && checkNotBlank(setts.bgColor)
+        valid = valid && controls.reduce((valid, control) => {
+            const validator = getController(control.type).Validator
+            if (validator) {
+                valid = valid && validator(control)
+            }
+            return valid
+        }, true)
         props.setValid(valid)
         props.store({ setts, controls })
     }, [props, setts, controls])
@@ -491,7 +512,9 @@ function Editor(props) {
         const control = initialControl()
         const index = next.length
         control.type = controller.Type
-        control.data = controller.Init()
+        if (controller.Init) {
+            control.data = controller.Init()
+        }
         next.push(control)
         setControls(next)
         setSelected({ index, control })
@@ -546,6 +569,7 @@ function Editor(props) {
             </Col>
             <Col md="auto">
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
+                    valid={props.valid} save={props.save}
                     actionControl={actionControl} setControlProp={setControlProp}
                     setDataProp={setDataProp} />
             </Col>

@@ -1,0 +1,95 @@
+@font-face {
+    font-family: "RobotoBlack";
+    src: local("RobotoBlack"), url("./Roboto-Black.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoBlackItalic";
+    src: local("RobotoBlackItalic"), url("./Roboto-BlackItalic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoBold";
+    src: local("RobotoBold"), url("./Roboto-Bold.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoBoldItalic";
+    src: local("RobotoBoldItalic"), url("./Roboto-BoldItalic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoItalic";
+    src: local("RobotoItalic"), url("./Roboto-Italic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoLight";
+    src: local("RobotoLight"), url("./Roboto-Light.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoLightItalic";
+    src: local("RobotoLightItalic"), url("./Roboto-LightItalic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoMedium";
+    src: local("RobotoMedium"), url("./Roboto-Medium.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoMediumItalic";
+    src: local("RobotoMediumItalic"), url("./Roboto-MediumItalic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoRegular";
+    src: local("RobotoRegular"), url("./Roboto-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoThin";
+    src: local("RobotoThin"), url("./Roboto-Thin.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "RobotoThinItalic";
+    src: local("RobotoThinItalic"), url("./Roboto-ThinItalic.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Barcode39Regular";
+    src: local("Barcode39Regular"), url("./LibreBarcode39-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Barcode39Text";
+    src: local("Barcode39Text"), url("./LibreBarcode39Text-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Barcode128Regular";
+    src: local("Barcode128Regular"), url("./LibreBarcode128-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Barcode128Text";
+    src: local("Barcode128Text"), url("./LibreBarcode128Text-Regular.ttf") format("truetype");
+    font-weight: normal;
+}

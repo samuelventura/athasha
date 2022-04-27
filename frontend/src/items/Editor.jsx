@@ -30,6 +30,9 @@ function EditItem(props) {
         setState({})
         Edit.remove()
     }
+    function save() {
+        props.accept(item, config, true)
+    }
     function accept() {
         if (valid) {
             clearState()
@@ -62,7 +65,7 @@ function EditItem(props) {
             setConfig(JSON.stringify(state))
         }
     }
-    const eprops = { state, store, setValid }
+    const eprops = { state, store, valid, setValid, save }
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
