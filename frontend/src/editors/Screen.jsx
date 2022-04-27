@@ -65,7 +65,7 @@ function calcAlign(align, d, D) {
 
 function fixNum(v) {
     v = v || 0
-    return isFinite(v) ? v : 0;
+    return isFinite(v) ? v : 0
 }
 
 function fixInputMinMax(e, value) {
@@ -90,37 +90,37 @@ function fixInputMinMax(e, value) {
 }
 
 function padZero(str, len) {
-    len = len || 2;
-    var zeros = new Array(len).join('0');
-    return (zeros + str).slice(-len);
+    len = len || 2
+    var zeros = new Array(len).join('0')
+    return (zeros + str).slice(-len)
 }
 
 function invertColor(hex, bw) {
     if (hex.indexOf('#') === 0) {
-        hex = hex.slice(1);
+        hex = hex.slice(1)
     }
     //convert 3-digit hex to 6-digits.
     if (hex.length === 3) {
-        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
     }
     if (hex.length !== 6) {
-        throw new Error('Invalid HEX color.');
+        throw new Error('Invalid HEX color.')
     }
     var r = parseInt(hex.slice(0, 2), 16),
         g = parseInt(hex.slice(2, 4), 16),
-        b = parseInt(hex.slice(4, 6), 16);
+        b = parseInt(hex.slice(4, 6), 16)
     if (bw) {
         //https://stackoverflow.com/a/3943023/112731
         return (r * 0.299 + g * 0.587 + b * 0.114) > 186
             ? '#000000'
-            : '#FFFFFF';
+            : '#FFFFFF'
     }
     //invert color components
-    r = (255 - r).toString(16);
-    g = (255 - g).toString(16);
-    b = (255 - b).toString(16);
+    r = (255 - r).toString(16)
+    g = (255 - g).toString(16)
+    b = (255 - b).toString(16)
     //pad each with zeros and return
-    return "#" + padZero(r) + padZero(g) + padZero(b);
+    return "#" + padZero(r) + padZero(g) + padZero(b)
 }
 
 function calcGeom(parent, setts) {
@@ -176,6 +176,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
     //generated size change events are still valuable
     const { ref } = useResizeDetector()
     const [dragged, setDragged] = useState(() => initialSelected())
+    const [offset, setOffset] = useState({ x: 0, y: 0 })
     let cw = 1
     let ch = 1
     if (ref.current) {
@@ -202,6 +203,11 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
             setSelected({ index, control })
         }
         function onPointerDown(e, index, control) {
+            const setts = control.setts
+            const posX = Number(setts.posX)
+            const posY = Number(setts.posY)
+            const point = svgCoord(ref.current, e)
+            setOffset({ x: point.posX - posX, y: point.posY - posY })
             setDragged({ index, control })
             setSelected({ index, control })
             e.target.setPointerCapture(e.pointerId)
@@ -211,19 +217,24 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
             if (p > max) return max
             return p
         }
-        function moveControl(e) {
+        function svgCoord(el, e, o) {
+            o = o || { x: 0, y: 0 }
             const maxX = gx - 1
             const maxY = gy - 1
-            const control = dragged.control
-            const box = ref.current.getBoundingClientRect();
+            const box = el.getBoundingClientRect()
             const clientX = e.clientX - box.left
             const clientY = e.clientY - box.top
             const svgX = vp.x + clientX * vp.w / cw
             const svgY = vp.y + clientY * vp.h / ch
-            const posX = fixMinMax(Math.trunc(svgX / sx), 0, maxX)
-            const posY = fixMinMax(Math.trunc(svgY / sy), 0, maxY)
-            setControlProp(control, 'posX', posX)
-            setControlProp(control, 'posY', posY)
+            const posX = fixMinMax(Math.trunc(svgX / sx - o.x), 0, maxX)
+            const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
+            return { svgX, svgY, posX, posY }
+        }
+        function moveControl(e) {
+            const control = dragged.control
+            const point = svgCoord(ref.current, e, offset)
+            setControlProp(control, 'posX', point.posX)
+            setControlProp(control, 'posY', point.posY)
         }
         function onPointerMove(e) {
             if (dragged.index >= 0) {
