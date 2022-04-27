@@ -68,6 +68,27 @@ function fixNum(v) {
     return isFinite(v) ? v : 0;
 }
 
+function fixInputMinMax(e, value) {
+    if (e) {
+        const t = e.target
+        if (t.tagName.toLowerCase() === "input") {
+            if (t.hasAttribute("min")) {
+                const min = t.getAttribute("min")
+                if (Number(value) < Number(min)) {
+                    value = min
+                }
+            }
+            if (t.hasAttribute("max")) {
+                const max = t.getAttribute("max")
+                if (Number(value) > Number(max)) {
+                    value = max
+                }
+            }
+        }
+    }
+    return value
+}
+
 function padZero(str, len) {
     len = len || 2;
     var zeros = new Array(len).join('0');
@@ -144,15 +165,17 @@ function calcGeom(parent, setts) {
     w = fixNum(w)
     h = fixNum(h)
     const vb = `${x} ${y} ${w} ${h}`
-    return { x, y, w, h, gx, gy, sx, sy, W, H, vb }
+    const vp = { x, y, w, h }
+    return { gx, gy, sx, sy, W, H, vb, vp }
 }
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
-function SvgWindow({ setts, controls, selected, setSelected }) {
+function SvgWindow({ setts, controls, selected, setSelected, setControlProp }) {
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const { ref } = useResizeDetector()
+    const [dragged, setDragged] = useState(() => initialSelected())
     let cw = 1
     let ch = 1
     if (ref.current) {
@@ -162,7 +185,7 @@ function SvgWindow({ setts, controls, selected, setSelected }) {
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb, sx, sy } = calcGeom(parent, setts)
+    const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
     const invertedBg = invertColor(setts.bgColor, true)
     const invertedBgC = invertColor(setts.bgColor, false)
     const controlList = controls.map((control, index) => {
@@ -178,8 +201,47 @@ function SvgWindow({ setts, controls, selected, setSelected }) {
             event.stopPropagation()
             setSelected({ index, control })
         }
+        function onPointerDown(e, index, control) {
+            setDragged({ index, control })
+            setSelected({ index, control })
+            e.target.setPointerCapture(e.pointerId)
+        }
+        function fixMinMax(p, min, max) {
+            if (p < min) return min
+            if (p > max) return max
+            return p
+        }
+        function moveControl(e) {
+            const maxX = gx - 1
+            const maxY = gy - 1
+            const control = dragged.control
+            const box = ref.current.getBoundingClientRect();
+            const clientX = e.clientX - box.left
+            const clientY = e.clientY - box.top
+            const svgX = vp.x + clientX * vp.w / cw
+            const svgY = vp.y + clientY * vp.h / ch
+            const posX = fixMinMax(Math.trunc(svgX / sx), 0, maxX)
+            const posY = fixMinMax(Math.trunc(svgY / sy), 0, maxY)
+            setControlProp(control, 'posX', posX)
+            setControlProp(control, 'posY', posY)
+        }
+        function onPointerMove(e) {
+            if (dragged.index >= 0) {
+                moveControl(e)
+            }
+        }
+        function onPointerUp(e) {
+            if (dragged.index >= 0) {
+                moveControl(e)
+                setDragged(initialSelected())
+                e.target.releasePointerCapture(e.pointerId)
+            }
+        }
         return (
-            <svg key={index} x={x} y={y} width={w} height={h} onClick={e => onClickControl(e, index, control)}>
+            <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
+                onPointerDown={e => onPointerDown(e, index, control)}
+                onPointerMove={e => onPointerMove(e)} onPointerUp={e => onPointerUp(e)}
+                onClick={e => onClickControl(e, index, control)}>
                 <rect width="100%" height="100%" fill="white" fillOpacity="0" stroke={invertedBgC}
                     strokeWidth={borderStroke} />
             </svg>
@@ -249,16 +311,16 @@ function ScreenEditor({ setShow, setts, setProp }) {
                         </Form.Select>
                     </FloatingLabel>
                     <FloatingLabel label="Width">
-                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value)} />
+                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Height">
-                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value)} />
+                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Grid X">
-                        <Form.Control type="number" min="1" max="100" value={setts.gridX} onChange={e => setProp("gridX", e.target.value)} />
+                        <Form.Control type="number" min="1" max="100" value={setts.gridX} onChange={e => setProp("gridX", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Grid Y">
-                        <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value)} />
+                        <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value, e)} />
                     </FloatingLabel>
                     <InputGroup>
                         <Form.Control type="color" label="Background Color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
@@ -287,16 +349,16 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, delControl }) {
             <ListGroup variant="flush">
                 <ListGroup.Item>
                     <FloatingLabel label="Pos X">
-                        <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value)} />
+                        <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Pos Y">
-                        <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value)} />
+                        <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Width">
-                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value)} />
+                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
                     </FloatingLabel>
                     <FloatingLabel label="Height">
-                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value)} />
+                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
                     </FloatingLabel>
                 </ListGroup.Item>
             </ListGroup>
@@ -308,7 +370,7 @@ function RightPanel({ setts, setProp, selected, delControl, setControlProp }) {
     const [show, setShow] = useState(true)
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
-        setProp={(name, value) => setControlProp(control, name, value)}
+        setProp={(name, value, e) => setControlProp(control, name, value, e)}
         maxX={setts.gridX - 1} maxY={setts.gridY - 1} delControl={delControl} />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
@@ -335,12 +397,14 @@ function Editor(props) {
         props.setValid(valid)
         props.store({ setts, controls })
     }, [props, setts, controls])
-    function setProp(name, value) {
+    function setProp(name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = { ...setts }
         next[name] = value
         setSetts(next)
     }
-    function setControlProp(control, name, value) {
+    function setControlProp(control, name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = [...controls]
         control.setts[name] = value
         setControls(next)
@@ -369,7 +433,7 @@ function Editor(props) {
                 <LeftPanel addControl={addControl} />
             </Col>
             <Col className="gx-0 bg-light">
-                <SvgWindow setts={setts} controls={controls}
+                <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
                     selected={selected} setSelected={setSelected} />
             </Col>
             <Col md="auto">

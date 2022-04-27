@@ -19,3 +19,7 @@ table.items tr {
     display: table;
     table-layout: fixed;
 }
+
+svg.draggable {
+    cursor: move;
+}

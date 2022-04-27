@@ -42,6 +42,27 @@ function checkNotBlank(value) {
     return `${value}`.trim().length > 0
 }
 
+function fixInputMinMax(e, value) {
+    if (e) {
+        const t = e.target
+        if (t.tagName.toLowerCase() === "input") {
+            if (t.hasAttribute("min")) {
+                const min = t.getAttribute("min")
+                if (Number(value) < Number(min)) {
+                    value = min
+                }
+            }
+            if (t.hasAttribute("max")) {
+                const max = t.getAttribute("max")
+                if (Number(value) > Number(max)) {
+                    value = max
+                }
+            }
+        }
+    }
+    return value
+}
+
 function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(initialState().setts)
@@ -71,7 +92,8 @@ function Editor(props) {
         props.setValid(valid)
         props.store({ setts, points })
     }, [props, setts, points])
-    function setPoint(index, name, value) {
+    function setPoint(index, name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = [...points]
         next[index][name] = value
         setPoints(next)
@@ -87,7 +109,8 @@ function Editor(props) {
         next.splice(index, 1)
         setPoints(next)
     }
-    function setProp(name, value) {
+    function setProp(name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = { ...setts }
         next[name] = value
         setSetts(next)
@@ -133,13 +156,13 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label="Port">
                         <Form.Control type="number" min="1" max="65535"
-                            value={setts.port} onChange={e => setProp("port", e.target.value)} />
+                            value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Period (s)">
                         <Form.Control type="number" min="0" max="65535"
-                            value={setts.period} onChange={e => setProp("period", e.target.value)} />
+                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
             </Row>

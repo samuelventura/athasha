@@ -46,6 +46,27 @@ function checkNotBlank(value) {
     return `${value}`.trim().length > 0
 }
 
+function fixInputMinMax(e, value) {
+    if (e) {
+        const t = e.target
+        if (t.tagName.toLowerCase() === "input") {
+            if (t.hasAttribute("min")) {
+                const min = t.getAttribute("min")
+                if (Number(value) < Number(min)) {
+                    value = min
+                }
+            }
+            if (t.hasAttribute("max")) {
+                const max = t.getAttribute("max")
+                if (Number(value) > Number(max)) {
+                    value = max
+                }
+            }
+        }
+    }
+    return value
+}
+
 function Editor(props) {
     const [setts, setSetts] = useState(initialState().setts)
     const [points, setPoints] = useState(initialState().points)
@@ -84,7 +105,8 @@ function Editor(props) {
         props.setValid(valid)
         props.store({ setts, points })
     }, [props, setts, points])
-    function setPoint(index, name, value) {
+    function setPoint(index, name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = [...points]
         next[index][name] = value
         setPoints(next)
@@ -101,7 +123,8 @@ function Editor(props) {
         next.splice(index, 1)
         setPoints(next)
     }
-    function setProp(name, value) {
+    function setProp(name, value, e) {
+        value = fixInputMinMax(e, value)
         const next = { ...setts }
         next[name] = value
         setSetts(next)
@@ -111,7 +134,7 @@ function Editor(props) {
             <td >{index + 1}</td>
             <td>
                 <Form.Control type="number" min="1" max="65535" placeholder="Slave ID"
-                    value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value)} />
+                    value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value, e)} />
             </td>
             <td>
                 <Form.Select value={points[index].code} onChange={e => setPoint(index, "code", e.target.value)}>
@@ -126,7 +149,7 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Control type="number" min="0" max="65535" placeholder="Address"
-                    value={points[index].address} onChange={e => setPoint(index, "address", e.target.value)} />
+                    value={points[index].address} onChange={e => setPoint(index, "address", e.target.value, e)} />
             </td>
             <td>
                 <Form.Control type="text" placeholder="Point Name"
@@ -149,7 +172,7 @@ function Editor(props) {
         <Col xs={2}>
             <FloatingLabel label="Port">
                 <Form.Control type="number" min="1" max="65535"
-                    value={setts.port} onChange={e => setProp("port", e.target.value)} />
+                    value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
             </FloatingLabel>
         </Col>
     </Row>)
@@ -163,7 +186,7 @@ function Editor(props) {
         <Col xs={2}>
             <FloatingLabel label="Baud Rate">
                 <Form.Control type="number" min="1" max="2147483647"
-                    value={setts.speed} onChange={e => setProp("speed", e.target.value)} />
+                    value={setts.speed} onChange={e => setProp("speed", e.target.value, e)} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
@@ -209,7 +232,7 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label="Delay (ms)">
                         <Form.Control type="number" min="0" max="1000"
-                            value={setts.delay} onChange={e => setProp("delay", e.target.value)} />
+                            value={setts.delay} onChange={e => setProp("delay", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
