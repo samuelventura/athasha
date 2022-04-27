@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import ListGroup from 'react-bootstrap/ListGroup'
+import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
@@ -364,8 +365,10 @@ function ScreenEditor({ setShow, setts, setProp }) {
                         <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value, e)} />
                     </FormEntry>
                     <FormEntry label="Background Color">
-                        <Form.Control type="color" label="Background Color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
-                            title={setts.bgColor} />
+                        <InputGroup>
+                            <Form.Control type="color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
+                                title={setts.bgColor} />
+                        </InputGroup>
                     </FormEntry>
                 </ListGroup.Item>
             </ListGroup>
@@ -412,10 +415,10 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
                         </Button>
                     </ListGroup.Item>
                     <ListGroup.Item>
-                        <FormEntry label="Pos X">
+                        <FormEntry label="Position X">
                             <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
                         </FormEntry>
-                        <FormEntry label="Pos Y">
+                        <FormEntry label="Position Y">
                             <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value, e)} />
                         </FormEntry>
                         <FormEntry label="Width">
