@@ -5,8 +5,6 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import ListGroup from 'react-bootstrap/ListGroup'
-import InputGroup from 'react-bootstrap/InputGroup'
-import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
@@ -16,6 +14,7 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import ControlLabel from '../controls/Label'
 import ControlEmpty from '../controls/Empty'
+import { FormEntry } from '../controls/Helper'
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -337,38 +336,37 @@ function ScreenEditor({ setShow, setts, setProp }) {
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
-                    <FloatingLabel label="Scale">
-                        <Form.Select size="sm" value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
+                    <FormEntry label="Scale">
+                        <Form.Select value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
                             <option value="fit">Fit</option>
                             <option value="fit-width">Fit Width</option>
                             <option value="fit-height">Fit Height</option>
                             <option value="stretch">Stretch</option>
                         </Form.Select>
-                    </FloatingLabel>
-                    <FloatingLabel label="Align">
-                        <Form.Select size="sm" value={setts.align} onChange={e => setProp("align", e.target.value)}>
+                    </FormEntry>
+                    <FormEntry label="Align">
+                        <Form.Select value={setts.align} onChange={e => setProp("align", e.target.value)}>
                             <option value="start">Start</option>
                             <option value="center">Center</option>
                             <option value="end">End</option>
                         </Form.Select>
-                    </FloatingLabel>
-                    <FloatingLabel label="Width">
+                    </FormEntry>
+                    <FormEntry label="Width">
                         <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Height">
+                    </FormEntry>
+                    <FormEntry label="Height">
                         <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Grid X">
+                    </FormEntry>
+                    <FormEntry label="Grid X">
                         <Form.Control type="number" min="1" max="100" value={setts.gridX} onChange={e => setProp("gridX", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Grid Y">
+                    </FormEntry>
+                    <FormEntry label="Grid Y">
                         <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value, e)} />
-                    </FloatingLabel>
-                    <InputGroup>
+                    </FormEntry>
+                    <FormEntry label="Background Color">
                         <Form.Control type="color" label="Background Color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
                             title={setts.bgColor} />
-                        <Button variant="outline-secondary" disabled>Background Color</Button>
-                    </InputGroup>
+                    </FormEntry>
                 </ListGroup.Item>
             </ListGroup>
         </Card>)
@@ -379,48 +377,59 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     const controller = getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
     const editor = controller.Editor({ control, setProp: dataSetProp })
-    const header = editor ? (<><hr />{control.type}</>) : null
+    const controlProps = editor ? (
+        <ListGroup variant="flush">
+            <ListGroup.Item>
+                {editor}
+            </ListGroup.Item>
+        </ListGroup>) : null
+    const controlEditor = (<Card>
+        <Card.Header>{control.type}</Card.Header>
+        {controlProps}
+    </Card>)
     return (
-        <Card>
-            <Card.Header>
-                <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
-                    <FontAwesomeIcon icon={faAnglesRight} />
-                </Button>
-                Control Settings
-            </Card.Header>
-            <ListGroup variant="flush">
-                <ListGroup.Item>
-                    <Button variant='outline-danger' size="sm" className="float-end"
-                        onClick={() => actionControl('del', control)} title="Remove Selected Control">
-                        <FontAwesomeIcon icon={faTimes} />
+        <>
+            <Card>
+                <Card.Header>
+                    <Button variant='link' size="sm" onClick={() => setShow(false)} title="Hide">
+                        <FontAwesomeIcon icon={faAnglesRight} />
                     </Button>
-                    <Button variant='outline-secondary' size="sm"
-                        onClick={() => actionControl('down', control)} title="Selected Control Down">
-                        <FontAwesomeIcon icon={faArrowDown} />
-                    </Button>
-                    <Button variant='outline-secondary' size="sm"
-                        onClick={() => actionControl('up', control)} title="Selected Control Up">
-                        <FontAwesomeIcon icon={faArrowUp} />
-                    </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    <FloatingLabel label="Pos X">
-                        <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Pos Y">
-                        <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Width">
-                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
-                    </FloatingLabel>
-                    <FloatingLabel label="Height">
-                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
-                    </FloatingLabel>
-                    {header}
-                    {editor}
-                </ListGroup.Item>
-            </ListGroup>
-        </Card>)
+                    Control Settings
+                </Card.Header>
+                <ListGroup variant="flush">
+                    <ListGroup.Item>
+                        <Button variant='outline-danger' size="sm" className="float-end"
+                            onClick={() => actionControl('del', control)} title="Remove Selected Control">
+                            <FontAwesomeIcon icon={faTimes} />
+                        </Button>
+                        <Button variant='outline-secondary' size="sm"
+                            onClick={() => actionControl('down', control)} title="Selected Control Down">
+                            <FontAwesomeIcon icon={faArrowDown} />
+                        </Button>
+                        <Button variant='outline-secondary' size="sm"
+                            onClick={() => actionControl('up', control)} title="Selected Control Up">
+                            <FontAwesomeIcon icon={faArrowUp} />
+                        </Button>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        <FormEntry label="Pos X">
+                            <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
+                        </FormEntry>
+                        <FormEntry label="Pos Y">
+                            <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value, e)} />
+                        </FormEntry>
+                        <FormEntry label="Width">
+                            <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
+                        </FormEntry>
+                        <FormEntry label="Height">
+                            <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
+                        </FormEntry>
+                    </ListGroup.Item>
+                </ListGroup>
+            </Card>
+            {controlEditor}
+        </>
+    )
 }
 
 function RightPanel({ setts, setProp, selected, actionControl, setControlProp, setDataProp }) {
@@ -499,7 +508,6 @@ function Editor(props) {
         next.splice(index, 1)
         next.splice(index + 1, 0, control)
         setControls(next)
-        console.log(index, next.length)
     }
     function downControl(control) {
         const next = [...controls]
@@ -507,7 +515,6 @@ function Editor(props) {
         next.splice(index, 1)
         next.splice(index - 1, 0, control)
         setControls(next)
-        console.log(index, next.length)
     }
     function actionControl(action, control) {
         switch (action) {

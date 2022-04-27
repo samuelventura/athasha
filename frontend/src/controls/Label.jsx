@@ -1,6 +1,6 @@
 import React from 'react'
-import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Form from 'react-bootstrap/Form'
+import { FormEntry } from './Helper'
 
 const Type = "Label"
 
@@ -13,10 +13,10 @@ function Init() {
 function Editor({ control, setProp }) {
     const data = control.data
     return (<>
-        <FloatingLabel label="Text">
+        <FormEntry label="Text">
             <Form.Control type="text" value={data.text}
                 onChange={e => setProp("text", e.target.value)} />
-        </FloatingLabel>
+        </FormEntry>
     </>)
 }
 
