@@ -1,4 +1,5 @@
 import React from 'react'
+import numeral from 'numeral'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Helper'
@@ -96,12 +97,12 @@ function Editor({ control, setProp }) {
                 <option value="OxaniumSemiBold">Oxanium Semi Bold</option>
                 <option value="OxaniumBold">Oxanium Bold</option>
                 <option value="OxaniumExtraBold">Oxanium Extra Bold</option>
-                <option value="OrbitronRegular">OrbitronRegular</option>
-                <option value="OrbitronMedium">OrbitronMedium</option>
-                <option value="OrbitronSemiBold">OrbitronSemiBold</option>
-                <option value="OrbitronBold">OrbitronBold</option>
-                <option value="OrbitronExtraBold">OrbitronExtraBold</option>
-                <option value="OrbitronBlack">OrbitronBlack</option>
+                <option value="OrbitronRegular">Orbitron Regular</option>
+                <option value="OrbitronMedium">Orbitron Medium</option>
+                <option value="OrbitronSemiBold">Orbitron Semi Bold</option>
+                <option value="OrbitronBold">Orbitron Bold</option>
+                <option value="OrbitronExtraBold">Orbitron Extra Bold</option>
+                <option value="OrbitronBlack">Orbitron Black</option>
             </Form.Select>
         </FormEntry>
     </>)
