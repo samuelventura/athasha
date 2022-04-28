@@ -3,9 +3,14 @@ let wsproto = "ws:"
 if (locurl.protocol === "https:") {
     wsproto = "wss:"
 }
-const wsURL = `${wsproto}//${locurl.host}${locurl.pathname}`
+let pathname = locurl.pathname
+if (pathname.endsWith(".html")) {
+    const pn = pathname
+    pathname = pn.substring(0, pn.lastIndexOf('/') + 1)
+}
+const wsURL = `${wsproto}//${locurl.host}${pathname}`
 
-let logEnabled = process.env.NODE_ENV === 'development'
+let logEnabled = import.meta.env.DEV
 
 window.enableLog = enableLog
 

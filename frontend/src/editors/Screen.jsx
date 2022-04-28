@@ -37,7 +37,7 @@ function register(control, hide) {
 }
 
 //https://vitejs.dev/guide/env-and-mode.html
-register(ControlEmpty, import.meta.env.VITE_DEV)
+register(ControlEmpty, import.meta.env.PROD)
 register(ControlLabel)
 
 function getController(type) {
