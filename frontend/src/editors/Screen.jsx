@@ -20,6 +20,7 @@ import { FormEntry } from '../controls/Helper'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputMinMax } from "./Validation"
+import { useApp } from '../App'
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -379,10 +380,11 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
 }
 
 function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp, preview }) {
+    const app = useApp()
     const setts = control.setts
     const controller = getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp }) : null
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, app }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -599,13 +601,12 @@ function Editor(props) {
             }
         }
     }
-    const leftStyle = left ? { flex: "0 0 16em" } : {}
     const rightStyle = right ? { flex: "0 0 28em" } : {}
     const previewControl = <PreviewControl valid={props.valid} save={props.save}
         preview={preview} setPreview={setPreview} />
     return (
         <Row className="h-100">
-            <Col sm="auto" style={leftStyle}>
+            <Col sm="auto">
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
             </Col>
             <Col className="gx-0 bg-light">

@@ -11,6 +11,7 @@ import { checkRange } from "../editors/Validation"
 import { checkNotBlank } from "../editors/Validation"
 import { checkBoolean } from "../editors/Validation"
 import { fixInputMinMax } from "../editors/Validation"
+import { PointOptions } from '../items/Points'
 
 const Type = "Label"
 
@@ -95,6 +96,7 @@ function CondEditor({ cond, setProp }) {
 
 function Init() {
     return {
+        point: "",
         text: "Label",
         align: "Center",
         bgEnabled: false,
@@ -107,6 +109,7 @@ function Init() {
         brRadius: "0",
         cond1: Cond(),
         cond2: Cond(),
+        cond3: Cond(),
     }
 }
 
@@ -114,7 +117,7 @@ function Validator(control) {
     const data = control.data
     let valid = true
     valid = valid && checkBoolean(data.bgEnabled)
-    valid = valid && checkNotBlank(data.text)
+    //valid = valid && checkNotBlank(data.text)
     valid = valid && checkNotBlank(data.align)
     valid = valid && checkNotBlank(data.bgColor)
     valid = valid && checkNotBlank(data.fgColor)
@@ -139,104 +142,113 @@ function Upgrade(data) {
     return next
 }
 
-function Editor({ control, setProp }) {
+function Editor({ control, setProp, app }) {
+    const options = PointOptions(app)
     const data = control.data
-    function setCond1Prop(name, value, e) {
-        value = fixInputMinMax(e, value)
-        const next = { ...data.cond1 }
-        next[name] = value
-        setProp("cond1", next)
+    function setCondProp(cond) {
+        return function (name, value, e) {
+            value = fixInputMinMax(e, value)
+            const next = { ...data[cond] }
+            next[name] = value
+            setProp(cond, next)
+        }
     }
-    function setCond2Prop(name, value, e) {
-        value = fixInputMinMax(e, value)
-        const next = { ...data.cond2 }
-        next[name] = value
-        setProp("cond2", next)
-    }
-    return (<Tabs defaultActiveKey="default">
-        <Tab eventKey="default" title="Default">
-            <FormEntry label="Text">
-                <Form.Control type="text" value={data.text}
-                    onChange={e => setProp("text", e.target.value)} />
-            </FormEntry>
-            <FormEntry label="Align">
-                <Form.Select value={data.align} onChange={e => setProp("align", e.target.value)}>
-                    <option value="Center">Center</option>
-                    <option value="Left">Left</option>
-                    <option value="Right">Right</option>
-                </Form.Select>
-            </FormEntry>
-            <FormEntry label="Text Color">
-                <InputGroup>
-                    <Form.Control type="color" value={data.fgColor}
-                        onChange={e => setProp("fgColor", e.target.value)}
-                        title={data.fgColor} />
-                </InputGroup>
-            </FormEntry>
-            <FormEntry label="Font Size">
-                <Form.Control type="number" min="1" value={data.ftSize}
-                    onChange={e => setProp("ftSize", e.target.value, e)} />
-            </FormEntry>
-            <FormEntry label="Font Family">
-                <Form.Select value={data.ftFamily} onChange={e => setProp("ftFamily", e.target.value)}>
-                    <option value="RobotoThin">Roboto Thin</option>
-                    <option value="RobotoLight">Roboto Light</option>
-                    <option value="RobotoRegular">Roboto Regular</option>
-                    <option value="RobotoMedium">Roboto Medium</option>
-                    <option value="RobotoBold">Roboto Bold</option>
-                    <option value="RobotoBlack">Roboto Black</option>
-                    <option value="Barcode39Regular">Barcode39 Regular</option>
-                    <option value="Barcode39Text">Barcode39 Text</option>
-                    <option value="Barcode128Regular">Barcode128 Regular</option>
-                    <option value="Barcode128Text">Barcode128 Text</option>
-                    <option value="OxaniumExtraLight">Oxanium Extra Light</option>
-                    <option value="OxaniumLight">Oxanium Light</option>
-                    <option value="OxaniumRegular">Oxanium Regular</option>
-                    <option value="OxaniumMedium">Oxanium Medium</option>
-                    <option value="OxaniumSemiBold">Oxanium Semi Bold</option>
-                    <option value="OxaniumBold">Oxanium Bold</option>
-                    <option value="OxaniumExtraBold">Oxanium Extra Bold</option>
-                    <option value="OrbitronRegular">Orbitron Regular</option>
-                    <option value="OrbitronMedium">Orbitron Medium</option>
-                    <option value="OrbitronSemiBold">Orbitron Semi Bold</option>
-                    <option value="OrbitronBold">Orbitron Bold</option>
-                    <option value="OrbitronExtraBold">Orbitron Extra Bold</option>
-                    <option value="OrbitronBlack">Orbitron Black</option>
-                </Form.Select>
-            </FormEntry>
-            <FormEntry label="Background">
-                <InputGroup>
-                    <InputGroup.Checkbox checked={data.bgEnabled}
-                        onChange={e => setProp("bgEnabled", e.target.checked)}
-                        title="Enable Background Color" />
-                    <Form.Control type="color" value={data.bgColor}
-                        onChange={e => setProp("bgColor", e.target.value)}
-                        title={data.bgColor} />
-                </InputGroup>
-            </FormEntry>
-            <FormEntry label="Border Width">
-                <Form.Control type="number" min="0" value={data.brWidth}
-                    onChange={e => setProp("brWidth", e.target.value, e)} />
-            </FormEntry>
-            <FormEntry label="Border Color">
-                <InputGroup>
-                    <Form.Control type="color" value={data.brColor}
-                        onChange={e => setProp("brColor", e.target.value)}
-                        title={data.brColor} />
-                </InputGroup>
-            </FormEntry>
-            <FormEntry label="Border Radius">
-                <Form.Control type="number" min="0" max="1" step="0.01" value={data.brRadius}
-                    onChange={e => setProp("brRadius", e.target.value, e)} />
-            </FormEntry>
-        </Tab>
-        <Tab eventKey="condition1" title="Condition 1">
-            <CondEditor cond={data.cond1} setProp={setCond1Prop} />
-        </Tab>
-        <Tab eventKey="condition2" title="Condition 2">
-            <CondEditor cond={data.cond2} setProp={setCond2Prop} />
-        </Tab>
-    </Tabs>)
+    return (
+        <>
+            <Form.Select value={data.point} onChange={e => setProp("point", e.target.value)}
+                title="Select Data Point">
+                <option value=""></option>
+                {options}
+            </Form.Select>
+            <Tabs defaultActiveKey="default">
+                <Tab eventKey="default" title="Default">
+                    <FormEntry label="Text">
+                        <Form.Control type="text" value={data.text}
+                            onChange={e => setProp("text", e.target.value)} />
+                    </FormEntry>
+                    <FormEntry label="Align">
+                        <Form.Select value={data.align} onChange={e => setProp("align", e.target.value)}>
+                            <option value="Center">Center</option>
+                            <option value="Left">Left</option>
+                            <option value="Right">Right</option>
+                        </Form.Select>
+                    </FormEntry>
+                    <FormEntry label="Text Color">
+                        <InputGroup>
+                            <Form.Control type="color" value={data.fgColor}
+                                onChange={e => setProp("fgColor", e.target.value)}
+                                title={data.fgColor} />
+                        </InputGroup>
+                    </FormEntry>
+                    <FormEntry label="Font Size">
+                        <Form.Control type="number" min="1" value={data.ftSize}
+                            onChange={e => setProp("ftSize", e.target.value, e)} />
+                    </FormEntry>
+                    <FormEntry label="Font Family">
+                        <Form.Select value={data.ftFamily} onChange={e => setProp("ftFamily", e.target.value)}>
+                            <option value="RobotoThin">Roboto Thin</option>
+                            <option value="RobotoLight">Roboto Light</option>
+                            <option value="RobotoRegular">Roboto Regular</option>
+                            <option value="RobotoMedium">Roboto Medium</option>
+                            <option value="RobotoBold">Roboto Bold</option>
+                            <option value="RobotoBlack">Roboto Black</option>
+                            <option value="Barcode39Regular">Barcode39 Regular</option>
+                            <option value="Barcode39Text">Barcode39 Text</option>
+                            <option value="Barcode128Regular">Barcode128 Regular</option>
+                            <option value="Barcode128Text">Barcode128 Text</option>
+                            <option value="OxaniumExtraLight">Oxanium Extra Light</option>
+                            <option value="OxaniumLight">Oxanium Light</option>
+                            <option value="OxaniumRegular">Oxanium Regular</option>
+                            <option value="OxaniumMedium">Oxanium Medium</option>
+                            <option value="OxaniumSemiBold">Oxanium Semi Bold</option>
+                            <option value="OxaniumBold">Oxanium Bold</option>
+                            <option value="OxaniumExtraBold">Oxanium Extra Bold</option>
+                            <option value="OrbitronRegular">Orbitron Regular</option>
+                            <option value="OrbitronMedium">Orbitron Medium</option>
+                            <option value="OrbitronSemiBold">Orbitron Semi Bold</option>
+                            <option value="OrbitronBold">Orbitron Bold</option>
+                            <option value="OrbitronExtraBold">Orbitron Extra Bold</option>
+                            <option value="OrbitronBlack">Orbitron Black</option>
+                        </Form.Select>
+                    </FormEntry>
+                    <FormEntry label="Background">
+                        <InputGroup>
+                            <InputGroup.Checkbox checked={data.bgEnabled}
+                                onChange={e => setProp("bgEnabled", e.target.checked)}
+                                title="Enable Background Color" />
+                            <Form.Control type="color" value={data.bgColor}
+                                onChange={e => setProp("bgColor", e.target.value)}
+                                title={data.bgColor} />
+                        </InputGroup>
+                    </FormEntry>
+                    <FormEntry label="Border Width">
+                        <Form.Control type="number" min="0" value={data.brWidth}
+                            onChange={e => setProp("brWidth", e.target.value, e)} />
+                    </FormEntry>
+                    <FormEntry label="Border Color">
+                        <InputGroup>
+                            <Form.Control type="color" value={data.brColor}
+                                onChange={e => setProp("brColor", e.target.value)}
+                                title={data.brColor} />
+                        </InputGroup>
+                    </FormEntry>
+                    <FormEntry label="Border Radius">
+                        <Form.Control type="number" min="0" max="1" step="0.01" value={data.brRadius}
+                            onChange={e => setProp("brRadius", e.target.value, e)} />
+                    </FormEntry>
+                </Tab>
+                <Tab eventKey="condition1" title="Cond 1">
+                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} app={app} />
+                </Tab>
+                <Tab eventKey="condition2" title="Cond 2">
+                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} app={app} />
+                </Tab>
+                <Tab eventKey="condition3" title="Cond 3">
+                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} app={app} />
+                </Tab>
+            </Tabs>
+        </>
+    )
 }
 
 function Renderer({ control, size }) {

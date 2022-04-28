@@ -10,6 +10,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
+import { PointOptions } from '../items/Points'
 import { useApp } from '../App'
 
 function ExportedEditor(props) {
@@ -108,16 +109,7 @@ function Editor(props) {
         next[name] = value
         setSetts(next)
     }
-    const items = Object.values(app.state.items).filter(item => item.type === 'Modbus')
-    const options = items.map((item) => {
-        const config = JSON.parse(item.config)
-        return config.points.map((point, index) => {
-            const id = `${item.id} ${point.name}`
-            const desc = `${item.name}/${point.name}`
-            return <option key={"option_" + item.id + "_" + index} value={id}>{desc}</option>
-        })
-    }
-    ).flat()
+    const options = PointOptions(app)
     const rows = points.map((point, index) =>
         <tr key={index} id={"point_" + index} className='align-middle'>
             <td>{index + 1}</td>
