@@ -231,8 +231,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         const y = setts.posY * sy
         const w = setts.width * sx
         const h = setts.height * sy
-        const isSelected = selected.control === control
-        const borderStroke = isSelected ? "4" : "2"
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
             event.stopPropagation()
@@ -287,11 +285,14 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
                 dragged.cleanup()
             }
         }
-        const controller = getController(control.type)
         const size = { width: w, height: h }
+        const isSelected = selected.control === control
+        const borderStroke = isSelected ? "4" : "2"
+        const controller = getController(control.type)
         const controlInstance = controller.Renderer({ control, size })
         const controlBorder = !preview ? (
-            <rect width="100%" height="100%" fill="white" fillOpacity="0" stroke={invertedBgC}
+            <rect width="100%" height="100%" fill="white" fillOpacity="0"
+                stroke="white" style={{ mixBlendMode: "difference" }}
                 strokeWidth={borderStroke} />) : null
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
