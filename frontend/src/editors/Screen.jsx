@@ -619,30 +619,25 @@ function Editor(props) {
             }
         }
     }
-    function FixedHideCol({ ems, show, children }) {
-        return show ? (<Col style={{ flex: `0 0 ${ems}em` }}>
-            {children}
-        </Col>) : (<Col sm="auto">
-            {children}
-        </Col>)
-    }
+    const leftStyle = left ? { flex: "0 0 16em" } : {}
+    const rightStyle = right ? { flex: "0 0 28em" } : {}
     const previewControl = <PreviewControl valid={props.valid} save={props.save}
         preview={preview} setPreview={setPreview} />
     return (
         <Row className="h-100">
-            <FixedHideCol ems={16} show={left}>
+            <Col sm="auto" style={leftStyle}>
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
-            </FixedHideCol>
+            </Col>
             <Col className="gx-0 bg-light">
                 <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
-            <FixedHideCol ems={28} show={right}>
+            <Col sm="auto" style={rightStyle}>
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
                     actionControl={actionControl} setControlProp={setControlProp}
                     setDataProp={setDataProp} preview={previewControl}
                     show={right} setShow={setRight} />
-            </FixedHideCol>
+            </Col>
         </Row>
     )
 }
