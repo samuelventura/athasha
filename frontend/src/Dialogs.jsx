@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { faKey } from '@fortawesome/free-solid-svg-icons'
 import { useApp } from './App'
-import Session from './Session'
 
 function ConnectDialog() {
   const app = useApp()
@@ -23,11 +22,12 @@ function ConnectDialog() {
 
 function LoginDialog() {
   const app = useApp()
+  const sessioner = app.sessioner
   const [password, setPassword] = useState("")
   function onLogin() {
     app.warnAlert("Logging in...")
     const active = true
-    const session = Session.create(password)
+    const session = sessioner.create(password)
     app.send({ name: "login", args: { session, active } })
   }
   function handleKeyUp(e) {
@@ -62,8 +62,9 @@ function LoginDialog() {
 
 function LogoutButton() {
   const app = useApp()
+  const sessioner = app.sessioner
   const handleOnClick = () => {
-    Session.remove()
+    sessioner.remove()
     window.location.reload()
   }
   return app.logged ? (

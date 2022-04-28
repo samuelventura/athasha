@@ -92,7 +92,7 @@ function CondEditor({ cond, setProp }) {
                     <Form.Control type="color" value={cond.brColor}
                         onChange={e => setProp("brColor", e.target.value)}
                         title={cond.brColor} />
-                    <Form.Control type="text" size="sm" pattern="#[0-9a-fA-F]{6}" value={cond.brColor}
+                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.brColor}
                         onChange={e => setProp("brColor", e.target.value, e)} />
                 </InputGroup>
             </FormEntry>

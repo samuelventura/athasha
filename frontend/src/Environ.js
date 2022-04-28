@@ -9,6 +9,7 @@ if (pathname.endsWith(".html")) {
     pathname = pn.substring(0, pn.lastIndexOf('/') + 1)
 }
 const wsURL = `${wsproto}//${locurl.host}${pathname}`
+const wsQuery = locurl.search
 
 let logEnabled = import.meta.env.DEV
 
@@ -24,6 +25,6 @@ function enableLog(enable) {
     logEnabled = enable
 }
 
-const exports = { wsURL, enableLog, log }
+const exports = { wsURL, wsQuery, enableLog, log }
 
 export default exports

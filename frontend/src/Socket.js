@@ -5,10 +5,10 @@ import Environ from "./Environ"
 // - incremental reconnect timer
 // - 10s idle timeout
 function create(app) {
-    return createSocket(Environ.wsURL, app)
+    return createSocket(Environ.wsURL, Environ.wsQuery, app)
 }
 
-function createSocket(base, { path, dispatch }) {
+function createSocket(base, query, { path, dispatch }) {
     let ws = null
     let reco_ms = 0
     let reco = null
@@ -57,7 +57,7 @@ function createSocket(base, { path, dispatch }) {
     }
 
     function connect() {
-        let url = base + path + "/websocket"
+        let url = base + path + "/websocket" + query
         ws = new WebSocket(url)
         Environ.log("connect", reco, url, ws)
         ws.onclose = (event) => {

@@ -56,7 +56,8 @@ function initialSetts() {
         scale: 'fit', align: 'center',
         width: '640', height: '480',
         gridX: '10', gridY: '10',
-        bgColor: "#ffffff"
+        bgColor: "#ffffff",
+        viewPwd: "",
     }
 }
 
@@ -375,6 +376,11 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
                             <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={setts.bgColor}
                                 onChange={e => setProp("bgColor", e.target.value, e)} />
                         </InputGroup>
+                    </FormEntry>
+                    <FormEntry label="View Password">
+                        <Form.Control type="password" value={setts.viewPwd}
+                            onChange={e => setProp("viewPwd", e.target.value)}
+                            title={setts.viewPwd} />
                     </FormEntry>
                 </ListGroup.Item>
             </ListGroup>

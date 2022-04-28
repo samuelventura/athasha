@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react'
 import Socket from './Socket'
-import Session from './Session'
 
 function initialAlert() { return { type: "", message: "" } }
+function initialSessioner() {
+  return {
+    fetch: function () { },
+    remove: function () { },
+    create: function () { },
+  }
+}
 
 const App = React.createContext({
   path: "",
@@ -19,9 +25,10 @@ const App = React.createContext({
   errorAlert: () => { },
   warnAlert: () => { },
   successAlert: () => { },
+  sessioner: initialSessioner(),
 })
 
-function AppContext({ path, reducer, initial, children }) {
+function AppContext({ path, reducer, initial, sessioner, children }) {
   const [state, dispatch] = useReducer(reducer, initial())
   const [alert, setAlert] = useState(initialAlert())
   const [logged, setLogged] = useState(false)
@@ -44,6 +51,7 @@ function AppContext({ path, reducer, initial, children }) {
     errorAlert,
     warnAlert,
     successAlert,
+    sessioner,
   }
   useEffect(() => {
     if (alert.type === "success") {
@@ -69,7 +77,7 @@ function AppContext({ path, reducer, initial, children }) {
           setSend(() => send)
           setConnected(true)
           const active = false
-          const session = Session.fetch()
+          const session = sessioner.fetch()
           send({ name: "login", args: { session, active } })
           break
         }
