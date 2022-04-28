@@ -292,8 +292,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         const controlInstance = controller.Renderer({ control, size })
         const controlBorder = !preview ? (
             <rect width="100%" height="100%" fill="white" fillOpacity="0"
-                stroke="white" style={{ mixBlendMode: "difference" }}
-                strokeWidth={borderStroke} />) : null
+                stroke={invertedBgC} strokeWidth={borderStroke} />) : null
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
                 onPointerDown={e => onPointerDown(e, index, control)}
