@@ -465,14 +465,18 @@ function RightPanel({ show, setShow,
     )
 }
 
-function PreviewControl({ save, valid, preview, setPreview }) {
+function PreviewControl({ save, valid, preview, setPreview, id }) {
+    function onClick() {
+        save()
+        window.open(`preview.html?id=${id}`, '_blank').focus();
+    }
     //checkbox valignment was tricky
     return (<span className="float-end">
         <Form.Check size="sm" type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
             title="Toggle Preview Mode" className="d-inline align-middle">
         </Form.Check>
         <Button variant='link' size="sm" title="Launch Preview" className="p-0 ms-1"
-            disabled={!valid} onClick={save}>
+            disabled={!valid} onClick={onClick}>
             Preview
         </Button>
     </span>)
@@ -603,7 +607,7 @@ function Editor(props) {
     }
     const rightStyle = right ? { flex: "0 0 28em" } : {}
     const previewControl = <PreviewControl valid={props.valid} save={props.save}
-        preview={preview} setPreview={setPreview} />
+        preview={preview} setPreview={setPreview} id={props.id} />
     return (
         <Row className="h-100">
             <Col sm="auto">

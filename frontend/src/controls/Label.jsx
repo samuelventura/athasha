@@ -136,6 +136,7 @@ function Upgrade(data) {
     //force upgrade on the whole condition object
     // next.cond1 = null
     // next.cond2 = null
+    // next.cond3 = null
     Object.keys(init).forEach((k) => {
         next[k] = next[k] || init[k]
     })

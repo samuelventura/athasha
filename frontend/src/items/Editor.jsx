@@ -65,7 +65,7 @@ function EditItem(props) {
             setConfig(JSON.stringify(state))
         }
     }
-    const eprops = { state, store, valid, setValid, save }
+    const eprops = { state, store, valid, setValid, save, id: item.id }
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
