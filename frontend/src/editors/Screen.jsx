@@ -19,6 +19,7 @@ import ControlEmpty from '../controls/Empty'
 import { FormEntry } from '../controls/Helper'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
+import { fixInputMinMax } from "./Validation"
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -91,27 +92,6 @@ function calcAlign(align, d, D) {
 function fixNum(v) {
     v = v || 0
     return isFinite(v) ? v : 0
-}
-
-function fixInputMinMax(e, value) {
-    if (e) {
-        const t = e.target
-        if (t.tagName.toLowerCase() === "input") {
-            if (t.hasAttribute("min")) {
-                const min = t.getAttribute("min")
-                if (Number(value) < Number(min)) {
-                    value = min
-                }
-            }
-            if (t.hasAttribute("max")) {
-                const max = t.getAttribute("max")
-                if (Number(value) > Number(max)) {
-                    value = max
-                }
-            }
-        }
-    }
-    return value
 }
 
 function padZero(str, len) {
