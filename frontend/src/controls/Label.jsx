@@ -10,7 +10,7 @@ import "../fonts/Fonts"
 import { checkRange } from "../editors/Validation"
 import { checkNotBlank } from "../editors/Validation"
 import { checkBoolean } from "../editors/Validation"
-import { fixInputMinMax } from "../editors/Validation"
+import { fixInputValue } from "../editors/Validation"
 import { PointOptions } from '../items/Points'
 
 const Type = "Label"
@@ -22,11 +22,11 @@ function Cond() {
         txType: "Disabled",
         txText: "",
         bgEnabled: false,
-        bgColor: "#FFFFFF",
+        bgColor: "#ffffff",
         fgEnabled: false,
-        fgColor: "#FFFFFF",
+        fgColor: "#ffffff",
         brEnabled: false,
-        brColor: "#FFFFFF",
+        brColor: "#ffffff",
     }
 }
 
@@ -68,6 +68,8 @@ function CondEditor({ cond, setProp }) {
                     <Form.Control type="color" value={cond.fgColor}
                         onChange={e => setProp("fgColor", e.target.value)}
                         title={cond.fgColor} />
+                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.fgColor}
+                        onChange={e => setProp("fgColor", e.target.value, e)} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label="Background">
@@ -78,6 +80,8 @@ function CondEditor({ cond, setProp }) {
                     <Form.Control type="color" value={cond.bgColor}
                         onChange={e => setProp("bgColor", e.target.value)}
                         title={cond.bgColor} />
+                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.bgColor}
+                        onChange={e => setProp("bgColor", e.target.value, e)} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label="Border Color">
@@ -88,6 +92,8 @@ function CondEditor({ cond, setProp }) {
                     <Form.Control type="color" value={cond.brColor}
                         onChange={e => setProp("brColor", e.target.value)}
                         title={cond.brColor} />
+                    <Form.Control type="text" size="sm" pattern="#[0-9a-fA-F]{6}" value={cond.brColor}
+                        onChange={e => setProp("brColor", e.target.value, e)} />
                 </InputGroup>
             </FormEntry>
 
@@ -100,7 +106,7 @@ function Init() {
         text: "Label",
         align: "Center",
         bgEnabled: false,
-        bgColor: "#FFFFFF",
+        bgColor: "#ffffff",
         fgColor: "#000000",
         ftSize: "10",
         ftFamily: "RobotoThin",
@@ -148,8 +154,9 @@ function Editor({ control, setProp, app }) {
     const data = control.data
     function setCondProp(cond) {
         return function (name, value, e) {
-            value = fixInputMinMax(e, value)
             const next = { ...data[cond] }
+            const prev = next[name]
+            value = fixInputValue(e, value, prev)
             next[name] = value
             setProp(cond, next)
         }
@@ -179,6 +186,8 @@ function Editor({ control, setProp, app }) {
                             <Form.Control type="color" value={data.fgColor}
                                 onChange={e => setProp("fgColor", e.target.value)}
                                 title={data.fgColor} />
+                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.fgColor}
+                                onChange={e => setProp("fgColor", e.target.value, e)} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label="Font Size">
@@ -220,6 +229,8 @@ function Editor({ control, setProp, app }) {
                             <Form.Control type="color" value={data.bgColor}
                                 onChange={e => setProp("bgColor", e.target.value)}
                                 title={data.bgColor} />
+                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.bgColor}
+                                onChange={e => setProp("bgColor", e.target.value, e)} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label="Border Width">
@@ -231,6 +242,8 @@ function Editor({ control, setProp, app }) {
                             <Form.Control type="color" value={data.brColor}
                                 onChange={e => setProp("brColor", e.target.value)}
                                 title={data.brColor} />
+                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.brColor}
+                                onChange={e => setProp("brColor", e.target.value, e)} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label="Border Radius">

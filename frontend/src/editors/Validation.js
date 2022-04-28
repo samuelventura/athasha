@@ -14,7 +14,7 @@ function checkBoolean(value) {
     return typeof (value) === "boolean"
 }
 
-function fixInputMinMax(e, value) {
+function fixInputValue(e, value, prev) {
     if (e) {
         const t = e.target
         if (t.tagName.toLowerCase() === "input") {
@@ -24,14 +24,19 @@ function fixInputMinMax(e, value) {
                 if (t.hasAttribute("min")) {
                     const min = t.getAttribute("min")
                     if (value < Number(min)) {
-                        value = min
+                        value = prev
                     }
                 }
                 if (t.hasAttribute("max")) {
                     const max = t.getAttribute("max")
                     if (value > Number(max)) {
-                        value = max
+                        value = prev
                     }
+                }
+            }
+            if (t.hasAttribute("pattern")) {
+                if (!t.checkValidity()) {
+                    value = prev
                 }
             }
         }
@@ -39,4 +44,9 @@ function fixInputMinMax(e, value) {
     return value
 }
 
-export { checkRange, checkNotBlank, checkBoolean, fixInputMinMax }
+export {
+    checkRange,
+    checkNotBlank,
+    checkBoolean,
+    fixInputValue,
+}

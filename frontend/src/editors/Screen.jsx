@@ -19,7 +19,7 @@ import ControlEmpty from '../controls/Empty'
 import { FormEntry } from '../controls/Helper'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
-import { fixInputMinMax } from "./Validation"
+import { fixInputValue } from "./Validation"
 import { useApp } from '../App'
 
 function ExportedEditor(props) {
@@ -56,7 +56,7 @@ function initialSetts() {
         scale: 'fit', align: 'center',
         width: '640', height: '480',
         gridX: '10', gridY: '10',
-        bgColor: "#FFFFFF"
+        bgColor: "#ffffff"
     }
 }
 
@@ -119,7 +119,7 @@ function invertColor(hex, bw) {
         //https://stackoverflow.com/a/3943023/112731
         return (r * 0.299 + g * 0.587 + b * 0.114) > 186
             ? '#000000'
-            : '#FFFFFF'
+            : '#ffffff'
     }
     //invert color components
     r = (255 - r).toString(16)
@@ -304,11 +304,11 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
     </svg >)
 }
 
-function LeftPanel({ show, setShow }) {
+function LeftPanel({ show, setShow, addControl }) {
     const controlList = registeredList.map((controler, index) => {
         return (<ListGroup.Item action key={index}
             title={`Add new ${controler.Type}`}
-            onClick={() => props.addControl(controler)}>
+            onClick={() => addControl(controler)}>
             {controler.Type}</ListGroup.Item>)
     })
     return show ? (
@@ -344,8 +344,8 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
                     <FormEntry label="Scale">
                         <Form.Select value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
                             <option value="fit">Fit</option>
-                            <option value="fit-width">Fit Width</option>
-                            <option value="fit-height">Fit Height</option>
+                            {/* <option value="fit-width">Fit Width</option>
+                            <option value="fit-height">Fit Height</option> */}
                             <option value="stretch">Stretch</option>
                         </Form.Select>
                     </FormEntry>
@@ -372,6 +372,8 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
                         <InputGroup>
                             <Form.Control type="color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
                                 title={setts.bgColor} />
+                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={setts.bgColor}
+                                onChange={e => setProp("bgColor", e.target.value, e)} />
                         </InputGroup>
                     </FormEntry>
                 </ListGroup.Item>
@@ -528,20 +530,23 @@ function Editor(props) {
         props.store({ setts, controls })
     }, [props, setts, controls])
     function setProp(name, value, e) {
-        value = fixInputMinMax(e, value)
         const next = { ...setts }
+        const prev = next[name]
+        value = fixInputValue(e, value, prev)
         next[name] = value
         setSetts(next)
     }
     function setControlProp(control, name, value, e) {
-        value = fixInputMinMax(e, value)
         const next = [...controls]
+        const prev = control.setts[name]
+        value = fixInputValue(e, value, prev)
         control.setts[name] = value
         setControls(next)
     }
     function setDataProp(control, name, value, e) {
-        value = fixInputMinMax(e, value)
         const next = [...controls]
+        const prev = control.data[name]
+        value = fixInputValue(e, value, prev)
         control.data[name] = value
         setControls(next)
     }

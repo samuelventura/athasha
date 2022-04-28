@@ -10,6 +10,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
+import { fixInputValue } from "./Validation"
 import { PointOptions } from '../items/Points'
 import { useApp } from '../App'
 
@@ -34,27 +35,6 @@ function initialSetts() {
 
 function initialPoint() {
     return { id: "" }
-}
-
-function fixInputMinMax(e, value) {
-    if (e) {
-        const t = e.target
-        if (t.tagName.toLowerCase() === "input") {
-            if (t.hasAttribute("min")) {
-                const min = t.getAttribute("min")
-                if (Number(value) < Number(min)) {
-                    value = min
-                }
-            }
-            if (t.hasAttribute("max")) {
-                const max = t.getAttribute("max")
-                if (Number(value) > Number(max)) {
-                    value = max
-                }
-            }
-        }
-    }
-    return value
 }
 
 function Editor(props) {
@@ -87,8 +67,9 @@ function Editor(props) {
         props.store({ setts, points })
     }, [props, setts, points])
     function setPoint(index, name, value, e) {
-        value = fixInputMinMax(e, value)
         const next = [...points]
+        const prev = next[index][name]
+        value = fixInputValue(e, value, prev)
         next[index][name] = value
         setPoints(next)
     }
@@ -104,8 +85,9 @@ function Editor(props) {
         setPoints(next)
     }
     function setProp(name, value, e) {
-        value = fixInputMinMax(e, value)
         const next = { ...setts }
+        const prev = next[name]
+        value = fixInputValue(e, value, prev)
         next[name] = value
         setSetts(next)
     }
