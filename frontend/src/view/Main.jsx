@@ -28,9 +28,8 @@ function Main() {
             </Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse className="justify-content-end">
-              <Navbar.Text className={nameColor} title={nameTitle}
-                style={{ cursor: "default" }}>
-                {name}
+              <Navbar.Text className={nameColor} title={nameTitle}>
+                <span className="user-select-none">{name}</span>
               </Navbar.Text>
               <Navbar.Text>
                 <LogoutButton />

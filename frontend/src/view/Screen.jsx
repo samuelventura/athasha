@@ -40,18 +40,6 @@ function calcGeom(parent, setts) {
             y = calcAlign(align, h, H)
             break
         }
-        case 'fit-width': {
-            w = W
-            h = W / pr
-            y = calcAlign(align, h, H)
-            break
-        }
-        case 'fit-height': {
-            h = H
-            w = H * pr
-            x = calcAlign(align, w, W)
-            break
-        }
     }
     x = fixNum(x)
     y = fixNum(y)
@@ -63,16 +51,9 @@ function calcGeom(parent, setts) {
 }
 
 function SvgWindow({ setts, controls, points }) {
-    const { ref } = useResizeDetector()
-    let cw = 1
-    let ch = 1
-    if (!setts.scale) return null
-    if (ref.current) {
-        const style = window.getComputedStyle(ref.current)
-        cw = Number(style.getPropertyValue("width").replace("px", ""))
-        ch = Number(style.getPropertyValue("height").replace("px", ""))
-    }
-    const parent = { pw: cw, ph: ch }
+    const { ref, width, height } = useResizeDetector()
+    if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
+    const parent = { pw: width, ph: height }
     const { H, W, vb, sx, sy } = calcGeom(parent, setts)
     const controlList = controls.map((control, index) => {
         const setts = control.setts

@@ -96,12 +96,6 @@ function Rows(props) {
         setEditItem(item)
     }
 
-    function Action({ onClick, label }) {
-        function onDoubleClick(e) { e.stopPropagation() }
-        return (<Button variant="link" onClick={onClick}
-            onDoubleClick={(e) => onDoubleClick(e)}>{label}</Button>)
-    }
-
     function statusTitle(item) {
         if (!item.enabled) {
             return "Disabled"
@@ -141,8 +135,11 @@ function Rows(props) {
     }
 
     const rows = props.items.map(item => {
-        const viewAction = item.type === "Screen" ?
-            (<Action onClick={(e) => handleClick(e, 'view', item)} label="View" />) : null
+        function onDoubleClick(e) { e.stopPropagation() }
+        const viewAction = item.type === "Screen" ? (
+            <Button variant="link" onClick={(e) => handleClick(e, 'view', item)}
+                onDoubleClick={(e) => onDoubleClick(e)}>View</Button>
+        ) : null
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
@@ -155,11 +152,16 @@ function Rows(props) {
                 <StatusBadge item={item} />
             </td>
             <td>
-                <Action onClick={(e) => handleClick(e, 'edit', item)} label="Edit" />
-                <Action onClick={(e) => handleClick(e, 'delete', item)} label="Delete" />
-                <Action onClick={(e) => handleClick(e, 'rename', item)} label="Rename" />
-                <Action onClick={(e) => handleClick(e, 'enable', item, true)} label="Enable" />
-                <Action onClick={(e) => handleClick(e, 'enable', item, false)} label="Disable" />
+                <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}
+                    onDoubleClick={(e) => onDoubleClick(e)}>Edit</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'delete', item)}
+                    onDoubleClick={(e) => onDoubleClick(e)}>Delete</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'rename', item)}
+                    onDoubleClick={(e) => onDoubleClick(e)}>Rename</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, true)}
+                    onDoubleClick={(e) => onDoubleClick(e)}>Enable</Button>
+                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, false)}
+                    onDoubleClick={(e) => onDoubleClick(e)}>Disable</Button>
                 {viewAction}
             </td>
         </tr>)
