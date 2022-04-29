@@ -29,12 +29,8 @@ defmodule AthashaWeb.ViewSocket do
     reply_text(resp, state)
   end
 
-  def handle_info({{:item, _}, nil, _}, state = %{id: id}) do
+  def handle_info({{:item, _}, nil, _}, state) do
     {:stop, :update, state}
-  end
-
-  def handle_info({{:status, _}, _, _}, state) do
-    {:stop, :status, state}
   end
 
   def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do
@@ -53,9 +49,8 @@ defmodule AthashaWeb.ViewSocket do
           Points.screen_points(id) |> Enum.map(&initial_point/1)
       end
 
-    # any change in data or status should disconnect
+    # disconnect on any item change but not status change
     Bus.register!({:item, id}, nil)
-    Bus.register!({:status, id}, nil)
     config = Jason.decode!(item.config)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}

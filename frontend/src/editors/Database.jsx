@@ -27,8 +27,13 @@ function initialState() {
 
 function initialSetts() {
     return {
-        host: "127.0.0.1", port: "1433", period: "1",
-        database: "datalog", username: "sa", password: "",
+        host: "127.0.0.1",
+        port: "1433",
+        period: "1",
+        unit: "s",
+        database: "datalog",
+        username: "sa",
+        password: "",
         command: "insert into dbo.Table1 (COL1) values (@1)",
     }
 }
@@ -54,6 +59,7 @@ function Editor(props) {
         valid = valid && checkNotBlank(setts.host)
         valid = valid && checkRange(setts.port, 1, 65535)
         valid = valid && checkRange(setts.period, 1)
+        valid = valid && checkNotBlank(setts.unit)
         valid = valid && points.length > 0
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.username)
@@ -126,10 +132,18 @@ function Editor(props) {
                             value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
-                <Col xs={2}>
-                    <FloatingLabel label="Period (s)">
+                <Col xs={1}>
+                    <FloatingLabel label="Period">
                         <Form.Control type="number" min="1"
                             value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Unit">
+                        <Form.Select value={setts.unit} onChange={e => setProp("unit", e.target.value)}>
+                            <option value="s">second(s)</option>
+                            <option value="ms">millisecond(s)</option>
+                        </Form.Select>
                     </FloatingLabel>
                 </Col>
             </Row>

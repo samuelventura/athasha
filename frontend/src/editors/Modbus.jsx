@@ -32,7 +32,7 @@ function initialSetts() {
         tty: "COM1",
         speed: "9600",
         dbpsb: "8N1",
-        delay: "10",
+        period: "10",
     }
 }
 
@@ -66,7 +66,7 @@ function Editor(props) {
                 valid = valid && checkNotBlank(setts.dbpsb)
                 break
         }
-        valid = valid && checkRange(setts.delay, 0, 10000)
+        valid = valid && checkRange(setts.period, 0, 10000)
         valid = valid && points.length > 0
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkRange(point.slave, 1, 65535)
@@ -205,9 +205,9 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Delay (ms)">
-                        <Form.Control type="number" min="0" max="1000"
-                            value={setts.delay} onChange={e => setProp("delay", e.target.value, e)} />
+                    <FloatingLabel label="Period (ms)">
+                        <Form.Control type="number" min="0" max="10000"
+                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>

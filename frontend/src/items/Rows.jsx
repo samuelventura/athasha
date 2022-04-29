@@ -146,7 +146,8 @@ function Rows(props) {
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
-            className={selectedClass(item) + ' align-middle'}>
+            className={selectedClass(item) + ' align-middle'}
+            title={item.id}>
             <td className={enabledClass(item)}>
                 <img src={SvgIcon(item.type)} width="20"
                     alt={item.type} className='me-2' />

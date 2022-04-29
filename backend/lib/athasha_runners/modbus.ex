@@ -19,8 +19,8 @@ defmodule Athasha.Modbus.Runner do
     speed = setts["speed"]
     {speed, _} = Integer.parse(speed)
     dbpsb = setts["dbpsb"]
-    delay = setts["delay"]
-    {delay, _} = Integer.parse(delay)
+    period = setts["period"]
+    {period, _} = Integer.parse(period)
 
     points =
       Enum.map(config["points"], fn point ->
@@ -42,7 +42,7 @@ defmodule Athasha.Modbus.Runner do
       tty: tty,
       speed: speed,
       dbpsb: dbpsb,
-      delay: delay,
+      period: period,
       points: points
     }
 
@@ -53,6 +53,7 @@ defmodule Athasha.Modbus.Runner do
         Items.update_status!(item, :success, "Connected")
         points |> Enum.each(&Points.register_point!(&1.id))
         Process.send_after(self(), :status, @status)
+        Process.send_after(self(), :once, 0)
         run_loop(item, config, master)
 
       {:error, reason} ->
@@ -62,22 +63,22 @@ defmodule Athasha.Modbus.Runner do
   end
 
   defp run_loop(item, config, master) do
-    throttled_status(item)
-    run_once(item, config, master)
-    :timer.sleep(config.delay)
+    wait_once(item, config, master)
     run_loop(item, config, master)
   end
 
-  defp throttled_status(item) do
+  defp wait_once(item, config, master) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
+      :once ->
+        run_once(item, config, master)
+        Process.send_after(self(), :once, config.period)
+
       other ->
         Raise.error({:receive, other})
-    after
-      0 -> nil
     end
   end
 
@@ -88,6 +89,7 @@ defmodule Athasha.Modbus.Runner do
           Points.update_point!(point.id, value)
 
         {:error, reason} ->
+          Points.update_point!(point.id, nil)
           Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
           Raise.error({:exec_point, point, reason})
       end

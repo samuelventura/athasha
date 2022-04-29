@@ -13,7 +13,6 @@ defmodule Athasha.Screen.Runner do
     password = setts["password"]
     points = config["points"]
     period = setts["period"]
-    period = max(period, 100)
     {period, _} = Integer.parse(period)
 
     Items.register_password!(item, password)
@@ -28,29 +27,29 @@ defmodule Athasha.Screen.Runner do
       end
     end)
 
-    Process.send_after(self(), :status, @status)
     Items.update_status!(item, :success, "Connected")
+    Process.send_after(self(), :status, @status)
+    Process.send_after(self(), :once, 0)
     run_loop(id, item, points, period)
   end
 
-  # minimum period of 100ms makes it ok to notify status on each cycle
   defp run_loop(id, item, points, period) do
-    throttled_status(item)
-    run_once(id, points)
-    :timer.sleep(period)
+    wait_once(id, item, points, period)
     run_loop(id, item, points, period)
   end
 
-  defp throttled_status(item) do
+  defp wait_once(id, item, points, period) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
+      :once ->
+        run_once(id, points)
+        Process.send_after(self(), :once, period)
+
       other ->
         Raise.error({:receive, other})
-    after
-      0 -> nil
     end
   end
 

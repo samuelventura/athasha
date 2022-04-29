@@ -10,13 +10,19 @@ defmodule Athasha.Database.Runner do
     host = setts["host"]
     period = setts["period"]
     {period, _} = Integer.parse(period)
-    period = max(period, 1)
+    unit = setts["unit"]
     port = setts["port"]
     {port, _} = Integer.parse(port)
     database = setts["database"]
     username = setts["username"]
     password = setts["password"]
     command = setts["command"]
+
+    period =
+      case unit do
+        "s" -> period * 1000
+        "ms" -> period * 1
+      end
 
     points =
       Enum.with_index(config["points"])
@@ -42,6 +48,7 @@ defmodule Athasha.Database.Runner do
       {:ok, dbconn} ->
         Items.update_status!(item, :success, "Connected")
         Process.send_after(self(), :status, @status)
+        Process.send_after(self(), :once, 0)
         run_loop(item, config, dbconn)
 
       {:error, reason} ->
@@ -50,31 +57,36 @@ defmodule Athasha.Database.Runner do
     end
   end
 
-  # minimum period of 1s makes it ok to notify status on each cycle
   defp run_loop(item, config, dbconn) do
-    throttled_status(item)
-    run_once(item, config, dbconn)
-    :timer.sleep(config.period * 1000)
+    wait_once(item, config, dbconn)
     run_loop(item, config, dbconn)
   end
 
-  defp throttled_status(item) do
+  defp wait_once(item, config, dbconn) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
+      :once ->
+        run_once(item, config, dbconn)
+        Process.send_after(self(), :once, config.period)
+
       other ->
         Raise.error({:receive, other})
-    after
-      0 -> nil
     end
   end
 
   defp run_once(item, config, dbconn) do
     params =
       Enum.map(config.points, fn point ->
-        value = Points.get_value(point.id)
+        id = point.id
+        value = Points.get_value(id)
+
+        if value == nil do
+          Raise.error({:missing, id})
+        end
+
         %Tds.Parameter{name: point.param, value: value}
       end)
 

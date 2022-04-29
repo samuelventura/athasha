@@ -78,7 +78,7 @@ defmodule Athasha.Runner do
     pid =
       spawn_link(fn ->
         try do
-          # catch
+          # ensure status if linked process dies
           Process.flag(:trap_exit, true)
           Items.register_runner!(item)
           Items.register_status!(item, :warn, "Starting...")
@@ -86,8 +86,15 @@ defmodule Athasha.Runner do
           modu.run(item)
           Raise.error({:normal_exit, item.id})
         rescue
-          e ->
+          e in RuntimeError ->
             Items.update_status!(item, :error, e.message)
+            :timer.sleep(2000)
+            # nifs not closed on normal exit
+            reraise e, __STACKTRACE__
+
+          # mostly for debugging: FunctionClauseError, ...
+          e ->
+            Items.update_status!(item, :error, "#{inspect(e)}")
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__

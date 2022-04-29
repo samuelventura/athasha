@@ -53,7 +53,7 @@ function LoginDialog() {
           const active = false
           app.send({ name: "login", args: { session, active } })
         }
-      }, 4000)
+      }, 2000)
       return () => { clearInterval(timer) }
     }
   }, [app.connected, app.logged, app.send])
