@@ -457,7 +457,7 @@ function RightPanel({ show, setShow,
 }
 
 function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
-    function onSave() {
+    function onUpdate() {
         saveForView()
     }
     function onView() {
@@ -469,8 +469,8 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
             title="Toggle Preview Mode" className="d-inline align-middle">
         </Form.Check>
         <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
-            disabled={!valid} onClick={onSave}>
-            Save
+            disabled={!valid} onClick={onUpdate}>
+            Update
         </Button>
         <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
             disabled={!valid} onClick={onView}>

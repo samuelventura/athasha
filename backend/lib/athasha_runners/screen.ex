@@ -3,6 +3,7 @@ defmodule Athasha.Screen.Runner do
   alias Athasha.Items
   alias Athasha.Store
   alias Athasha.Points
+  @poll 2000
 
   def run(item) do
     id = item.id
@@ -20,19 +21,32 @@ defmodule Athasha.Screen.Runner do
     end)
 
     Items.update_status!(item, :success, "Running")
-    run_loop(id)
+    Process.send_after(self(), :poll, @poll)
+    run_loop(id, points)
   end
 
-  defp run_loop(id) do
+  defp run_loop(id, points) do
     receive do
       {{:point, point}, nil, value} ->
         Store.update!({:screen, id, point}, fn _ -> value end)
         Bus.dispatch!({:screen, id}, {point, value})
 
+      :poll ->
+        Enum.each(points, fn point ->
+          value = Points.get_value(point)
+
+          if value == nil do
+            Store.update!({:screen, id, point}, fn _ -> value end)
+            Bus.dispatch!({:screen, id}, {point, value})
+          end
+        end)
+
+        Process.send_after(self(), :poll, @poll)
+
       other ->
         Process.exit(self(), {:receive, other})
     end
 
-    run_loop(id)
+    run_loop(id, points)
   end
 end

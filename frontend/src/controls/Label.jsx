@@ -332,16 +332,19 @@ function Renderer({ control, size, points }) {
     if (points) {
         const pid = data.point
         if (pid) {
-            const value = Number(points[pid])
-            if (!isNaN(value)) {
-                if (data.cond1.type !== "Disabled") {
-                    evalCondition(data.cond1, value)
-                }
-                if (data.cond2.type !== "Disabled") {
-                    evalCondition(data.cond2, value)
-                }
-                if (data.cond3.type !== "Disabled") {
-                    evalCondition(data.cond3, value)
+            let value = points[pid]
+            if (value !== null) {
+                value = Number(value)
+                if (!isNaN(value)) {
+                    if (data.cond1.type !== "Disabled") {
+                        evalCondition(data.cond1, value)
+                    }
+                    if (data.cond2.type !== "Disabled") {
+                        evalCondition(data.cond2, value)
+                    }
+                    if (data.cond3.type !== "Disabled") {
+                        evalCondition(data.cond3, value)
+                    }
                 }
             }
         }
