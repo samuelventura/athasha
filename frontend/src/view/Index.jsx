@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom'
 import { AppContext } from '../App'
 import Session from '../Session'
 import Environ from '../Environ'
-import Main from '../items/Main'
+import Main from './Main'
 import State from './State'
 import './Index.css'
 
