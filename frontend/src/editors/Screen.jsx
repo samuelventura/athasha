@@ -299,7 +299,7 @@ function LeftPanel({ show, setShow, addControl }) {
         <Card>
             <Card.Header>Controls
                 <Button variant='link' size="sm" onClick={() => setShow(false)}
-                    title="Hide">
+                    title="Hide" className="p-0 float-end">
                     <FontAwesomeIcon icon={faAnglesLeft} />
                 </Button>
             </Card.Header>
@@ -464,15 +464,15 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
         window.open(`view.html?id=${id}`, '_blank').focus();
     }
     //checkbox valignment was tricky
-    return (<span className="float-end">
-        <Form.Check size="sm" type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
-            title="Toggle Preview Mode" className="d-inline align-middle">
+    return (<span className="float-end d-flex align-items-center">
+        <Form.Check type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
+            title="Toggle Preview Mode">
         </Form.Check>
-        <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
+        <Button variant='link' size="sm" title="Launch View"
             disabled={!valid} onClick={onUpdate}>
             Update
         </Button>
-        <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
+        <Button variant='link' size="sm" title="Launch View"
             disabled={!valid} onClick={onView}>
             View
         </Button>
@@ -612,19 +612,20 @@ function Editor(props) {
             }
         }
     }
-    const rightStyle = right ? { flex: "0 0 28em" } : {}
+    const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
+    const leftStyle = right ? { flex: "0 0 12em", overflowY: "auto" } : {}
     const previewControl = <PreviewControl valid={props.valid} saveForView={props.saveForView}
         preview={preview} setPreview={setPreview} id={props.id} />
     return (
         <Row className="h-100">
-            <Col sm="auto">
+            <Col sm="auto" style={leftStyle} className="mh-100">
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
             </Col>
             <Col className="gx-0 bg-light">
                 <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
-            <Col sm="auto" style={rightStyle}>
+            <Col sm="auto" style={rightStyle} className="mh-100">
                 <RightPanel setts={setts} setProp={setProp} selected={selected}
                     actionControl={actionControl} setControlProp={setControlProp}
                     setDataProp={setDataProp} preview={previewControl}
