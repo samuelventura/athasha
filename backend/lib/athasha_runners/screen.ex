@@ -17,14 +17,10 @@ defmodule Athasha.Screen.Runner do
 
     Items.register_password!(item, password)
 
+    # reset points on each reconnection attempt
     Enum.each(points, fn point ->
-      value = Points.get_value(point)
-      Store.register!({:screen, id, point}, value)
-      Bus.dispatch!({:screen, id}, {point, value})
-
-      if value == nil do
-        Raise.error({:missing, point})
-      end
+      Store.register!({:screen, id, point}, nil)
+      Bus.dispatch!({:screen, id}, {point, nil})
     end)
 
     Items.update_status!(item, :success, "Connected")
