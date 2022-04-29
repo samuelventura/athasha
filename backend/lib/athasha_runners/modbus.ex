@@ -67,6 +67,7 @@ defmodule Athasha.Modbus.Runner do
 
   defp run_loop(item, config, master) do
     run_once(item, config, master)
+    Raise.on_message()
     :timer.sleep(config.delay)
     run_loop(item, config, master)
   end

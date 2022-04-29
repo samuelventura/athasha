@@ -36,6 +36,7 @@ function initialState() {
 
 function initialSetts() {
     return {
+        period: "1000",
         scale: 'fit', align: 'center',
         width: '640', height: '480',
         gridX: '10', gridY: '10',
@@ -325,6 +326,9 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
+                    <FormEntry label="Period (ms)">
+                        <Form.Control type="number" min="100" value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                    </FormEntry>
                     <FormEntry label="Scale">
                         <Form.Select value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
                             <option value="fit">Fit</option>

@@ -41,7 +41,7 @@ function fixInputValue(e, value, prev) {
             }
         }
     }
-    return value
+    return `${value}`
 }
 
 export {

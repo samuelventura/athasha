@@ -1,9 +1,9 @@
 defmodule Athasha.Screen.Runner do
   alias Athasha.Bus
+  alias Athasha.Raise
   alias Athasha.Items
   alias Athasha.Store
   alias Athasha.Points
-  @poll 2000
 
   def run(item) do
     id = item.id
@@ -11,69 +11,86 @@ defmodule Athasha.Screen.Runner do
     setts = config["setts"]
     password = setts["password"]
     points = config["points"]
+    period = setts["period"]
+    {period, _} = Integer.parse(period)
     Items.register_password!(item, password)
 
-    Enum.each(points, fn point ->
-      Bus.register!({:point, point}, nil)
-      value = Points.get_value(point)
-      Store.register!({:screen, id, point}, value)
-      Bus.dispatch!({:screen, id}, {point, value})
-    end)
+    {points, nulls} =
+      Enum.reduce(points, {%{}, 0}, fn point, {points, nulls} ->
+        value = Points.get_value(point)
+        Store.register!({:screen, id, point}, value)
+        Bus.dispatch!({:screen, id}, {point, value})
+        points = Map.put(points, point, value)
 
-    Items.update_status!(item, :success, "Running")
-    Process.send_after(self(), :poll, @poll)
-    run_loop(id, item, points, :success)
+        case value do
+          nil -> {points, nulls + 1}
+          _ -> {points, nulls}
+        end
+      end)
+
+    status = update_status(item, nulls, :first)
+    run_loop(id, item, points, status, period)
   end
 
-  defp run_loop(id, item, points, status) do
-    status =
-      receive do
-        {{:point, point}, nil, value} ->
+  defp run_loop(id, item, points, status, period) do
+    {points, status} = run_once(id, item, points, status)
+    Raise.on_message()
+    :timer.sleep(period)
+    run_loop(id, item, points, status, period)
+  end
+
+  defp run_once(id, item, points, status) do
+    {points, nulls} =
+      Enum.reduce(points, {%{}, 0}, fn {point, current}, {points, nulls} ->
+        value = Points.get_value(point)
+        points = Map.put(points, point, value)
+
+        if value != current do
           Store.update!({:screen, id, point}, fn _ -> value end)
           Bus.dispatch!({:screen, id}, {point, value})
-          status
+        end
 
-        :poll ->
-          nulls =
-            Enum.reduce(points, 0, fn point, nulls ->
-              value = Points.get_value(point)
+        case value do
+          nil -> {points, nulls + 1}
+          _ -> {points, nulls}
+        end
+      end)
 
-              case value do
-                nil ->
-                  Store.update!({:screen, id, point}, fn _ -> value end)
-                  Bus.dispatch!({:screen, id}, {point, value})
-                  nulls + 1
+    status = update_status(item, nulls, status)
+    {points, status}
+  end
 
-                _ ->
-                  nulls
-              end
-            end)
+  defp update_status(item, nulls, :first) do
+    cond do
+      nulls > 0 ->
+        Items.update_status!(item, :error, "Missing Points")
+        :error
 
-          status =
-            cond do
-              nulls > 0 ->
-                if status == :success do
-                  Items.update_status!(item, :error, "Missing Points")
-                end
+      true ->
+        Items.update_status!(item, :success, "Running")
+        :success
+    end
+  end
 
-                :error
+  defp update_status(item, nulls, :error) do
+    cond do
+      nulls > 0 ->
+        :error
 
-              true ->
-                if status == :error do
-                  Items.update_status!(item, :success, "Running")
-                end
+      true ->
+        Items.update_status!(item, :success, "Running")
+        :success
+    end
+  end
 
-                :success
-            end
+  defp update_status(item, nulls, :success) do
+    cond do
+      nulls > 0 ->
+        Items.update_status!(item, :error, "Missing Points")
+        :error
 
-          Process.send_after(self(), :poll, @poll)
-          status
-
-        other ->
-          Process.exit(self(), {:receive, other})
-          status
-      end
-
-    run_loop(id, item, points, status)
+      true ->
+        :success
+    end
   end
 end

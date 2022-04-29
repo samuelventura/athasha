@@ -49,6 +49,7 @@ defmodule Athasha.Database.Runner do
 
   defp run_loop(item, config, dbconn) do
     run_once(item, config, dbconn)
+    Raise.on_message()
     :timer.sleep(config.period * 1000)
     run_loop(item, config, dbconn)
   end
