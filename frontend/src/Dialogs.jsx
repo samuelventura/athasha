@@ -24,6 +24,10 @@ function LoginDialog() {
   const app = useApp()
   const sessioner = app.sessioner
   const [password, setPassword] = useState("")
+  function onLogout() {
+    setPassword("")
+    sessioner.remove()
+  }
   function onLogin() {
     app.warnAlert("Logging in...")
     const active = true
@@ -43,14 +47,14 @@ function LoginDialog() {
   //auto reconnect views
   useEffect(() => {
     if (!app.logged) {
-      const session = sessioner.fetch()
-      if (session.token) {
-        const timer = setInterval(() => {
+      const timer = setInterval(() => {
+        const session = sessioner.fetch()
+        if (session.token) {
           const active = false
           app.send({ name: "login", args: { session, active } })
-        }, 5000)
-        return () => { clearInterval(timer) }
-      }
+        }
+      }, 5000)
+      return () => { clearInterval(timer) }
     }
   }, [app.logged])
   return (
@@ -67,6 +71,7 @@ function LoginDialog() {
         </InputGroup>
       </Modal.Body>
       <Modal.Footer>
+        <Button variant="secondary" onClick={onLogout}>Logout</Button>
         <Button variant="primary" onClick={onLogin}>Login</Button>
       </Modal.Footer>
     </Modal>
