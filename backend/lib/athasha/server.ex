@@ -23,7 +23,7 @@ defmodule Athasha.Server do
 
     state = %{version: 0, items: items}
     all = get_all(state)
-    Bus.dispatch(:items, {:init, all})
+    Bus.dispatch!(:items, {:init, all})
     {:ok, state}
   end
 
@@ -120,7 +120,7 @@ defmodule Athasha.Server do
 
     version = state.version + 1
     Items.update_all!(items, version)
-    Bus.dispatch(:items, {from, version, muta})
+    Bus.dispatch!(:items, {from, version, muta})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)
   end

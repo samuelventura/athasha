@@ -56,7 +56,7 @@ defmodule Athasha.Database.Runner do
   defp run_once(item, config, dbconn) do
     params =
       Enum.map(config.points, fn point ->
-        value = Points.get_read_value(point.id)
+        value = Points.get_value(point.id)
         %Tds.Parameter{name: point.param, value: value}
       end)
 

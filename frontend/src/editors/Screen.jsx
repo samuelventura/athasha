@@ -48,6 +48,7 @@ function initialState() {
     return {
         setts: initialSetts(),
         controls: [],
+        points: [],
     }
 }
 
@@ -57,7 +58,7 @@ function initialSetts() {
         width: '640', height: '480',
         gridX: '10', gridY: '10',
         bgColor: "#ffffff",
-        viewPwd: "",
+        password: "",
     }
 }
 
@@ -377,10 +378,10 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
                                 onChange={e => setProp("bgColor", e.target.value, e)} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label="View Password">
-                        <Form.Control type="password" value={setts.viewPwd}
-                            onChange={e => setProp("viewPwd", e.target.value)}
-                            title={setts.viewPwd} />
+                    <FormEntry label="Password">
+                        <Form.Control type="password" value={setts.password}
+                            onChange={e => setProp("password", e.target.value)}
+                            title={setts.password} />
                     </FormEntry>
                 </ListGroup.Item>
             </ListGroup>
@@ -455,15 +456,15 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
 
 function RightPanel({ show, setShow,
     setts, setProp, selected, actionControl, setControlProp,
-    setDataProp, save, valid, preview, setPreview }) {
+    setDataProp, saveForView, valid, preview, setPreview }) {
     const { index, control } = selected
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp}
-        save={save} valid={valid}
+        saveForView={saveForView} valid={valid}
         preview={preview} setPreview={setPreview} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
         setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
-        save={save} valid={valid}
+        saveForView={saveForView} valid={valid}
         preview={preview} setPreview={setPreview}
         actionControl={actionControl} />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
@@ -473,19 +474,19 @@ function RightPanel({ show, setShow,
     )
 }
 
-function PreviewControl({ save, valid, preview, setPreview, id }) {
+function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
     function onClick() {
-        save()
-        window.open(`preview.html?id=${id}`, '_blank').focus();
+        saveForView()
+        window.open(`view.html?id=${id}`, '_blank').focus();
     }
     //checkbox valignment was tricky
     return (<span className="float-end">
         <Form.Check size="sm" type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
             title="Toggle Preview Mode" className="d-inline align-middle">
         </Form.Check>
-        <Button variant='link' size="sm" title="Launch Preview" className="p-0 ms-1"
+        <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
             disabled={!valid} onClick={onClick}>
-            Preview
+            View
         </Button>
     </span>)
 }
@@ -532,8 +533,15 @@ function Editor(props) {
             }
             return valid
         }, true)
+        const points = controls.reduce((points, control) => {
+            const pointer = getController(control.type).Pointer
+            if (pointer) {
+                pointer(control.data, (id) => points.push(id))
+            }
+            return points
+        }, [])
         props.setValid(valid)
-        props.store({ setts, controls })
+        props.store({ setts, controls, points })
     }, [props, setts, controls])
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -617,7 +625,7 @@ function Editor(props) {
         }
     }
     const rightStyle = right ? { flex: "0 0 28em" } : {}
-    const previewControl = <PreviewControl valid={props.valid} save={props.save}
+    const previewControl = <PreviewControl valid={props.valid} saveForView={props.saveForView}
         preview={preview} setPreview={setPreview} id={props.id} />
     return (
         <Row className="h-100">

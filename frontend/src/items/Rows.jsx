@@ -52,9 +52,10 @@ function Rows(props) {
         setRenameItem(noneItem)
     }
 
-    function handleEdit(item, config, keep) {
-        if (!keep) setEditItem(noneItem)
+    function handleEdit(item, config, forView) {
+        if (!forView) setEditItem(noneItem)
         props.send({ name: "edit", args: { id: item.id, config } })
+        if (forView) props.send({ name: "enable", args: { id: item.id, enabled: true } })
     }
 
     function clearEdit() {

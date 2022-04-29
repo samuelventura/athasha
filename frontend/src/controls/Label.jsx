@@ -298,4 +298,8 @@ function Renderer({ control, size }) {
     )
 }
 
-export default { Type, Init, Upgrade, Editor, Renderer, Validator }
+function Pointer(data, append) {
+    if (data.point) append(data.point)
+}
+
+export default { Type, Init, Upgrade, Editor, Renderer, Validator, Pointer }

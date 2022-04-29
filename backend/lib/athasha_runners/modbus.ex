@@ -4,7 +4,6 @@ defmodule Athasha.Modbus.Runner do
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
-  alias Athasha.Bus
 
   def run(item) do
     id = item.id
@@ -57,7 +56,7 @@ defmodule Athasha.Modbus.Runner do
     case connect_master(config) do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
-        points |> Enum.each(&Points.register_read!(item, &1))
+        points |> Enum.each(&Points.register_point!(&1.id))
         run_loop(item, config, master)
 
       {:error, reason} ->
@@ -76,8 +75,7 @@ defmodule Athasha.Modbus.Runner do
     Enum.each(config.points, fn point ->
       case exec_point(master, point) do
         {:ok, value} ->
-          Points.update_read!(item, point, value)
-          Bus.dispatch(:points, {item.id, point.name, value})
+          Points.update_point!(point.id, value)
 
         {:error, reason} ->
           Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")

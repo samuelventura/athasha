@@ -17,9 +17,8 @@ defmodule AthashaWeb.ItemsSocket do
     {:ok, state}
   end
 
-  def handle_in({text, _opts}, state) do
-    event = Jason.decode!(text)
-    handle_event(event, state)
+  def terminate(_reason, _state) do
+    :ok
   end
 
   def handle_info(:ping, state) do
@@ -32,9 +31,9 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
-  def handle_info(:all, state) do
-    {:ok, _} = Bus.register(:items, nil)
-    {:ok, _} = Bus.register(:status, nil)
+  def handle_info(:logged, state) do
+    Bus.register!(:items, nil)
+    Bus.register!(:status, nil)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = %{items: all.items}
@@ -61,8 +60,9 @@ defmodule AthashaWeb.ItemsSocket do
     end
   end
 
-  def terminate(_reason, _state) do
-    :ok
+  def handle_in({text, _opts}, state) do
+    event = Jason.decode!(text)
+    handle_event(event, state)
   end
 
   defp handle_event(%{"name" => "pong"}, state) do
@@ -76,7 +76,7 @@ defmodule AthashaWeb.ItemsSocket do
 
     case login(session["token"], session["proof"]) do
       true ->
-        Process.send_after(self(), :all, 0)
+        Process.send_after(self(), :logged, 0)
         state = Map.put(state, :logged, true)
         resp = %{name: "session", args: session}
         reply_text(resp, state)

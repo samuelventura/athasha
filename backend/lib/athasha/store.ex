@@ -1,5 +1,6 @@
 defmodule Athasha.Store do
   alias Athasha.Spec
+  alias Athasha.Raise
 
   def child_spec(_) do
     Spec.forWorker(__MODULE__)
@@ -13,12 +14,30 @@ defmodule Athasha.Store do
     Registry.register(__MODULE__, key, args)
   end
 
+  def register!(key, args \\ nil) do
+    case register(key, args) do
+      {:ok, _} -> :ok
+      {:error, reason} -> Raise.error({"Store register error", {key, args}, reason})
+    end
+  end
+
   def unregister(key) do
     Registry.unregister(__MODULE__, key)
   end
 
+  def unregister!(key) do
+    :ok = unregister(key)
+  end
+
   def update(key, updater) do
     Registry.update_value(__MODULE__, key, updater)
+  end
+
+  def update!(key, updater) do
+    case update(key, updater) do
+      {_, _} -> :ok
+      :error -> Raise.error({"Store update error", {key, updater}})
+    end
   end
 
   def lookup(key) do

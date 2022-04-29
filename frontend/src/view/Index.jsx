@@ -11,10 +11,10 @@ import './Index.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <AppContext path="preview"
+    <AppContext path="view"
       reducer={State.reducer}
       initial={State.initial}
-      sessioner={Session.api("preview" + Environ.wsQuery)}>
+      sessioner={Session.api("view" + Environ.wsQuery)}>
       <Main />
     </AppContext>
   </React.StrictMode>,

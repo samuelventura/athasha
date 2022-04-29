@@ -18,7 +18,7 @@ defmodule Athasha.Runner do
 
   def init(_initial) do
     {:ok, _} = Runners.start_link()
-    {:ok, _} = Bus.register(:items, nil)
+    Bus.register!(:items, nil)
     all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: all.version, items: items}
@@ -102,6 +102,7 @@ defmodule Athasha.Runner do
   defp start(item) do
     modu =
       case item.type do
+        "Screen" -> Athasha.Screen.Runner
         "Modbus" -> Athasha.Modbus.Runner
         "Database" -> Athasha.Database.Runner
       end

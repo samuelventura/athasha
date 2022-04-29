@@ -1,10 +1,10 @@
 defmodule Athasha.Items do
-  alias Athasha.Raise
   alias Athasha.Store
   alias Athasha.Bus
 
   @runner [{{{:runner, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
   @status [{{{:status, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
+  @password [{{{:password, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
   @list [{{{:item, :"$1"}, :"$2", :"$3"}, [], [{{:"$1", :"$2", :"$3"}}]}]
 
   def all() do
@@ -23,63 +23,54 @@ defmodule Athasha.Items do
     Store.select(@status)
   end
 
-  def register_runner!(item) do
-    case Store.register({:runner, item.id}, item) do
-      {:ok, _} ->
-        :ok
+  def passwords() do
+    Store.select(@password)
+  end
 
-      {:error, reason} ->
-        Raise.error({"Item register runner error", item, reason})
-    end
+  def register_runner!(item) do
+    Store.register!({:runner, item.id}, item)
   end
 
   def register_all!(items) do
-    case Store.register(:items, {0, items}) do
-      {:ok, _} ->
-        :ok
-
-      {:error, reason} ->
-        Raise.error({"Item register all error", items, reason})
-    end
+    Store.register!(:items, {0, items})
   end
 
   def update_all!(items, version) do
-    case Store.update(:items, fn _ -> {version, items} end) do
-      {_, _} ->
-        :ok
-
-      :error ->
-        Raise.error({"Item update all error", items})
-    end
+    Store.update!(:items, fn _ -> {version, items} end)
   end
 
   def register_item!(item) do
-    case Store.register({:item, item.id}, item) do
-      {:ok, _} ->
-        :ok
-
-      {:error, reason} ->
-        Raise.error({"Item register error", item, reason})
-    end
+    Store.register!({:item, item.id}, item)
+    dispatch_item!(item.id, item)
   end
 
   def unregister_item!(item) do
-    case Store.unregister({:item, item.id}) do
-      :ok ->
-        :ok
-
-      {:error, reason} ->
-        Raise.error({"Item unregister error", item, reason})
-    end
+    id = item.id
+    Store.unregister!({:item, id})
+    dispatch_item!(id, nil)
   end
 
   def update_item!(item) do
-    case Store.update({:item, item.id}, fn _ -> item end) do
-      {_, _} ->
-        :ok
+    id = item.id
+    Store.update!({:item, id}, fn _ -> item end)
+    dispatch_item!(id, item)
+  end
 
-      :error ->
-        Raise.error({"Item update error", item})
+  defp dispatch_item!(id, item) do
+    Bus.dispatch!(:item, {:id, item})
+    Bus.dispatch!({:item, id}, item)
+  end
+
+  def find_item(id, type) do
+    case Store.lookup({:item, id}) do
+      [{_, item}] ->
+        case item.type do
+          ^type -> item
+          _ -> nil
+        end
+
+      [] ->
+        nil
     end
   end
 
@@ -93,36 +84,20 @@ defmodule Athasha.Items do
     case first do
       true ->
         value = {item.name, item.type, type, msg}
-
-        case Store.register({:status, id}, value) do
-          {:ok, _} ->
-            :ok
-
-          {:error, reason} ->
-            Raise.error({"Item register status error", {item, type, msg, first}, reason})
-        end
+        Store.register!({:status, id}, value)
 
       false ->
         updater = fn {s0, s1, _, _} -> {s0, s1, type, msg} end
-
-        case Store.update({:status, id}, updater) do
-          {_, _} ->
-            :ok
-
-          :error ->
-            Raise.error({"Item update status error", {item, type, msg, first}})
-        end
+        Store.update!({:status, id}, updater)
     end
 
     status = %{id: id, type: type, msg: msg}
+    Bus.dispatch!(:status, status)
+  end
 
-    case Bus.dispatch(:status, status) do
-      :ok ->
-        :ok
-
-      {:error, reason} ->
-        Raise.error({"Item dispatch status error", {item, type, msg, first}, reason})
-    end
+  def register_password!(item, password) do
+    id = item.id
+    Store.register!({:password, id}, password)
   end
 
   def runner_pid(id) do
