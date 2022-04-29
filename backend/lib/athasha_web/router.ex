@@ -19,6 +19,7 @@ defmodule AthashaWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    get("/serial", SerialController, :index)
     live("/thermostat", ThermostatLive)
   end
 

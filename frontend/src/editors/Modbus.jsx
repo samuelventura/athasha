@@ -43,6 +43,8 @@ function initialPoint() {
 function Editor(props) {
     const [setts, setSetts] = useState(initialState().setts)
     const [points, setPoints] = useState(initialState().points)
+    const [serial, setSerial] = useState("")
+    const [serials, setSerials] = useState([])
     //initialize local state
     useEffect(() => {
         const init = initialState()
@@ -137,6 +139,16 @@ function Editor(props) {
             </td>
         </tr>
     )
+    function updateSerialList() {
+        fetch("serial")
+            .then(r => r.json())
+            .then(l => setSerials(["", ...l]))
+    }
+    function onSerialSelectorChange(value) {
+        setProp("tty", value)
+        setSerial("")
+    }
+    const serialOptions = serials.map((serial, index) => <option key={index} value={serial}>{serial}</option>)
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
@@ -152,10 +164,19 @@ function Editor(props) {
         </Col>
     </Row>)
     const transSerial = (<Row>
-        <Col xs={4}>
+        <Col xs={2}>
             <FloatingLabel label="Serial Port Name">
                 <Form.Control autoFocus type="text"
                     value={setts.tty} onChange={e => setProp("tty", e.target.value)} />
+            </FloatingLabel>
+        </Col>
+        <Col xs={2}>
+            <FloatingLabel label="Serial Port Selector">
+                <Form.Select onClick={updateSerialList} onFocus={updateSerialList}
+                    onChange={e => onSerialSelectorChange(e.target.value)}
+                    value={serial}>
+                    {serialOptions}
+                </Form.Select>
             </FloatingLabel>
         </Col>
         <Col xs={2}>
