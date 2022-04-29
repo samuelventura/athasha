@@ -1,4 +1,5 @@
 import sha1 from 'sync-sha1/rawSha1'
+import { v4 as uuidv4 } from 'uuid'
 
 function initial() { return { token: "", proof: "" } }
 
@@ -21,7 +22,7 @@ function api(key) {
     }
 
     function create(password) {
-        const token = crypto.randomUUID();
+        const token = uuidv4();
         const proof = encode(`${token}:${password}`);
         const session = { token, proof }
         localStorage.setItem(key, JSON.stringify(session))

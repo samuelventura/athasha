@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
 import { faUpload } from '@fortawesome/free-solid-svg-icons'
+import { v4 as uuidv4 } from 'uuid'
 import { useApp } from '../App'
 
 function DeleteItem(props) {
@@ -87,7 +88,7 @@ function NewItem(props) {
     useEffect(() => { setPrev(type) }, [type])
     useEffect(() => {
         if (type.trim().length > 0 && prev !== type) {
-            const token = crypto.randomUUID()
+            const token = uuidv4()
             setName(type + " " + token.substring(0, 6))
             nameEl.current.focus()
         }
