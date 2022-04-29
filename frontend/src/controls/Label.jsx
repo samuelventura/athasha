@@ -51,7 +51,7 @@ function CondEditor({ cond, setProp }) {
                 <Form.Select value={cond.txType} onChange={e => setProp("txType", e.target.value)}>
                     <option value="Disabled">Disabled</option>
                     <option value="Fixed">Fixed Text</option>
-                    <option value="Formatted">Format Text</option>
+                    <option value="Format">Format Text</option>
                 </Form.Select>
             </FormEntry>
             <FormEntry label="Text Param">
@@ -265,10 +265,9 @@ function Editor({ control, setProp, app }) {
     )
 }
 
-function Renderer({ control, size }) {
+function Renderer({ control, size, points }) {
     const setts = control.setts
     const data = control.data
-    const fill = data.bgEnabled ? data.bgColor : "none"
     let x = "50%"
     let textAnchor = "middle"
     switch (data.align) {
@@ -286,13 +285,75 @@ function Renderer({ control, size }) {
     const radious = `${data.brRadius * 100}%`
     const halfBorder = Math.ceil(data.brWidth / 2)
     const fullBorder = 2 * halfBorder
+
+    let text = data.text
+    let brColor = data.brColor
+    let fgColor = data.fgColor
+    let bgColor = data.bgEnabled ? data.bgColor : "none"
+
+    function evalCondition(cond, value) {
+        const param = Number(cond.param)
+        let met = false
+        switch (cond.type) {
+            case "Enabled":
+                met = true
+                break
+            case "Greater":
+                met = (value > param)
+                break
+            case "GreaterOrEqual":
+                met = (value >= param)
+                break
+            case "Lesser":
+                met = (value < param)
+                break
+            case "LesserOrEqual":
+                met = (value <= param)
+                break
+        }
+        if (met) {
+            if (cond.bgEnabled) bgColor = cond.bgColor
+            if (cond.fgEnabled) fgColor = cond.fgColor
+            if (cond.brEnabled) brColor = cond.brColor
+            switch (cond.txType) {
+                case "Fixed": {
+                    text = cond.txText
+                    break
+                }
+                case "Format": {
+                    //http://numeraljs.com/
+                    text = numeral(value).format(cond.txText)
+                    break
+                }
+            }
+        }
+    }
+
+    if (points) {
+        const pid = data.point
+        if (pid) {
+            const value = Number(points[pid])
+            if (!isNaN(value)) {
+                if (data.cond1.type !== "Disabled") {
+                    evalCondition(data.cond1, value)
+                }
+                if (data.cond2.type !== "Disabled") {
+                    evalCondition(data.cond2, value)
+                }
+                if (data.cond3.type !== "Disabled") {
+                    evalCondition(data.cond3, value)
+                }
+            }
+        }
+    }
+
     return (
         <svg>
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={fill} strokeWidth={data.brWidth} stroke={data.brColor} ry={radious} />
-            <text x={x} y="50%" dominantBaseline="central" fill={data.fgColor}
+                fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
+            <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
                 textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
-                {data.text}
+                {text}
             </text>
         </svg>
     )

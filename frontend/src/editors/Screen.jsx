@@ -457,8 +457,10 @@ function RightPanel({ show, setShow,
 }
 
 function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
-    function onClick() {
+    function onSave() {
         saveForView()
+    }
+    function onView() {
         window.open(`view.html?id=${id}`, '_blank').focus();
     }
     //checkbox valignment was tricky
@@ -467,7 +469,11 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
             title="Toggle Preview Mode" className="d-inline align-middle">
         </Form.Check>
         <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
-            disabled={!valid} onClick={onClick}>
+            disabled={!valid} onClick={onSave}>
+            Save
+        </Button>
+        <Button variant='link' size="sm" title="Launch View" className="p-0 ms-1"
+            disabled={!valid} onClick={onView}>
             View
         </Button>
     </span>)

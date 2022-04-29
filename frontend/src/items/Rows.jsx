@@ -82,6 +82,10 @@ function Rows(props) {
                 props.send({ name: "enable", args: { id: item.id, enabled: args } })
                 break
             }
+            case "view": {
+                window.open(`view.html?id=${item.id}`, '_blank').focus();
+                break
+            }
             default:
                 Environ.log("Unknown action", action, item)
         }
@@ -136,8 +140,10 @@ function Rows(props) {
         )
     }
 
-    const rows = props.items.map(item =>
-        <tr key={item.id} id={"item_" + item.id}
+    const rows = props.items.map(item => {
+        const viewAction = item.type === "Screen" ?
+            (<Action onClick={(e) => handleClick(e, 'view', item)} label="View" />) : null
+        return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
             className={selectedClass(item) + ' align-middle'}>
@@ -153,9 +159,10 @@ function Rows(props) {
                 <Action onClick={(e) => handleClick(e, 'rename', item)} label="Rename" />
                 <Action onClick={(e) => handleClick(e, 'enable', item, true)} label="Enable" />
                 <Action onClick={(e) => handleClick(e, 'enable', item, false)} label="Disable" />
+                {viewAction}
             </td>
-        </tr>
-    )
+        </tr>)
+    })
 
     useEffect(() => {
         if (props.selected.id) {

@@ -13,7 +13,7 @@ function Main() {
   const app = useApp()
   const name = app.state.name
   useEffect(() => {
-    document.title = `Athasha - ${name}`
+    document.title = name ? `Athasha - ${name}` : "Athasha View"
   }, [name])
   return (
     <div className="vh-100 d-flex flex-column">
