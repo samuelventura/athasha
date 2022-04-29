@@ -13,6 +13,7 @@ function createSocket(base, query, { path, dispatch }) {
     let reco_ms = 0
     let reco = null
     let idle = null
+    let conn = null
     let closed = true
     let disposed = false
     const idle_ms = 10000
@@ -30,16 +31,18 @@ function createSocket(base, query, { path, dispatch }) {
     }
 
     function dispose() {
-        Environ.log("dispose", disposed, closed, reco, idle, ws)
+        Environ.log("dispose", disposed, closed, reco, idle, conn, ws)
         disposed = true
         if (reco) { clearTimeout(reco); reco = null }
         if (idle) { clearTimeout(idle); idle = null }
+        if (conn) { clearTimeout(conn); conn = null }
         if (ws) safe(() => ws.close())
     }
 
     function close() {
         Environ.log("close", disposed, closed, reco, idle, ws)
         if (ws) safe(() => ws.close())
+        clear_conn()
     }
 
     function stop_idle() {
@@ -51,6 +54,10 @@ function createSocket(base, query, { path, dispatch }) {
         idle = setTimeout(close, idle_ms)
     }
 
+    function clear_conn() {
+        if (conn) { clearTimeout(conn); conn = null }
+    }
+
     function reset_reco() {
         if (reco) { clearTimeout(reco); reco = null }
         reco = setTimeout(connect, reco_ms)
@@ -60,6 +67,7 @@ function createSocket(base, query, { path, dispatch }) {
         let url = base + path + "/websocket" + query
         ws = new WebSocket(url)
         Environ.log("connect", reco, url, ws)
+        conn = setTimeout(close, 4000)
         ws.onclose = (event) => {
             Environ.log("ws.close", event)
             closed = true
@@ -85,12 +93,14 @@ function createSocket(base, query, { path, dispatch }) {
         }
         ws.onerror = (event) => {
             Environ.log("ws.error", event)
+            clear_conn()
         }
         ws.onopen = (event) => {
             Environ.log("ws.open", event)
             closed = false
             reco_ms = 1000
             reset_idle()
+            clear_conn()
             dispatch({ name: "open", args: send })
         }
     }

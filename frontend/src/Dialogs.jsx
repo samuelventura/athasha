@@ -46,17 +46,17 @@ function LoginDialog() {
   }
   //auto reconnect views
   useEffect(() => {
-    if (!app.logged) {
+    if (app.connected && !app.logged) {
       const timer = setInterval(() => {
         const session = sessioner.fetch()
         if (session.token) {
           const active = false
           app.send({ name: "login", args: { session, active } })
         }
-      }, 5000)
+      }, 4000)
       return () => { clearInterval(timer) }
     }
-  }, [app.logged])
+  }, [app.connected, app.logged, app.send])
   return (
     <Modal show={app.login} backdrop="static" centered>
       <Modal.Header>
