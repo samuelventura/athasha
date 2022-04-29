@@ -15,82 +15,52 @@ defmodule Athasha.Screen.Runner do
     {period, _} = Integer.parse(period)
     Items.register_password!(item, password)
 
-    {points, nulls} =
-      Enum.reduce(points, {%{}, 0}, fn point, {points, nulls} ->
+    nulls =
+      Enum.reduce(points, 0, fn point, nulls ->
         value = Points.get_value(point)
         Store.register!({:screen, id, point}, value)
         Bus.dispatch!({:screen, id}, {point, value})
-        points = Map.put(points, point, value)
 
         case value do
-          nil -> {points, nulls + 1}
-          _ -> {points, nulls}
+          nil -> nulls + 1
+          _ -> nulls
         end
       end)
 
-    status = update_status(item, nulls, :first)
-    run_loop(id, item, points, status, period)
+    update_status(item, nulls)
+    run_loop(id, item, points, period)
   end
 
-  defp run_loop(id, item, points, status, period) do
-    {points, status} = run_once(id, item, points, status)
+  defp run_loop(id, item, points, period) do
+    run_once(id, item, points)
     Raise.on_message()
     :timer.sleep(period)
-    run_loop(id, item, points, status, period)
+    run_loop(id, item, points, period)
   end
 
-  defp run_once(id, item, points, status) do
-    {points, nulls} =
-      Enum.reduce(points, {%{}, 0}, fn {point, current}, {points, nulls} ->
+  defp run_once(id, item, points) do
+    nulls =
+      Enum.reduce(points, 0, fn point, nulls ->
         value = Points.get_value(point)
-        points = Map.put(points, point, value)
-
-        if value != current do
-          Store.update!({:screen, id, point}, fn _ -> value end)
-          Bus.dispatch!({:screen, id}, {point, value})
-        end
+        Store.update!({:screen, id, point}, fn _ -> value end)
+        Bus.dispatch!({:screen, id}, {point, value})
 
         case value do
-          nil -> {points, nulls + 1}
-          _ -> {points, nulls}
+          nil -> nulls + 1
+          _ -> nulls
         end
       end)
 
-    status = update_status(item, nulls, status)
-    {points, status}
+    update_status(item, nulls)
   end
 
-  defp update_status(item, nulls, :first) do
+  defp update_status(item, nulls) do
     cond do
       nulls > 0 ->
         Items.update_status!(item, :error, "Missing Points")
-        :error
 
       true ->
         Items.update_status!(item, :success, "Running")
-        :success
-    end
-  end
-
-  defp update_status(item, nulls, :error) do
-    cond do
-      nulls > 0 ->
-        :error
-
-      true ->
-        Items.update_status!(item, :success, "Running")
-        :success
-    end
-  end
-
-  defp update_status(item, nulls, :success) do
-    cond do
-      nulls > 0 ->
-        Items.update_status!(item, :error, "Missing Points")
-        :error
-
-      true ->
-        :success
     end
   end
 end
