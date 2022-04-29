@@ -15,6 +15,8 @@ function Main() {
   useEffect(() => {
     document.title = name ? `Athasha - ${name}` : "Athasha View"
   }, [name])
+  const nameColor = app.state.nulls > 0 ? "text-danger" : "text-secondary"
+  const nameTitle = app.state.nulls > 0 ? "Missing Points" : ""
   return (
     <div className="vh-100 d-flex flex-column">
       <div>
@@ -26,7 +28,8 @@ function Main() {
             </Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse className="justify-content-end">
-              <Navbar.Text>
+              <Navbar.Text className={nameColor} title={nameTitle}
+                style={{ cursor: "default" }}>
                 {name}
               </Navbar.Text>
               <Navbar.Text>

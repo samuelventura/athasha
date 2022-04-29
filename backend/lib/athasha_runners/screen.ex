@@ -22,31 +22,58 @@ defmodule Athasha.Screen.Runner do
 
     Items.update_status!(item, :success, "Running")
     Process.send_after(self(), :poll, @poll)
-    run_loop(id, points)
+    run_loop(id, item, points, :success)
   end
 
-  defp run_loop(id, points) do
-    receive do
-      {{:point, point}, nil, value} ->
-        Store.update!({:screen, id, point}, fn _ -> value end)
-        Bus.dispatch!({:screen, id}, {point, value})
+  defp run_loop(id, item, points, status) do
+    status =
+      receive do
+        {{:point, point}, nil, value} ->
+          Store.update!({:screen, id, point}, fn _ -> value end)
+          Bus.dispatch!({:screen, id}, {point, value})
+          status
 
-      :poll ->
-        Enum.each(points, fn point ->
-          value = Points.get_value(point)
+        :poll ->
+          nulls =
+            Enum.reduce(points, 0, fn point, nulls ->
+              value = Points.get_value(point)
 
-          if value == nil do
-            Store.update!({:screen, id, point}, fn _ -> value end)
-            Bus.dispatch!({:screen, id}, {point, value})
-          end
-        end)
+              case value do
+                nil ->
+                  Store.update!({:screen, id, point}, fn _ -> value end)
+                  Bus.dispatch!({:screen, id}, {point, value})
+                  nulls + 1
 
-        Process.send_after(self(), :poll, @poll)
+                _ ->
+                  nulls
+              end
+            end)
 
-      other ->
-        Process.exit(self(), {:receive, other})
-    end
+          status =
+            cond do
+              nulls > 0 ->
+                if status == :success do
+                  Items.update_status!(item, :error, "Missing Points")
+                end
 
-    run_loop(id, points)
+                :error
+
+              true ->
+                if status == :error do
+                  Items.update_status!(item, :success, "Running")
+                end
+
+                :success
+            end
+
+          Process.send_after(self(), :poll, @poll)
+          status
+
+        other ->
+          Process.exit(self(), {:receive, other})
+          status
+      end
+
+    run_loop(id, item, points, status)
   end
 end

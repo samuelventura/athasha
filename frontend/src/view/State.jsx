@@ -7,6 +7,7 @@ function initial() {
     setts: {},
     controls: [],
     points: {},
+    nulls: 0,
   }
 }
 
@@ -23,14 +24,24 @@ function reducer(state, { name, args, self }) {
       next.setts = args.config.setts
       next.controls = args.config.controls
       next.points = {}
+      next.nulls = 0
       args.initial.forEach(point => {
         next.points[point.id] = point.value
+        if (point.value === null) {
+          next.nulls++
+        }
       })
       return next
     }
     case "point": {
       const next = clone_object(state)
       next.points[args.id] = args.value
+      next.nulls = 0
+      Object.keys(next.points).forEach(id => {
+        if (next.points[id] === null) {
+          next.nulls++
+        }
+      })
       return next
     }
     case "close": {

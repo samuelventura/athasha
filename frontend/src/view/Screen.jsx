@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 import { getController } from '../editors/Controls'
 import { useApp } from '../App'
