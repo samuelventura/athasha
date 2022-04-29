@@ -12,4 +12,6 @@ function FormEntry({ label, children }) {
     </Form.Group>)
 }
 
-export { FormEntry }
+export {
+    FormEntry,
+}

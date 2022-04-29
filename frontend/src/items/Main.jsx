@@ -18,7 +18,7 @@ function Main() {
       <AlertBanner />
       <Navbar bg="light" variant="light">
         <Container>
-          <Navbar.Brand title="Home">
+          <Navbar.Brand>
             <img src={Logo} alt="Athasha" height="32"></img>
           </Navbar.Brand>
           <Navbar.Toggle />

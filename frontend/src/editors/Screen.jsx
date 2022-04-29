@@ -14,9 +14,9 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
-import ControlLabel from '../controls/Label'
-import ControlEmpty from '../controls/Empty'
 import { FormEntry } from '../controls/Helper'
+import { getController } from './Controls'
+import { registeredMapper } from './Controls'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
@@ -24,24 +24,6 @@ import { useApp } from '../App'
 
 function ExportedEditor(props) {
     return props.show ? (<Editor {...props} />) : null
-}
-
-const registeredMap = {}
-const registeredList = []
-
-function register(control, hide) {
-    if (!hide) {
-        registeredList.push(control)
-    }
-    registeredMap[control.Type] = control
-}
-
-//https://vitejs.dev/guide/env-and-mode.html
-register(ControlEmpty, import.meta.env.PROD)
-register(ControlLabel)
-
-function getController(type) {
-    return registeredMap[type] || ControlEmpty
 }
 
 function initialState() {
@@ -307,7 +289,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
 }
 
 function LeftPanel({ show, setShow, addControl }) {
-    const controlList = registeredList.map((controler, index) => {
+    const controlList = registeredMapper((controler, index) => {
         return (<ListGroup.Item action key={index}
             title={`Add new ${controler.Type}`}
             onClick={() => addControl(controler)}>
