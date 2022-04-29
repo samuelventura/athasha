@@ -36,7 +36,7 @@ function initialState() {
 
 function initialSetts() {
     return {
-        period: "1000",
+        period: "100",
         scale: 'fit', align: 'center',
         width: '640', height: '480',
         gridX: '10', gridY: '10',
@@ -511,6 +511,7 @@ function Editor(props) {
     //rebuild and store state
     useEffect(() => {
         let valid = true
+        valid = valid && checkRange(setts.period, 100)
         valid = valid && checkNotBlank(setts.scale)
         valid = valid && checkNotBlank(setts.align)
         valid = valid && checkRange(setts.width, 1)
