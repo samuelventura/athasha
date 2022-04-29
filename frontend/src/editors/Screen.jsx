@@ -468,11 +468,11 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
         <Form.Check type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
             title="Toggle Preview Mode">
         </Form.Check>
-        <Button variant='link' size="sm" title="Launch View"
+        <Button variant='link' size="sm" title="Apply Changes"
             disabled={!valid} onClick={onUpdate}>
             Update
         </Button>
-        <Button variant='link' size="sm" title="Launch View"
+        <Button variant='link' size="sm" title="Launch Viewer"
             disabled={!valid} onClick={onView}>
             View
         </Button>
@@ -613,7 +613,7 @@ function Editor(props) {
         }
     }
     const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
-    const leftStyle = right ? { flex: "0 0 12em", overflowY: "auto" } : {}
+    const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}
     const previewControl = <PreviewControl valid={props.valid} saveForView={props.saveForView}
         preview={preview} setPreview={setPreview} id={props.id} />
     return (
