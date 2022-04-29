@@ -57,7 +57,8 @@ defmodule Athasha.Modbus.Runner do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
         points |> Enum.each(&Points.register_point!(&1.id))
-        run_loop(item, config, master)
+        last = System.monotonic_time(:millisecond)
+        run_loop(item, config, master, last)
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(reason)}")
@@ -65,12 +66,25 @@ defmodule Athasha.Modbus.Runner do
     end
   end
 
-  defp run_loop(item, config, master) do
-    Items.update_status!(item, :success, "Running")
+  defp run_loop(item, config, master, last) do
+    last = update_status(item, last)
     run_once(item, config, master)
     Raise.on_message()
     :timer.sleep(config.delay)
-    run_loop(item, config, master)
+    run_loop(item, config, master, last)
+  end
+
+  defp update_status(item, last) do
+    now = System.monotonic_time(:millisecond)
+
+    cond do
+      now - last > 1000 ->
+        Items.update_status!(item, :success, "Running")
+        now
+
+      true ->
+        last
+    end
   end
 
   defp run_once(item, config, master) do

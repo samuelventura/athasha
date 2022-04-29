@@ -53,7 +53,7 @@ function Editor(props) {
         let valid = true
         valid = valid && checkNotBlank(setts.host)
         valid = valid && checkRange(setts.port, 1, 65535)
-        valid = valid && checkRange(setts.period, 0, 65535)
+        valid = valid && checkRange(setts.period, 1)
         valid = valid && points.length > 0
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.username)
@@ -128,7 +128,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Period (s)">
-                        <Form.Control type="number" min="0" max="65535"
+                        <Form.Control type="number" min="1"
                             value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>

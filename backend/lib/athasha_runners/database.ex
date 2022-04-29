@@ -9,6 +9,7 @@ defmodule Athasha.Database.Runner do
     host = setts["host"]
     period = setts["period"]
     {period, _} = Integer.parse(period)
+    period = max(period, 1)
     port = setts["port"]
     {port, _} = Integer.parse(port)
     database = setts["database"]
@@ -47,6 +48,7 @@ defmodule Athasha.Database.Runner do
     end
   end
 
+  # minimum period of 1s makes it ok to notify status on each cycle
   defp run_loop(item, config, dbconn) do
     Items.update_status!(item, :success, "Running")
     run_once(item, config, dbconn)

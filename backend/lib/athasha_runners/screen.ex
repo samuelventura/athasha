@@ -12,7 +12,9 @@ defmodule Athasha.Screen.Runner do
     password = setts["password"]
     points = config["points"]
     period = setts["period"]
+    period = max(period, 100)
     {period, _} = Integer.parse(period)
+
     Items.register_password!(item, password)
 
     nulls =
@@ -31,27 +33,26 @@ defmodule Athasha.Screen.Runner do
     run_loop(id, item, points, period)
   end
 
+  # minimum period of 100ms makes it ok to notify status on each cycle
   defp run_loop(id, item, points, period) do
-    run_once(id, item, points)
+    nulls = run_once(id, points)
+    update_status(item, nulls)
     Raise.on_message()
     :timer.sleep(period)
     run_loop(id, item, points, period)
   end
 
-  defp run_once(id, item, points) do
-    nulls =
-      Enum.reduce(points, 0, fn point, nulls ->
-        value = Points.get_value(point)
-        Store.update!({:screen, id, point}, fn _ -> value end)
-        Bus.dispatch!({:screen, id}, {point, value})
+  defp run_once(id, points) do
+    Enum.reduce(points, 0, fn point, nulls ->
+      value = Points.get_value(point)
+      Store.update!({:screen, id, point}, fn _ -> value end)
+      Bus.dispatch!({:screen, id}, {point, value})
 
-        case value do
-          nil -> nulls + 1
-          _ -> nulls
-        end
-      end)
-
-    update_status(item, nulls)
+      case value do
+        nil -> nulls + 1
+        _ -> nulls
+      end
+    end)
   end
 
   defp update_status(item, nulls) do
