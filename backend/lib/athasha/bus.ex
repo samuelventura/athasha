@@ -17,7 +17,7 @@ defmodule Athasha.Bus do
   def register!(event, rargs \\ nil) do
     case register(event, rargs) do
       {:ok, _} -> :ok
-      {:error, reason} -> Raise.error({"Bus register error", {event, rargs}, reason})
+      {:error, reason} -> Raise.error({__ENV__.function, {event, rargs}, reason})
     end
   end
 

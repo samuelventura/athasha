@@ -4,6 +4,7 @@ defmodule Athasha.Modbus.Runner do
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
+  @status 1000
 
   def run(item) do
     id = item.id
@@ -47,43 +48,36 @@ defmodule Athasha.Modbus.Runner do
 
     Items.update_status!(item, :warn, "Connecting...")
 
-    # modbus/baud stops process on connect/open error
-    # and the link kills this process not giving time
-    # for proper delay and status notification
-    # it also impacts the supervisor restart intensity
-    Process.flag(:trap_exit, true)
-
     case connect_master(config) do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
         points |> Enum.each(&Points.register_point!(&1.id))
-        last = System.monotonic_time(:millisecond)
-        run_loop(item, config, master, last)
+        Process.send_after(self(), :status, @status)
+        run_loop(item, config, master)
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(reason)}")
-        Raise.error({"Master connection error", config, reason})
+        Raise.error({:connect_master, config, reason})
     end
   end
 
-  defp run_loop(item, config, master, last) do
-    last = update_status(item, last)
+  defp run_loop(item, config, master) do
+    throttled_status(item)
     run_once(item, config, master)
-    Raise.on_message()
     :timer.sleep(config.delay)
-    run_loop(item, config, master, last)
+    run_loop(item, config, master)
   end
 
-  defp update_status(item, last) do
-    now = System.monotonic_time(:millisecond)
-
-    cond do
-      now - last > 1000 ->
+  defp throttled_status(item) do
+    receive do
+      :status ->
         Items.update_status!(item, :success, "Running")
-        now
+        Process.send_after(self(), :status, @status)
 
-      true ->
-        last
+      other ->
+        Raise.error({:receive, other})
+    after
+      0 -> nil
     end
   end
 
@@ -95,7 +89,7 @@ defmodule Athasha.Modbus.Runner do
 
         {:error, reason} ->
           Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
-          Raise.error({"Point read error", point, reason})
+          Raise.error({:exec_point, point, reason})
       end
     end)
   end

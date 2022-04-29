@@ -2,6 +2,7 @@ defmodule Athasha.Database.Runner do
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
+  @status 1000
 
   def run(item) do
     config = Jason.decode!(item.config)
@@ -40,21 +41,34 @@ defmodule Athasha.Database.Runner do
     case connect_dbconn(config) do
       {:ok, dbconn} ->
         Items.update_status!(item, :success, "Connected")
+        Process.send_after(self(), :status, @status)
         run_loop(item, config, dbconn)
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(reason)}")
-        Raise.error({"Database connection error", config, reason})
+        Raise.error({:connect_dbconn, config, reason})
     end
   end
 
   # minimum period of 1s makes it ok to notify status on each cycle
   defp run_loop(item, config, dbconn) do
-    Items.update_status!(item, :success, "Running")
+    throttled_status(item)
     run_once(item, config, dbconn)
-    Raise.on_message()
     :timer.sleep(config.period * 1000)
     run_loop(item, config, dbconn)
+  end
+
+  defp throttled_status(item) do
+    receive do
+      :status ->
+        Items.update_status!(item, :success, "Running")
+        Process.send_after(self(), :status, @status)
+
+      other ->
+        Raise.error({:receive, other})
+    after
+      0 -> nil
+    end
   end
 
   defp run_once(item, config, dbconn) do
@@ -70,7 +84,7 @@ defmodule Athasha.Database.Runner do
 
       {:error, reason} ->
         Items.update_status!(item, :error, "#{inspect(params)} #{inspect(reason)}")
-        Raise.error({"Database command error", params, reason})
+        Raise.error({:tds_query, params, reason})
     end
   end
 

@@ -17,7 +17,7 @@ defmodule Athasha.Store do
   def register!(key, args \\ nil) do
     case register(key, args) do
       {:ok, _} -> :ok
-      {:error, reason} -> Raise.error({"Store register error", {key, args}, reason})
+      {:error, reason} -> Raise.error({__ENV__.function, {key, args}, reason})
     end
   end
 
@@ -36,7 +36,7 @@ defmodule Athasha.Store do
   def update!(key, updater) do
     case update(key, updater) do
       {_, _} -> :ok
-      :error -> Raise.error({"Store update error", {key, updater}})
+      :error -> Raise.error({__ENV__.function, {key, updater}})
     end
   end
 

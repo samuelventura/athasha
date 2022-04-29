@@ -78,14 +78,17 @@ defmodule Athasha.Runner do
     pid =
       spawn_link(fn ->
         try do
+          # catch
+          Process.flag(:trap_exit, true)
           Items.register_runner!(item)
           Items.register_status!(item, :warn, "Starting...")
           :timer.sleep(1000)
           modu.run(item)
-          Raise.error({"Runner normal exit", item})
+          Raise.error({:normal_exit, item.id})
         rescue
           e ->
-            :timer.sleep(1000)
+            Items.update_status!(item, :error, e.message)
+            :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
         end
