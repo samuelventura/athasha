@@ -1,6 +1,7 @@
 defmodule Athasha.Screen.Runner do
   alias Athasha.Bus
   alias Athasha.Items
+  alias Athasha.Store
   alias Athasha.Points
 
   def run(item) do
@@ -14,6 +15,7 @@ defmodule Athasha.Screen.Runner do
     Enum.each(points, fn point ->
       Bus.register!({:point, point}, nil)
       value = Points.get_value(point)
+      Store.register!({:screen, id, point}, value)
       Bus.dispatch!({:screen, id}, {point, value})
     end)
 
@@ -24,6 +26,7 @@ defmodule Athasha.Screen.Runner do
   defp run_loop(id) do
     receive do
       {{:point, point}, nil, value} ->
+        Store.update!({:screen, id, point}, fn _ -> value end)
         Bus.dispatch!({:screen, id}, {point, value})
 
       other ->

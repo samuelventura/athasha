@@ -61,16 +61,17 @@ defmodule Athasha.Items do
     Bus.dispatch!({:item, id}, item)
   end
 
-  def find_item(id, type) do
-    case Store.lookup({:item, id}) do
-      [{_, item}] ->
-        case item.type do
-          ^type -> item
-          _ -> nil
-        end
+  def find_password(id) do
+    case Store.lookup({:password, id}) do
+      [{_, password}] -> password
+      [] -> nil
+    end
+  end
 
-      [] ->
-        nil
+  def find_item(id) do
+    case Store.lookup({:runner, id}) do
+      [{_, item}] -> item
+      [] -> nil
     end
   end
 
@@ -91,8 +92,8 @@ defmodule Athasha.Items do
         Store.update!({:status, id}, updater)
     end
 
-    status = %{id: id, type: type, msg: msg}
-    Bus.dispatch!(:status, status)
+    Bus.dispatch!(:status, %{id: id, type: type, msg: msg})
+    Bus.dispatch!({:status, id}, %{type: type, msg: msg})
   end
 
   def register_password!(item, password) do

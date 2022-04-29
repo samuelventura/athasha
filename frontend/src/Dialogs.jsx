@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form'
@@ -40,6 +40,19 @@ function LoginDialog() {
       onLogin()
     }
   }
+  //auto reconnect views
+  useEffect(() => {
+    if (!app.logged) {
+      const session = sessioner.fetch()
+      if (session.token) {
+        const timer = setInterval(() => {
+          const active = false
+          app.send({ name: "login", args: { session, active } })
+        }, 5000)
+        return () => { clearInterval(timer) }
+      }
+    }
+  }, [app.logged])
   return (
     <Modal show={app.login} backdrop="static" centered>
       <Modal.Header>

@@ -3,6 +3,7 @@ defmodule AthashaWeb.ViewSocket do
   @ping 5000
   alias Athasha.Bus
   alias Athasha.Items
+  alias Athasha.Points
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -11,16 +12,7 @@ defmodule AthashaWeb.ViewSocket do
   def connect(state) do
     ids = state.params["id"]
     {id, _} = Integer.parse(ids)
-    item = Items.find_item(id, "Screen")
-
-    case item do
-      nil ->
-        {:error, {:nf, id}}
-
-      _ ->
-        config = Jason.decode!(item.config)
-        {:ok, %{logged: false, id: id, item: item, config: config}}
-    end
+    {:ok, %{logged: false, id: id}}
   end
 
   def init(state) do
@@ -51,10 +43,20 @@ defmodule AthashaWeb.ViewSocket do
     reply_text(resp, state)
   end
 
-  def handle_info(:logged, state = %{id: id, item: item, config: config}) do
+  def handle_info(:logged, state = %{id: id}) do
+    item = Items.find_item(id)
+
+    initial =
+      case item.type do
+        "Screen" ->
+          Bus.register!({:screen, id}, nil)
+          Points.screen_points(id) |> Enum.map(&initial_point/1)
+      end
+
+    # :status wont notify on disabled so use :item and restart views on every change
     Bus.register!({:item, id}, nil)
-    Bus.register!({:screen, id}, nil)
-    args = %{id: id, name: item.name, config: config}
+    config = Jason.decode!(item.config)
+    args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}
     reply_text(resp, state)
   end
@@ -69,10 +71,10 @@ defmodule AthashaWeb.ViewSocket do
     {:ok, state}
   end
 
-  defp handle_event(event = %{"name" => "login"}, state = %{logged: false}) do
+  defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = state.config["setts"]["password"]
+    password = Items.find_password(id)
 
     case login(session["token"], session["proof"], password) do
       true ->
@@ -95,6 +97,12 @@ defmodule AthashaWeb.ViewSocket do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
   end
+
+  defp initial_point({id, _, value}) do
+    %{id: id, value: value}
+  end
+
+  defp login(_token, _proof, nil), do: false
 
   defp login(token, proof, password) do
     proof == sha1("#{token}:#{password}")

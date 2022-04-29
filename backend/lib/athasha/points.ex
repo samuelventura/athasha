@@ -36,4 +36,11 @@ defmodule Athasha.Points do
       [] -> nil
     end
   end
+
+  def screen_points(id) do
+    match = {{:screen, id, :"$1"}, :"$2", :"$3"}
+    select = {{:"$1", :"$2", :"$3"}}
+    query = [{match, [], [select]}]
+    Store.select(query)
+  end
 end
