@@ -112,9 +112,9 @@ defmodule Athasha.Runner do
   defp start(item) do
     modu =
       case item.type do
-        "Screen" -> Athasha.Screen.Runner
-        "Modbus" -> Athasha.Modbus.Runner
-        "Database" -> Athasha.Database.Runner
+        "Screen" -> Athasha.ScreenRunner
+        "Modbus" -> Athasha.ModbusRunner
+        "Database" -> Athasha.DatabaseRunner
       end
 
     id = item.id

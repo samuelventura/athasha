@@ -27,10 +27,6 @@ defmodule Athasha.Items do
     Store.select(@password)
   end
 
-  def register_runner!(item) do
-    Store.register!({:runner, item.id}, item)
-  end
-
   def register_all!(items) do
     Store.register!(:items, {0, items})
   end
@@ -61,14 +57,11 @@ defmodule Athasha.Items do
     Bus.dispatch!({:item, id}, item)
   end
 
-  def find_password(id) do
-    case Store.lookup({:password, id}) do
-      [{_, password}] -> password
-      [] -> nil
-    end
+  def register_runner!(item) do
+    Store.register!({:runner, item.id}, item)
   end
 
-  def find_item(id) do
+  def find_runner(id) do
     case Store.lookup({:runner, id}) do
       [{_, item}] -> item
       [] -> nil
@@ -97,8 +90,14 @@ defmodule Athasha.Items do
   end
 
   def register_password!(item, password) do
-    id = item.id
-    Store.register!({:password, id}, password)
+    Store.register!({:password, item.id, item.type}, password)
+  end
+
+  def find_password(id, type) do
+    case Store.lookup({:password, id, type}) do
+      [{_, password}] -> password
+      [] -> nil
+    end
   end
 
   def runner_pid(id) do

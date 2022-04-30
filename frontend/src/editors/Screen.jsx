@@ -465,7 +465,7 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
         saveForView()
     }
     function onView() {
-        window.open(`view.html?id=${id}`, '_blank').focus();
+        window.open(`screen.html?id=${id}`, '_blank').focus();
     }
     //checkbox valignment was tricky
     return (<span className="float-end d-flex align-items-center">

@@ -1,4 +1,4 @@
-defmodule AthashaWeb.ViewSocket do
+defmodule AthashaWeb.ScreenSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   alias Athasha.Bus
@@ -29,6 +29,7 @@ defmodule AthashaWeb.ViewSocket do
     reply_text(resp, state)
   end
 
+  # disconnect on any item change but not status change
   def handle_info({{:item, _}, nil, _}, state) do
     {:stop, :update, state}
   end
@@ -40,18 +41,11 @@ defmodule AthashaWeb.ViewSocket do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = Items.find_item(id)
-
-    initial =
-      case item.type do
-        "Screen" ->
-          Bus.register!({:screen, id}, nil)
-          Points.screen_points(id) |> Enum.map(&initial_point/1)
-      end
-
-    # disconnect on any item change but not status change
+    item = Items.find_runner(id)
+    Bus.register!({:screen, id}, nil)
     Bus.register!({:item, id}, nil)
     config = Jason.decode!(item.config)
+    initial = Points.screen_points(id) |> Enum.map(&initial_point/1)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}
     reply_text(resp, state)
@@ -70,7 +64,7 @@ defmodule AthashaWeb.ViewSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Items.find_password(id)
+    password = Items.find_password(id, "Screen")
 
     case login(session["token"], session["proof"], password) do
       true ->

@@ -1,4 +1,4 @@
-defmodule Athasha.Screen.Runner do
+defmodule Athasha.ScreenRunner do
   alias Athasha.Bus
   alias Athasha.Raise
   alias Athasha.Items

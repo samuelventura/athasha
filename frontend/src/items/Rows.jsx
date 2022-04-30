@@ -84,7 +84,7 @@ function Rows(props) {
                 break
             }
             case "view": {
-                window.open(`view.html?id=${item.id}`, '_blank').focus();
+                window.open(`screen.html?id=${item.id}`, '_blank').focus();
                 break
             }
             default:

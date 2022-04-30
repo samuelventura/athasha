@@ -1,4 +1,4 @@
-defmodule Athasha.Database.Runner do
+defmodule Athasha.DatabaseRunner do
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points

@@ -1,4 +1,4 @@
-defmodule Athasha.Modbus.Runner do
+defmodule Athasha.ModbusRunner do
   alias Modbus.Master
   alias Modbus.Float
   alias Athasha.Items

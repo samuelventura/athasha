@@ -6,14 +6,14 @@ import { LoginDialog } from '../Dialogs'
 import { LogoutButton } from '../Dialogs'
 import { AlertBanner } from '../Dialogs'
 import Logo from '../logo.svg'
-import View from './Screen'
+import View from './View'
 import { useApp } from '../App'
 
 function Main() {
   const app = useApp()
   const name = app.state.name
   useEffect(() => {
-    document.title = name ? `Athasha - ${name}` : "Athasha View"
+    document.title = name ? `Athasha - ${name}` : "Athasha Screen"
   }, [name])
   const nameColor = app.state.nulls > 0 ? "text-danger" : "text-secondary"
   const nameTitle = app.state.nulls > 0 ? "Missing Points" : ""
