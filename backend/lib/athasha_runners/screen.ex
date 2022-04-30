@@ -12,8 +12,7 @@ defmodule Athasha.ScreenRunner do
     setts = config["setts"]
     password = setts["password"]
     points = config["points"]
-    period = setts["period"]
-    {period, _} = Integer.parse(period)
+    period = parse_int(setts["period"])
 
     Items.register_password!(item, password)
 
@@ -59,5 +58,10 @@ defmodule Athasha.ScreenRunner do
         Raise.error({:missing, point})
       end
     end)
+  end
+
+  defp parse_int(value) do
+    {parsed, _} = Integer.parse(value)
+    parsed
   end
 end

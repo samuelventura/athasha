@@ -8,11 +8,9 @@ defmodule Athasha.DatabaseRunner do
     config = Jason.decode!(item.config)
     setts = config["setts"]
     host = setts["host"]
-    period = setts["period"]
-    {period, _} = Integer.parse(period)
     unit = setts["unit"]
-    port = setts["port"]
-    {port, _} = Integer.parse(port)
+    period = parse_int(setts["period"])
+    port = parse_int(setts["port"])
     database = setts["database"]
     username = setts["username"]
     password = setts["password"]
@@ -108,5 +106,10 @@ defmodule Athasha.DatabaseRunner do
       database: config.database,
       port: config.port
     )
+  end
+
+  defp parse_int(value) do
+    {parsed, _} = Integer.parse(value)
+    parsed
   end
 end

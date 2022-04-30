@@ -13,14 +13,11 @@ defmodule Athasha.ModbusRunner do
     trans = setts["trans"]
     proto = setts["proto"]
     host = setts["host"]
-    port = setts["port"]
-    {port, _} = Integer.parse(port)
     tty = setts["tty"]
-    speed = setts["speed"]
-    {speed, _} = Integer.parse(speed)
     dbpsb = setts["dbpsb"]
-    period = setts["period"]
-    {period, _} = Integer.parse(period)
+    port = parse_int(setts["port"])
+    speed = parse_int(setts["speed"])
+    period = parse_int(setts["period"])
 
     points =
       Enum.map(config["points"], fn point ->
@@ -212,5 +209,10 @@ defmodule Athasha.ModbusRunner do
           config: config.dbpsb
         )
     end
+  end
+
+  defp parse_int(value) do
+    {parsed, _} = Integer.parse(value)
+    parsed
   end
 end
