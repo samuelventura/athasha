@@ -3,7 +3,9 @@ import Environ from "../Environ"
 function initial() {
   return {
     items: {},
+    status: {},
     selected: {},
+    version: 0,
   }
 }
 
@@ -15,43 +17,52 @@ function clone_object(object) {
   return Object.assign({}, object)
 }
 
+function version_state(next) {
+  const status = Object.keys(next.status).length
+  const items = Object.keys(next.items).length
+  if (status !== items) throw `Sync error items:${items} status:${status}`
+  next.version++
+  return next
+}
+
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
       const next = clone_object(state)
       next.items = {}
+      next.status = {}
       args.items.forEach(item => {
-        item.status = {}
+        next.status[item.id] = {}
         next.items[item.id] = item
       })
-      return next
+      return version_state(next)
     }
     case "create": {
       const next = clone_object(state)
       const item = clone_object(args)
-      item.status = {}
       next.items[args.id] = item
+      next.status[args.id] = {}
       if (self) {
         next.selected = item
       }
-      return next
+      return version_state(next)
     }
     case "delete": {
       const next = clone_object(state)
+      delete next.status[args.id]
       delete next.items[args.id]
-      return next
+      return version_state(next)
     }
     case "rename": {
       const next = clone_object(state)
       next.items[args.id].name = args.name
-      return next
+      return version_state(next)
     }
     case "enable": {
       const next = clone_object(state)
-      const item = next.items[args.id]
-      item.enabled = args.enabled
-      item.status = status("info", args.enabled ? "Enabled" : "Disabled")
-      return next
+      next.items[args.id].enabled = args.enabled
+      next.status[args.id] = status("info", args.enabled ? "Enabled" : "Disabled")
+      return version_state(next)
     }
     case "edit": {
       const next = clone_object(state)
@@ -60,18 +71,19 @@ function reducer(state, { name, args, self }) {
       if (self) {
         next.selected = item
       }
-      return next
+      return version_state(next)
     }
     case "status": {
       const next = clone_object(state)
-      const item = next.items[args.id]
-      item.status = status(args.type, args.msg)
-      return next
+      if (next.items[args.id]) {
+        next.status[args.id] = status(args.type, args.msg)
+      }
+      return version_state(next)
     }
     case "select": {
       const next = clone_object(state)
       next.selected = args
-      return next
+      return version_state(next)
     }
     case "close": {
       return initial()

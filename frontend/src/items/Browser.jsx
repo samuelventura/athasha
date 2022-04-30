@@ -41,14 +41,6 @@ function Browser(props) {
         }
     }
 
-    const bodyStyle = {
-        height: 'calc(100vh - 10em)',
-        minHeight: 'calc(100vh - 10em)',
-        maxHeight: 'calc(100vh - 10em)',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-    }
-
     return (
         <>
             <table>

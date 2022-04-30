@@ -23,3 +23,8 @@ table.items tr {
 svg.draggable {
     cursor: move;
 }
+
+/* hide ugly datalist arrow down */
+input::-webkit-calendar-picker-indicator {
+    color: white;
+}

@@ -43,8 +43,16 @@ function initialPoint() {
 function Editor(props) {
     const [setts, setSetts] = useState(initialState().setts)
     const [points, setPoints] = useState(initialState().points)
-    const [serial, setSerial] = useState("")
+    const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
+    useEffect(() => {
+        if (trigger) {
+            setTrigger(false)
+            fetch("serial")
+                .then(r => r.json())
+                .then(l => setSerials(l))
+        }
+    }, [trigger])
     //initialize local state
     useEffect(() => {
         const init = initialState()
@@ -106,6 +114,9 @@ function Editor(props) {
         next[name] = value
         setSetts(next)
     }
+    const serialOptions = serials.map((serial, index) => {
+        return <option key={index} value={serial}>{serial}</option>
+    })
     const rows = points.map((point, index) =>
         <tr key={index} id={"point_" + index} className='align-middle'>
             <td >{index + 1}</td>
@@ -139,16 +150,6 @@ function Editor(props) {
             </td>
         </tr>
     )
-    function updateSerialList() {
-        fetch("serial")
-            .then(r => r.json())
-            .then(l => setSerials(["", ...l]))
-    }
-    function onSerialSelectorChange(value) {
-        setProp("tty", value)
-        setSerial("")
-    }
-    const serialOptions = serials.map((serial, index) => <option key={index} value={serial}>{serial}</option>)
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
@@ -163,20 +164,19 @@ function Editor(props) {
             </FloatingLabel>
         </Col>
     </Row>)
+    //datalists function like autocomplete filter, the list will be filtered by
+    //what is already present in the text box. List shows with arrow down as well.
+    //form-select wont allow keyboard editing in FF.
     const transSerial = (<Row>
-        <Col xs={2}>
+        <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
-                <Form.Control autoFocus type="text"
+                <Form.Control autoFocus type="text" list="serialList"
+                    onClick={() => setTrigger(true)} onFocus={() => setTrigger(true)}
+                    onKeyPress={e => setTrigger(e.key === 'Enter')}
                     value={setts.tty} onChange={e => setProp("tty", e.target.value)} />
-            </FloatingLabel>
-        </Col>
-        <Col xs={2}>
-            <FloatingLabel label="Serial Port Selector">
-                <Form.Select onClick={updateSerialList} onFocus={updateSerialList}
-                    onChange={e => onSerialSelectorChange(e.target.value)}
-                    value={serial}>
+                <datalist id="serialList">
                     {serialOptions}
-                </Form.Select>
+                </datalist>
             </FloatingLabel>
         </Col>
         <Col xs={2}>
@@ -204,7 +204,7 @@ function Editor(props) {
             </FloatingLabel>
         </Col>
 
-    </Row>)
+    </Row >)
     const transEditor = setts.trans === "Serial" ? transSerial : transSocket
     return (
         <Form>

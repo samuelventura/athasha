@@ -10,6 +10,7 @@ import { EditItem, SvgIcon } from "./Editor"
 
 function Rows(props) {
     const app = useApp()
+    const state = app.state
     const noneItem = State.initial().selected
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
@@ -96,28 +97,28 @@ function Rows(props) {
         setEditItem(item)
     }
 
-    function statusTitle(item) {
+    function statusTitle(item, status) {
         if (!item.enabled) {
             return "Disabled"
         }
-        if (!item.status.type) {
+        if (!status.type) {
             return "Enabled"
         }
-        return item.status.msg
+        return status.msg
     }
 
-    function statusMsg(item) {
+    function statusMsg(item, status) {
         if (!item.enabled) {
             return "Disabled"
         }
         return "Enabled"
     }
 
-    function statusBg(item) {
+    function statusBg(item, status) {
         if (!item.enabled) {
             return "secondary"
         }
-        switch (item.status.type) {
+        switch (status.type) {
             case "success": return "success"
             case "warn": return "warning"
             case "error": return "danger"
@@ -126,10 +127,11 @@ function Rows(props) {
     }
 
     function StatusBadge({ item }) {
+        const status = state.status[item.id]
         return (
-            <Badge pill bg={statusBg(item)} title={statusTitle(item)}
+            <Badge pill bg={statusBg(item, status)} title={statusTitle(item, status)}
                 className='ms-2 user-select-none'>
-                {statusMsg(item)}
+                {statusMsg(item, status)}
             </Badge>
         )
     }
@@ -190,7 +192,7 @@ function Rows(props) {
 
     return (
         <tbody>
-            <EditItem item={editItem}
+            <EditItem item={editItem} logged={app.logged}
                 accept={handleEdit} cancel={clearEdit} />
             <DeleteItem item={deleteItem}
                 accept={handleDelete} cancel={clearDelete} />

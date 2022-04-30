@@ -17,7 +17,6 @@ import ScreenIcon from '../editors/Screen.svg'
 //props | store > items + initial state > UI > dirty state > store | config
 //cancel | accept > clear store
 function EditItem(props) {
-    const app = useApp()
     const noneItem = State.initial().selected
     const [valid, setValid] = useState(false)
     const [state, setState] = useState({})
@@ -50,7 +49,7 @@ function EditItem(props) {
         setState(item.id ? JSON.parse(item.config) : {})
     }, [props.item])
     useEffect(() => {
-        if (app.logged) {
+        if (props.logged) {
             const stored = Edit.fetch()
             if (stored) {
                 setState(stored.state)
@@ -58,7 +57,7 @@ function EditItem(props) {
                 setValid(false)
             }
         }
-    }, [app.logged])
+    }, [props.logged])
     function store(state) {
         if (item.id) {
             Edit.create({ item, state })
