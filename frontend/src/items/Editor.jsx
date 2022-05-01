@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import { useApp } from '../App'
 import State from "./State"
 import Edit from './Edit'
 import { ModbusEditor } from '../editors/Modbus'
@@ -10,9 +9,12 @@ import { DatabaseEditor } from '../editors/Database'
 import { DatabaseInitial } from '../editors/Database'
 import { ScreenEditor } from '../editors/Screen'
 import { ScreenInitial } from '../editors/Screen'
+import { DataplotEditor } from '../editors/Dataplot'
+import { DataplotInitial } from '../editors/Dataplot'
 import ModbusIcon from '../editors/Modbus.svg'
 import DatabaseIcon from '../editors/Database.svg'
 import ScreenIcon from '../editors/Screen.svg'
+import DataplotIcon from '../editors/Dataplot.svg'
 
 //props | store > items + initial state > UI > dirty state > store | config
 //cancel | accept > clear store
@@ -80,6 +82,7 @@ function EditItem(props) {
                 <ModbusEditor {...eprops} show={eshow("Modbus")} />
                 <DatabaseEditor {...eprops} show={eshow("Database")} />
                 <ScreenEditor {...eprops} show={eshow("Screen")} />
+                <DataplotEditor {...eprops} show={eshow("Dataplot")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -101,6 +104,8 @@ function SvgIcon(type) {
             return DatabaseIcon
         case "Screen":
             return ScreenIcon
+        case "Dataplot":
+            return DataplotIcon
         default:
             return null
     }
@@ -114,6 +119,8 @@ function InitialState(type) {
             return DatabaseInitial()
         case "Screen":
             return ScreenInitial()
+        case "Dataplot":
+            return DataplotInitial()
         default:
             return null
     }

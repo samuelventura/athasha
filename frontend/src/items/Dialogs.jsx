@@ -113,6 +113,7 @@ function NewItem(props) {
                         {option("Screen")}
                         {option("Modbus")}
                         {option("Database")}
+                        {option("Dataplot")}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">

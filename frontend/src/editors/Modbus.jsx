@@ -118,14 +118,14 @@ function Editor(props) {
         return <option key={index} value={serial}>{serial}</option>
     })
     const rows = points.map((point, index) =>
-        <tr key={index} id={"point_" + index} className='align-middle'>
+        <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
                 <Form.Control type="number" min="1" max="65535" placeholder="Slave ID"
-                    value={points[index].slave} onChange={e => setPoint(index, "slave", e.target.value, e)} />
+                    value={point.slave} onChange={e => setPoint(index, "slave", e.target.value, e)} />
             </td>
             <td>
-                <Form.Select value={points[index].code} onChange={e => setPoint(index, "code", e.target.value)}>
+                <Form.Select value={point.code} onChange={e => setPoint(index, "code", e.target.value)}>
                     <option value="01">01 DO 0=OFF 1=ON</option>
                     <option value="02">02 DI 0=OFF 1=ON</option>
                     <option value="22">22 Opto22 Float32</option>
@@ -137,11 +137,11 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Control type="number" min="0" max="65535" placeholder="Address"
-                    value={points[index].address} onChange={e => setPoint(index, "address", e.target.value, e)} />
+                    value={point.address} onChange={e => setPoint(index, "address", e.target.value, e)} />
             </td>
             <td>
                 <Form.Control type="text" placeholder="Point Name"
-                    value={points[index].name} onChange={e => setPoint(index, "name", e.target.value)} />
+                    value={point.name} onChange={e => setPoint(index, "name", e.target.value)} />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}>

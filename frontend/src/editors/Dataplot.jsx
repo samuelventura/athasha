@@ -11,7 +11,6 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
-import { PointOptions } from '../items/Points'
 import { useApp } from '../App'
 
 function ExportedEditor(props) {
@@ -21,7 +20,7 @@ function ExportedEditor(props) {
 function initialState() {
     return {
         setts: initialSetts(),
-        points: [initialPoint()],
+        params: [initialParam("DateTime"), initialParam()],
     }
 }
 
@@ -29,66 +28,62 @@ function initialSetts() {
     return {
         host: "127.0.0.1",
         port: "1433",
-        period: "1",
-        unit: "s",
         database: "datalog",
         username: "sa",
         password: "",
-        command: "insert into dbo.Table1 (COL1) values (@1)",
+        command: "select DT, COL1 from dbo.Table1 where dt>=@FROM and dt<=@TO",
     }
 }
 
-function initialPoint() {
-    return { id: "" }
+function initialParam(name) {
+    return { name: name || "" }
 }
 
 function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(initialState().setts)
-    const [points, setPoints] = useState(initialState().points)
+    const [params, setParams] = useState(initialState().params)
     //initialize local state
     useEffect(() => {
         const init = initialState()
         const state = props.state
         setSetts(state.setts || init.setts)
-        setPoints(state.points || init.points)
+        setParams(state.params || init.params)
     }, [props.state])
     //rebuild and store state
     useEffect(() => {
         let valid = true
         valid = valid && checkNotBlank(setts.host)
         valid = valid && checkRange(setts.port, 1, 65535)
-        valid = valid && checkRange(setts.period, 1)
-        valid = valid && checkNotBlank(setts.unit)
-        valid = valid && points.length > 0
+        valid = valid && params.length > 0
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.username)
         valid = valid && checkNotBlank(setts.password)
         valid = valid && checkNotBlank(setts.command)
-        valid = valid && points.reduce((valid, point) => {
-            valid = valid && checkNotBlank(point.id)
+        valid = valid && params.reduce((valid, param) => {
+            valid = valid && checkNotBlank(param.name)
             return valid
         }, true)
         props.setValid(valid)
-        props.store({ setts, points })
-    }, [props, setts, points])
-    function setPoint(index, name, value, e) {
-        const next = [...points]
+        props.store({ setts, params })
+    }, [props, setts, params])
+    function setParam(index, name, value, e) {
+        const next = [...params]
         const prev = next[index][name]
         value = fixInputValue(e, value, prev)
         next[index][name] = value
-        setPoints(next)
+        setParams(next)
     }
-    function addPoint() {
-        const next = [...points]
-        const point = initialPoint()
-        next.push(point)
-        setPoints(next)
+    function addParam() {
+        const next = [...params]
+        const param = initialParam()
+        next.push(param)
+        setParams(next)
     }
-    function delPoint(index) {
-        const next = [...points]
+    function delParam(index) {
+        const next = [...params]
         next.splice(index, 1)
-        setPoints(next)
+        setParams(next)
     }
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -97,21 +92,18 @@ function Editor(props) {
         next[name] = value
         setSetts(next)
     }
-    const options = PointOptions(app)
-    const rows = points.map((point, index) =>
+    const rows = params.map((param, index) =>
         <tr key={index} className='align-middle'>
             <td>{index + 1}</td>
             <td>
                 {"@" + (index + 1)}
             </td>
             <td>
-                <Form.Select value={point.id} onChange={e => setPoint(index, "id", e.target.value)}>
-                    <option value=""></option>
-                    {options}
-                </Form.Select>
+                <Form.Control type="text" value={param.name}
+                    onChange={e => setParam(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}>
+                <Button variant='outline-danger' size="sm" onClick={() => delParam(index)}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -132,24 +124,10 @@ function Editor(props) {
                             value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
-                <Col xs={1}>
-                    <FloatingLabel label="Period">
-                        <Form.Control type="number" min="1"
-                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={2}>
-                    <FloatingLabel label="Unit">
-                        <Form.Select value={setts.unit} onChange={e => setProp("unit", e.target.value)}>
-                            <option value="s">second(s)</option>
-                            <option value="ms">millisecond(s)</option>
-                        </Form.Select>
-                    </FloatingLabel>
-                </Col>
             </Row>
             <Row>
                 <Col xs={3}>
-                    <FloatingLabel label="Database">
+                    <FloatingLabel label="Dataplot">
                         <Form.Control autoFocus type="text"
                             value={setts.database} onChange={e => setProp("database", e.target.value)} />
                     </FloatingLabel>
@@ -181,9 +159,9 @@ function Editor(props) {
                     <tr>
                         <th>#</th>
                         <th>Param</th>
-                        <th>Point</th>
+                        <th>Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}>
+                            <Button variant='outline-primary' size="sm" onClick={addParam}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>
@@ -198,6 +176,6 @@ function Editor(props) {
 }
 
 export {
-    ExportedEditor as DatabaseEditor,
-    initialState as DatabaseInitial,
+    ExportedEditor as DataplotEditor,
+    initialState as DataplotInitial,
 }

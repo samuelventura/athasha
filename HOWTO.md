@@ -101,4 +101,7 @@ Tds.query!(pid, "insert into dbo.Table2 (COL1) values (@1)", [%Tds.Parameter{nam
 Tds.query!(pid, "select * from dbo.Table2", [])
 #SQL Server data types and defaults
 int, float, datetime = (getdate())
+#
+{:ok, pid} = Tds.start_link([hostname: "10.77.3.211", username: "sa", password: "123", database: "datalog", port: 1433])
+Tds.query!(pid, "select * from dbo.Table1", [])
 ```
