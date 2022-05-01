@@ -8,7 +8,7 @@ defmodule Athasha.ScreenRunner do
 
   def run(item) do
     id = item.id
-    config = Jason.decode!(item.config)
+    config = item.config
     setts = config["setts"]
     password = setts["password"]
     points = config["points"]

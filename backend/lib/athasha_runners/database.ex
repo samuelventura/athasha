@@ -5,7 +5,7 @@ defmodule Athasha.DatabaseRunner do
   @status 1000
 
   def run(item) do
-    config = Jason.decode!(item.config)
+    config = item.config
     setts = config["setts"]
     host = setts["host"]
     unit = setts["unit"]

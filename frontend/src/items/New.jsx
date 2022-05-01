@@ -14,8 +14,7 @@ function New(props) {
 
     function handleNew(name, type) {
         setNewItem(false)
-        const initial = InitialState(type)
-        const config = JSON.stringify(initial)
+        const config = InitialState(type)
         const args = { name, type, config, enabled: false }
         props.send({ name: "create", args })
     }

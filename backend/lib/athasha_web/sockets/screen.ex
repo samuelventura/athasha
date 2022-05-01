@@ -44,7 +44,7 @@ defmodule AthashaWeb.ScreenSocket do
     item = Items.find_runner(id)
     Bus.register!({:screen, id}, nil)
     Bus.register!({:item, id}, nil)
-    config = Jason.decode!(item.config)
+    config = item.config
     initial = Points.screen_points(id) |> Enum.map(&initial_point/1)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}

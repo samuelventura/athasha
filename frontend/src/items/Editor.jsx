@@ -22,33 +22,37 @@ function EditItem(props) {
     const noneItem = State.initial().selected
     const [valid, setValid] = useState(false)
     const [state, setState] = useState({})
-    const [config, setConfig] = useState("")
+    const [next, setNext] = useState("")
     const [item, setItem] = useState(noneItem)
     function clearState() {
         setItem(noneItem)
         setValid(false)
-        setConfig("")
+        setNext("")
         setState({})
         Edit.remove()
     }
     function saveForView() {
+        const config = JSON.parse(next)
         props.accept(item, config, true)
     }
     function accept() {
         if (valid) {
-            clearState()
+            const config = JSON.parse(next)
             props.accept(item, config)
+            clearState()
         }
     }
     function cancel() {
-        clearState()
         props.cancel()
+        clearState()
     }
     useEffect(() => {
         const item = props.item
-        setItem(item)
-        setValid(false)
-        setState(item.id ? JSON.parse(item.config) : {})
+        if (item.id) {
+            setItem(item)
+            setValid(false)
+            setState(item.config)
+        }
     }, [props.item])
     useEffect(() => {
         if (props.logged) {
@@ -63,7 +67,7 @@ function EditItem(props) {
     function store(state) {
         if (item.id) {
             Edit.create({ item, state })
-            setConfig(JSON.stringify(state))
+            setNext(JSON.stringify(state))
         }
     }
     const eprops = { state, store, valid, setValid, saveForView, id: item.id }

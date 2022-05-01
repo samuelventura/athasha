@@ -8,7 +8,7 @@ defmodule Athasha.ModbusRunner do
 
   def run(item) do
     id = item.id
-    config = Jason.decode!(item.config)
+    config = item.config
     setts = config["setts"]
     trans = setts["trans"]
     proto = setts["proto"]

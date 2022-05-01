@@ -9,8 +9,8 @@ function remove() {
     localStorage.removeItem(key)
 }
 
-function create(state) {
-    localStorage.setItem(key, JSON.stringify(state))
+function create(value) {
+    localStorage.setItem(key, JSON.stringify(value))
 }
 
 const exports = {

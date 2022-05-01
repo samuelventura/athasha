@@ -6,7 +6,7 @@ defmodule Athasha.Repo.Migrations.CreateItems do
       add(:name, :string)
       add(:type, :string)
       add(:enabled, :boolean, default: false, null: false)
-      add(:config, :string)
+      add(:config, :map)
 
       timestamps()
     end

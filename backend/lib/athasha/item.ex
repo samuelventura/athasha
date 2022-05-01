@@ -6,7 +6,7 @@ defmodule Athasha.Item do
     field(:name, :string)
     field(:type, :string)
     field(:enabled, :boolean, default: false)
-    field(:config, :string)
+    field(:config, :map)
 
     timestamps()
   end

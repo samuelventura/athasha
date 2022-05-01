@@ -3,7 +3,7 @@ import React from 'react'
 function PointLister(app) {
     const items = Object.values(app.state.items).filter(item => item.type === 'Modbus')
     return items.map((item) => {
-        const config = JSON.parse(item.config)
+        const config = item.config
         return config.points.map(point => {
             return {
                 point: point,
