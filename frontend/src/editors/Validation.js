@@ -14,22 +14,24 @@ function checkBoolean(value) {
     return typeof (value) === "boolean"
 }
 
+//numbers to be stored as strings to preserve decimal value and format
+//do not stringify values to detect which html controls do what
 function fixInputValue(e, value, prev) {
     if (e) {
         const t = e.target
         if (t.tagName.toLowerCase() === "input") {
             const tt = t.getAttribute("type").toLowerCase()
             if (["range", "number"].includes(tt)) {
-                value = Number(value) //empty space to zero
+                const number = Number(value)
                 if (t.hasAttribute("min")) {
                     const min = t.getAttribute("min")
-                    if (value < Number(min)) {
+                    if (number < Number(min)) {
                         value = prev
                     }
                 }
                 if (t.hasAttribute("max")) {
                     const max = t.getAttribute("max")
-                    if (value > Number(max)) {
+                    if (number > Number(max)) {
                         value = prev
                     }
                 }
@@ -40,7 +42,6 @@ function fixInputValue(e, value, prev) {
                 }
             }
         }
-        value = `${value}`
     }
     return value
 }

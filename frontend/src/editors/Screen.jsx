@@ -237,8 +237,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         function moveControl(e) {
             const control = dragged.control
             const point = svgCoord(ref.current, e, offset)
-            setControlProp(control, 'posX', point.posX)
-            setControlProp(control, 'posY', point.posY)
+            setControlProp(control, 'posX', `${point.posX}`)
+            setControlProp(control, 'posY', `${point.posY}`)
         }
         function onPointerMove(e) {
             if (dragged.index >= 0) {
@@ -465,7 +465,7 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
         saveForView()
     }
     function onView() {
-        window.open(`screen.html?id=${id}`, '_blank').focus();
+        window.open(`screen.html ? id = ${id}`, '_blank').focus();
     }
     //checkbox valignment was tricky
     return (<span className="float-end d-flex align-items-center">
