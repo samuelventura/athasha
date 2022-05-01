@@ -115,6 +115,7 @@ defmodule Athasha.Runner do
         "Screen" -> Athasha.ScreenRunner
         "Modbus" -> Athasha.ModbusRunner
         "Database" -> Athasha.DatabaseRunner
+        "Dataplot" -> Athasha.DataplotRunner
       end
 
     id = item.id
