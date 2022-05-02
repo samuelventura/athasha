@@ -34,6 +34,10 @@ function reducer(state, { name, args, self }) {
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
+        //auto upgrade
+        if (typeof (item.config) == "string") {
+          item.config = JSON.parse(item.config)
+        }
       })
       return version_state(next)
     }

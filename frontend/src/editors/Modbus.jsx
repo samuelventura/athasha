@@ -8,15 +8,16 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import ItemIcon from './Modbus.svg'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 
-function ExportedEditor(props) {
+function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
 
-function initialState() {
+function ItemInitial() {
     return {
         setts: initialSetts(),
         points: [initialPoint()]
@@ -41,8 +42,8 @@ function initialPoint() {
 }
 
 function Editor(props) {
-    const [setts, setSetts] = useState(initialState().setts)
-    const [points, setPoints] = useState(initialState().points)
+    const [setts, setSetts] = useState(ItemInitial().setts)
+    const [points, setPoints] = useState(ItemInitial().points)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     useEffect(() => {
@@ -55,7 +56,7 @@ function Editor(props) {
     }, [trigger])
     //initialize local state
     useEffect(() => {
-        const init = initialState()
+        const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
         setPoints(state.points || init.points)
@@ -257,7 +258,8 @@ function Editor(props) {
     )
 }
 
-export {
-    ExportedEditor as ModbusEditor,
-    initialState as ModbusInitial,
+export default {
+    ItemIcon,
+    ItemEditor,
+    ItemInitial,
 }

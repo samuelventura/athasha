@@ -20,13 +20,14 @@ import { registeredMapper } from './Controls'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
+import ItemIcon from './Modbus.svg'
 import { useApp } from '../App'
 
-function ExportedEditor(props) {
+function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
 
-function initialState() {
+function ItemInitial() {
     return {
         setts: initialSetts(),
         controls: [],
@@ -484,15 +485,15 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
 }
 
 function Editor(props) {
-    const [setts, setSetts] = useState(initialState().setts)
-    const [controls, setControls] = useState(initialState().controls)
+    const [setts, setSetts] = useState(ItemInitial().setts)
+    const [controls, setControls] = useState(ItemInitial().controls)
     const [selected, setSelected] = useState(() => initialSelected())
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
     //initialize local state
     useEffect(() => {
-        const init = initialState()
+        const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
         const previous = state.controls || init.controls
@@ -640,7 +641,8 @@ function Editor(props) {
     )
 }
 
-export {
-    ExportedEditor as ScreenEditor,
-    initialState as ScreenInitial,
+export default {
+    ItemIcon,
+    ItemEditor,
+    ItemInitial,
 }

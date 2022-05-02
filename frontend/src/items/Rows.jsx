@@ -6,7 +6,7 @@ import State from "./State"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
-import { EditItem, SvgIcon } from "./Editor"
+import { ItemEditor, ItemIcon } from "./Editor"
 
 function Rows(props) {
     const app = useApp()
@@ -148,7 +148,7 @@ function Rows(props) {
             className={selectedClass(item) + ' align-middle'}
             title={item.id}>
             <td className={enabledClass(item)}>
-                <img src={SvgIcon(item.type)} width="20"
+                <img src={ItemIcon(item.type)} width="20"
                     alt={item.type} className='me-2' />
                 <span className='align-middle'>{item.name}</span>
                 <StatusBadge item={item} />
@@ -192,7 +192,7 @@ function Rows(props) {
 
     return (
         <tbody>
-            <EditItem item={editItem} logged={app.logged}
+            <ItemEditor item={editItem} logged={app.logged}
                 accept={handleEdit} cancel={clearEdit} />
             <DeleteItem item={deleteItem}
                 accept={handleDelete} cancel={clearDelete} />

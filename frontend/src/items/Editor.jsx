@@ -3,22 +3,14 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import State from "./State"
 import Edit from './Edit'
-import { ModbusEditor } from '../editors/Modbus'
-import { ModbusInitial } from '../editors/Modbus'
-import { DatabaseEditor } from '../editors/Database'
-import { DatabaseInitial } from '../editors/Database'
-import { ScreenEditor } from '../editors/Screen'
-import { ScreenInitial } from '../editors/Screen'
-import { DataplotEditor } from '../editors/Dataplot'
-import { DataplotInitial } from '../editors/Dataplot'
-import ModbusIcon from '../editors/Modbus.svg'
-import DatabaseIcon from '../editors/Database.svg'
-import ScreenIcon from '../editors/Screen.svg'
-import DataplotIcon from '../editors/Dataplot.svg'
+import Modbus from '../editors/Modbus'
+import Database from '../editors/Database'
+import Screen from '../editors/Screen'
+import Dataplot from '../editors/Dataplot'
 
 //props | store > items + initial state > UI > dirty state > store | config
 //cancel | accept > clear store
-function EditItem(props) {
+function ItemEditor(props) {
     const noneItem = State.initial().selected
     const [valid, setValid] = useState(false)
     const [state, setState] = useState({})
@@ -77,16 +69,16 @@ function EditItem(props) {
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    <img className="align-middle me-2" src={SvgIcon(item.type)} width="24"
+                    <img className="align-middle me-2" src={ItemIcon(item.type)} width="24"
                         alt={item.type} />
                     <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ModbusEditor {...eprops} show={eshow("Modbus")} />
-                <DatabaseEditor {...eprops} show={eshow("Database")} />
-                <ScreenEditor {...eprops} show={eshow("Screen")} />
-                <DataplotEditor {...eprops} show={eshow("Dataplot")} />
+                <Modbus.ItemEditor {...eprops} show={eshow("Modbus")} />
+                <Database.ItemEditor {...eprops} show={eshow("Database")} />
+                <Screen.ItemEditor {...eprops} show={eshow("Screen")} />
+                <Dataplot.ItemEditor {...eprops} show={eshow("Dataplot")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -100,34 +92,34 @@ function EditItem(props) {
     )
 }
 
-function SvgIcon(type) {
+function ItemIcon(type) {
     switch (type) {
         case "Modbus":
-            return ModbusIcon
+            return Modbus.ItemIcon
         case "Database":
-            return DatabaseIcon
+            return Database.ItemIcon
         case "Screen":
-            return ScreenIcon
+            return Screen.ItemIcon
         case "Dataplot":
-            return DataplotIcon
+            return Dataplot.ItemIcon
         default:
             return null
     }
 }
 
-function InitialState(type) {
+function ItemInitial(type) {
     switch (type) {
         case "Modbus":
-            return ModbusInitial()
+            return Modbus.ItemInitial()
         case "Database":
-            return DatabaseInitial()
+            return Database.ItemInitial()
         case "Screen":
-            return ScreenInitial()
+            return Screen.ItemInitial()
         case "Dataplot":
-            return DataplotInitial()
+            return Dataplot.ItemInitial()
         default:
             return null
     }
 }
 
-export { EditItem, SvgIcon, InitialState }
+export { ItemEditor, ItemIcon, ItemInitial }

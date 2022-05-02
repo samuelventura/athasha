@@ -12,13 +12,14 @@ import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 import { PointOptions } from '../items/Points'
+import ItemIcon from './Database.svg'
 import { useApp } from '../App'
 
-function ExportedEditor(props) {
+function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
 
-function initialState() {
+function ItemInitial() {
     return {
         setts: initialSetts(),
         points: [initialPoint()],
@@ -44,11 +45,11 @@ function initialPoint() {
 
 function Editor(props) {
     const app = useApp()
-    const [setts, setSetts] = useState(initialState().setts)
-    const [points, setPoints] = useState(initialState().points)
+    const [setts, setSetts] = useState(ItemInitial().setts)
+    const [points, setPoints] = useState(ItemInitial().points)
     //initialize local state
     useEffect(() => {
-        const init = initialState()
+        const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
         setPoints(state.points || init.points)
@@ -197,7 +198,8 @@ function Editor(props) {
     )
 }
 
-export {
-    ExportedEditor as DatabaseEditor,
-    initialState as DatabaseInitial,
+export default {
+    ItemIcon,
+    ItemEditor,
+    ItemInitial,
 }

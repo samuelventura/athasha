@@ -11,13 +11,14 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
+import ItemIcon from './Dataplot.svg'
 import { useApp } from '../App'
 
-function ExportedEditor(props) {
+function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
 }
 
-function initialState() {
+function ItemInitial() {
     return {
         setts: initialSetts(),
         params: [initialParam("DateTime"), initialParam()],
@@ -41,11 +42,11 @@ function initialParam(name) {
 
 function Editor(props) {
     const app = useApp()
-    const [setts, setSetts] = useState(initialState().setts)
-    const [params, setParams] = useState(initialState().params)
+    const [setts, setSetts] = useState(ItemInitial().setts)
+    const [params, setParams] = useState(ItemInitial().params)
     //initialize local state
     useEffect(() => {
-        const init = initialState()
+        const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
         setParams(state.params || init.params)
@@ -175,7 +176,8 @@ function Editor(props) {
     )
 }
 
-export {
-    ExportedEditor as DataplotEditor,
-    initialState as DataplotInitial,
+export default {
+    ItemIcon,
+    ItemEditor,
+    ItemInitial,
 }
