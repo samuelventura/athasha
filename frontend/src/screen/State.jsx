@@ -21,6 +21,10 @@ function reducer(state, { name, args, self }) {
       const next = clone_object(state)
       next.id = args.id
       next.name = args.name
+      //auto upgrade
+      if (typeof (args.config) == "string") {
+        args.config = JSON.parse(args.config)
+      }
       next.setts = args.config.setts
       next.controls = args.config.controls
       next.points = {}
