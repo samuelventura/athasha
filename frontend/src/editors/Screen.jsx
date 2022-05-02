@@ -20,7 +20,7 @@ import { registeredMapper } from './Controls'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
-import ItemIcon from './Modbus.svg'
+import ItemIcon from './Screen.svg'
 import { useApp } from '../App'
 
 function ItemEditor(props) {

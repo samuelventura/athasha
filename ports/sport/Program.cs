@@ -35,8 +35,6 @@ switch (config[2])
         port.StopBits = StopBits.Two;
         break;
 }
-port.ReadTimeout = 1000;
-port.WriteTimeout = 1000;
 port.Open();
 using (var stdin = Console.OpenStandardInput())
 {
