@@ -1,24 +1,17 @@
-defmodule Modbus.TestTTY do
-  def tty0(), do: System.get_env("TTY0")
-  def tty1(), do: System.get_env("TTY1")
-end
-
-defmodule Modbus.Serial.MasterTest do
+defmodule Modbus.SerialMasterTest do
   use ExUnit.Case
   alias Modbus.TestTTY
-  alias Modbus.Master
   alias Modbus.Request
   alias Modbus.Serial
   alias Modbus.Model
   alias Modbus.Rtu.Protocol
   alias Modbus.Rtu.Protocol.Wrapper
+  alias Modbus.Serial.Master
 
-  test "master test" do
+  test "serial master test" do
     tty0 = TestTTY.tty0()
     tty1 = TestTTY.tty1()
-    proto = Modbus.Rtu.Protocol
-    trans = Modbus.Serial.Transport
-    {:ok, master} = Master.start_link(device: tty0, proto: proto, trans: trans)
+    {:ok, master} = Master.start_link(device: tty0)
     {:ok, serial} = Serial.start_link(device: tty1)
 
     state = %{0x50 => %{{:c, 0x5152} => 0}}

@@ -13,8 +13,6 @@ defmodule Modbus.Serial.Slave do
   end
 
   def stop(pid) do
-    # sniff automatic close should
-    # close the client process
     GenServer.stop(pid)
   end
 
@@ -26,10 +24,26 @@ defmodule Modbus.Serial.Slave do
       %{trans: transm, proto: proto, model: model, opts: opts} = init
       {:ok, shared} = Shared.start_link(model)
 
-      case Transport.open(transm, opts) do
+      parent = self()
+
+      client =
+        spawn_link(fn ->
+          send(parent, Transport.open(transm, opts))
+
+          receive do
+            next -> next.()
+          end
+        end)
+
+      result =
+        receive do
+          any -> any
+        end
+
+      case result do
         {:ok, transi} ->
           trans = {transm, transi}
-          client = spawn_link(fn -> Slave.client(shared, trans, proto) end)
+          send(client, fn -> Slave.client(shared, trans, proto) end)
           state = %{client: client, shared: shared}
           {:ok, state}
 
@@ -38,7 +52,9 @@ defmodule Modbus.Serial.Slave do
       end
     end
 
-    def terminate(reason, %{shared: shared}) do
+    def terminate(reason, %{client: client, shared: shared}) do
+      Process.unlink(client)
+      Process.exit(client, :kill)
       Agent.stop(shared, reason)
     end
   end

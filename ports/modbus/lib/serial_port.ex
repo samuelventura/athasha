@@ -9,16 +9,17 @@ defmodule Modbus.Sport do
 
     args = [device, to_string(speed), config]
     opts = [:binary, :exit_status, packet: 2, args: args]
-    {:ok, Port.open({:spawn_executable, exec}, opts)}
+    port = Port.open({:spawn_executable, exec}, opts)
+    {:ok, port}
   end
 
   def close(port) do
-    Port.close(port)
+    true = Port.close(port)
     :ok
   end
 
   def read(port) do
-    Port.command(port, ["r"])
+    true = Port.command(port, ["r"])
 
     receive do
       {^port, {:exit_status, status}} -> {:error, {:exit, status}}
@@ -27,7 +28,7 @@ defmodule Modbus.Sport do
   end
 
   def write(port, data) do
-    Port.command(port, ["w", data])
+    true = Port.command(port, ["w", data])
     :ok
   end
 end

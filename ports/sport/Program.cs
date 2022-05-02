@@ -45,10 +45,12 @@ using (var stdin = Console.OpenStandardInput())
 
             var head = new byte[2];
             var read = stdin.Read(head, 0, head.Length);
+            if (read == 0) port.Close(); //for socat tty
             if (read == 0) Environment.Exit(0);
             var len = ((head[0] << 8) | (head[1] << 0));
             var data = new byte[len];
             read = stdin.Read(data, 0, data.Length);
+            if (read == 0) port.Close(); //for socat tty
             if (read == 0) Environment.Exit(0);
             if (read != len) throw new Exception("Read mismatch");
             var cmd = (char)data[0];
@@ -60,18 +62,23 @@ using (var stdin = Console.OpenStandardInput())
                         var bytes = new byte[len + 2];
                         bytes[0] = (byte)((len >> 8) & 0xff);
                         bytes[1] = (byte)((len >> 0) & 0xff);
-                        read = port.Read(bytes, 2, len);
-                        if (read != len) throw new Exception("Read mismatch");
+                        if (len > 0)
+                        {
+                            read = port.Read(bytes, 2, len);
+                            if (read != len) throw new Exception("Read mismatch");
+                        }
                         stdout.Write(bytes, 0, bytes.Length);
+                        // stdout.Flush();
                         break;
                     }
                 case 'w':
                     {
-                        port.DiscardInBuffer();
-                        port.DiscardOutBuffer();
+                        // port.DiscardInBuffer();
+                        // port.DiscardOutBuffer();
                         if (data.Length > 1)
                         {
                             port.Write(data, 1, data.Length - 1);
+                            // port.BaseStream.Flush();
                         }
                         break;
                     }

@@ -131,48 +131,52 @@ defmodule Modbus.Serial do
     def init(init) do
       %{device: device, speed: speed, config: config, sleep: sleep} = init
 
-      {:ok, nid} = Sport.open(device, speed, config)
-      {:ok, {nid, <<>>, sleep}}
+      {:ok, port} = Sport.open(device, speed, config)
+      {:ok, {port, <<>>, sleep}}
     end
 
-    def handle_call({:write, data}, _from, {nid, _, _} = state) do
-      case Sport.write(nid, data) do
+    def terminate(_reason, {port, _, _}) do
+      Sport.close(port)
+    end
+
+    def handle_call({:write, data}, _from, {port, _, _} = state) do
+      case Sport.write(port, data) do
         :ok -> {:reply, :ok, state}
         {:error, reason} -> {:reply, {:error, reason}, state}
       end
     end
 
-    def handle_call({:readall}, _from, {nid, buf, sleep}) do
-      case Sport.read(nid) do
+    def handle_call({:readall}, _from, {port, buf, sleep}) do
+      case Sport.read(port) do
         {:ok, data} ->
-          {:reply, {:ok, buf <> data}, {nid, <<>>, sleep}}
+          {:reply, {:ok, buf <> data}, {port, <<>>, sleep}}
 
         {:error, reason} ->
-          {:reply, {:error, {reason, buf}}, {nid, <<>>, sleep}}
+          {:reply, {:error, {reason, buf}}, {port, <<>>, sleep}}
       end
     end
 
-    def handle_call({:readch, ch, timeout}, _from, {nid, buf, sleep}) do
-      result = readch(nid, ch, buf, timeout, sleep)
+    def handle_call({:readch, ch, timeout}, _from, {port, buf, sleep}) do
+      result = readch(port, ch, buf, timeout, sleep)
 
       case result do
-        {:ok, head, tail} -> {:reply, {:ok, head}, {nid, tail, sleep}}
-        {:to, buf} -> {:reply, {:to, buf}, {nid, <<>>, sleep}}
-        {:error, reason} -> {:reply, {:error, reason}, {nid, <<>>, sleep}}
+        {:ok, head, tail} -> {:reply, {:ok, head}, {port, tail, sleep}}
+        {:to, buf} -> {:reply, {:to, buf}, {port, <<>>, sleep}}
+        {:error, reason} -> {:reply, {:error, reason}, {port, <<>>, sleep}}
       end
     end
 
-    def handle_call({:readn, count, timeout}, _from, {nid, buf, sleep}) do
-      result = readn(nid, count, buf, timeout, sleep)
+    def handle_call({:readn, count, timeout}, _from, {port, buf, sleep}) do
+      result = readn(port, count, buf, timeout, sleep)
 
       case result do
-        {:ok, head, tail} -> {:reply, {:ok, head}, {nid, tail, sleep}}
-        {:to, buf} -> {:reply, {:to, buf}, {nid, <<>>, sleep}}
-        {:error, reason} -> {:reply, {:error, reason}, {nid, <<>>, sleep}}
+        {:ok, head, tail} -> {:reply, {:ok, head}, {port, tail, sleep}}
+        {:to, buf} -> {:reply, {:to, buf}, {port, <<>>, sleep}}
+        {:error, reason} -> {:reply, {:error, reason}, {port, <<>>, sleep}}
       end
     end
 
-    defp readch(nid, ch, buf, timeout, sleep) do
+    defp readch(port, ch, buf, timeout, sleep) do
       dl = millis() + timeout
 
       Stream.iterate(0, &(&1 + 1))
@@ -187,7 +191,7 @@ defmodule Modbus.Serial do
                 {:halt, {:to, buf1 <> buf2}}
 
               false ->
-                case Sport.read(nid) do
+                case Sport.read(port) do
                   {:ok, data} ->
                     {:cont, {buf1 <> buf2, data}}
 
@@ -203,7 +207,7 @@ defmodule Modbus.Serial do
       end)
     end
 
-    defp readn(nid, count, buf, timeout, sleep) do
+    defp readn(port, count, buf, timeout, sleep) do
       dl = millis() + timeout
 
       Stream.iterate(0, &(&1 + 1))
@@ -218,7 +222,7 @@ defmodule Modbus.Serial do
                 {:halt, {:to, buf1 <> buf2}}
 
               false ->
-                case Sport.read(nid) do
+                case Sport.read(port) do
                   {:ok, data} ->
                     {:cont, {buf1 <> buf2, data}}
 
