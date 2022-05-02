@@ -5,10 +5,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
-   <ProjectReference Include="..\sharp-tools\sharp-tools.csproj"/>  
+   <ProjectReference Include="..\tools\tools.csproj"/>  
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
 

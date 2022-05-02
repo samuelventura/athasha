@@ -199,7 +199,7 @@ defmodule Athasha.ModbusRunner do
         end
 
       "Serial" ->
-        trans = Baud.Transport
+        trans = Modbus.Serial.Transport
 
         Master.start_link(
           trans: trans,

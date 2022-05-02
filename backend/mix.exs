@@ -20,7 +20,7 @@ defmodule Athasha.MixProject do
   def application do
     [
       mod: {Athasha.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :modbus]
     ]
   end
 
@@ -49,10 +49,8 @@ defmodule Athasha.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:tds, "~> 2.3"},
-      # {:baud, "~> 0.6.0"},
-      # {:baud, git: "https://github.com/samuelventura/sniff.git", tag: "0.6.0"},
-      {:baud, path: "../../baud"},
-      {:plug_cowboy, "~> 2.5"}
+      {:plug_cowboy, "~> 2.5"},
+      {:modbus, path: "../ports/modbus"}
     ]
   end
 
