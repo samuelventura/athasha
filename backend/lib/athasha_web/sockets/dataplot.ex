@@ -84,6 +84,11 @@ defmodule AthashaWeb.DataplotSocket do
     end
   end
 
+  defp handle_event(event = %{"name" => "update"}, state = %{logged: true}) do
+    IO.inspect(event["args"])
+    {:ok, state}
+  end
+
   defp handle_event(_event, state = %{logged: true}) do
     {:ok, state}
   end
