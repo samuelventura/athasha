@@ -15,6 +15,8 @@ rm packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install -y dotnet-sdk-6.0
 
-#Server=10.77.3.211;Database=datalog;User Id=sa;Password=123;Encrypt=false;
+#Server=10.77.3.211;Database=datalog;User Id=sa;Password=123;Encrypt=false;Connection Timeout=5;
+#Server=10.77.3.211;Database=datalog;User Id=sa;Password=123;TrustServerCertificate=True;Connection Timeout=5;
+
 #insert into dbo.Table1 (COL1) values (@1)
 ```

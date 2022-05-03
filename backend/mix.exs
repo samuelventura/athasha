@@ -48,7 +48,6 @@ defmodule Athasha.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
-      {:tds, "~> 2.3"},
       {:plug_cowboy, "~> 2.5"},
       {:modbus, path: "../native/modbus"}
     ]

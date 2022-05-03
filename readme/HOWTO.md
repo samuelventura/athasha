@@ -42,6 +42,7 @@ curl --include \
 ```
 
 ```elixir
+mix deps.clean --unlock --unused
 export ERL_AFLAGS="-kernel shell_history enabled"
 %{
   connect_info: %{},
