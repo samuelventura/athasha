@@ -4,10 +4,8 @@ function initial() {
   return {
     id: 0,
     name: "",
+    config: {},
     status: {},
-    setts: {},
-    controls: [],
-    points: {},
   }
 }
 
@@ -22,22 +20,12 @@ function reducer(state, { name, args, self }) {
       next.id = args.id
       next.name = args.name
       next.status = {}
-      next.setts = args.config.setts
-      next.controls = args.config.controls
-      next.points = {}
-      args.initial.forEach(point => {
-        next.points[point.id] = point.value
-      })
+      next.config = args.config
       return next
     }
     case "status": {
       const next = clone_object(state)
       next.status = args
-      return next
-    }
-    case "point": {
-      const next = clone_object(state)
-      next.points[args.id] = args.value
       return next
     }
     case "close": {

@@ -31,6 +31,7 @@ function initialSetts() {
         connstr: "",
         command: "",
         database: "sqlserver",
+        dbpass: "",
         period: "1",
         unit: "s",
     }
@@ -122,6 +123,12 @@ function Editor(props) {
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Database Password">
+                        <Form.Control type="password" title={setts.dbpass}
+                            value={setts.dbpass} onChange={e => setProp("dbpass", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
                 <Col xs={1}>
                     <FloatingLabel label="Period">
                         <Form.Control type="number" min="1"
@@ -140,7 +147,7 @@ function Editor(props) {
             <Row>
                 <Col>
                     <FloatingLabel label="Connection String">
-                        <Form.Control type="text"
+                        <Form.Control type="text" as="textarea"
                             value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -148,7 +155,7 @@ function Editor(props) {
             <Row>
                 <Col>
                     <FloatingLabel label="SQL Command">
-                        <Form.Control type="text"
+                        <Form.Control type="text" as="textarea"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>
                 </Col>

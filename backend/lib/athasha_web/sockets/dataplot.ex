@@ -1,10 +1,9 @@
-defmodule AthashaWeb.ScreenSocket do
+defmodule AthashaWeb.DataplotSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
-  @item "Screen"
+  @item "Dataplot"
   alias Athasha.Bus
   alias Athasha.Items
-  alias Athasha.Points
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -52,8 +51,7 @@ defmodule AthashaWeb.ScreenSocket do
     Bus.register!({:screen, id}, nil)
     Bus.register!({:item, id}, nil)
     config = item.config
-    initial = Points.screen_points(id) |> Enum.map(&initial_point/1)
-    args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
+    args = %{id: id, type: item.type, name: item.name, config: config}
     resp = %{name: "view", args: args}
     reply_text(resp, state)
   end
@@ -93,10 +91,6 @@ defmodule AthashaWeb.ScreenSocket do
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
-  end
-
-  defp initial_point({id, _, value}) do
-    %{id: id, value: value}
   end
 
   defp login(_token, _proof, nil), do: false

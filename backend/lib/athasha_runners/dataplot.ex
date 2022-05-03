@@ -10,6 +10,8 @@ defmodule Athasha.DataplotRunner do
     database = setts["database"]
     connstr = setts["connstr"]
     command = setts["command"]
+    dbpass = setts["dbpass"]
+    connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
     Items.register_password!(item, password)
 

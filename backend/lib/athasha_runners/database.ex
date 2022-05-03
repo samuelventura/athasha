@@ -12,6 +12,8 @@ defmodule Athasha.DatabaseRunner do
     database = setts["database"]
     connstr = setts["connstr"]
     command = setts["command"]
+    dbpass = setts["dbpass"]
+    connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
     period =
       case unit do

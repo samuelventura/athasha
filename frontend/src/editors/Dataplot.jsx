@@ -30,6 +30,7 @@ function initialSetts() {
         connstr: "",
         command: "",
         database: "sqlserver",
+        dbpass: "",
         password: "",
     }
 }
@@ -123,6 +124,12 @@ function Editor(props) {
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Database Password">
+                        <Form.Control type="password" title={setts.dbpass}
+                            value={setts.dbpass} onChange={e => setProp("dbpass", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
                 <Col></Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-end">
                     <Button variant='link' size="sm" title="Apply Changes"
@@ -136,7 +143,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Password">
-                        <Form.Control type="password"
+                        <Form.Control type="password" title={setts.password}
                             value={setts.password} onChange={e => setProp("password", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -144,7 +151,7 @@ function Editor(props) {
             <Row>
                 <Col>
                     <FloatingLabel label="Connection String">
-                        <Form.Control type="text"
+                        <Form.Control type="text" as="textarea"
                             value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -152,7 +159,7 @@ function Editor(props) {
             <Row>
                 <Col>
                     <FloatingLabel label="SQL Command">
-                        <Form.Control type="text"
+                        <Form.Control type="text" as="textarea"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>
                 </Col>

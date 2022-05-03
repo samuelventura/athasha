@@ -12,6 +12,7 @@ defmodule AthashaWeb.Endpoint do
 
   socket("/items", AthashaWeb.ItemsSocket, websocket: [timeout: 10000], longpoll: false)
   socket("/screen", AthashaWeb.ScreenSocket, websocket: [timeout: 10000], longpoll: false)
+  socket("/dataplot", AthashaWeb.DataplotSocket, websocket: [timeout: 10000], longpoll: false)
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
 
   # Serve at "/" the static files from "priv/static" directory.
