@@ -80,24 +80,28 @@ using (var port = new SerialPort())
                         }
                     case 'm': // master request/response
                         {
-                            len = ((data[1] << 8) | (data[2] << 0));
-                            port.DiscardInBuffer();
-                            port.DiscardOutBuffer();
-                            if (data.Length > 3)
+                            //async to ensure a partial response won't zombie this process
+                            Task.Run(() =>
                             {
-                                port.Write(data, 3, data.Length - 3);
-                            }
-                            var count = 0;
-                            var bytes = new byte[len + 2];
-                            bytes[0] = data[1];
-                            bytes[1] = data[2];
-                            while (count < len)
-                            {
-                                read = port.Read(bytes, 2 + count, len - count);
-                                if (read == 0) throw new Exception("Zero read");
-                                count += read;
-                            }
-                            stdout.Write(bytes, 0, bytes.Length);
+                                len = ((data[1] << 8) | (data[2] << 0));
+                                port.DiscardInBuffer();
+                                port.DiscardOutBuffer();
+                                if (data.Length > 3)
+                                {
+                                    port.Write(data, 3, data.Length - 3);
+                                }
+                                var count = 0;
+                                var bytes = new byte[len + 2];
+                                bytes[0] = data[1];
+                                bytes[1] = data[2];
+                                while (count < len)
+                                {
+                                    read = port.Read(bytes, 2 + count, len - count);
+                                    if (read == 0) throw new Exception("Zero read");
+                                    count += read;
+                                }
+                                stdout.Write(bytes, 0, bytes.Length);
+                            });
                             break;
                         }
                     case 's': // slave request scan
