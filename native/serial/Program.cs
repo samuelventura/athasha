@@ -43,31 +43,22 @@ using (var port = new SerialPort())
         {
             while (true)
             {
-
-                var head = new byte[2];
-                var read = stdin.Read(head, 0, head.Length);
-                if (read == 0) return;
-                var len = ((head[0] << 8) | (head[1] << 0));
-                var data = new byte[len];
-                read = stdin.Read(data, 0, data.Length);
-                if (read == 0) return;
-                if (read != len) throw new Exception("Read mismatch");
+                var data = Stdio.Read(stdin);
+                if (data == null) return;
                 var cmd = (char)data[0];
                 switch (cmd)
                 {
                     case 'r':
                         {
-                            len = port.BytesToRead;
-                            var bytes = new byte[len + 2];
-                            bytes[0] = (byte)((len >> 8) & 0xff);
-                            bytes[1] = (byte)((len >> 0) & 0xff);
+                            var len = port.BytesToRead;
+                            var bytes = new byte[len];
                             if (len > 0)
                             {
-                                read = port.Read(bytes, 2, len);
+                                var read = port.Read(bytes, 0, len);
                                 if (read == 0) throw new Exception("Zero read");
                                 if (read != len) throw new Exception("Read mismatch");
                             }
-                            stdout.Write(bytes, 0, bytes.Length);
+                            Stdio.Write(stdout, bytes);
                             break;
                         }
                     case 'w':
@@ -83,7 +74,7 @@ using (var port = new SerialPort())
                             //async to ensure a partial response won't zombie this process
                             Task.Run(() =>
                             {
-                                len = ((data[1] << 8) | (data[2] << 0));
+                                var len = ((data[1] << 8) | (data[2] << 0));
                                 port.DiscardInBuffer();
                                 port.DiscardOutBuffer();
                                 if (data.Length > 3)
@@ -91,16 +82,14 @@ using (var port = new SerialPort())
                                     port.Write(data, 3, data.Length - 3);
                                 }
                                 var count = 0;
-                                var bytes = new byte[len + 2];
-                                bytes[0] = data[1];
-                                bytes[1] = data[2];
+                                var bytes = new byte[len];
                                 while (count < len)
                                 {
-                                    read = port.Read(bytes, 2 + count, len - count);
+                                    var read = port.Read(bytes, count, len - count);
                                     if (read == 0) throw new Exception("Zero read");
                                     count += read;
                                 }
-                                stdout.Write(bytes, 0, bytes.Length);
+                                Stdio.Write(stdout, bytes);
                             });
                             break;
                         }
@@ -124,17 +113,15 @@ using (var port = new SerialPort())
                                 }
                                 while (port.BytesToRead > count);
                                 var len = port.BytesToRead + 1;
-                                var bytes = new byte[len + 2];
-                                bytes[0] = (byte)((len >> 8) & 0xff);
-                                bytes[1] = (byte)((len >> 0) & 0xff);
-                                bytes[2] = (byte)first;
+                                var bytes = new byte[len];
+                                bytes[0] = (byte)first;
                                 if (len > 0)
                                 {
-                                    read = port.Read(bytes, 3, len - 1);
+                                    var read = port.Read(bytes, 1, len - 1);
                                     if (read == 0) throw new Exception("Zero read");
                                     if (read != len - 1) throw new Exception("Read mismatch");
                                 }
-                                stdout.Write(bytes, 0, bytes.Length);
+                                Stdio.Write(stdout, bytes);
                             });
                             break;
                         }

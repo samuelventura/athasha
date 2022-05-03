@@ -3,6 +3,8 @@
 % brew install --cask dotnet-sdk
 % dotnet --version
 6.0.202
+% dotnet --info | grep RID
+ RID:         ubuntu.20.04-x64
 #https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 % rm -fr native/ports/priv/dotnet
 % (cd native/serial && dotnet publish -r linux-x64 --self-contained)
