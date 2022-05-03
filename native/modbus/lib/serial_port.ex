@@ -2,9 +2,9 @@ defmodule Modbus.Sport do
   def open(device, speed, config) do
     exec =
       case :os.type() do
-        {:unix, :darwin} -> :code.priv_dir(:ports) ++ '/dotnet/sport'
-        {:unix, :linux} -> :code.priv_dir(:ports) ++ '/dotnet/sport'
-        {:win32, :nt} -> :code.priv_dir(:ports) ++ '/dotnet/sport.exe'
+        {:unix, :darwin} -> :code.priv_dir(:ports) ++ '/dotnet/serial'
+        {:unix, :linux} -> :code.priv_dir(:ports) ++ '/dotnet/serial'
+        {:win32, :nt} -> :code.priv_dir(:ports) ++ '/dotnet/serial.exe'
       end
 
     args = [device, to_string(speed), config]
