@@ -106,6 +106,12 @@ function Editor(props) {
             </td>
         </tr>
     )
+    function onUpdate() {
+        props.saveForView()
+    }
+    function onView() {
+        window.open(`dataplot.html?id=${props.id}`, '_blank').focus();
+    }
     return (
         <Form>
             <Row>
@@ -117,6 +123,17 @@ function Editor(props) {
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
+                <Col></Col>
+                <Col xs={2} className="d-flex align-items-center justify-content-end">
+                    <Button variant='link' size="sm" title="Apply Changes"
+                        disabled={!props.valid} onClick={onUpdate}>
+                        Update
+                    </Button>
+                    <Button variant='link' size="sm" title="Launch Viewer"
+                        disabled={!props.valid} onClick={onView}>
+                        View
+                    </Button>
+                </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Password">
                         <Form.Control type="password"
@@ -125,7 +142,7 @@ function Editor(props) {
                 </Col>
             </Row>
             <Row>
-                <Col xs={9}>
+                <Col>
                     <FloatingLabel label="Connection String">
                         <Form.Control type="text"
                             value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
@@ -133,7 +150,7 @@ function Editor(props) {
                 </Col>
             </Row>
             <Row>
-                <Col xs={9}>
+                <Col>
                     <FloatingLabel label="SQL Command">
                         <Form.Control type="text"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />

@@ -84,7 +84,8 @@ function Rows(props) {
                 break
             }
             case "view": {
-                window.open(`screen.html?id=${item.id}`, '_blank').focus();
+                const page = item.type.toLowerCase()
+                window.open(`${page}.html?id=${item.id}`, '_blank').focus();
                 break
             }
             default:
@@ -135,10 +136,10 @@ function Rows(props) {
             </Badge>
         )
     }
-
+    const itemsWithView = ["Screen", "Dataplot"]
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
-        const viewAction = item.type === "Screen" ? (
+        const viewAction = itemsWithView.includes(item.type) ? (
             <Button variant="link" onClick={(e) => handleClick(e, 'view', item)}
                 onDoubleClick={(e) => onDoubleClick(e)}>View</Button>
         ) : null

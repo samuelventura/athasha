@@ -131,14 +131,14 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label="Unit">
                         <Form.Select value={setts.unit} onChange={e => setProp("unit", e.target.value)}>
-                            <option value="s">second(s)</option>
-                            <option value="ms">millisecond(s)</option>
+                            <option value="s">Second(s)</option>
+                            <option value="ms">Millisecond(s)</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
-                <Col xs={9}>
+                <Col>
                     <FloatingLabel label="Connection String">
                         <Form.Control type="text"
                             value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
@@ -146,7 +146,7 @@ function Editor(props) {
                 </Col>
             </Row>
             <Row>
-                <Col xs={9}>
+                <Col>
                     <FloatingLabel label="SQL Command">
                         <Form.Control type="text"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
