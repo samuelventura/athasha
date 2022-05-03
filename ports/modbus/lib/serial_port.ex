@@ -31,4 +31,25 @@ defmodule Modbus.Sport do
     true = Port.command(port, ["w", data])
     :ok
   end
+
+  def master_reqres(port, packet, count, timeout) do
+    <<b0::8, b1::8>> = <<count::unsigned-integer-16>>
+    true = Port.command(port, ["m", b0, b1, packet])
+
+    receive do
+      {^port, {:exit_status, status}} -> {:error, {:exit, status}}
+      {^port, {:data, data}} -> {:ok, data}
+    after
+      timeout -> {:error, :timeout}
+    end
+  end
+
+  def slave_waitreq(port) do
+    true = Port.command(port, ["s"])
+
+    receive do
+      {^port, {:exit_status, status}} -> {:error, {:exit, status}}
+      {^port, {:data, data}} -> {:ok, data}
+    end
+  end
 end

@@ -151,19 +151,13 @@ defmodule Modbus.Master do
       result =
         case request(proto, cmd, tid) do
           {:ok, request, length} ->
-            case Transport.write(trans, request) do
-              :ok ->
-                case Transport.readn(trans, length, timeout) do
-                  {:ok, response} ->
-                    values = Protocol.parse_res(proto, cmd, response, tid)
+            case Transport.master_reqres(trans, request, length, timeout) do
+              {:ok, response} ->
+                values = Protocol.parse_res(proto, cmd, response, tid)
 
-                    case values do
-                      nil -> :ok
-                      _ -> {:ok, values}
-                    end
-
-                  error ->
-                    error
+                case values do
+                  nil -> :ok
+                  _ -> {:ok, values}
                 end
 
               error ->

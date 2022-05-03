@@ -11,17 +11,18 @@ defmodule Modbus.Tcp.Transport do
     :gen_tcp.connect(ip, port, opts, timeout)
   end
 
-  def readn(socket, count, timeout) do
+  def master_reqres(socket, packet, count, timeout) do
+    # discard before send
+    :gen_tcp.recv(socket, 0, 0)
+    :gen_tcp.send(socket, packet)
     :gen_tcp.recv(socket, count, timeout)
   end
 
-  def readp(socket) do
+  def slave_waitreq(socket) do
     :gen_tcp.recv(socket, 0)
   end
 
-  def write(socket, packet) do
-    # discard before send
-    :gen_tcp.recv(socket, 0, 0)
+  def slave_sendres(socket, packet) do
     :gen_tcp.send(socket, packet)
   end
 
