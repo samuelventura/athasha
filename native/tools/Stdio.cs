@@ -1,4 +1,5 @@
-﻿namespace SharpTools;
+﻿using System.Text;
+namespace SharpTools;
 
 public class Stdio
 {
@@ -15,6 +16,13 @@ public class Stdio
         return data;
     }
 
+    public static string ReadString(Stream stdin)
+    {
+        var data = Read(stdin);
+        if (data == null) return null;
+        return Encoding.UTF8.GetString(data);
+    }
+
     public static void Write(Stream stdout, byte[] bytes)
     {
         var head = new byte[2];
@@ -23,5 +31,10 @@ public class Stdio
         head[1] = (byte)((len >> 0) & 0xff);
         stdout.Write(head, 0, head.Length);
         stdout.Write(bytes, 0, bytes.Length);
+    }
+
+    public static void WriteString(Stream stdout, string text)
+    {
+        Write(stdout, Encoding.UTF8.GetBytes(text));
     }
 }

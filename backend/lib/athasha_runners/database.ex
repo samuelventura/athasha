@@ -7,13 +7,10 @@ defmodule Athasha.DatabaseRunner do
   def run(item) do
     config = item.config
     setts = config["setts"]
-    host = setts["host"]
     unit = setts["unit"]
     period = parse_int(setts["period"])
-    port = parse_int(setts["port"])
     database = setts["database"]
-    username = setts["username"]
-    password = setts["password"]
+    connstr = setts["connstr"]
     command = setts["command"]
 
     period =
@@ -30,44 +27,35 @@ defmodule Athasha.DatabaseRunner do
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
-      host: host,
-      port: port,
       period: period,
       points: points,
       database: database,
-      username: username,
-      password: password,
+      connstr: connstr,
       command: command
     }
 
     Items.update_status!(item, :warn, "Connecting...")
-
-    case connect_dbconn(config) do
-      {:ok, dbconn} ->
-        Items.update_status!(item, :success, "Connected")
-        Process.send_after(self(), :status, @status)
-        Process.send_after(self(), :once, 0)
-        run_loop(item, config, dbconn)
-
-      {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(reason)}")
-        Raise.error({:connect_dbconn, config, reason})
-    end
+    port = connect_port(config)
+    true = Port.command(port, config.connstr)
+    Items.update_status!(item, :success, "Connected")
+    Process.send_after(self(), :status, @status)
+    Process.send_after(self(), :once, 0)
+    run_loop(item, config, port)
   end
 
-  defp run_loop(item, config, dbconn) do
-    wait_once(item, config, dbconn)
-    run_loop(item, config, dbconn)
+  defp run_loop(item, config, port) do
+    wait_once(item, config, port)
+    run_loop(item, config, port)
   end
 
-  defp wait_once(item, config, dbconn) do
+  defp wait_once(item, config, port) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
-        run_once(item, config, dbconn)
+        run_once(item, config, port)
         Process.send_after(self(), :once, config.period)
 
       other ->
@@ -75,8 +63,8 @@ defmodule Athasha.DatabaseRunner do
     end
   end
 
-  defp run_once(item, config, dbconn) do
-    params =
+  defp run_once(_item, config, port) do
+    parameters =
       Enum.map(config.points, fn point ->
         id = point.id
         value = Points.get_value(id)
@@ -85,28 +73,29 @@ defmodule Athasha.DatabaseRunner do
           Raise.error({:missing, id})
         end
 
-        %Tds.Parameter{name: point.param, value: value}
+        %{value: value, type: type_of(value)}
       end)
 
-    case Tds.query(dbconn, config.command, params) do
-      {:ok, _res} ->
-        :ok
-
-      {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(params)} #{inspect(reason)}")
-        Raise.error({:tds_query, params, reason})
-    end
+    dto = %{command: config.command, parameters: parameters}
+    true = Port.command(port, ["x", Jason.encode!(dto)])
   end
 
-  defp connect_dbconn(config) do
-    Tds.start_link(
-      hostname: config.host,
-      username: config.username,
-      password: config.password,
-      database: config.database,
-      port: config.port
-    )
+  defp connect_port(config) do
+    exec =
+      case :os.type() do
+        {:unix, :darwin} -> :code.priv_dir(:ports) ++ '/dotnet/database'
+        {:unix, :linux} -> :code.priv_dir(:ports) ++ '/dotnet/database'
+        {:win32, :nt} -> :code.priv_dir(:ports) ++ '/dotnet/database.exe'
+      end
+
+    args = [config.database]
+    opts = [:binary, :exit_status, packet: 2, args: args]
+    Port.open({:spawn_executable, exec}, opts)
   end
+
+  defp type_of(value) when is_float(value), do: "float"
+  defp type_of(value) when is_integer(value), do: "integer"
+  defp type_of(value) when is_binary(value), do: "string"
 
   defp parse_int(value) do
     {parsed, _} = Integer.parse(value)

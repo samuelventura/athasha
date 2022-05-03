@@ -1,12 +1,20 @@
 ﻿using System;
 using System.IO.Ports;
-using System.Text.Json;
 using SharpTools;
-CatchAll.Setup((e) =>
+var catcher = (Exception ex) =>
 {
-    Console.Error.WriteLine("{0}", e);
+    Console.Error.WriteLine("{0}", ex);
     Environment.Exit(1);
-});
+};
+Global.Catch(catcher);
+var runner = (Action action) =>
+{
+    Task.Run(() =>
+    {
+        try { action(); }
+        catch (Exception ex) { catcher(ex); }
+    });
+};
 var tty = args[0];
 var speed = args[1];
 var config = args[2];
@@ -72,7 +80,7 @@ using (var port = new SerialPort())
                     case 'm': // master request/response
                         {
                             //async to ensure a partial response won't zombie this process
-                            Task.Run(() =>
+                            runner(() =>
                             {
                                 var len = ((data[1] << 8) | (data[2] << 0));
                                 port.DiscardInBuffer();
@@ -96,7 +104,7 @@ using (var port = new SerialPort())
                     case 's': // slave request scan
                         {
                             //async to ensure slave port exits when stdin closes
-                            Task.Run(() =>
+                            runner(() =>
                             {
                                 var first = port.ReadByte();
                                 if (first == -1) throw new Exception("Zero read");

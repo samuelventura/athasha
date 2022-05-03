@@ -1,8 +1,8 @@
 ﻿namespace SharpTools;
 
-public class CatchAll
+public class Global
 {
-    public static void Setup(Action<Exception> handler)
+    public static void Catch(Action<Exception> handler)
     {
         AppDomain.CurrentDomain.UnhandledException += (s, e) => { handler(e.ExceptionObject as Exception); };
     }

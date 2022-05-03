@@ -28,14 +28,11 @@ function ItemInitial() {
 
 function initialSetts() {
     return {
-        host: "127.0.0.1",
-        port: "1433",
+        connstr: "",
+        command: "",
+        database: "sqlserver",
         period: "1",
         unit: "s",
-        database: "datalog",
-        username: "sa",
-        password: "",
-        command: "insert into dbo.Table1 (COL1) values (@1)",
     }
 }
 
@@ -57,14 +54,10 @@ function Editor(props) {
     //rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlank(setts.host)
-        valid = valid && checkRange(setts.port, 1, 65535)
         valid = valid && checkRange(setts.period, 1)
         valid = valid && checkNotBlank(setts.unit)
         valid = valid && points.length > 0
-        valid = valid && checkNotBlank(setts.database)
-        valid = valid && checkNotBlank(setts.username)
-        valid = valid && checkNotBlank(setts.password)
+        valid = valid && checkNotBlank(setts.connstr)
         valid = valid && checkNotBlank(setts.command)
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkNotBlank(point.id)
@@ -121,16 +114,12 @@ function Editor(props) {
     return (
         <Form>
             <Row>
-                <Col xs={4}>
-                    <FloatingLabel label="Hostname/IP Address">
-                        <Form.Control autoFocus type="text"
-                            value={setts.host} onChange={e => setProp("host", e.target.value)} />
-                    </FloatingLabel>
-                </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Port">
-                        <Form.Control type="number" min="1" max="65535"
-                            value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
+                    <FloatingLabel label="Database">
+                        <Form.Select value={setts.database} onChange={e => setProp("database", e.target.value)}>
+                            <option value="sqlserver">SQL Server</option>
+                            <option value="sqlite">SQLite</option>
+                        </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={1}>
@@ -149,28 +138,16 @@ function Editor(props) {
                 </Col>
             </Row>
             <Row>
-                <Col xs={3}>
-                    <FloatingLabel label="Database">
+                <Col xs={9}>
+                    <FloatingLabel label="Connection String">
                         <Form.Control autoFocus type="text"
-                            value={setts.database} onChange={e => setProp("database", e.target.value)} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={3}>
-                    <FloatingLabel label="Username">
-                        <Form.Control type="text"
-                            value={setts.username} onChange={e => setProp("username", e.target.value)} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={3}>
-                    <FloatingLabel label="Password">
-                        <Form.Control type="password"
-                            value={setts.password} onChange={e => setProp("password", e.target.value)} />
+                            value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col xs={9}>
-                    <FloatingLabel label="Command">
+                    <FloatingLabel label="SQL Command">
                         <Form.Control autoFocus type="text"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>

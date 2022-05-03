@@ -1,31 +1,21 @@
 ﻿using System;
 using System.Text.Json;
+using System.Text;
 using SharpTools;
-CatchAll.Setup((e) =>
+Global.Catch((ex) =>
 {
-    Console.Error.WriteLine("{0}", e);
+    Console.Error.WriteLine("{0}", ex);
     Environment.Exit(1);
 });
 var dbtype = args[0];
-var connstr = Console.ReadLine();
-if (connstr == null) return;
-var db = new Database();
-switch (dbtype)
+using (var stdin = Console.OpenStandardInput())
 {
-    case "sqlserver":
-        db = new SqlServerDatabase(connstr);
-        break;
-    case "sqlite":
-        db = new SqliteDatabase(connstr);
-        break;
-    default:
-        throw new Exception("Unknown dbtype");
-}
-using (db)
-{
-    using (var stdin = Console.OpenStandardInput())
+    using (var stdout = Console.OpenStandardOutput())
     {
-        using (var stdout = Console.OpenStandardOutput())
+        var encoder = new UTF8Encoding();
+        var connstr = Stdio.ReadString(stdin);
+        if (connstr == null) return;
+        using (var db = Database.Factory(dbtype, connstr))
         {
             while (true)
             {
@@ -34,9 +24,11 @@ using (db)
                 var cmd = (char)data[0];
                 switch (cmd)
                 {
-                    case 'i':
+                    case 'x':
                         {
-
+                            var json = encoder.GetString(data, 1, data.Length - 1);
+                            var dto = JsonSerializer.Deserialize<ExecuteDto>(json);
+                            db.Execute(dto);
                             break;
                         }
                     default:
@@ -45,4 +37,14 @@ using (db)
             }
         }
     }
+}
+public class ExecuteDto
+{
+    public string command { get; set; }
+    public ParamDto[] parameters { get; set; }
+}
+public class ParamDto
+{
+    public string type { get; set; }
+    public object value { get; set; }
 }
