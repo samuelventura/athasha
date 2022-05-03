@@ -17,14 +17,15 @@ defmodule Modbus.Mixfile do
 
   def application do
     [
-      extra_applications: [],
+      extra_applications: [:ports],
       env: []
     ]
   end
 
   defp deps do
     [
-      {:ex_doc, "~> 0.28", only: :dev}
+      {:ex_doc, "~> 0.28", only: :dev},
+      {:ports, path: "../ports"}
     ]
   end
 

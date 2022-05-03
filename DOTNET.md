@@ -4,12 +4,12 @@
 % dotnet --version
 6.0.202
 #https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-% rm -fr ports/modbus/priv/dotnet
-% (cd ports/sport && dotnet publish -r linux-x64 --self-contained)
-% rsync -avr ports/sport/bin/Debug/net6.0/linux-x64/publish/* ports/modbus/priv/dotnet
-% ports/modbus/priv/dotnet/sport
-% (cd ports/modbus && ./test.sh)
-% (cd ports/modbus && iex -S mix)
+% rm -fr native/ports/priv/dotnet
+% (cd native/sport && dotnet publish -r linux-x64 --self-contained)
+% rsync -avr native/sport/bin/Debug/net6.0/linux-x64/publish/* native/ports/priv/dotnet
+% native/ports/priv/dotnet/sport
+% (cd native/modbus && ./test.sh)
+% (cd native/modbus && iex -S mix)
 
 tty = "/dev/ttyUSB1"
 {:ok, pid} = Serial.start_link(device: tty)

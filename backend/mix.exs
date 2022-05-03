@@ -50,7 +50,7 @@ defmodule Athasha.MixProject do
       {:jason, "~> 1.2"},
       {:tds, "~> 2.3"},
       {:plug_cowboy, "~> 2.5"},
-      {:modbus, path: "../ports/modbus"}
+      {:modbus, path: "../native/modbus"}
     ]
   end
 
