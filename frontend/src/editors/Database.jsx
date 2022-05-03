@@ -57,6 +57,7 @@ function Editor(props) {
         valid = valid && checkRange(setts.period, 1)
         valid = valid && checkNotBlank(setts.unit)
         valid = valid && points.length > 0
+        valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.connstr)
         valid = valid && checkNotBlank(setts.command)
         valid = valid && points.reduce((valid, point) => {
@@ -94,7 +95,6 @@ function Editor(props) {
     const options = PointOptions(app)
     const rows = points.map((point, index) =>
         <tr key={index} className='align-middle'>
-            <td>{index + 1}</td>
             <td>
                 {"@" + (index + 1)}
             </td>
@@ -140,7 +140,7 @@ function Editor(props) {
             <Row>
                 <Col xs={9}>
                     <FloatingLabel label="Connection String">
-                        <Form.Control autoFocus type="text"
+                        <Form.Control type="text"
                             value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -148,7 +148,7 @@ function Editor(props) {
             <Row>
                 <Col xs={9}>
                     <FloatingLabel label="SQL Command">
-                        <Form.Control autoFocus type="text"
+                        <Form.Control type="text"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -157,7 +157,6 @@ function Editor(props) {
             <Table>
                 <thead>
                     <tr>
-                        <th>#</th>
                         <th>Param</th>
                         <th>Point</th>
                         <th>

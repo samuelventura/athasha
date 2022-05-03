@@ -154,7 +154,7 @@ function Editor(props) {
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
-                <Form.Control autoFocus type="text"
+                <Form.Control type="text"
                     value={setts.host} onChange={e => setProp("host", e.target.value)} />
             </FloatingLabel>
         </Col>
@@ -171,7 +171,7 @@ function Editor(props) {
     const transSerial = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
-                <Form.Control autoFocus type="text" list="serialList"
+                <Form.Control type="text" list="serialList"
                     onClick={() => setTrigger(true)} onFocus={() => setTrigger(true)}
                     onKeyPress={e => setTrigger(e.key === 'Enter')}
                     value={setts.tty} onChange={e => setProp("tty", e.target.value)} />

@@ -21,70 +21,67 @@ function ItemEditor(props) {
 function ItemInitial() {
     return {
         setts: initialSetts(),
-        params: [initialParam("DateTime"), initialParam()],
+        columns: [initialColumn("DateTime"), initialColumn()],
     }
 }
 
 function initialSetts() {
     return {
-        host: "127.0.0.1",
-        port: "1433",
-        database: "datalog",
-        username: "sa",
+        connstr: "",
+        command: "",
+        database: "sqlserver",
         password: "",
-        command: "select DT, COL1 from dbo.Table1 where dt>=@FROM and dt<=@TO",
     }
 }
 
-function initialParam(name) {
+function initialColumn(name) {
     return { name: name || "" }
 }
 
 function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(ItemInitial().setts)
-    const [params, setParams] = useState(ItemInitial().params)
+    const [columns, setColumns] = useState(ItemInitial().columns)
     //initialize local state
     useEffect(() => {
         const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
-        setParams(state.params || init.params)
+        setColumns(state.columns || init.columns)
     }, [props.state])
     //rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlank(setts.host)
-        valid = valid && checkRange(setts.port, 1, 65535)
-        valid = valid && params.length > 0
-        valid = valid && checkNotBlank(setts.database)
-        valid = valid && checkNotBlank(setts.username)
         valid = valid && checkNotBlank(setts.password)
+        valid = valid && checkRange(setts.port, 1, 65535)
+        valid = valid && columns.length > 0
+        valid = valid && checkNotBlank(setts.database)
+        valid = valid && checkNotBlank(setts.connstr)
         valid = valid && checkNotBlank(setts.command)
-        valid = valid && params.reduce((valid, param) => {
-            valid = valid && checkNotBlank(param.name)
+        valid = valid && columns.reduce((valid, column) => {
+            valid = valid && checkNotBlank(column.name)
             return valid
         }, true)
         props.setValid(valid)
-        props.store({ setts, params })
-    }, [props, setts, params])
-    function setParam(index, name, value, e) {
-        const next = [...params]
+        props.store({ setts, columns })
+    }, [props, setts, columns])
+    function setColumn(index, name, value, e) {
+        const next = [...columns]
         const prev = next[index][name]
         value = fixInputValue(e, value, prev)
         next[index][name] = value
-        setParams(next)
+        setColumns(next)
     }
-    function addParam() {
-        const next = [...params]
-        const param = initialParam()
-        next.push(param)
-        setParams(next)
+    function addColumn() {
+        const next = [...columns]
+        const column = initialColumn()
+        next.push(column)
+        setColumns(next)
     }
-    function delParam(index) {
-        const next = [...params]
+    function delColumn(index) {
+        const next = [...columns]
         next.splice(index, 1)
-        setParams(next)
+        setColumns(next)
     }
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -93,18 +90,17 @@ function Editor(props) {
         next[name] = value
         setSetts(next)
     }
-    const rows = params.map((param, index) =>
+    const rows = columns.map((column, index) =>
         <tr key={index} className='align-middle'>
-            <td>{index + 1}</td>
             <td>
-                {"@" + (index + 1)}
+                {index + 1}
             </td>
             <td>
-                <Form.Control type="text" value={param.name}
-                    onChange={e => setParam(index, "name", e.target.value)} />
+                <Form.Control type="text" value={column.name}
+                    onChange={e => setColumn(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delParam(index)}>
+                <Button variant='outline-danger' size="sm" onClick={() => delColumn(index)}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -113,33 +109,15 @@ function Editor(props) {
     return (
         <Form>
             <Row>
-                <Col xs={4}>
-                    <FloatingLabel label="Hostname/IP Address">
-                        <Form.Control autoFocus type="text"
-                            value={setts.host} onChange={e => setProp("host", e.target.value)} />
+                <Col xs={2}>
+                    <FloatingLabel label="Database">
+                        <Form.Select value={setts.database} onChange={e => setProp("database", e.target.value)}>
+                            <option value="sqlserver">SQL Server</option>
+                            <option value="sqlite">SQLite</option>
+                        </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Port">
-                        <Form.Control type="number" min="1" max="65535"
-                            value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
-                    </FloatingLabel>
-                </Col>
-            </Row>
-            <Row>
-                <Col xs={3}>
-                    <FloatingLabel label="Dataplot">
-                        <Form.Control autoFocus type="text"
-                            value={setts.database} onChange={e => setProp("database", e.target.value)} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={3}>
-                    <FloatingLabel label="Username">
-                        <Form.Control type="text"
-                            value={setts.username} onChange={e => setProp("username", e.target.value)} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={3}>
                     <FloatingLabel label="Password">
                         <Form.Control type="password"
                             value={setts.password} onChange={e => setProp("password", e.target.value)} />
@@ -148,8 +126,16 @@ function Editor(props) {
             </Row>
             <Row>
                 <Col xs={9}>
-                    <FloatingLabel label="Command">
-                        <Form.Control autoFocus type="text"
+                    <FloatingLabel label="Connection String">
+                        <Form.Control type="text"
+                            value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={9}>
+                    <FloatingLabel label="SQL Command">
+                        <Form.Control type="text"
                             value={setts.command} onChange={e => setProp("command", e.target.value)} />
                     </FloatingLabel>
                 </Col>
@@ -158,11 +144,10 @@ function Editor(props) {
             <Table>
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Param</th>
+                        <th>Column</th>
                         <th>Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addParam}>
+                            <Button variant='outline-primary' size="sm" onClick={addColumn}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

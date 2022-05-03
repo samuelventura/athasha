@@ -6,73 +6,55 @@ defmodule Athasha.DataplotRunner do
   def run(item) do
     config = item.config
     setts = config["setts"]
-    host = setts["host"]
-    port = parse_int(setts["port"])
-    database = setts["database"]
-    username = setts["username"]
     password = setts["password"]
+    database = setts["database"]
+    connstr = setts["connstr"]
     command = setts["command"]
+
+    Items.register_password!(item, password)
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
-      host: host,
-      port: port,
-      database: database,
-      username: username,
       password: password,
+      database: database,
+      connstr: connstr,
       command: command
     }
 
     Items.update_status!(item, :warn, "Connecting...")
-
-    case connect_dbconn(config) do
-      {:ok, dbconn} ->
-        Items.update_status!(item, :success, "Connected")
-        Process.send_after(self(), :status, @status)
-        Process.send_after(self(), :once, 0)
-        run_loop(item, config, dbconn)
-
-      {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(reason)}")
-        Raise.error({:connect_dbconn, config, reason})
-    end
+    port = connect_port(config)
+    true = Port.command(port, config.connstr)
+    Items.update_status!(item, :success, "Connected")
+    Process.send_after(self(), :status, @status)
+    run_loop(item, config, port)
   end
 
-  defp run_loop(item, config, dbconn) do
-    wait_once(item, config, dbconn)
-    run_loop(item, config, dbconn)
+  defp run_loop(item, config, port) do
+    wait_once(item, config, port)
+    run_loop(item, config, port)
   end
 
-  defp wait_once(item, config, dbconn) do
+  defp wait_once(item, _config, _port) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
-
-      :once ->
-        run_once(item, config, dbconn)
-        Process.send_after(self(), :once, 1000)
 
       other ->
         Raise.error({:receive, other})
     end
   end
 
-  defp run_once(_item, _config, _dbconn) do
-  end
+  defp connect_port(config) do
+    exec =
+      case :os.type() do
+        {:unix, :darwin} -> :code.priv_dir(:ports) ++ '/dotnet/database'
+        {:unix, :linux} -> :code.priv_dir(:ports) ++ '/dotnet/database'
+        {:win32, :nt} -> :code.priv_dir(:ports) ++ '/dotnet/database.exe'
+      end
 
-  defp connect_dbconn(config) do
-    Tds.start_link(
-      hostname: config.host,
-      username: config.username,
-      password: config.password,
-      database: config.database,
-      port: config.port
-    )
-  end
-
-  defp parse_int(value) do
-    {parsed, _} = Integer.parse(value)
-    parsed
+    args = [config.database]
+    opts = [:binary, :exit_status, packet: 2, args: args]
+    Port.open({:spawn_executable, exec}, opts)
   end
 end
