@@ -19,8 +19,10 @@ defmodule AthashaWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
-    get("/serial", SerialController, :index)
-    live("/thermostat", ThermostatLive)
+    get("/serial", ToolsController, :serial)
+    get("/identity", ToolsController, :identity)
+    get("/licenses", ToolsController, :licenses)
+    # live("/thermostat", ThermostatLive)
   end
 
   # Other scopes may use custom stacks.
