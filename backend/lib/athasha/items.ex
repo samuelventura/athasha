@@ -100,6 +100,36 @@ defmodule Athasha.Items do
     end
   end
 
+  def register_identity!(identity) do
+    Store.register!({:identity}, identity)
+  end
+
+  def update_identity!(identity) do
+    Store.update!({:identity}, fn _ -> identity end)
+  end
+
+  def find_identity() do
+    case Store.lookup({:identity}) do
+      [{_, identity}] -> identity
+      [] -> nil
+    end
+  end
+
+  def register_licenses!(licenses) do
+    Store.register!({:licenses}, licenses)
+  end
+
+  def update_licenses!(licenses) do
+    Store.update!({:licenses}, fn _ -> licenses end)
+  end
+
+  def find_licenses() do
+    case Store.lookup({:licenses}) do
+      [{_, licenses}] -> licenses
+      [] -> nil
+    end
+  end
+
   def runner_pid(id) do
     q = [{{{:runner, id}, :"$1", :_}, [], [{{:"$1"}}]}]
 

@@ -13,5 +13,6 @@ alias Athasha.Runner
 alias Athasha.Helper
 alias Athasha.Tools
 alias Athasha.License
+alias Athasha.Licenses
 alias Modbus.Master
 alias Modbus.Float

@@ -6,6 +6,8 @@ function initial() {
     status: {},
     selected: {},
     version: 0,
+    id: { identity: "", licenses: 0 },
+    ips: [],
   }
 }
 
@@ -31,6 +33,8 @@ function reducer(state, { name, args, self }) {
       const next = clone_object(state)
       next.items = {}
       next.status = {}
+      next.id = args.id
+      next.ips = args.ips
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item

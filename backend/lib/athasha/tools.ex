@@ -2,6 +2,7 @@ defmodule Athasha.Tools do
   alias Athasha.Repo
   alias Athasha.Auth
   alias Athasha.License
+  alias Athasha.Licenses
 
   def identity() do
     identity = Auth.identity()
@@ -16,6 +17,7 @@ defmodule Athasha.Tools do
     end)
   end
 
+  # Process.send(Licenses, :update, [])
   def add_licenses(list) do
     received = length(list)
     id = Auth.identity()
@@ -36,6 +38,7 @@ defmodule Athasha.Tools do
         end
       end)
 
+    Process.send(Licenses, :update, [])
     %{received: received, installed: installed}
   end
 

@@ -3,8 +3,13 @@ defmodule Athasha.Auth do
   alias Athasha.Ports
   alias Athasha.Repo
 
-  def licenses() do
-    id = identity()
+  def licenses(id \\ nil) do
+    id =
+      case id do
+        nil -> identity()
+        id -> id
+      end
+
     # works with openssl keys but not with ssh-keygen keys
     path = Path.join(:code.priv_dir(:athasha), "athasha.pub")
     pubkey = File.read!(path)
@@ -62,6 +67,7 @@ defmodule Athasha.Auth do
     "#{quantity}:#{key}:#{identity}"
   end
 
+  # Process.send(Licenses, :update, [])
   def insert_local(quantity, key) do
     license = generate_local(quantity, key)
     License.changeset(%License{}, license) |> Repo.insert()

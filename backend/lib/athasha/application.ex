@@ -14,6 +14,7 @@ defmodule Athasha.Application do
       Athasha.Store,
       Athasha.Server,
       Athasha.Runner,
+      Athasha.Licenses,
       # Start the Telemetry supervisor
       AthashaWeb.Telemetry,
       # Start the PubSub system
