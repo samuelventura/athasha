@@ -22,6 +22,7 @@ defmodule AthashaWeb.Router do
     get("/serial", ToolsController, :serial)
     get("/identity", ToolsController, :identity)
     get("/licenses", ToolsController, :licenses)
+    get("/ips", ToolsController, :ips)
     # live("/thermostat", ThermostatLive)
   end
 
