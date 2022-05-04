@@ -19,17 +19,19 @@ defmodule AthashaWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
-    get("/serial", ToolsController, :serial)
-    get("/identity", ToolsController, :identity)
-    get("/licenses", ToolsController, :licenses)
-    get("/ips", ToolsController, :ips)
     # live("/thermostat", ThermostatLive)
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", AthashaWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", AthashaWeb do
+    pipe_through(:api)
+
+    get("/ips", ToolsController, :get_ips)
+    get("/serials", ToolsController, :get_serials)
+    get("/identity", ToolsController, :get_identity)
+    get("/licenses", ToolsController, :get_licenses)
+    post("/licenses", ToolsController, :post_licenses)
+  end
 
   # Enables LiveDashboard only for development
   #

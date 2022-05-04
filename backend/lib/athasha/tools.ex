@@ -16,6 +16,29 @@ defmodule Athasha.Tools do
     end)
   end
 
+  def add_licenses(list) do
+    received = length(list)
+    id = Auth.identity()
+
+    installed =
+      Enum.reduce(list, 0, fn lic, count ->
+        case lic["identity"] do
+          ^id ->
+            cs = License.changeset(%License{}, lic)
+
+            case Repo.insert(cs) do
+              {:error, _} -> count
+              {:ok, _} -> count + 1
+            end
+
+          _ ->
+            count
+        end
+      end)
+
+    %{received: received, installed: installed}
+  end
+
   def ips() do
     {:ok, triples} = :inet.getif()
     triples = Enum.filter(triples, &is_not_localhost/1)

@@ -16,5 +16,6 @@ defmodule Athasha.License do
     item
     |> cast(attrs, [:key, :identity, :quantity, :signature])
     |> validate_required([:key, :identity, :quantity, :signature])
+    |> unique_constraint([:key])
   end
 end

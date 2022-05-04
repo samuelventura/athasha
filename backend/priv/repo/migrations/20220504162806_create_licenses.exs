@@ -10,5 +10,7 @@ defmodule Athasha.Repo.Migrations.CreateLicenses do
 
       timestamps()
     end
+
+    create(unique_index(:licenses, :key))
   end
 end

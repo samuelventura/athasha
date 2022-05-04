@@ -49,7 +49,7 @@ function Editor(props) {
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
-            fetch("serial")
+            fetch("api/serials")
                 .then(r => r.json())
                 .then(l => setSerials(l))
         }
