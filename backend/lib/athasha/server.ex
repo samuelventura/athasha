@@ -1,7 +1,10 @@
 defmodule Athasha.Server do
   use GenServer
+  # 1hr in millis
+  @check 1000 * 60 * 60
 
   alias Athasha.Bus
+  alias Athasha.Auth
   alias Athasha.Spec
   alias Athasha.Repo
   alias Athasha.Item
@@ -24,6 +27,7 @@ defmodule Athasha.Server do
     state = %{version: 0, items: items}
     all = get_all(state)
     Bus.dispatch!(:items, {:init, all})
+    Process.send_after(self(), :check, 0)
     {:ok, state}
   end
 
@@ -33,6 +37,35 @@ defmodule Athasha.Server do
 
   def apply(muta) do
     GenServer.call(__MODULE__, {:apply, self(), muta})
+  end
+
+  def check() do
+    Process.send(__MODULE__, :check, [])
+  end
+
+  def handle_info(:check, state) do
+    total = Auth.licenses()
+
+    Enum.reduce(state.items, 0, fn {_, item}, count ->
+      case item.enabled do
+        true ->
+          if count >= total do
+            spawn(fn ->
+              args = %{id: item.id, enabled: false}
+              muta = %{name: "enable", args: args}
+              apply(muta)
+            end)
+          end
+
+          count + 1
+
+        false ->
+          count
+      end
+    end)
+
+    Process.send_after(self(), :check, @check)
+    {:noreply, state}
   end
 
   def handle_call(:all, _from, state) do
