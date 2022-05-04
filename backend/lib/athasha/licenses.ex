@@ -12,6 +12,10 @@ defmodule Athasha.Licenses do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  def update() do
+    Process.send(__MODULE__, :update, [])
+  end
+
   def init(_initial) do
     id = Auth.identity()
     Items.register_identity!(id)
