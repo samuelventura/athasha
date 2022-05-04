@@ -14,6 +14,7 @@ case $COMMAND in
     build)
     (cd native/serial && dotnet publish -r $TARGET --self-contained)
     (cd native/database && dotnet publish -r $TARGET --self-contained)
+    mkdir -p native/ports/priv
     rsync -avr native/serial/bin/Debug/net6.0/$TARGET/publish/ native/ports/priv/dotnet
     rsync -avr native/database/bin/Debug/net6.0/$TARGET/publish/ native/ports/priv/dotnet
     ;;

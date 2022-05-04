@@ -50,10 +50,12 @@ defmodule Athasha.DataplotRunner do
   defp connect_port(config) do
     exec =
       case :os.type() do
-        {:unix, :darwin} -> :code.priv_dir(:ports) ++ '/dotnet/database'
-        {:unix, :linux} -> :code.priv_dir(:ports) ++ '/dotnet/database'
-        {:win32, :nt} -> :code.priv_dir(:ports) ++ '/dotnet/database.exe'
+        {:unix, :darwin} -> "/dotnet/database"
+        {:unix, :linux} -> "/dotnet/database"
+        {:win32, :nt} -> "/dotnet/database.exe"
       end
+
+    exec = Path.join(:code.priv_dir(:ports), exec)
 
     args = [config.database]
     opts = [:binary, :exit_status, packet: 2, args: args]

@@ -20,7 +20,7 @@ defmodule Athasha.MixProject do
   def application do
     [
       mod: {Athasha.Application, []},
-      extra_applications: [:logger, :runtime_tools, :modbus]
+      extra_applications: [:logger, :runtime_tools, :ssh, :modbus]
     ]
   end
 
