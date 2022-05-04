@@ -2,6 +2,7 @@ defmodule AthashaWeb.ItemsSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   alias Athasha.Bus
+  alias Athasha.Auth
   alias Athasha.Server
 
   def child_spec(_opts) do
@@ -73,8 +74,9 @@ defmodule AthashaWeb.ItemsSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{logged: false}) do
     args = event["args"]
     session = args["session"]
+    password = Auth.password()
 
-    case login(session["token"], session["proof"]) do
+    case Auth.login(session["token"], session["proof"], password) do
       true ->
         Process.send_after(self(), :logged, 0)
         state = Map.put(state, :logged, true)
@@ -145,17 +147,5 @@ defmodule AthashaWeb.ItemsSocket do
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
-  end
-
-  defp password() do
-    ""
-  end
-
-  defp login(token, proof) do
-    proof == sha1("#{token}:#{password()}")
-  end
-
-  defp sha1(data) do
-    :crypto.hash(:sha, data) |> Base.encode16() |> String.downcase()
   end
 end

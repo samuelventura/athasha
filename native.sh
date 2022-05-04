@@ -14,9 +14,11 @@ case $COMMAND in
     build)
     (cd native/serial && dotnet publish -r $TARGET --self-contained)
     (cd native/database && dotnet publish -r $TARGET --self-contained)
+    (cd native/identity && dotnet publish -r $TARGET --self-contained)
     mkdir -p native/ports/priv
     rsync -avr native/serial/bin/Debug/net6.0/$TARGET/publish/ native/ports/priv/dotnet
     rsync -avr native/database/bin/Debug/net6.0/$TARGET/publish/ native/ports/priv/dotnet
+    rsync -avr native/identity/bin/Debug/net6.0/$TARGET/publish/ native/ports/priv/dotnet
     ;;
     test)
       (cd native/modbus && ./test.sh)
@@ -27,5 +29,7 @@ case $COMMAND in
         rm -fr native/serial/obj
         rm -fr native/database/bin
         rm -fr native/database/obj
+        rm -fr native/identity/bin
+        rm -fr native/identity/obj
     ;;
 esac

@@ -1,7 +1,9 @@
 alias Athasha.Bus
+alias Athasha.Auth
 alias Athasha.Spec
 alias Athasha.Repo
 alias Athasha.Item
+alias Athasha.Ports
 alias Athasha.Store
 alias Athasha.Items
 alias Athasha.Raise
@@ -9,7 +11,6 @@ alias Athasha.Points
 alias Athasha.Server
 alias Athasha.Runner
 alias Athasha.Helper
-alias Athasha.License
 alias Athasha.Licenses
 alias Modbus.Master
 alias Modbus.Float

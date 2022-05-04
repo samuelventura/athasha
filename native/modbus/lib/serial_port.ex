@@ -8,7 +8,6 @@ defmodule Modbus.Sport do
       end
 
     exec = Path.join(:code.priv_dir(:ports), exec)
-
     args = [device, to_string(speed), config]
     opts = [:binary, :exit_status, packet: 2, args: args]
     port = Port.open({:spawn_executable, exec}, opts)

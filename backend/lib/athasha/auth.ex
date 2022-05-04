@@ -1,8 +1,9 @@
-defmodule Athasha.Licenses do
+defmodule Athasha.Auth do
   alias Athasha.License
+  alias Athasha.Ports
   alias Athasha.Repo
 
-  def quantity() do
+  def licenses() do
     # works with openssl keys but not with ssh-keygen keys
     path = Path.join(:code.priv_dir(:athasha), "athasha.pub")
     pubkey = File.read!(path)
@@ -10,13 +11,15 @@ defmodule Athasha.Licenses do
     [pubkey] = :public_key.pem_decode(pubkey)
     pubkey = :public_key.pem_entry_decode(pubkey)
 
-    licenses =
+    map =
       Repo.all(License)
       |> Enum.reduce(%{}, fn map, lic -> Map.put(map, lic.key, lic) end)
 
+    id = identity()
+
     total =
-      Enum.reduce(licenses, 0, fn count, lic ->
-        msg = "#{lic.quantity}:#{lic.key}"
+      Enum.reduce(map, 0, fn count, {_, lic} ->
+        msg = "#{lic.quantity}:#{lic.key}:#{id}"
 
         case :public_key.verify(msg, :sha512, lic.signature, pubkey) do
           true -> count + lic.quantity
@@ -30,7 +33,22 @@ defmodule Athasha.Licenses do
     end
   end
 
-  defp sha1(data) do
+  def password() do
+    ""
+  end
+
+  def login(_token, _proof, nil), do: false
+
+  def login(token, proof, password) do
+    proof == sha1("#{token}:#{password}")
+  end
+
+  def sha1(data) do
     :crypto.hash(:sha, data) |> Base.encode16() |> String.downcase()
+  end
+
+  def identity() do
+    [line] = Ports.read_lines("identity")
+    line
   end
 end

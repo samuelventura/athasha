@@ -3,6 +3,7 @@ defmodule AthashaWeb.ScreenSocket do
   @ping 5000
   @item "Screen"
   alias Athasha.Bus
+  alias Athasha.Auth
   alias Athasha.Items
   alias Athasha.Points
 
@@ -73,7 +74,7 @@ defmodule AthashaWeb.ScreenSocket do
     session = args["session"]
     password = Items.find_password(id, @item)
 
-    case login(session["token"], session["proof"], password) do
+    case Auth.login(session["token"], session["proof"], password) do
       true ->
         Process.send_after(self(), :logged, 0)
         state = Map.put(state, :logged, true)
@@ -97,15 +98,5 @@ defmodule AthashaWeb.ScreenSocket do
 
   defp initial_point({id, _, value}) do
     %{id: id, value: value}
-  end
-
-  defp login(_token, _proof, nil), do: false
-
-  defp login(token, proof, password) do
-    proof == sha1("#{token}:#{password}")
-  end
-
-  defp sha1(data) do
-    :crypto.hash(:sha, data) |> Base.encode16() |> String.downcase()
   end
 end

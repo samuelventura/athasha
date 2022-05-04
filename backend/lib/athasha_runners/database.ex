@@ -1,6 +1,7 @@
 defmodule Athasha.DatabaseRunner do
   alias Athasha.Items
   alias Athasha.Raise
+  alias Athasha.Ports
   alias Athasha.Points
   @status 1000
 
@@ -83,18 +84,8 @@ defmodule Athasha.DatabaseRunner do
   end
 
   defp connect_port(config) do
-    exec =
-      case :os.type() do
-        {:unix, :darwin} -> "/dotnet/database"
-        {:unix, :linux} -> "/dotnet/database"
-        {:win32, :nt} -> "/dotnet/database.exe"
-      end
-
-    exec = Path.join(:code.priv_dir(:ports), exec)
-
     args = [config.database]
-    opts = [:binary, :exit_status, packet: 2, args: args]
-    Port.open({:spawn_executable, exec}, opts)
+    Ports.open("database", args)
   end
 
   defp type_of(value) when is_float(value), do: "float"
