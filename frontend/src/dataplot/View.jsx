@@ -7,10 +7,14 @@ import { useApp } from '../App'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { LineChart, Line } from 'recharts';
-
+function hourAgo(hours) {
+    var dt = new Date();
+    dt.setHours(dt.getHours() - hours);
+    return dt
+}
 function View() {
     const app = useApp()
-    const [fromDate, setFromDate] = useState(new Date());
+    const [fromDate, setFromDate] = useState(hourAgo(1));
     const [toDate, setToDate] = useState(new Date());
     const data = [{ name: 'Page A', uv: 400, pv: 2400, amt: 2400 }];
     function updateData() {

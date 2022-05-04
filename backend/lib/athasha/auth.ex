@@ -1,10 +1,10 @@
 defmodule Athasha.Auth do
   alias Athasha.License
   alias Athasha.Ports
-  alias Athasha.Raise
   alias Athasha.Repo
 
   def licenses() do
+    id = identity()
     # works with openssl keys but not with ssh-keygen keys
     path = Path.join(:code.priv_dir(:athasha), "athasha.pub")
     pubkey = File.read!(path)
@@ -12,17 +12,22 @@ defmodule Athasha.Auth do
     [pubkey] = :public_key.pem_decode(pubkey)
     pubkey = :public_key.pem_entry_decode(pubkey)
 
+    # last wins on duplicates
     map =
       Repo.all(License)
-      |> Enum.reduce(%{}, fn map, lic -> Map.put(map, lic.key, lic) end)
-
-    id = identity()
+      |> Enum.reduce(%{}, fn lic, map ->
+        case lic.identity do
+          ^id -> Map.put(map, lic.key, lic)
+          _ -> map
+        end
+      end)
 
     total =
-      Enum.reduce(map, 0, fn count, {_, lic} ->
-        msg = "#{lic.quantity}:#{lic.key}:#{id}"
+      Enum.reduce(map, 0, fn {_, lic}, count ->
+        msg = message(lic.quantity, lic.key, id)
+        signature = lic.signature |> Base.decode64!()
 
-        case :public_key.verify(msg, :sha512, lic.signature, pubkey) do
+        case :public_key.verify(msg, :sha512, signature, pubkey) do
           true -> count + lic.quantity
           false -> count
         end
@@ -53,32 +58,27 @@ defmodule Athasha.Auth do
     line
   end
 
-  def start_link() do
-    spawn_link(&monitor_init/0)
+  def message(quantity, key, identity) do
+    "#{quantity}:#{key}:#{identity}"
   end
 
-  defp monitor_check() do
-    IO.inspect({"monitor_check"})
-    # disable exceding licenses
+  def insert_local(quantity, key) do
+    license = generate_local(quantity, key)
+    License.changeset(%License{}, license) |> Repo.insert()
   end
 
-  # 1hr in millis
-  @check 1000 * 60 * 60
-
-  defp monitor_init() do
-    Process.send(self(), :check, @check)
-    monitor_loop()
+  def generate_local(quantity, key) do
+    home = System.user_home!()
+    path = Path.join([home, ".ssh", "athasha.pem"])
+    generate(quantity, key, identity(), path)
   end
 
-  defp monitor_loop() do
-    receive do
-      :check ->
-        monitor_check()
-        Process.send_after(self(), :check, @check)
-        monitor_loop()
-
-      other ->
-        Raise.error({:receive, other})
-    end
+  def generate(quantity, key, identity, path) do
+    pem = File.read!(path)
+    [privkey] = :public_key.pem_decode(pem)
+    privkey = :public_key.pem_entry_decode(privkey)
+    msg = message(quantity, key, identity)
+    signature = :public_key.sign(msg, :sha512, privkey) |> Base.encode64()
+    %{key: key, quantity: quantity, identity: identity, signature: signature}
   end
 end

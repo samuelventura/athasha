@@ -4,6 +4,7 @@ defmodule Athasha.License do
 
   schema "licenses" do
     field(:key, :string)
+    field(:identity, :string)
     field(:quantity, :integer)
     field(:signature, :string)
 
@@ -13,7 +14,7 @@ defmodule Athasha.License do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:key, :quantity, :signature])
-    |> validate_required([:key, :quantity, :signature])
+    |> cast(attrs, [:key, :identity, :quantity, :signature])
+    |> validate_required([:key, :identity, :quantity, :signature])
   end
 end

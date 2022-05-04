@@ -175,7 +175,8 @@ function RestoreButton() {
             const reader = new FileReader()
             reader.addEventListener('load', (event) => {
                 const uri = event.target.result
-                const base64 = uri.substring("data:application/jsonbase64,".length)
+                //data:application/jsonbase64,XXXXX....
+                const base64 = uri.substring(uri.indexOf(",") + 1)
                 const json = atob(base64)
                 const items = JSON.parse(json)
                 app.send({ name: "restore", args: items })
