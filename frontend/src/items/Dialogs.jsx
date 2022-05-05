@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
 import { faUpload } from '@fortawesome/free-solid-svg-icons'
 import { faInfo } from '@fortawesome/free-solid-svg-icons'
+import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import Environ from '../Environ'
@@ -139,9 +140,10 @@ function NewItem(props) {
     )
 }
 
-function BackupButton() {
+function ToolsButton() {
     const app = useApp()
-    const handleOnClick = () => {
+    const backupDisabled = Object.keys(app.state.items).length == 0
+    function backupItems() {
         const items = Object.values(app.state.items).map(item => {
             return {
                 id: item.id,
@@ -151,7 +153,7 @@ function BackupButton() {
                 config: item.config,
             }
         })
-        const json = JSON.stringify(items)
+        const json = JSON.stringify(items, null, 2)
         const element = document.createElement('a')
         const now = new Date()
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
@@ -161,16 +163,8 @@ function BackupButton() {
         element.style.display = 'none'
         element.click()
     }
-    return app.logged && Object.keys(app.state.items).length > 0 ? (
-        <Button variant="link" onClick={handleOnClick} title="Backup">
-            <FontAwesomeIcon icon={faDownload} />
-        </Button>
-    ) : null
-}
-
-function RestoreButton() {
-    const app = useApp()
-    const handleOnClick = () => {
+    const restoreDisabled = Object.keys(app.state.items).length > 0
+    function restoreItems() {
         const input = document.createElement('input')
         input.setAttribute('accept', ".athasha.backup.json")
         input.type = 'file'
@@ -189,16 +183,61 @@ function RestoreButton() {
         }
         input.click()
     }
-    return app.logged && Object.keys(app.state.items).length === 0 ? (
-        <Button variant="link" onClick={handleOnClick} title="Restore">
-            <FontAwesomeIcon icon={faUpload} />
-        </Button>
+    function backupLicenses() {
+        fetch("api/licenses")
+            .then(r => r.json())
+            .then(list => {
+                const json = JSON.stringify(list, null, 2)
+                const element = document.createElement('a')
+                const now = new Date()
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+                const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
+                element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(json))
+                element.setAttribute('download', `${filename}.athasha.license.json`)
+                element.style.display = 'none'
+                element.click()
+            })
+    }
+    function installLicense() {
+        const input = document.createElement('input')
+        input.setAttribute('accept', ".athasha.license.json")
+        input.type = 'file'
+        input.onchange = _ => {
+            const files = Array.from(input.files)
+            const reader = new FileReader()
+            reader.addEventListener('load', (event) => {
+                const uri = event.target.result
+                //data:application/jsonbase64,XXXXX....
+                const base64 = uri.substring(uri.indexOf(",") + 1)
+                const json = atob(base64)
+                fetch("api/licenses", {
+                    method: "POST",
+                    body: json,
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(() => { fetch("api/update").then(() => window.location.reload()) })
+            })
+            reader.readAsDataURL(files[0])
+        }
+        input.click()
+    }
+    return app.logged ? (
+        <Dropdown className="d-inline pt-1">
+            <Dropdown.Toggle variant="link" title="System Tools">
+                <FontAwesomeIcon icon={faGear} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+                <Dropdown.Item onClick={backupItems} disabled={backupDisabled}>Backup Items</Dropdown.Item>
+                <Dropdown.Item onClick={restoreItems} disabled={restoreDisabled}>Restore Items</Dropdown.Item>
+                <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
+                <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
+            </Dropdown.Menu>
+        </Dropdown>
     ) : null
 }
 
 function HostButton() {
     const app = useApp()
-    const ips = [app.state.hostname, ...app.state.ips]
+    const ips = [app.state.hostname, ...app.state.ips, "localhost", "127.0.0.1"]
     const dropdownItems = ips.map((ip, index) =>
         <Dropdown.Item key={index} href={Environ.reHost(ip)}>{ip}</Dropdown.Item>
     )
@@ -231,4 +270,4 @@ function InfoButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton, InfoButton, HostButton }
+export { NewItem, DeleteItem, RenameItem, InfoButton, HostButton, ToolsButton }

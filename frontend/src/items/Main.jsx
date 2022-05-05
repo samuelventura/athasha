@@ -5,10 +5,9 @@ import { ConnectDialog } from '../Dialogs'
 import { LoginDialog } from '../Dialogs'
 import { LogoutButton } from '../Dialogs'
 import { AlertBanner } from '../Dialogs'
-import { BackupButton } from './Dialogs'
-import { RestoreButton } from './Dialogs'
 import { InfoButton } from './Dialogs'
 import { HostButton } from './Dialogs'
+import { ToolsButton } from './Dialogs'
 import { useApp } from '../App'
 import Browser from "./Browser"
 import Logo from '../logo.svg'
@@ -27,10 +26,9 @@ function Main() {
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
               <span className='d-flex align-items-center'>
-                <HostButton />
                 <InfoButton />
-                <RestoreButton />
-                <BackupButton />
+                <ToolsButton />
+                <HostButton />
                 <LogoutButton />
               </span>
             </Navbar.Text>
