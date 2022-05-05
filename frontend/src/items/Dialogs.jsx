@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
+import Dropdown from 'react-bootstrap/Dropdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
 import { faUpload } from '@fortawesome/free-solid-svg-icons'
 import { faInfo } from '@fortawesome/free-solid-svg-icons'
+import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
+import Environ from '../Environ'
 import { useApp } from '../App'
 
 function DeleteItem(props) {
@@ -193,6 +196,24 @@ function RestoreButton() {
     ) : null
 }
 
+function HostButton() {
+    const app = useApp()
+    const ips = [app.state.hostname, ...app.state.ips]
+    const dropdownItems = ips.map((ip, index) =>
+        <Dropdown.Item key={index} href={Environ.reHost(ip)}>{ip}</Dropdown.Item>
+    )
+    return app.logged ? (
+        <Dropdown className="d-inline pt-1">
+            <Dropdown.Toggle variant="link" title="Change Hostname/IP">
+                <FontAwesomeIcon icon={faEthernet} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+                {dropdownItems}
+            </Dropdown.Menu>
+        </Dropdown>
+    ) : null
+}
+
 function InfoButton() {
     const app = useApp()
     const identity = app.state.identity
@@ -210,4 +231,4 @@ function InfoButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton, InfoButton }
+export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton, InfoButton, HostButton }

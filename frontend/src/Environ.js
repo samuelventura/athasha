@@ -25,6 +25,12 @@ function enableLog(enable) {
     logEnabled = enable
 }
 
-const exports = { wsURL, wsQuery, enableLog, log }
+function reHost(hostname) {
+    const url = new URL(window.location.href)
+    url.hostname = hostname
+    return `${url}`
+}
+
+const exports = { wsURL, wsQuery, enableLog, log, reHost }
 
 export default exports
