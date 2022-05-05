@@ -1,0 +1,1 @@
+call "%~dp0\athasha" eval Athasha.Release.migrate
