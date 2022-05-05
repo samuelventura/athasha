@@ -12,14 +12,18 @@ defmodule AthashaWeb.ToolsController do
     json(conn, Globals.info())
   end
 
-  def get_licenses(conn, _params) do
-    json(conn, Tools.licenses())
+  def get_check(conn, _params) do
+    Server.check()
+    text(conn, "ok")
   end
 
   def get_update(conn, _params) do
     Globals.update()
-    Server.check()
     text(conn, "ok")
+  end
+
+  def get_licenses(conn, _params) do
+    json(conn, Tools.licenses())
   end
 
   # curl -X POST -H 'Content-Type: application/json' -d '{}'  http://localhost:4000/api/licenses
