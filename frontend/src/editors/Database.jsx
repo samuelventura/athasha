@@ -119,7 +119,7 @@ function Editor(props) {
                     <FloatingLabel label="Database">
                         <Form.Select value={setts.database} onChange={e => setProp("database", e.target.value)}>
                             <option value="sqlserver">SQL Server</option>
-                            <option value="sqlite">SQLite</option>
+                            {/* <option value="sqlite">SQLite</option> */}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
