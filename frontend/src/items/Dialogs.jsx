@@ -142,6 +142,13 @@ function NewItem(props) {
 
 function ToolsButton() {
     const app = useApp()
+    function buyLicense() {
+        const id = app.state.identity
+        window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
+    }
+    function copyIdentity() {
+        navigator.clipboard.writeText(app.state.identity)
+    }
     const backupDisabled = Object.keys(app.state.items).length == 0
     function backupItems() {
         const items = Object.values(app.state.items).map(item => {
@@ -226,6 +233,8 @@ function ToolsButton() {
                 <FontAwesomeIcon icon={faGear} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
+                <Dropdown.Item onClick={buyLicense}>Buy License</Dropdown.Item>
+                <Dropdown.Item onClick={copyIdentity}>Copy Identity</Dropdown.Item>
                 <Dropdown.Item onClick={backupItems} disabled={backupDisabled}>Backup Items</Dropdown.Item>
                 <Dropdown.Item onClick={restoreItems} disabled={restoreDisabled}>Restore Items</Dropdown.Item>
                 <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
