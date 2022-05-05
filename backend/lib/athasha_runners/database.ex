@@ -19,7 +19,7 @@ defmodule Athasha.DatabaseRunner do
     period =
       case unit do
         "s" -> period * 1000
-        "ms" -> period * 1
+        "m" -> period * 1000 * 60
       end
 
     points =

@@ -139,7 +139,7 @@ function Editor(props) {
                     <FloatingLabel label="Unit">
                         <Form.Select value={setts.unit} onChange={e => setProp("unit", e.target.value)}>
                             <option value="s">Second(s)</option>
-                            <option value="ms">Millisecond(s)</option>
+                            <option value="m">Minute(s)</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
