@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -21,7 +22,7 @@ function ItemEditor(props) {
 function ItemInitial() {
     return {
         setts: initialSetts(),
-        columns: [initialColumn("DateTime"), initialColumn()],
+        columns: [initialColumn("DateTime")],
     }
 }
 
@@ -32,13 +33,24 @@ function initialSetts() {
         database: "sqlserver",
         dbpass: "",
         password: "",
-        min: "0",
-        max: "100",
+        ymin: "0",
+        ymax: "100",
+        lineWidth: "1",
     }
 }
 
 function initialColumn(name) {
-    return { name: name || "" }
+    return { name: name || "", color: "#000000" }
+}
+
+function getUniqueColor(n) {
+    const rgb = [0, 0, 0];
+    for (let i = 0; i < 24; i++) {
+        rgb[i % 3] <<= 1;
+        rgb[i % 3] |= n & 0x01;
+        n >>= 1;
+    }
+    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
 }
 
 function Editor(props) {
@@ -55,14 +67,16 @@ function Editor(props) {
     //rebuild and store state
     useEffect(() => {
         let valid = true
-        valid = valid && checkNotBlank(setts.password)
+        // valid = valid && checkNotBlank(setts.password)
         valid = valid && checkRange(setts.port, 1, 65535)
         valid = valid && columns.length > 0
+        // valid = valid && checkNotBlank(setts.dbpass)
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.connstr)
         valid = valid && checkNotBlank(setts.command)
-        valid = valid && checkNotBlank(setts.min)
-        valid = valid && checkNotBlank(setts.max)
+        valid = valid && checkNotBlank(setts.ymin)
+        valid = valid && checkNotBlank(setts.ymax)
+        valid = valid && checkRange(setts.lineWidth, 1)
         valid = valid && columns.reduce((valid, column) => {
             valid = valid && checkNotBlank(column.name)
             return valid
@@ -80,6 +94,7 @@ function Editor(props) {
     function addColumn() {
         const next = [...columns]
         const column = initialColumn()
+        column.color = getUniqueColor(columns.length)
         next.push(column)
         setColumns(next)
     }
@@ -101,11 +116,20 @@ function Editor(props) {
                 {index + 1}
             </td>
             <td>
-                <Form.Control type="text" value={column.name}
+                <Form.Control type="text" value={column.name} disabled={index == 0}
                     onChange={e => setColumn(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delColumn(index)}>
+                <InputGroup>
+                    <Form.Control type="color" value={column.color} onChange={e => setColumn(index, "color", e.target.value)}
+                        title={setts.bgColor} disabled={index == 0} />
+                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={column.color}
+                        onChange={e => setColumn(index, "color", e.target.value, e)} disabled={index == 0} />
+                </InputGroup>
+            </td>
+            <td>
+                <Button variant='outline-danger' size="sm" disabled={index == 0}
+                    onClick={() => delColumn(index)}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -172,13 +196,19 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label="Plot Y Min">
                         <Form.Control type="number"
-                            value={setts.min} onChange={e => setProp("min", e.target.value)} />
+                            value={setts.ymin} onChange={e => setProp("ymin", e.target.value)} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Plot Y Max">
                         <Form.Control type="number"
-                            value={setts.max} onChange={e => setProp("max", e.target.value)} />
+                            value={setts.ymax} onChange={e => setProp("ymax", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Line Width">
+                        <Form.Control type="number" min="1"
+                            value={setts.lineWidth} onChange={e => setProp("lineWidth", e.target.value, e)} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -187,6 +217,7 @@ function Editor(props) {
                     <tr>
                         <th>Column</th>
                         <th>Name</th>
+                        <th>Color</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addColumn}
                                 disabled={columns.length > 6}>

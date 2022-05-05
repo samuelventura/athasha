@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Col'
 import Col from 'react-bootstrap/Col'
@@ -13,53 +13,93 @@ import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
 import { Tooltip, Legend } from 'recharts';
+
 function hourAgo(hours) {
     var dt = new Date();
     dt.setHours(dt.getHours() - hours);
     return dt
 }
-function getUniqueColor(n) {
-    const rgb = [0, 0, 0];
-    for (let i = 0; i < 24; i++) {
-        rgb[i % 3] <<= 1;
-        rgb[i % 3] |= n & 0x01;
-        n >>= 1;
-    }
-    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
-}
-function View() {
-    const app = useApp()
-    const [tab, setTab] = useState('plot');
-    const [fromDate, setFromDate] = useState(hourAgo(1));
-    const [toDate, setToDate] = useState(new Date());
-    const cols = app.state.config.columns
-    const min = Number(app.state.config.setts.min)
-    const max = Number(app.state.config.setts.max)
-    const raw = app.state.data
-    const data = raw.map((p) => {
+
+function DataPlot({ version, config, data, defs }) {
+    const cols = config.columns
+    const ymin = Number(config.setts.ymin)
+    const ymax = Number(config.setts.ymax)
+    const lineWidth = Number(config.setts.lineWidth)
+    const list = data.map((p) => {
         const dp = {}
         cols.forEach((c, i) => {
             dp[c.name] = p[i]
         })
         return dp
     })
-    const plotLines = cols.filter((c, i) => i > 0).map((c, i) =>
-        <Line key={i} type="monotone" strokeWidth={2}
-            dataKey={cols[i + 1].name}
-            stroke={getUniqueColor(i)} />)
-    const tableCols = cols.map((c, i) => <th key={i}>{c.name}</th>)
-    function tableRow(dp) { return cols.map((c, i) => <td key={i}>{dp[i]}</td>) }
-    const tableRows = raw.map((dp, i) => <tr key={i}>{tableRow(dp)}</tr>)
-    function updateData() {
-        app.send({ name: "update", args: { fromDate, toDate } })
+    if (list.length == 0) {
+        defs.forEach((dp) => list.push(dp))
     }
+    const plotLines = cols.filter((c, i) => i > 0).map((c, i) =>
+        <Line key={i} type="monotone" strokeWidth={lineWidth} dot={false}
+            dataKey={cols[i + 1].name}
+            stroke={cols[i + 1].color} />)
     function formatTick(v) {
         v = new Date(v)
-        return v.toLocaleTimeString()
+        return v.toTimeString().split(' ')[0]
+    }
+    return <ResponsiveContainer height='100%' width='100%'
+        className="mt-2">
+        <LineChart width={800} height={400} data={list} fill="gray">
+            <Tooltip />
+            <Legend />
+            <XAxis dataKey={cols[0].name} interval="preserveStartEnd"
+                minTickGap={20}
+                tickFormatter={formatTick} />
+            <YAxis domain={[ymin, ymax]} />
+            {plotLines}
+        </LineChart>
+    </ResponsiveContainer>
+}
+
+function DataTable({ version, config, data }) {
+    const cols = config.columns
+    const tableCols = cols.map((c, i) => <th key={i}>{c.name}</th>)
+    function tableRow(dp) { return cols.map((c, i) => <td key={i}>{dp[i]}</td>) }
+    const tableRows = data.map((dp, i) => <tr key={i}>{tableRow(dp)}</tr>)
+    return <Table striped bordered hover>
+        <thead>
+            <tr>
+                {tableCols}
+            </tr>
+        </thead>
+        <tbody>
+            {tableRows}
+        </tbody>
+    </Table>
+}
+
+function View() {
+    const app = useApp()
+    const [tab, setTab] = useState('plot');
+    const [fromDate, setFromDate] = useState(hourAgo(1));
+    const [toDate, setToDate] = useState(new Date());
+    const send = app.send
+    const data = app.state.data
+    const version = app.state.version
+    const config = app.state.config
+    const cols = config.columns
+    const defs = []
+    const dp1 = {}
+    const dp2 = {}
+    dp1[cols[0].name] = fromDate
+    dp2[cols[0].name] = toDate
+    defs.push(dp1)
+    defs.push(dp2)
+    const props = { version, config, data, send, defs }
+    const dataPlot = useMemo(() => <DataPlot {...props} />, [version, config, data, send])
+    const dataTable = useMemo(() => <DataTable {...props} />, [version, config, data, send])
+    function updateData() {
+        send({ name: "update", args: { fromDate, toDate } })
     }
     function downloadData(sep, ext) {
         const heads = cols.map(c => c.name)
-        const rows = raw.map(p => {
+        const rows = data.map(p => {
             return p.join(sep)
         })
         const csv = heads.join(sep) + "\n" + rows.join("\n")
@@ -114,30 +154,10 @@ function View() {
             className="mt-3"
         >
             <Tab eventKey="plot" title="Plot" className='plot'>
-                <ResponsiveContainer height='100%' width='100%'
-                    className="mt-2">
-                    <LineChart width={800} height={400} data={data} fill="gray">
-                        <Tooltip />
-                        <Legend />
-                        <XAxis dataKey={cols[0].name} interval="preserveStartEnd"
-                            minTickGap={20}
-                            tickFormatter={formatTick} />
-                        <YAxis domain={[min, max]} />
-                        {plotLines}
-                    </LineChart>
-                </ResponsiveContainer>
+                {dataPlot}
             </Tab>
             <Tab eventKey="table" title="Table">
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            {tableCols}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tableRows}
-                    </tbody>
-                </Table>
+                {dataTable}
             </Tab>
         </Tabs>
     </Container >

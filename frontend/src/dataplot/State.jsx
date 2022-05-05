@@ -4,9 +4,10 @@ function initial() {
   return {
     id: 0,
     name: "",
-    config: { setts: { min: 0, max: 100 }, columns: [{ name: "" }] },
+    config: { setts: { ymin: 0, ymax: 100, lineWidth: 1 }, columns: [{ name: "" }] },
     status: {},
-    data: []
+    data: [],
+    version: 0,
   }
 }
 
@@ -32,6 +33,7 @@ function reducer(state, { name, args, self }) {
     case "data": {
       const next = clone_object(state)
       next.data = args
+      next.version++
       return next
     }
     case "close": {

@@ -27,7 +27,8 @@ public class SqlServerDatabase : Database
             using (var reader = cmd.ExecuteReader())
             {
                 var list = new List<object[]>();
-                while (reader.Read())
+                //number of seconds in one hour = 3600
+                while (reader.Read() && list.Count < 3600)
                 {
                     var values = new object[reader.FieldCount];
                     reader.GetValues(values);
