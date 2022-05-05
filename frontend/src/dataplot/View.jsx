@@ -6,6 +6,8 @@ import Container from 'react-bootstrap/Container'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Table from 'react-bootstrap/Table'
+import Dropdown from 'react-bootstrap/Dropdown'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import { useApp } from '../App'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
@@ -52,6 +54,23 @@ function View() {
         v = new Date(v)
         return v.toLocaleTimeString()
     }
+    function downloadData(sep, ext) {
+        const heads = cols.map(c => c.name)
+        const rows = raw.map(p => {
+            return p.join(sep)
+        })
+        const csv = heads.join(sep) + "\n" + rows.join("\n")
+        const element = document.createElement('a')
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+        const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
+        element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(csv))
+        element.setAttribute('download', `${filename}.athasha.dataplot.${ext}`)
+        element.style.display = 'none'
+        element.click()
+    }
+    function downloadCsv() { downloadData(",", "csv") }
+    function downloadTsv() { downloadData("\t", "tsv") }
     return <Container className="mt-2">
         <Row className="d-flex align-items-center">
             <Col md={1}><span className="float-end me-2">From</span></Col>
@@ -74,9 +93,16 @@ function View() {
             </Col>
             <Col md={1}></Col>
             <Col md={2}>
-                <Button variant="primary" onClick={updateData}>
-                    Update
-                </Button>
+                <Dropdown as={ButtonGroup}>
+                    <Button variant="primary" onClick={updateData}>
+                        Update
+                    </Button>
+                    <Dropdown.Toggle split />
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={downloadCsv}>Download CSV</Dropdown.Item>
+                        <Dropdown.Item onClick={downloadTsv}>Download TSV</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </Col>
         </Row>
         <Tabs
