@@ -3,11 +3,11 @@ defmodule Athasha.Auth do
   alias Athasha.Ports
   alias Athasha.Repo
 
-  def licenses(id \\ nil) do
-    id =
-      case id do
+  def licenses(identity \\ nil) do
+    identity =
+      case identity do
         nil -> identity()
-        id -> id
+        identity -> identity
       end
 
     # works with openssl keys but not with ssh-keygen keys
@@ -22,14 +22,14 @@ defmodule Athasha.Auth do
       Repo.all(License)
       |> Enum.reduce(%{}, fn lic, map ->
         case lic.identity do
-          ^id -> Map.put(map, lic.key, lic)
+          ^identity -> Map.put(map, lic.key, lic)
           _ -> map
         end
       end)
 
     total =
       Enum.reduce(map, 0, fn {_, lic}, count ->
-        msg = message(lic.quantity, lic.key, id)
+        msg = message(lic.quantity, lic.key, identity)
         signature = lic.signature |> Base.decode64!()
 
         case :public_key.verify(msg, :sha512, signature, pubkey) do
@@ -67,7 +67,7 @@ defmodule Athasha.Auth do
     "#{quantity}:#{key}:#{identity}"
   end
 
-  # Process.send(Licenses, :update, [])
+  # Process.send(Globals, :update, [])
   def insert_local(quantity, key) do
     license = generate_local(quantity, key)
     License.changeset(%License{}, license) |> Repo.insert()

@@ -1,13 +1,7 @@
 defmodule Athasha.Tools do
   alias Athasha.Repo
-  alias Athasha.Auth
+  alias Athasha.Globals
   alias Athasha.License
-
-  def identity() do
-    identity = Auth.identity()
-    licenses = Auth.licenses()
-    %{identity: identity, licenses: licenses}
-  end
 
   def licenses() do
     Repo.all(License)
@@ -18,12 +12,12 @@ defmodule Athasha.Tools do
 
   def add_licenses(list) do
     received = length(list)
-    id = Auth.identity()
+    identity = Globals.find_identity()
 
     installed =
       Enum.reduce(list, 0, fn lic, count ->
         case lic["identity"] do
-          ^id ->
+          ^identity ->
             cs = License.changeset(%License{}, lic)
 
             case Repo.insert(cs) do
@@ -36,7 +30,12 @@ defmodule Athasha.Tools do
         end
       end)
 
-    %{received: received, installed: installed}
+    %{received: received, installed: installed, identity: identity}
+  end
+
+  def hostname() do
+    {:ok, hostname} = :inet.gethostname()
+    to_string(hostname)
   end
 
   def ips() do

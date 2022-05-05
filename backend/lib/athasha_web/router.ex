@@ -26,9 +26,9 @@ defmodule AthashaWeb.Router do
   scope "/api", AthashaWeb do
     pipe_through(:api)
 
-    get("/ips", ToolsController, :get_ips)
+    get("/info", ToolsController, :get_info)
+    get("/update", ToolsController, :get_update)
     get("/serials", ToolsController, :get_serials)
-    get("/identity", ToolsController, :get_identity)
     get("/licenses", ToolsController, :get_licenses)
     post("/licenses", ToolsController, :post_licenses)
   end

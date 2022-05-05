@@ -1,22 +1,25 @@
 defmodule AthashaWeb.ToolsController do
   use AthashaWeb, :controller
   alias Athasha.Tools
-  alias Athasha.Licenses
-
-  def get_ips(conn, _params) do
-    json(conn, Tools.ips())
-  end
+  alias Athasha.Server
+  alias Athasha.Globals
 
   def get_serials(conn, _params) do
     json(conn, Modbus.Serial.Enum.list())
   end
 
-  def get_identity(conn, _params) do
-    json(conn, Tools.identity())
+  def get_info(conn, _params) do
+    json(conn, Globals.info())
   end
 
   def get_licenses(conn, _params) do
     json(conn, Tools.licenses())
+  end
+
+  def get_update(conn, _params) do
+    Globals.update()
+    Server.check()
+    text(conn, "ok")
   end
 
   # curl -X POST -H 'Content-Type: application/json' -d '{}'  http://localhost:4000/api/licenses
@@ -25,7 +28,6 @@ defmodule AthashaWeb.ToolsController do
   def post_licenses(conn, params) do
     list = params["_json"]
     res = Tools.add_licenses(list)
-    Licenses.update()
     json(conn, res)
   end
 end

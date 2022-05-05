@@ -3,9 +3,8 @@ defmodule AthashaWeb.ItemsSocket do
   @ping 5000
   alias Athasha.Bus
   alias Athasha.Auth
-  alias Athasha.Tools
-  alias Athasha.Items
   alias Athasha.Server
+  alias Athasha.Globals
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -39,11 +38,19 @@ defmodule AthashaWeb.ItemsSocket do
     Bus.register!(:status, nil)
     all = Server.all()
     state = Map.put(state, :version, all.version)
-    ips = Tools.ips()
-    identity = Items.find_identity()
-    licenses = Items.find_licenses()
-    id = %{identity: identity, licenses: licenses}
-    args = %{items: all.items, ips: ips, id: id}
+    identity = Globals.find_identity()
+    licenses = Globals.find_licenses()
+    hostname = Globals.find_hostname()
+    ips = Globals.find_ips()
+
+    args = %{
+      items: all.items,
+      identity: identity,
+      licenses: licenses,
+      hostname: hostname,
+      ips: ips
+    }
+
     resp = %{name: "all", args: args}
     reply_text(resp, state)
   end
