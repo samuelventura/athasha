@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
 import { faUpload } from '@fortawesome/free-solid-svg-icons'
+import { faInfo } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import { useApp } from '../App'
 
@@ -192,4 +193,21 @@ function RestoreButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton }
+function InfoButton() {
+    const app = useApp()
+    const identity = app.state.identity
+    const licenses = app.state.licenses
+    const hostname = app.state.hostname
+    const ips = app.state.ips.join(" ")
+    const tooltip = `Identity: ${identity}\nIPs: ${ips}\nHostname: ${hostname}\nLicenses: ${licenses}`
+    const handleOnClick = () => {
+        navigator.clipboard.writeText(tooltip)
+    }
+    return app.logged ? (
+        <Button variant="link" onClick={handleOnClick} title={tooltip + "\n\nClick to Copy to Clipboard"}>
+            <FontAwesomeIcon icon={faInfo} />
+        </Button>
+    ) : null
+}
+
+export { NewItem, DeleteItem, RenameItem, BackupButton, RestoreButton, InfoButton }

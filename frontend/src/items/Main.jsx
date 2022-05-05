@@ -7,6 +7,7 @@ import { LogoutButton } from '../Dialogs'
 import { AlertBanner } from '../Dialogs'
 import { BackupButton } from './Dialogs'
 import { RestoreButton } from './Dialogs'
+import { InfoButton } from './Dialogs'
 import { useApp } from '../App'
 import Browser from "./Browser"
 import Logo from '../logo.svg'
@@ -24,6 +25,7 @@ function Main() {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
+              <InfoButton />
               <RestoreButton />
               <BackupButton />
               <LogoutButton />
