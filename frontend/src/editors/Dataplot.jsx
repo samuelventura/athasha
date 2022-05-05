@@ -32,6 +32,8 @@ function initialSetts() {
         database: "sqlserver",
         dbpass: "",
         password: "",
+        min: "0",
+        max: "100",
     }
 }
 
@@ -59,6 +61,8 @@ function Editor(props) {
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.connstr)
         valid = valid && checkNotBlank(setts.command)
+        valid = valid && checkNotBlank(setts.min)
+        valid = valid && checkNotBlank(setts.max)
         valid = valid && columns.reduce((valid, column) => {
             valid = valid && checkNotBlank(column.name)
             return valid
@@ -125,7 +129,7 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Database Password">
+                    <FloatingLabel label="DB Password">
                         <Form.Control type="password" title={setts.dbpass}
                             value={setts.dbpass} onChange={e => setProp("dbpass", e.target.value)} />
                     </FloatingLabel>
@@ -164,7 +168,20 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
             </Row>
-
+            <Row>
+                <Col xs={2}>
+                    <FloatingLabel label="Plot Y Min">
+                        <Form.Control type="number"
+                            value={setts.min} onChange={e => setProp("min", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
+                    <FloatingLabel label="Plot Y Max">
+                        <Form.Control type="number"
+                            value={setts.max} onChange={e => setProp("max", e.target.value)} />
+                    </FloatingLabel>
+                </Col>
+            </Row>
             <Table>
                 <thead>
                     <tr>

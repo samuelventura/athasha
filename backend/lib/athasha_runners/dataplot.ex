@@ -1,4 +1,5 @@
 defmodule Athasha.DataplotRunner do
+  alias Athasha.Bus
   alias Athasha.Items
   alias Athasha.Ports
   alias Athasha.Raise
@@ -29,6 +30,7 @@ defmodule Athasha.DataplotRunner do
     true = Port.command(port, config.connstr)
     Items.update_status!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
+    Bus.register!({:dataplot, item.id}, nil)
     run_loop(item, config, port)
   end
 
@@ -37,11 +39,24 @@ defmodule Athasha.DataplotRunner do
     run_loop(item, config, port)
   end
 
-  defp wait_once(item, _config, _port) do
+  defp wait_once(item = %{id: id}, config, port) do
     receive do
       :status ->
         Items.update_status!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
+
+      {{:dataplot, ^id}, nil, {from, args}} ->
+        args = Map.put(args, "command", config.command)
+        true = Port.command(port, ["p", Jason.encode!(args)])
+
+        receive do
+          {^port, {:data, data}} ->
+            data = Jason.decode!(data)
+            Bus.dispatch!({:dataplot, from}, data)
+
+          {^port, {:exit_status, status}} ->
+            Raise.error({:receive, {:exit_status, status}})
+        end
 
       other ->
         Raise.error({:receive, other})
@@ -50,6 +65,6 @@ defmodule Athasha.DataplotRunner do
 
   defp connect_port(config) do
     args = [config.database]
-    Ports.open("database", args)
+    Ports.open4("database", args)
   end
 end

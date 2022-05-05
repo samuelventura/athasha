@@ -49,9 +49,11 @@ using (var port = new SerialPort())
     {
         using (var stdout = Console.OpenStandardOutput())
         {
+
+            var stdio = new Stdio.H2(stdin, stdout);
             while (true)
             {
-                var data = Stdio.Read(stdin);
+                var data = stdio.Read();
                 if (data == null) return;
                 var cmd = (char)data[0];
                 switch (cmd)
@@ -66,7 +68,7 @@ using (var port = new SerialPort())
                                 if (read == 0) throw new Exception("Zero read");
                                 if (read != len) throw new Exception("Read mismatch");
                             }
-                            Stdio.Write(stdout, bytes);
+                            stdio.Write(bytes);
                             break;
                         }
                     case 'w':
@@ -97,7 +99,7 @@ using (var port = new SerialPort())
                                     if (read == 0) throw new Exception("Zero read");
                                     count += read;
                                 }
-                                Stdio.Write(stdout, bytes);
+                                stdio.Write(bytes);
                             });
                             break;
                         }
@@ -129,7 +131,7 @@ using (var port = new SerialPort())
                                     if (read == 0) throw new Exception("Zero read");
                                     if (read != len - 1) throw new Exception("Read mismatch");
                                 }
-                                Stdio.Write(stdout, bytes);
+                                stdio.Write(bytes);
                             });
                             break;
                         }

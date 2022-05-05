@@ -80,12 +80,12 @@ defmodule Athasha.DatabaseRunner do
       end)
 
     dto = %{command: config.command, parameters: parameters}
-    true = Port.command(port, ["x", Jason.encode!(dto)])
+    true = Port.command(port, ["b", Jason.encode!(dto)])
   end
 
   defp connect_port(config) do
     args = [config.database]
-    Ports.open("database", args)
+    Ports.open4("database", args)
   end
 
   defp type_of(value) when is_float(value), do: "float"

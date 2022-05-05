@@ -5,6 +5,12 @@ defmodule Athasha.Ports do
     Port.open({:spawn_executable, exec}, opts)
   end
 
+  def open4(name, args \\ []) do
+    exec = exec(name)
+    opts = [:binary, :exit_status, packet: 4, args: args]
+    Port.open({:spawn_executable, exec}, opts)
+  end
+
   def read_lines(name, args \\ []) do
     port = open_lines(name, args)
     read_line(port, [])

@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerDatabase : Database
@@ -17,7 +18,27 @@ public class SqlServerDatabase : Database
         conn.Dispose();
     }
 
-    public override void Execute(ExecuteDto dto)
+    public override string ExecDataplot(DataplotDto dto)
+    {
+        using (var cmd = new SqlCommand(dto.command, conn))
+        {
+            cmd.Parameters.AddWithValue("@FROM", dto.fromDate.ToLocalTime());
+            cmd.Parameters.AddWithValue("@TO", dto.toDate.ToLocalTime());
+            using (var reader = cmd.ExecuteReader())
+            {
+                var list = new List<object[]>();
+                while (reader.Read())
+                {
+                    var values = new object[reader.FieldCount];
+                    reader.GetValues(values);
+                    list.Add(values);
+                }
+                return JsonSerializer.Serialize(list);
+            }
+        }
+    }
+
+    public override void ExecDatabase(DatabaseDto dto)
     {
         using (var cmd = new SqlCommand(dto.command, conn))
         {

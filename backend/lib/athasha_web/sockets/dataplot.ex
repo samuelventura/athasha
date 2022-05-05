@@ -46,11 +46,17 @@ defmodule AthashaWeb.DataplotSocket do
     reply_text(resp, state)
   end
 
+  def handle_info({{:dataplot, _self}, nil, data}, state) do
+    resp = %{name: "data", args: data}
+    reply_text(resp, state)
+  end
+
   def handle_info(:logged, state = %{id: id}) do
     item = Items.find_runner(id)
     Bus.register!({:status, id}, nil)
     Bus.register!({:screen, id}, nil)
     Bus.register!({:item, id}, nil)
+    Bus.register!({:dataplot, self()}, nil)
     config = item.config
     args = %{id: id, type: item.type, name: item.name, config: config}
     resp = %{name: "view", args: args}
@@ -85,8 +91,9 @@ defmodule AthashaWeb.DataplotSocket do
     end
   end
 
-  defp handle_event(event = %{"name" => "update"}, state = %{logged: true}) do
-    IO.inspect(event["args"])
+  defp handle_event(event = %{"name" => "update"}, state = %{id: id, logged: true}) do
+    args = event["args"]
+    Bus.dispatch!({:dataplot, id}, {self(), args})
     {:ok, state}
   end
 

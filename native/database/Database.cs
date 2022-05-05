@@ -17,5 +17,6 @@ public class Database : IDisposable
 
     public Database() { }
     public virtual void Dispose() { }
-    public virtual void Execute(ExecuteDto dto) { }
+    public virtual string ExecDataplot(DataplotDto dto) { return null; }
+    public virtual void ExecDatabase(DatabaseDto dto) { }
 }

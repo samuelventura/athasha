@@ -4,8 +4,9 @@ function initial() {
   return {
     id: 0,
     name: "",
-    config: {},
+    config: { setts: { min: 0, max: 100 }, columns: [{ name: "" }] },
     status: {},
+    data: []
   }
 }
 
@@ -26,6 +27,11 @@ function reducer(state, { name, args, self }) {
     case "status": {
       const next = clone_object(state)
       next.status = args
+      return next
+    }
+    case "data": {
+      const next = clone_object(state)
+      next.data = args
       return next
     }
     case "close": {
