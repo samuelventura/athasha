@@ -18,6 +18,15 @@ function hourAgo(hours) {
     dt.setHours(dt.getHours() - hours);
     return dt
 }
+function getUniqueColor(n) {
+    const rgb = [0, 0, 0];
+    for (let i = 0; i < 24; i++) {
+        rgb[i % 3] <<= 1;
+        rgb[i % 3] |= n & 0x01;
+        n >>= 1;
+    }
+    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
+}
 function View() {
     const app = useApp()
     const [tab, setTab] = useState('plot');
@@ -34,16 +43,10 @@ function View() {
         })
         return dp
     })
-    //https://clrs.cc/
-    const colorOffset = 0
-    //https://www.schemecolor.com/beautiful-rainbow.php
-    const lineColors = ["#5E02E9", "#3C70EF", "#30D800", "#E7E200", "#FD8B00", "#F20800"]
-    //https://www.schemecolor.com/retro-vibrant-rainbow.php
-    //const lineColors = ["#267A9E", "#51A885", "#F5A936", "#ED8C37", "#DB7476", "#986B9B"]
     const plotLines = cols.filter((c, i) => i > 0).map((c, i) =>
         <Line key={i} type="monotone" strokeWidth={2}
             dataKey={cols[i + 1].name}
-            stroke={lineColors[(i + colorOffset) % lineColors.length]} />)
+            stroke={getUniqueColor(i)} />)
     const tableCols = cols.map((c, i) => <th key={i}>{c.name}</th>)
     function tableRow(dp) { return cols.map((c, i) => <td key={i}>{dp[i]}</td>) }
     const tableRows = raw.map((dp, i) => <tr key={i}>{tableRow(dp)}</tr>)

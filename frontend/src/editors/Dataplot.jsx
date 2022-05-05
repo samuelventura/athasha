@@ -188,7 +188,8 @@ function Editor(props) {
                         <th>Column</th>
                         <th>Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addColumn}>
+                            <Button variant='outline-primary' size="sm" onClick={addColumn}
+                                disabled={columns.length > 6}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>
