@@ -1,2 +1,5 @@
 .elixir_ls/
 .DS_Store
+#db and crash during windows release
+*.db
+*.dump

@@ -9,9 +9,17 @@ case $COMMAND in
         (cd backend && mix deps.get --only prod)
         (cd backend && MIX_ENV=prod mix compile)
         (cd backend && MIX_ENV=prod mix assets.deploy)
-        (cd backend && mix phx.gen.release)
-        cp -fr frontend/dist/* backend/priv/static/assets/
-        (cd backend && MIX_ENV=prod mix release)
+        #requires dev dependencies
+        #(cd backend && mix phx.gen.release)
+        cp -fr frontend/dist/* backend/priv/static/
+        (cd backend && MIX_ENV=prod mix release --overwrite)
+        #builds ok from msys terminal but must be launch from cmd because
+        #msys complains erts-12.3.2/bin/erlexec: No such file or directory
+        #backend\_build\prod\rel\athasha\bin\athasha.bat eval "Athasha.Release.migrate"
+        #backend\_build\prod\rel\athasha\bin\athasha.bat start
+        #backend\_build\prod\rel\athasha\bin\athasha.bat remote
+        #Application.fetch_env!(:athasha, AthashaWeb.Endpoint)
+        #Application.fetch_env!(:athasha, Athasha.Repo)
     ;;
     clean)
         rm -fr frontend/node_modules

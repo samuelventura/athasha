@@ -13,12 +13,19 @@ if System.get_env("PHX_SERVER") && System.get_env("RELEASE_NAME") do
 end
 
 if config_env() == :prod do
-  database_path =
-    System.get_env("DATABASE_PATH") ||
-      raise """
-      environment variable DATABASE_PATH is missing.
-      For example: /etc/athasha/athasha.db
-      """
+  root_path = Application.app_dir(:athasha, "../../../") |> Path.expand()
+  port_path = Path.join(root_path, "athasha.port")
+  host_path = Path.join(root_path, "athasha.host")
+  secret_path = Path.join(root_path, "athasha.secret")
+
+  file_read = fn path, def ->
+    case File.read(path) do
+      {:ok, data} -> data
+      _ -> def
+    end
+  end
+
+  database_path = Path.join(root_path, "athasha.db")
 
   config :athasha, Athasha.Repo,
     database: database_path,
@@ -29,15 +36,9 @@ if config_env() == :prod do
   # want to use a different value for prod and you most likely don't want
   # to check this value into version control, so we use an environment
   # variable instead.
-  secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
-
-  host = System.get_env("PHX_HOST") || "example.com"
-  port = String.to_integer(System.get_env("PORT") || "4000")
+  secret_key_base = file_read.(secret_path, "YXRoYXNoYS5pbw==")
+  host = file_read.(host_path, "athasha.io")
+  port = String.to_integer(file_read.(port_path, "4000"))
 
   config :athasha, AthashaWeb.Endpoint,
     url: [host: host, port: 443],
@@ -46,7 +47,7 @@ if config_env() == :prod do
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      ip: {0, 0, 0, 0},
       port: port
     ],
     secret_key_base: secret_key_base
