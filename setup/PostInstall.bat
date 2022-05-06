@@ -8,3 +8,11 @@ call athasha\bin\migrate.bat
 call athasha\bin\athasha.bat install
 athasha\erts-12.3.2\bin\erlsrv.exe enable athasha_athasha
 athasha\erts-12.3.2\bin\erlsrv.exe start athasha_athasha
+powershell -noprofile -command "Get-Acl -Path '%ProgramFiles%' | Set-Acl -Path %cd%"
+rem athasha\lib\ports-0.1.0\priv\dotnet\perms %cd%
+rem System.InvalidOperationException: The security identifier is not allowed to be the owner of this object.
+rem powershell -noprofile -command "Get-Acl -Path '%ProgramFiles%' | Set-Acl -Path %cd%"
+rem takeown /A /R /D Y /F %cd% > nul 2>&1
+rem icacls %cd% /reset
+rem icacls "%ProgramFiles%"
+rem icacls %cd%

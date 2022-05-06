@@ -4,3 +4,4 @@
 *.db
 *.dump
 setup/*.exe
+.vs
