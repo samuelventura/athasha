@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
+import Dropdown from 'react-bootstrap/Dropdown'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Environ from "../Environ"
 import State from "./State"
 import { useApp } from '../App'
@@ -93,6 +95,13 @@ function Rows(props) {
                 props.send({ name: "enable", args: { id: item.id, enabled: args } })
                 break
             }
+            case "clone": {
+                const clone = JSON.parse(JSON.stringify(item))
+                clone.id = null
+                clone.enabled = false
+                props.send({ name: "create", args: clone })
+                break
+            }
             case "view": {
                 const page = item.type.toLowerCase()
                 window.open(`${page}.html?id=${item.id}`, '_blank').focus();
@@ -165,16 +174,19 @@ function Rows(props) {
                 <StatusBadge item={item} />
             </td>
             <td>
-                <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}
-                    onDoubleClick={(e) => onDoubleClick(e)}>Edit</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'delete', item)}
-                    onDoubleClick={(e) => onDoubleClick(e)}>Delete</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'rename', item)}
-                    onDoubleClick={(e) => onDoubleClick(e)}>Rename</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, true)}
-                    onDoubleClick={(e) => onDoubleClick(e)}>Enable</Button>
-                <Button variant="link" onClick={(e) => handleClick(e, 'enable', item, false)}
-                    onDoubleClick={(e) => onDoubleClick(e)}>Disable</Button>
+                <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
+                    <Button variant="secondary" onClick={(e) => handleClick(e, 'edit', item)}>
+                        Edit
+                    </Button>
+                    <Dropdown.Toggle split variant="secondary" />
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'rename', item)}>Rename</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'delete', item)}>Delete</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'clone', item)}>Clone</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
                 {viewAction}
             </td>
         </tr>)

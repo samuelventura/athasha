@@ -54,7 +54,7 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
     sessioner,
   }
   useEffect(() => {
-    if (alert.type === "success") {
+    if (alert.type) {
       const timer = setTimeout(() => setAlert(initialAlert()), 500)
       return () => clearTimeout(timer)
     }
