@@ -1,11 +1,19 @@
 #!/bin/bash -xe
 
 COMMAND="${1:-build}"
-
 case "$OSTYPE" in
-  darwin*)  TARGET=osx-arm64 ;; 
-  linux*)   TARGET=linux-x64 ;;
-  *)        TARGET=win10-x64 ;;
+  darwin*)  
+    TARGET=osx-arm64
+    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
+    ;;
+  linux*)   
+    TARGET=linux-x64
+    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
+    ;;
+  *)        
+    TARGET=win10-x64 
+    PUBLISH="bin/X64/Release/net6.0/$TARGET/publish/"
+    ;;
 esac
 
 TARGET="${2:-${TARGET}}"
@@ -19,11 +27,11 @@ case $COMMAND in
     (cd native/monitor && dotnet publish -c Release -r $TARGET --self-contained true)
     (cd native/perms && dotnet publish -c Release -r $TARGET --self-contained true)
     mkdir -p native/ports/priv
-    rsync -avr native/serial/bin/X64/Release/net6.0/$TARGET/publish/ native/ports/priv/dotnet
-    rsync -avr native/database/bin/X64/Release/net6.0/$TARGET/publish/ native/ports/priv/dotnet
-    rsync -avr native/identity/bin/X64/Release/net6.0/$TARGET/publish/ native/ports/priv/dotnet
-    rsync -avr native/monitor/bin/X64/Release/net6.0/$TARGET/publish/ native/ports/priv/dotnet
-    rsync -avr native/perms/bin/X64/Release/net6.0/$TARGET/publish/ native/ports/priv/dotnet
+    rsync -avr native/serial/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/database/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/identity/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/monitor/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/perms/$PUBLISH native/ports/priv/dotnet
     ;;
     test)
       (cd native/modbus && ./test.sh)
