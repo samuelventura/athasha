@@ -13,7 +13,6 @@ import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 import ItemIcon from './Dataplot.svg'
-import { useApp } from '../App'
 
 function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -54,7 +53,6 @@ function getUniqueColor(n) {
 }
 
 function Editor(props) {
-    const app = useApp()
     const [setts, setSetts] = useState(ItemInitial().setts)
     const [columns, setColumns] = useState(ItemInitial().columns)
     //initialize local state
@@ -68,8 +66,7 @@ function Editor(props) {
     useEffect(() => {
         let valid = true
         // valid = valid && checkNotBlank(setts.password)
-        valid = valid && checkRange(setts.port, 1, 65535)
-        valid = valid && columns.length > 0
+        valid = valid && columns.length > 1
         // valid = valid && checkNotBlank(setts.dbpass)
         valid = valid && checkNotBlank(setts.database)
         valid = valid && checkNotBlank(setts.connstr)
@@ -79,6 +76,7 @@ function Editor(props) {
         valid = valid && checkRange(setts.lineWidth, 1)
         valid = valid && columns.reduce((valid, column) => {
             valid = valid && checkNotBlank(column.name)
+            valid = valid && checkNotBlank(column.color)
             return valid
         }, true)
         props.setValid(valid)
@@ -136,7 +134,7 @@ function Editor(props) {
         </tr>
     )
     function onUpdate() {
-        props.saveForView()
+        props.accept("save-update")
     }
     function onView() {
         window.open(`dataplot.html?id=${props.id}`, '_blank').focus();
@@ -161,11 +159,11 @@ function Editor(props) {
                 <Col></Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-end">
                     <Button variant='link' size="sm" title="Apply Changes"
-                        disabled={!props.valid} onClick={onUpdate}>
+                        onClick={onUpdate}>
                         Update
                     </Button>
                     <Button variant='link' size="sm" title="Launch Viewer"
-                        disabled={!props.valid} onClick={onView}>
+                        onClick={onView}>
                         View
                     </Button>
                 </Col>

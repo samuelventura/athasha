@@ -53,10 +53,20 @@ function Rows(props) {
         setRenameItem(noneItem)
     }
 
-    function handleEdit(item, config, forView) {
-        if (!forView) setEditItem(noneItem)
-        props.send({ name: "edit", args: { id: item.id, config } })
-        if (forView) props.send({ name: "enable", args: { id: item.id, enabled: true } })
+    function handleEdit(item, config, action) {
+        switch (action) {
+            case "save":
+                props.send({ name: "edit", args: { id: item.id, config } })
+                break
+            case "save-close":
+                props.send({ name: "edit", args: { id: item.id, config } })
+                setEditItem(noneItem)
+                break
+            case "save-update":
+                props.send({ name: "edit", args: { id: item.id, config } })
+                props.send({ name: "enable", args: { id: item.id, enabled: true } })
+                break
+        }
     }
 
     function clearEdit() {

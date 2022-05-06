@@ -443,15 +443,13 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
 
 function RightPanel({ show, setShow,
     setts, setProp, selected, actionControl, setControlProp,
-    setDataProp, saveForView, valid, preview, setPreview }) {
+    setDataProp, preview, setPreview }) {
     const { index, control } = selected
     const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp}
-        saveForView={saveForView} valid={valid}
         preview={preview} setPreview={setPreview} />
     const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
         setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
-        saveForView={saveForView} valid={valid}
         preview={preview} setPreview={setPreview}
         actionControl={actionControl} />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
@@ -461,9 +459,9 @@ function RightPanel({ show, setShow,
     )
 }
 
-function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
+function PreviewControl({ accept, preview, setPreview, id }) {
     function onUpdate() {
-        saveForView()
+        accept("save-update")
     }
     function onView() {
         window.open(`screen.html?id=${id}`, '_blank').focus();
@@ -474,11 +472,11 @@ function PreviewControl({ saveForView, valid, preview, setPreview, id }) {
             title="Toggle Preview Mode">
         </Form.Check>
         <Button variant='link' size="sm" title="Apply Changes"
-            disabled={!valid} onClick={onUpdate}>
+            onClick={onUpdate}>
             Update
         </Button>
         <Button variant='link' size="sm" title="Launch Viewer"
-            disabled={!valid} onClick={onView}>
+            onClick={onView}>
             View
         </Button>
     </span>)
@@ -620,7 +618,7 @@ function Editor(props) {
     }
     const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
     const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}
-    const previewControl = <PreviewControl valid={props.valid} saveForView={props.saveForView}
+    const previewControl = <PreviewControl accept={props.accept}
         preview={preview} setPreview={setPreview} id={props.id} />
     return (
         <Row className="h-100">

@@ -2,14 +2,11 @@ import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import State from "./State"
-import Edit from './Edit'
 import Modbus from '../editors/Modbus'
 import Database from '../editors/Database'
 import Screen from '../editors/Screen'
 import Dataplot from '../editors/Dataplot'
 
-//props | store > items + initial state > UI > dirty state > store | config
-//cancel | accept > clear store
 function ItemEditor(props) {
     const noneItem = State.initial().selected
     const [valid, setValid] = useState(false)
@@ -21,17 +18,14 @@ function ItemEditor(props) {
         setValid(false)
         setNext("")
         setState({})
-        Edit.remove()
     }
-    function saveForView() {
+    function accept(action) {
         const config = JSON.parse(next)
-        props.accept(item, config, true)
-    }
-    function accept() {
-        if (valid) {
-            const config = JSON.parse(next)
-            props.accept(item, config)
-            clearState()
+        props.accept(item, config, action)
+        switch (action) {
+            case "save-close":
+                clearState()
+                break
         }
     }
     function cancel() {
@@ -46,23 +40,12 @@ function ItemEditor(props) {
             setState(item.config)
         }
     }, [props.item])
-    useEffect(() => {
-        if (props.logged) {
-            const stored = Edit.fetch()
-            if (stored) {
-                setState(stored.state)
-                setItem(stored.item)
-                setValid(false)
-            }
-        }
-    }, [props.logged])
     function store(state) {
         if (item.id) {
-            Edit.create({ item, state })
             setNext(JSON.stringify(state))
         }
     }
-    const eprops = { state, store, valid, setValid, saveForView, id: item.id }
+    const eprops = { state, store, accept, setValid, id: item.id }
     function eshow(type) { return item.type === type }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
@@ -84,8 +67,11 @@ function ItemEditor(props) {
                 <Button variant="secondary" onClick={cancel}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={accept} disabled={!valid}>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => accept("save")}>
                     Save
+                </Button>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => accept("save-close")}>
+                    Save and Close
                 </Button>
             </Modal.Footer>
         </Modal>
