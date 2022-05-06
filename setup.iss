@@ -28,6 +28,7 @@ DisableReadyMemo=yes
 DisableReadyPage=yes
 DisableFinishedPage=yes
 DisableStartupPrompt=yes
+DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
 OutputBaseFilename={#MyAppId}-{#MyAppVersion}
 SetupIconFile=setup\icon.ico
