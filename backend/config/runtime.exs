@@ -41,7 +41,7 @@ if config_env() == :prod do
     file_read.(secret_path, "6FXmCjoJnMM6htNKvuQOwbUXqaNQYnFZFN4qqXYnwObXYTMo3WXR1/Eac/bnFOyi")
 
   host = file_read.(host_path, "localhost")
-  port = String.to_integer(file_read.(port_path, "4000"))
+  port = String.to_integer(file_read.(port_path, "54321"))
 
   config :athasha, AthashaWeb.Endpoint,
     url: [host: host, port: port],

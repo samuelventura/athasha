@@ -3,3 +3,4 @@
 #db and crash during windows release
 *.db
 *.dump
+setup/*.exe
