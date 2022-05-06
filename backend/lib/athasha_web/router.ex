@@ -54,7 +54,7 @@ defmodule AthashaWeb.Router do
   end
 
   pipeline :client do
-    plug(Plug.Static, at: "/", from: AthashaWeb.ClientController.client_path(), gzip: false)
+    plug(Plug.Static, at: "/", from: {:athasha, "priv/client"}, gzip: false)
   end
 
   scope "/api", AthashaWeb do
