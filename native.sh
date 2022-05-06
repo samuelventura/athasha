@@ -1,22 +1,26 @@
 #!/bin/bash -xe
 
 COMMAND="${1:-build}"
+
 case "$OSTYPE" in
-  darwin*)  
-    TARGET=osx-arm64
-    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
-    ;;
-  linux*)   
-    TARGET=linux-x64
-    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
-    ;;
-  *)        
-    TARGET=win10-x64 
-    PUBLISH="bin/X64/Release/net6.0/$TARGET/publish/"
-    ;;
+  darwin*)  TARGET=osx-arm64 ;; 
+  linux*)   TARGET=linux-x64 ;;
+  *)        TARGET=win10-x64 ;;
 esac
 
 TARGET="${2:-${TARGET}}"
+
+case "$OSTYPE" in
+  darwin*)  
+    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
+    ;;
+  linux*)   
+    PUBLISH="bin/Release/net6.0/$TARGET/publish/"
+    ;;
+  *)        
+    PUBLISH="bin/X64/Release/net6.0/$TARGET/publish/"
+    ;;
+esac
 
 #rsync -avr  native/ports/priv/dotnet/ /c/Athasha/athasha/lib/ports-0.1.0/priv/dotnet
 case $COMMAND in
