@@ -158,10 +158,11 @@ function Rows(props) {
     const itemsWithView = ["Screen", "Dataplot"]
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
-        const viewAction = itemsWithView.includes(item.type) ? (
+        const viewAction = (
             <Button variant="link" onClick={(e) => handleClick(e, 'view', item)}
-                onDoubleClick={(e) => onDoubleClick(e)}>View</Button>
-        ) : null
+                onDoubleClick={(e) => onDoubleClick(e)}
+                disabled={!itemsWithView.includes(item.type)}>View</Button>
+        )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={() => handleDoubleClick(item)}
@@ -174,11 +175,12 @@ function Rows(props) {
                 <StatusBadge item={item} />
             </td>
             <td>
+                {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)} onClick={(e) => e.stopPropagation()}>
-                    <Button variant="secondary" onClick={(e) => handleClick(e, 'edit', item)}>
+                    <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>
                         Edit
                     </Button>
-                    <Dropdown.Toggle split variant="secondary" />
+                    <Dropdown.Toggle split variant="link" />
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'rename', item)}>Rename</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Dropdown.Item>
@@ -187,7 +189,6 @@ function Rows(props) {
                         <Dropdown.Item onClick={(e) => handleClick(e, 'clone', item)}>Clone</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
-                {viewAction}
             </td>
         </tr>)
     })
