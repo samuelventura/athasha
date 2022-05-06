@@ -36,5 +36,11 @@ npm-debug.log
 *.db
 *.db-*
 
-# compressed assets
-*.gz
+# prod assets
+priv/client
+priv/static/cache_manifest.json
+priv/static/robots-*.*
+priv/static/favicon-*.*
+priv/static/images/phoenix-*.*
+priv/static/*.gz
+

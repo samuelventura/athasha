@@ -15,23 +15,13 @@ defmodule AthashaWeb.Router do
     plug(:accepts, ["json"])
   end
 
-  scope "/", AthashaWeb do
-    pipe_through(:browser)
+  if Mix.env() == :dev do
+    scope "/phoenix", AthashaWeb do
+      pipe_through(:browser)
 
-    get("/", PageController, :index)
-    # live("/thermostat", ThermostatLive)
-  end
-
-  # Other scopes may use custom stacks.
-  scope "/api", AthashaWeb do
-    pipe_through(:api)
-
-    get("/info", ToolsController, :get_info)
-    get("/check", ToolsController, :get_check)
-    get("/update", ToolsController, :get_update)
-    get("/serials", ToolsController, :get_serials)
-    get("/licenses", ToolsController, :get_licenses)
-    post("/licenses", ToolsController, :post_licenses)
+      get("/", PageController, :index)
+      live("/thermostat", ThermostatLive)
+    end
   end
 
   # Enables LiveDashboard only for development
@@ -44,7 +34,7 @@ defmodule AthashaWeb.Router do
   if Mix.env() in [:dev, :test] do
     import Phoenix.LiveDashboard.Router
 
-    scope "/" do
+    scope "/demo" do
       pipe_through(:browser)
 
       live_dashboard("/dashboard", metrics: AthashaWeb.Telemetry)
@@ -61,5 +51,28 @@ defmodule AthashaWeb.Router do
 
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
+  end
+
+  pipeline :client do
+    plug(Plug.Static, at: "/", from: AthashaWeb.ClientController.client_path(), gzip: false)
+  end
+
+  scope "/api", AthashaWeb do
+    pipe_through(:api)
+
+    get("/info", ToolsController, :get_info)
+    get("/check", ToolsController, :get_check)
+    get("/update", ToolsController, :get_update)
+    get("/serials", ToolsController, :get_serials)
+    get("/licenses", ToolsController, :get_licenses)
+    post("/licenses", ToolsController, :post_licenses)
+  end
+
+  scope "/", AthashaWeb do
+    pipe_through(:client)
+
+    get("/", ClientController, :index)
+    # tail is the name of the param with the captured data
+    get("/*tail", ClientController, :not_found)
   end
 end

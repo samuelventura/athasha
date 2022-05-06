@@ -11,7 +11,7 @@ case $COMMAND in
         (cd backend && MIX_ENV=prod mix assets.deploy)
         #requires dev dependencies
         #(cd backend && mix phx.gen.release)
-        cp -fr frontend/dist/* backend/priv/static/
+        rsync -avr frontend/dist/ backend/priv/client
         (cd backend && MIX_ENV=prod mix release --overwrite)
         #builds ok from msys terminal but must be launch from cmd because
         #msys complains erts-12.3.2/bin/erlexec: No such file or directory
@@ -26,6 +26,7 @@ case $COMMAND in
         rm -fr frontend/dist
         rm -fr backend/deps
         rm -fr backend/_build
+        rm -fr backend/priv/client
         rm -fr backend/priv/static/assets/*
         rm -fr backend/priv/static/cache_manifest.json
         rm -fr backend/priv/static/robots-*.*

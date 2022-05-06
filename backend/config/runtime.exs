@@ -36,12 +36,16 @@ if config_env() == :prod do
   # want to use a different value for prod and you most likely don't want
   # to check this value into version control, so we use an environment
   # variable instead.
-  secret_key_base = file_read.(secret_path, "YXRoYXNoYS5pbw==")
-  host = file_read.(host_path, "athasha.io")
+  # MIX_ENV=prod mix phx.gen.secret
+  secret_key_base =
+    file_read.(secret_path, "6FXmCjoJnMM6htNKvuQOwbUXqaNQYnFZFN4qqXYnwObXYTMo3WXR1/Eac/bnFOyi")
+
+  host = file_read.(host_path, "localhost")
   port = String.to_integer(file_read.(port_path, "4000"))
 
   config :athasha, AthashaWeb.Endpoint,
-    url: [host: host, port: 443],
+    url: [host: host, port: port],
+    check_origin: false,
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
@@ -57,7 +61,7 @@ if config_env() == :prod do
   # If you are doing OTP releases, you need to instruct Phoenix
   # to start each relevant endpoint:
   #
-  #     config :athasha, AthashaWeb.Endpoint, server: true
+  config :athasha, AthashaWeb.Endpoint, server: true
   #
   # Then you can assemble a release by calling `mix release`.
   # See `mix help release` for more information.
