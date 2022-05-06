@@ -76,7 +76,6 @@ function Rows(props) {
     }
 
     function handleClick(e, action, item, args) {
-        e.stopPropagation() //avoid unselection
         props.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
@@ -103,6 +102,7 @@ function Rows(props) {
                 break
             }
             case "view": {
+                e.stopPropagation() //avoid unselection
                 const page = item.type.toLowerCase()
                 window.open(`${page}.html?id=${item.id}`, '_blank').focus();
                 break
@@ -174,7 +174,7 @@ function Rows(props) {
                 <StatusBadge item={item} />
             </td>
             <td>
-                <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
+                <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)} onClick={(e) => e.stopPropagation()}>
                     <Button variant="secondary" onClick={(e) => handleClick(e, 'edit', item)}>
                         Edit
                     </Button>
