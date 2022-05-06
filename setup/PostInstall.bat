@@ -6,4 +6,5 @@ rem netsh advfirewall firewall show rule name="Athasha.Web"
 netsh advfirewall firewall add rule name="Athasha.Web" dir=in action=allow protocol=TCP localport=54321
 call athasha\bin\migrate.bat
 call athasha\bin\athasha.bat install
+athasha\erts-12.3.2\bin\erlsrv.exe enable athasha_athasha
 athasha\erts-12.3.2\bin\erlsrv.exe start athasha_athasha
