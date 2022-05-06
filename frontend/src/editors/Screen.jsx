@@ -441,17 +441,25 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     )
 }
 
-function RightPanel({ show, setShow,
-    setts, setProp, selected, actionControl, setControlProp,
-    setDataProp, preview, setPreview }) {
-    const { index, control } = selected
-    const screenEditor = <ScreenEditor setShow={setShow} setts={setts} setProp={setProp}
-        preview={preview} setPreview={setPreview} />
-    const controlEditor = <ControlEditor setShow={setShow} control={control} index={index}
+function RightPanel({ show, setShow, setts, setProp, selected, actionControl,
+    setControlProp, setDataProp, preview }) {
+    const { control } = selected
+    const screenEditor = <ScreenEditor
+        setShow={setShow}
+        setts={setts}
+        setProp={setProp}
+        preview={preview}
+    />
+    const controlEditor = <ControlEditor
+        setShow={setShow}
+        control={control}
         setProp={(name, value, e) => setControlProp(control, name, value, e)}
-        setDataProp={setDataProp} maxX={setts.gridX - 1} maxY={setts.gridY - 1}
-        preview={preview} setPreview={setPreview}
-        actionControl={actionControl} />
+        maxX={setts.gridX - 1}
+        maxY={setts.gridY - 1}
+        actionControl={actionControl}
+        setDataProp={setDataProp}
+        preview={preview}
+    />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
             <FontAwesomeIcon icon={faAnglesLeft} />
@@ -618,8 +626,12 @@ function Editor(props) {
     }
     const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
     const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}
-    const previewControl = <PreviewControl accept={props.accept}
-        preview={preview} setPreview={setPreview} id={props.id} />
+    const previewControl = <PreviewControl
+        accept={props.accept}
+        preview={preview}
+        setPreview={setPreview}
+        id={props.id}
+    />
     return (
         <Row className="h-100">
             <Col sm="auto" style={leftStyle} className="mh-100">
@@ -630,10 +642,17 @@ function Editor(props) {
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
             <Col sm="auto" style={rightStyle} className="mh-100">
-                <RightPanel setts={setts} setProp={setProp} selected={selected}
-                    actionControl={actionControl} setControlProp={setControlProp}
-                    setDataProp={setDataProp} preview={previewControl}
-                    show={right} setShow={setRight} />
+                <RightPanel
+                    show={right}
+                    setShow={setRight}
+                    setts={setts}
+                    setProp={setProp}
+                    selected={selected}
+                    actionControl={actionControl}
+                    setControlProp={setControlProp}
+                    setDataProp={setDataProp}
+                    preview={previewControl}
+                />
             </Col>
         </Row>
     )
