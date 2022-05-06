@@ -12,11 +12,16 @@ if System.get_env("PHX_SERVER") && System.get_env("RELEASE_NAME") do
   config :athasha, AthashaWeb.Endpoint, server: true
 end
 
+root_path = Application.app_dir(:athasha, "../../../") |> Path.expand()
+File.write!(Path.join(root_path, ".athasha.config"), "")
+
+config :athasha,
+  root_path: root_path
+
 if config_env() == :prod do
-  root_path = Application.app_dir(:athasha, "../../../") |> Path.expand()
-  port_path = Path.join(root_path, "athasha.port")
-  host_path = Path.join(root_path, "athasha.host")
-  secret_path = Path.join(root_path, "athasha.secret")
+  port_path = Path.join(root_path, "athasha.config.port")
+  host_path = Path.join(root_path, "athasha.config.host")
+  secret_path = Path.join(root_path, "athasha.config.secret")
 
   file_read = fn path, def ->
     case File.read(path) do
