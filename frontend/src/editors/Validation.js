@@ -14,6 +14,7 @@ function checkBoolean(value) {
     return typeof (value) === "boolean"
 }
 
+//FIXME move all to checkValidity
 //numbers to be stored as strings to preserve decimal value and format
 //do not stringify values to detect which html controls do what
 function fixInputValue(e, value, prev) {
@@ -34,6 +35,10 @@ function fixInputValue(e, value, prev) {
                     if (number > Number(max)) {
                         value = prev
                     }
+                }
+                //inputs with min=0 pass above checks when empty
+                if (value.trim() === "") {
+                    value = prev
                 }
             }
             if (t.hasAttribute("pattern")) {

@@ -6,6 +6,7 @@ import Modbus from '../editors/Modbus'
 import Database from '../editors/Database'
 import Screen from '../editors/Screen'
 import Dataplot from '../editors/Dataplot'
+import Laurel from '../editors/Laurel'
 
 function ItemEditor(props) {
     const noneItem = State.initial().selected
@@ -62,6 +63,7 @@ function ItemEditor(props) {
                 <Database.ItemEditor {...eprops} show={eshow("Database")} />
                 <Screen.ItemEditor {...eprops} show={eshow("Screen")} />
                 <Dataplot.ItemEditor {...eprops} show={eshow("Dataplot")} />
+                <Laurel.ItemEditor {...eprops} show={eshow("Laurel")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -88,6 +90,8 @@ function ItemIcon(type) {
             return Screen.ItemIcon
         case "Dataplot":
             return Dataplot.ItemIcon
+        case "Laurel":
+            return Laurel.ItemIcon
         default:
             return null
     }
@@ -103,6 +107,8 @@ function ItemInitial(type) {
             return Screen.ItemInitial()
         case "Dataplot":
             return Dataplot.ItemInitial()
+        case "Laurel":
+            return Laurel.ItemInitial
         default:
             return null
     }

@@ -1,16 +1,41 @@
 import React from 'react'
 
-function PointLister(app) {
-    const items = Object.values(app.state.items).filter(item => item.type === 'Modbus')
-    return items.map((item) => {
-        const config = item.config
-        return config.points.map(point => {
-            return {
-                point: point,
+function modbusPointAppender(item, points) {
+    item.config.points.forEach(point => {
+        if (point.name.trim().length > 0) {
+            points.push({
+                point: { name: point.name },
                 item: { id: item.id, name: item.name }
+            })
+        }
+    })
+}
+
+function laurelPointAppender(item, points) {
+    item.config.slaves.forEach(slave => {
+        slave.points.forEach(point => {
+            if (point.name.trim().length > 0) {
+                points.push({
+                    point: { name: point.name },
+                    item: { id: item.id, name: item.name }
+                })
             }
         })
-    }).flat()
+    })
+}
+
+const pointAppender = {
+    "Modbus": modbusPointAppender,
+    "Laurel": laurelPointAppender,
+}
+
+function PointLister(app) {
+    const points = []
+    Object.values(app.state.items).forEach((item) => {
+        const appender = pointAppender[item.type]
+        if (appender) appender(item, points)
+    })
+    return points
 }
 
 function PointOptions(app) {

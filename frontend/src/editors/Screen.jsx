@@ -316,7 +316,6 @@ function LeftPanel({ show, setShow, addControl }) {
 }
 
 function ScreenEditor({ setShow, setts, setProp, preview }) {
-    //preview saves before launching viewer
     return (
         <Card>
             <Card.Header>
