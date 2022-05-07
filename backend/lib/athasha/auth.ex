@@ -2,6 +2,7 @@ defmodule Athasha.Auth do
   alias Athasha.License
   alias Athasha.Ports
   alias Athasha.Repo
+  alias Athasha.Bus
 
   def licenses(identity \\ nil) do
     identity =
@@ -51,6 +52,10 @@ defmodule Athasha.Auth do
       {:ok, data} -> String.trim(data)
       _ -> ""
     end
+  end
+
+  def logout() do
+    Bus.dispatch!(:logout, nil)
   end
 
   def login(_token, _proof, nil), do: false

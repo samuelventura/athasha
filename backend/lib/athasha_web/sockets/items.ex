@@ -36,6 +36,7 @@ defmodule AthashaWeb.ItemsSocket do
   def handle_info(:logged, state) do
     Bus.register!(:items, nil)
     Bus.register!(:status, nil)
+    Bus.register!(:logout, nil)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     identity = Globals.find_identity()
@@ -53,6 +54,10 @@ defmodule AthashaWeb.ItemsSocket do
 
     resp = %{name: "all", args: args}
     reply_text(resp, state)
+  end
+
+  def handle_info({:password, nil, _}, state) do
+    {:stop, :init, state}
   end
 
   def handle_info({:items, nil, {:init, _all}}, state) do
