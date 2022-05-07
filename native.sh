@@ -29,6 +29,7 @@ case $COMMAND in
     (cd native/database && dotnet publish -c Release -r $TARGET --self-contained true)
     (cd native/identity && dotnet publish -c Release -r $TARGET --self-contained true)
     (cd native/monitor && dotnet publish -c Release -r $TARGET --self-contained true)
+    (cd native/input && dotnet publish -c Release -r $TARGET --self-contained true)
     (cd native/perms && dotnet publish -c Release -r $TARGET --self-contained true)
     mkdir -p native/ports/priv
     rsync -avr native/serial/$PUBLISH native/ports/priv/dotnet
@@ -50,6 +51,8 @@ case $COMMAND in
         rm -fr native/identity/obj
         rm -fr native/monitor/bin
         rm -fr native/monitor/obj
+        rm -fr native/input/bin
+        rm -fr native/input/obj
         rm -fr native/perms/bin
         rm -fr native/perms/obj
     ;;
