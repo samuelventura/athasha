@@ -1,6 +1,5 @@
 @echo off
-SETLOCAL EnableDelayedExpansion
-set /p password="Enter Password: "
 cd %~dp0
-echo !password! > "athasha.config.pwd"
+set file="%~dp0athasha.config.pwd"
+athasha\lib\ports-0.1.0\priv\dotnet\input.exe Password: true %file%
 call athasha\bin\athasha.bat rpc "Athasha.Auth.logout"

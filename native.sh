@@ -36,6 +36,7 @@ case $COMMAND in
     rsync -avr native/database/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/identity/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/monitor/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/input/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/perms/$PUBLISH native/ports/priv/dotnet
     ;;
     test)
