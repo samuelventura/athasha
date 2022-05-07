@@ -1,5 +1,9 @@
 cd %~dp0
 rem netsh advfirewall firewall show rule name="Athasha.Backend"
+netsh advfirewall firewall delete rule name=all program="%~dp0athasha\erts-12.3.2\bin\erl.exe"
+netsh advfirewall firewall delete rule name=all program="%~dp0athasha\erts-12.3.2\bin\werl.exe"
+netsh advfirewall firewall delete rule name=all program="%~dp0athasha\erts-12.3.2\bin\erlsrv.exe"
+netsh advfirewall firewall delete rule name=all program="%~dp0athasha\erts-12.3.2\bin\epmd.exe"
 netsh advfirewall firewall add rule name="Athasha.Backend1" dir=in action=allow program="%~dp0athasha\erts-12.3.2\bin\erl.exe" enable=yes
 netsh advfirewall firewall add rule name="Athasha.Backend2" dir=in action=allow program="%~dp0athasha\erts-12.3.2\bin\werl.exe" enable=yes
 netsh advfirewall firewall add rule name="Athasha.Backend3" dir=in action=allow program="%~dp0athasha\erts-12.3.2\bin\erlsrv.exe" enable=yes
