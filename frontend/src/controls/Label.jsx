@@ -143,8 +143,9 @@ function Upgrade(data) {
     // next.cond1 = null
     // next.cond2 = null
     // next.cond3 = null
+    // do not || init[k] or optionals will be reset
     Object.keys(init).forEach((k) => {
-        next[k] = next[k] || init[k]
+        next[k] = next[k]
     })
     return next
 }

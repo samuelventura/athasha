@@ -327,6 +327,11 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
+                    <FormEntry label="Password">
+                        <Form.Control type="password" value={setts.password}
+                            onChange={e => setProp("password", e.target.value)}
+                            title={setts.password} />
+                    </FormEntry>
                     <FormEntry label="Period (ms)">
                         <Form.Control type="number" min="100" value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
                     </FormEntry>
@@ -364,11 +369,6 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
                             <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={setts.bgColor}
                                 onChange={e => setProp("bgColor", e.target.value, e)} />
                         </InputGroup>
-                    </FormEntry>
-                    <FormEntry label="Password">
-                        <Form.Control type="password" value={setts.password}
-                            onChange={e => setProp("password", e.target.value)}
-                            title={setts.password} />
                     </FormEntry>
                 </ListGroup.Item>
             </ListGroup>
@@ -536,7 +536,11 @@ function Editor(props) {
         const points = controls.reduce((points, control) => {
             const pointer = getController(control.type).Pointer
             if (pointer) {
-                pointer(control.data, (id) => points.push(id))
+                pointer(control.data, (id) => {
+                    if (points.indexOf(id) < 0) {
+                        points.push(id)
+                    }
+                })
             }
             return points
         }, [])
