@@ -48,7 +48,7 @@ defmodule Athasha.Auth do
     root_path = Application.get_env(:athasha, :root_path)
 
     case File.read(Path.join(root_path, "athasha.config.pwd")) do
-      {:ok, data} -> data
+      {:ok, data} -> String.trim(data)
       _ -> ""
     end
   end

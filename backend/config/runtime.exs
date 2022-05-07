@@ -13,7 +13,7 @@ if System.get_env("PHX_SERVER") && System.get_env("RELEASE_NAME") do
 end
 
 root_path = Application.app_dir(:athasha, "../../../") |> Path.expand()
-File.write!(Path.join(root_path, ".athasha.config"), "")
+# File.write!(Path.join(root_path, ".athasha.config"), "")
 
 config :athasha,
   root_path: root_path
@@ -25,7 +25,7 @@ if config_env() == :prod do
 
   file_read = fn path, def ->
     case File.read(path) do
-      {:ok, data} -> data
+      {:ok, data} -> String.trim(data)
       _ -> def
     end
   end

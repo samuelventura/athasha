@@ -31,7 +31,7 @@ DisableStartupPrompt=yes
 DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
 OutputBaseFilename={#MyAppId}-{#MyAppVersion}
-SetupIconFile=setup\icon.ico
+SetupIconFile=setup\athasha.ico
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={uninstallexe}
@@ -44,13 +44,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: "backend\_build\prod\rel\athasha\*.*"; DestDir: "{app}\athasha"; Flags: ignoreversion recursesubdirs         
 Source: "setup\*.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "setup\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "setup\*.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; 16x16, 32x32, 48x48, 64x64, and 256x256 (image magic convert)
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
                                                 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "http://127.0.0.1:54321"; IconFilename: "{app}\icon.ico"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "http://127.0.0.1:54321"; IconFilename: "{app}\icon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "http://127.0.0.1:54321"; IconFilename: "{app}\athasha.ico"
+Name: "{commondesktop}\{#MyAppName}"; Filename: "http://127.0.0.1:54321"; IconFilename: "{app}\athasha.ico"
+Name: "{group}\Password"; Filename: "{app}\Password.bat"; IconFilename: "{app}\password.ico"; \
+  AfterInstall: SetElevationBit('{group}\Password.lnk')
 ;Version in icon leaves previous link when upgrading
 
 [Run]
@@ -65,4 +67,25 @@ var
   ResultCode: integer;
 begin
   Exec(ExpandConstant('{app}\PreUninstall.bat'), '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)
+end;
+
+procedure SetElevationBit(Filename: string);
+var
+  Buffer: string;
+  Stream: TStream;
+begin
+  Filename := ExpandConstant(Filename);
+  Log('Setting elevation bit for ' + Filename);
+
+  Stream := TFileStream.Create(FileName, fmOpenReadWrite);
+  try
+    Stream.Seek(21, soFromBeginning);
+    SetLength(Buffer, 1);
+    Stream.ReadBuffer(Buffer, 1);
+    Buffer[1] := Chr(Ord(Buffer[1]) or $20);
+    Stream.Seek(-1, soFromCurrent);
+    Stream.WriteBuffer(Buffer, 1);
+  finally
+    Stream.Free;
+  end;
 end;
