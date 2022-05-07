@@ -72,7 +72,7 @@ defmodule AthashaWeb.Router do
     pipe_through(:client)
 
     get("/", ClientController, :index)
-    # tail is the name of the param with the captured data
+    # tail is the name of the param with the captured path
     get("/*tail", ClientController, :not_found)
   end
 end
