@@ -20,7 +20,7 @@ function ItemEditor(props) {
 function ItemInitial() {
     return {
         setts: initialSetts(),
-        points: [initialPoint()]
+        inputs: [initialInput()]
     }
 }
 
@@ -34,19 +34,19 @@ function initialSetts() {
     }
 }
 
-function initialPoint() {
-    return { code: "01", module: "0", number: "0", name: "Point 1" }
+function initialInput() {
+    return { code: "01", module: "0", number: "0", name: "Input 1" }
 }
 
 function Editor(props) {
     const [setts, setSetts] = useState(ItemInitial().setts)
-    const [points, setPoints] = useState(ItemInitial().points)
+    const [inputs, setInputs] = useState(ItemInitial().inputs)
     //initialize local state
     useEffect(() => {
         const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
-        setPoints(state.points || init.points)
+        setInputs(state.inputs || init.inputs)
     }, [props.state])
     //rebuild and store state
     useEffect(() => {
@@ -56,35 +56,35 @@ function Editor(props) {
         valid = valid && checkRange(setts.period, 0, 10000)
         valid = valid && checkRange(setts.slave, 0, 255)
         valid = valid && checkNotBlank(setts.type)
-        valid = valid && points.length > 0
-        valid = valid && points.reduce((valid, point) => {
-            valid = valid && checkNotBlank(point.code)
-            valid = valid && checkRange(point.module, 0, 15)
-            valid = valid && checkRange(point.number, 0, 3)
-            valid = valid && checkNotBlank(point.name)
+        valid = valid && inputs.length > 0
+        valid = valid && inputs.reduce((valid, input) => {
+            valid = valid && checkNotBlank(input.code)
+            valid = valid && checkRange(input.module, 0, 15)
+            valid = valid && checkRange(input.number, 0, 3)
+            valid = valid && checkNotBlank(input.name)
             return valid
         }, true)
         props.setValid(valid)
-        props.store({ setts, points })
-    }, [props, setts, points])
-    function setPoint(index, name, value, e) {
-        const next = [...points]
+        props.store({ setts, inputs })
+    }, [props, setts, inputs])
+    function setInput(index, name, value, e) {
+        const next = [...inputs]
         const prev = next[index][name]
         value = fixInputValue(e, value, prev)
         next[index][name] = value
-        setPoints(next)
+        setInputs(next)
     }
-    function addPoint() {
-        const next = [...points]
-        const point = initialPoint()
-        point.name = `Point ${next.length + 1}`
-        next.push(point)
-        setPoints(next)
+    function addInput() {
+        const next = [...inputs]
+        const input = initialInput()
+        input.name = `Input ${next.length + 1}`
+        next.push(input)
+        setInputs(next)
     }
-    function delPoint(index) {
-        const next = [...points]
+    function delInput(index) {
+        const next = [...inputs]
         next.splice(index, 1)
-        setPoints(next)
+        setInputs(next)
     }
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -94,11 +94,11 @@ function Editor(props) {
         setSetts(next)
     }
 
-    const rows = points.map((point, index) =>
+    const rows = inputs.map((input, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
             <td>
-                <Form.Select value={point.code} onChange={e => setPoint(index, "code", e.target.value)}>
+                <Form.Select value={input.code} onChange={e => setInput(index, "code", e.target.value)}>
                     <option value="01">4ch Digital</option>
                     <option value="02">4ch Analog</option>
                     {/* <option value="11">HD Digital</option>
@@ -107,19 +107,19 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Control type="number" min="0" max="15" placeholder="Module"
-                    value={point.module} onChange={e => setPoint(index, "module", e.target.value, e)} />
+                    value={input.module} onChange={e => setInput(index, "module", e.target.value, e)} />
             </td>
             <td>
-                <Form.Control type="number" min="0" max="3" placeholder="Point Number"
-                    value={point.number} onChange={e => setPoint(index, "number", e.target.value, e)} />
+                <Form.Control type="number" min="0" max="3" placeholder="Input Number"
+                    value={input.number} onChange={e => setInput(index, "number", e.target.value, e)} />
             </td>
             <td>
-                <Form.Control type="text" placeholder="Point Name"
-                    value={point.name} onChange={e => setPoint(index, "name", e.target.value)} />
+                <Form.Control type="text" placeholder="Input Name"
+                    value={input.name} onChange={e => setInput(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
-                    title="Delete Point" disabled={points.length < 2}>
+                <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
+                    title="Delete Input" disabled={inputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -169,13 +169,13 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Point Type</th>
+                        <th>Input Type</th>
                         <th>Module</th>
-                        <th>Point Number</th>
-                        <th>Point Name</th>
+                        <th>Input Number</th>
+                        <th>Input Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}
-                                title="Add Point">
+                            <Button variant='outline-primary' size="sm" onClick={addInput}
+                                title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

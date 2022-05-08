@@ -40,6 +40,7 @@ function reducer(state, { name, args, self }) {
       next.licenses = args.licenses
       next.ips = args.ips
       args.items.forEach(item => {
+        item.config = JSON.parse(JSON.stringify(item.config).replace("points", "inputs"))
         next.status[item.id] = {}
         next.items[item.id] = item
       })

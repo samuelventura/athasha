@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
+import Editors from './Editors'
 import State from "./State"
-import Modbus from '../editors/Modbus'
-import Database from '../editors/Database'
-import Screen from '../editors/Screen'
-import Dataplot from '../editors/Dataplot'
-import Laurel from '../editors/Laurel'
-import Opto22 from '../editors/Opto22'
 
 function ItemEditor(props) {
     const noneItem = State.initial().selected
@@ -48,7 +43,10 @@ function ItemEditor(props) {
         }
     }
     const eprops = { state, store, accept, setValid, id: item.id }
-    function eshow(type) { return item.type === type }
+    function itemEditor(item) {
+        const control = Editors[item.type]
+        return control?.ItemEditor({ show: true, ...eprops })
+    }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
@@ -60,12 +58,7 @@ function ItemEditor(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Modbus.ItemEditor {...eprops} show={eshow("Modbus")} />
-                <Database.ItemEditor {...eprops} show={eshow("Database")} />
-                <Screen.ItemEditor {...eprops} show={eshow("Screen")} />
-                <Dataplot.ItemEditor {...eprops} show={eshow("Dataplot")} />
-                <Laurel.ItemEditor {...eprops} show={eshow("Laurel")} />
-                <Opto22.ItemEditor {...eprops} show={eshow("Opto22")} />
+                {itemEditor(item)}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -83,41 +76,11 @@ function ItemEditor(props) {
 }
 
 function ItemIcon(type) {
-    switch (type) {
-        case "Modbus":
-            return Modbus.ItemIcon
-        case "Database":
-            return Database.ItemIcon
-        case "Screen":
-            return Screen.ItemIcon
-        case "Dataplot":
-            return Dataplot.ItemIcon
-        case "Laurel":
-            return Laurel.ItemIcon
-        case "Opto22":
-            return Opto22.ItemIcon
-        default:
-            return null
-    }
+    return Editors[type]?.ItemIcon
 }
 
 function ItemInitial(type) {
-    switch (type) {
-        case "Modbus":
-            return Modbus.ItemInitial()
-        case "Database":
-            return Database.ItemInitial()
-        case "Screen":
-            return Screen.ItemInitial()
-        case "Dataplot":
-            return Dataplot.ItemInitial()
-        case "Laurel":
-            return Laurel.ItemInitial()
-        case "Opto22":
-            return Opto22.ItemInitial()
-        default:
-            return null
-    }
+    return Editors[type]?.ItemInitial()
 }
 
 export { ItemEditor, ItemIcon, ItemInitial }

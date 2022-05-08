@@ -15,12 +15,12 @@ defmodule Athasha.Opto22Runner do
     slave = String.to_integer(setts["slave"])
     type = setts["type"]
 
-    points =
-      Enum.map(config["points"], fn point ->
-        code = point["code"]
-        module = String.to_integer(point["module"])
-        number = String.to_integer(point["number"])
-        name = point["name"]
+    inputs =
+      Enum.map(config["inputs"], fn input ->
+        code = input["code"]
+        module = String.to_integer(input["module"])
+        number = String.to_integer(input["number"])
+        name = input["name"]
 
         %{
           id: "#{id} #{name}",
@@ -40,7 +40,7 @@ defmodule Athasha.Opto22Runner do
       host: host,
       port: port,
       period: period,
-      points: points
+      inputs: inputs
     }
 
     Items.update_status!(item, :warn, "Connecting...")
@@ -49,8 +49,8 @@ defmodule Athasha.Opto22Runner do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
         # avoid registering duplicates
-        Enum.reduce(points, %{}, fn point, map ->
-          id = point.id
+        Enum.reduce(inputs, %{}, fn input, map ->
+          id = input.id
 
           if !Map.has_key?(map, id) do
             Points.register_point!(id)
@@ -90,35 +90,35 @@ defmodule Athasha.Opto22Runner do
   end
 
   defp run_once(item, config, master) do
-    Enum.each(config.points, fn point ->
-      case exec_point(master, point) do
+    Enum.each(config.inputs, fn input ->
+      case exec_input(master, input) do
         {:ok, value} ->
-          Points.update_point!(point.id, value)
+          Points.update_point!(input.id, value)
 
         {:error, reason} ->
-          Points.update_point!(point.id, nil)
-          Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
-          Raise.error({:exec_point, point, reason})
+          Points.update_point!(input.id, nil)
+          Items.update_status!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+          Raise.error({:exec_input, input, reason})
       end
     end)
   end
 
   # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf
   # <<255,255,255,255>> IEEE754 NaN from analog channel 32 (had to restart the controller)
-  defp exec_point(master, point) do
-    address = address(point)
+  defp exec_input(master, input) do
+    address = address(input)
 
-    case point.code do
+    case input.code do
       # 4ch Digital, pag 12
       "01" ->
-        case Master.exec(master, {:ri, point.slave, address, 1}) do
+        case Master.exec(master, {:ri, input.slave, address, 1}) do
           {:ok, [value]} -> {:ok, value}
           any -> any
         end
 
       # 4ch Analog, pag 13
       "02" ->
-        case Master.exec(master, {:rir, point.slave, address, 2}) do
+        case Master.exec(master, {:rir, input.slave, address, 2}) do
           {:ok, [w0, w1]} ->
             <<value::float-big-32>> = <<w0::16, w1::16>>
             {:ok, value}
@@ -129,8 +129,8 @@ defmodule Athasha.Opto22Runner do
     end
   end
 
-  defp address(point = %{type: "Snap", code: "01"}), do: point.module * 4 + point.number
-  defp address(point = %{type: "Snap", code: "02"}), do: point.module * 8 + point.number
+  defp address(input = %{type: "Snap", code: "01"}), do: input.module * 4 + input.number
+  defp address(input = %{type: "Snap", code: "02"}), do: input.module * 8 + input.number
 
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport

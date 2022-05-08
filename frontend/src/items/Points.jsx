@@ -1,7 +1,7 @@
 import React from 'react'
 
 function modbusPointAppender(item, add) {
-    item.config.points.forEach(point => {
+    item.config.inputs.forEach(point => {
         if (point.name.trim().length > 0) {
             add({
                 point: { name: point.name },
@@ -13,7 +13,7 @@ function modbusPointAppender(item, add) {
 
 function laurelPointAppender(item, add) {
     item.config.slaves.forEach(slave => {
-        slave.points.forEach(point => {
+        slave.inputs.forEach(point => {
             if (point.name.trim().length > 0) {
                 add({
                     point: { name: point.name },
@@ -25,7 +25,7 @@ function laurelPointAppender(item, add) {
 }
 
 function opto22PointAppender(item, add) {
-    item.config.points.forEach(point => {
+    item.config.inputs.forEach(point => {
         if (point.name.trim().length > 0) {
             add({
                 point: { name: point.name },

@@ -18,12 +18,12 @@ defmodule Athasha.ModbusRunner do
     speed = String.to_integer(setts["speed"])
     period = String.to_integer(setts["period"])
 
-    points =
-      Enum.map(config["points"], fn point ->
-        slave = String.to_integer(point["slave"])
-        address = String.to_integer(point["address"])
-        code = point["code"]
-        name = point["name"]
+    inputs =
+      Enum.map(config["inputs"], fn input ->
+        slave = String.to_integer(input["slave"])
+        address = String.to_integer(input["address"])
+        code = input["code"]
+        name = input["name"]
 
         %{
           id: "#{id} #{name}",
@@ -44,7 +44,7 @@ defmodule Athasha.ModbusRunner do
       speed: speed,
       dbpsb: dbpsb,
       period: period,
-      points: points
+      inputs: inputs
     }
 
     Items.update_status!(item, :warn, "Connecting...")
@@ -53,8 +53,8 @@ defmodule Athasha.ModbusRunner do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
         # avoid registering duplicates
-        Enum.reduce(points, %{}, fn point, map ->
-          id = point.id
+        Enum.reduce(inputs, %{}, fn input, map ->
+          id = input.id
 
           if !Map.has_key?(map, id) do
             Points.register_point!(id)
@@ -94,62 +94,62 @@ defmodule Athasha.ModbusRunner do
   end
 
   defp run_once(item, config, master) do
-    Enum.each(config.points, fn point ->
-      case exec_point(master, point) do
+    Enum.each(config.inputs, fn input ->
+      case exec_input(master, input) do
         {:ok, value} ->
-          Points.update_point!(point.id, value)
+          Points.update_point!(input.id, value)
 
         {:error, reason} ->
-          Points.update_point!(point.id, nil)
-          Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
-          Raise.error({:exec_point, point, reason})
+          Points.update_point!(input.id, nil)
+          Items.update_status!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+          Raise.error({:exec_input, input, reason})
       end
     end)
   end
 
-  defp exec_point(master, point) do
-    case point.code do
+  defp exec_input(master, input) do
+    case input.code do
       "01" ->
-        read_bit(master, :rc, point)
+        read_bit(master, :rc, input)
 
       "02" ->
-        read_bit(master, :ri, point)
+        read_bit(master, :ri, input)
 
       "31" ->
-        read_register(master, :rhr, point, &u16be/1)
+        read_register(master, :rhr, input, &u16be/1)
 
       "32" ->
-        read_register(master, :rhr, point, &s16be/1)
+        read_register(master, :rhr, input, &s16be/1)
 
       "33" ->
-        read_register(master, :rhr, point, &u16le/1)
+        read_register(master, :rhr, input, &u16le/1)
 
       "34" ->
-        read_register(master, :rhr, point, &s16le/1)
+        read_register(master, :rhr, input, &s16le/1)
 
       "35" ->
-        read_register2(master, :rhr, point, &f32be/2)
+        read_register2(master, :rhr, input, &f32be/2)
 
       "36" ->
-        read_register2(master, :rhr, point, &f32le/2)
+        read_register2(master, :rhr, input, &f32le/2)
 
       "41" ->
-        read_register(master, :rir, point, &u16be/1)
+        read_register(master, :rir, input, &u16be/1)
 
       "42" ->
-        read_register(master, :rir, point, &s16be/1)
+        read_register(master, :rir, input, &s16be/1)
 
       "43" ->
-        read_register(master, :rir, point, &u16le/1)
+        read_register(master, :rir, input, &u16le/1)
 
       "44" ->
-        read_register(master, :rir, point, &s16le/1)
+        read_register(master, :rir, input, &s16le/1)
 
       "45" ->
-        read_register2(master, :rir, point, &f32be/2)
+        read_register2(master, :rir, input, &f32be/2)
 
       "46" ->
-        read_register2(master, :rir, point, &f32le/2)
+        read_register2(master, :rir, input, &f32le/2)
     end
   end
 
@@ -183,8 +183,8 @@ defmodule Athasha.ModbusRunner do
     {:ok, value}
   end
 
-  defp read_register2(master, code, point, transform) do
-    case Master.exec(master, {code, point.slave, point.address, 2}) do
+  defp read_register2(master, code, input, transform) do
+    case Master.exec(master, {code, input.slave, input.address, 2}) do
       {:ok, [w0, w1]} ->
         transform.(w0, w1)
 
@@ -193,8 +193,8 @@ defmodule Athasha.ModbusRunner do
     end
   end
 
-  defp read_register(master, code, point, transform) do
-    case Master.exec(master, {code, point.slave, point.address, 1}) do
+  defp read_register(master, code, input, transform) do
+    case Master.exec(master, {code, input.slave, input.address, 1}) do
       {:ok, [w16]} ->
         transform.(w16)
 
@@ -203,8 +203,8 @@ defmodule Athasha.ModbusRunner do
     end
   end
 
-  defp read_bit(master, code, point) do
-    case Master.exec(master, {code, point.slave, point.address, 1}) do
+  defp read_bit(master, code, input) do
+    case Master.exec(master, {code, input.slave, input.address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
     end

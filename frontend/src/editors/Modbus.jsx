@@ -21,7 +21,7 @@ function ItemEditor(props) {
 function ItemInitial() {
     return {
         setts: initialSetts(),
-        points: [initialPoint()]
+        inputs: [initialInput()]
     }
 }
 
@@ -38,13 +38,13 @@ function initialSetts() {
     }
 }
 
-function initialPoint() {
-    return { slave: "1", code: "01", address: "0", name: "Point 1" }
+function initialInput() {
+    return { slave: "1", code: "01", address: "0", name: "Input 1" }
 }
 
 function Editor(props) {
     const [setts, setSetts] = useState(ItemInitial().setts)
-    const [points, setPoints] = useState(ItemInitial().points)
+    const [inputs, setInputs] = useState(ItemInitial().inputs)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     useEffect(() => {
@@ -58,7 +58,7 @@ function Editor(props) {
         const init = ItemInitial()
         const state = props.state
         setSetts(state.setts || init.setts)
-        setPoints(state.points || init.points)
+        setInputs(state.inputs || init.inputs)
     }, [props.state])
     //rebuild and store state
     useEffect(() => {
@@ -77,35 +77,35 @@ function Editor(props) {
                 break
         }
         valid = valid && checkRange(setts.period, 0, 10000)
-        valid = valid && points.length > 0
-        valid = valid && points.reduce((valid, point) => {
-            valid = valid && checkRange(point.slave, 1, 65535)
-            valid = valid && checkRange(point.address, 0, 65535)
-            valid = valid && checkNotBlank(point.name)
-            valid = valid && checkNotBlank(point.code)
+        valid = valid && inputs.length > 0
+        valid = valid && inputs.reduce((valid, input) => {
+            valid = valid && checkRange(input.slave, 1, 65535)
+            valid = valid && checkRange(input.address, 0, 65535)
+            valid = valid && checkNotBlank(input.name)
+            valid = valid && checkNotBlank(input.code)
             return valid
         }, true)
         props.setValid(valid)
-        props.store({ setts, points })
-    }, [props, setts, points])
-    function setPoint(index, name, value, e) {
-        const next = [...points]
+        props.store({ setts, inputs })
+    }, [props, setts, inputs])
+    function setInput(index, name, value, e) {
+        const next = [...inputs]
         const prev = next[index][name]
         value = fixInputValue(e, value, prev)
         next[index][name] = value
-        setPoints(next)
+        setInputs(next)
     }
-    function addPoint() {
-        const next = [...points]
-        const point = initialPoint()
-        point.name = `Point ${next.length + 1}`
-        next.push(point)
-        setPoints(next)
+    function addInput() {
+        const next = [...inputs]
+        const input = initialInput()
+        input.name = `Input ${next.length + 1}`
+        next.push(input)
+        setInputs(next)
     }
-    function delPoint(index) {
-        const next = [...points]
+    function delInput(index) {
+        const next = [...inputs]
         next.splice(index, 1)
-        setPoints(next)
+        setInputs(next)
     }
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -120,15 +120,15 @@ function Editor(props) {
         return <option key={index} value={serial}>{serial}</option>
     })
 
-    const rows = points.map((point, index) =>
+    const rows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
                 <Form.Control type="number" min="1" max="65535" placeholder="Slave ID"
-                    value={point.slave} onChange={e => setPoint(index, "slave", e.target.value, e)} />
+                    value={input.slave} onChange={e => setInput(index, "slave", e.target.value, e)} />
             </td>
             <td>
-                <Form.Select value={point.code} onChange={e => setPoint(index, "code", e.target.value)}>
+                <Form.Select value={input.code} onChange={e => setInput(index, "code", e.target.value)}>
                     <option value="01">01 Coil</option>
                     <option value="02">02 Input</option>
                     <option value="31">03 U16BE</option>
@@ -147,15 +147,15 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Control type="number" min="0" max="65535" placeholder="Address"
-                    value={point.address} onChange={e => setPoint(index, "address", e.target.value, e)} />
+                    value={input.address} onChange={e => setInput(index, "address", e.target.value, e)} />
             </td>
             <td>
-                <Form.Control type="text" placeholder="Point Name"
-                    value={point.name} onChange={e => setPoint(index, "name", e.target.value)} />
+                <Form.Control type="text" placeholder="Input Name"
+                    value={input.name} onChange={e => setInput(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
-                    title="Delete Point" disabled={points.length < 2}>
+                <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
+                    title="Delete Input" disabled={inputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -242,10 +242,10 @@ function Editor(props) {
                         <th>Slave ID</th>
                         <th>Function Code</th>
                         <th>Address</th>
-                        <th>Point Name</th>
+                        <th>Input Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}
-                                title="Add Point">
+                            <Button variant='outline-primary' size="sm" onClick={addInput}
+                                title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

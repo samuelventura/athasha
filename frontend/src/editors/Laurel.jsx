@@ -44,12 +44,12 @@ function initialSlave() {
     return {
         address: "1",
         decimals: "0",
-        points: [initialPoint()],
+        inputs: [initialInput()],
     }
 }
 
-function initialPoint() {
-    return { code: "01", name: "Point 1" }
+function initialInput() {
+    return { code: "01", name: "Input 1" }
 }
 
 function Editor(props) {
@@ -92,9 +92,9 @@ function Editor(props) {
         valid = valid && slaves.reduce((valid, slave) => {
             valid = valid && checkRange(slave.address, 0, 65535)
             valid = valid && checkRange(slave.decimals, 0)
-            valid = valid && slave.points.reduce((valid, point) => {
-                valid = valid && checkNotBlank(point.code)
-                valid = valid && checkNotBlank(point.name)
+            valid = valid && slave.inputs.reduce((valid, input) => {
+                valid = valid && checkNotBlank(input.code)
+                valid = valid && checkNotBlank(input.name)
                 return valid
             }, true)
             return valid
@@ -231,30 +231,30 @@ function Editor(props) {
     }
 
     function slaveEditor({ sindex, slave }) {
-        function setPointProp(pindex, name, value, e) {
-            const next = [...slave.points]
+        function setInputProp(pindex, name, value, e) {
+            const next = [...slave.inputs]
             const prev = next[pindex][name]
             value = fixInputValue(e, value, prev)
             next[pindex][name] = value
-            setSlaveProp(sindex, "points", next)
+            setSlaveProp(sindex, "inputs", next)
         }
-        function addPoint() {
-            const next = [...slave.points]
-            const point = initialPoint()
-            point.name = `Point ${next.length + 1}`
-            next.push(point)
-            setSlaveProp(sindex, "points", next)
+        function addInput() {
+            const next = [...slave.inputs]
+            const input = initialInput()
+            input.name = `Input ${next.length + 1}`
+            next.push(input)
+            setSlaveProp(sindex, "inputs", next)
         }
-        function delPoint(pindex) {
-            const next = [...slave.points]
+        function delInput(pindex) {
+            const next = [...slave.inputs]
             next.splice(pindex, 1)
-            setSlaveProp(sindex, "points", next)
+            setSlaveProp(sindex, "inputs", next)
         }
-        const listRows = slave.points.map((point, pindex) =>
+        const listRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>
                 <td >{pindex + 1}</td>
                 <td>
-                    <Form.Select value={point.code} onChange={e => setPointProp(pindex, "code", e.target.value)}>
+                    <Form.Select value={input.code} onChange={e => setInputProp(pindex, "code", e.target.value)}>
                         <option value="01">Item 1</option>
                         <option value="02">Item 2</option>
                         <option value="03">Item 3</option>
@@ -267,12 +267,12 @@ function Editor(props) {
                     </Form.Select>
                 </td>
                 <td>
-                    <Form.Control type="text" placeholder="Point Name"
-                        value={point.name} onChange={e => setPointProp(pindex, "name", e.target.value)} />
+                    <Form.Control type="text" placeholder="Input Name"
+                        value={input.name} onChange={e => setInputProp(pindex, "name", e.target.value)} />
                 </td>
                 <td>
-                    <Button variant='outline-danger' size="sm" onClick={() => delPoint(pindex)}
-                        title="Delete Point" disabled={slave.points.length < 2}>
+                    <Button variant='outline-danger' size="sm" onClick={() => delInput(pindex)}
+                        title="Delete Input" disabled={slave.inputs.length < 2}>
                         <FontAwesomeIcon icon={faTimes} />
                     </Button>
                 </td>
@@ -306,10 +306,10 @@ function Editor(props) {
                         <tr>
                             <th>#</th>
                             <th>Register Name</th>
-                            <th>Point Name</th>
+                            <th>Input Name</th>
                             <th>
-                                <Button variant='outline-primary' size="sm" onClick={addPoint}
-                                    title="Add Point">
+                                <Button variant='outline-primary' size="sm" onClick={addInput}
+                                    title="Add Input">
                                     <FontAwesomeIcon icon={faPlus} />
                                 </Button>
                             </th>
