@@ -120,7 +120,7 @@ defmodule Athasha.Opto22Runner do
       "02" ->
         case Master.exec(master, {:rir, point.slave, address, 2}) do
           {:ok, [w0, w1]} ->
-            <<value::float-32>> = <<w0::16, w1::16>>
+            <<value::float-big-32>> = <<w0::16, w1::16>>
             {:ok, value}
 
           any ->
