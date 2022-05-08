@@ -30,7 +30,8 @@ function New(props) {
     return (
         <div>
             <NewItem show={newItem} accept={handleNew} cancel={clearNew} />
-            <Button onClick={showNew} variant="primary">New...</Button>
+            <Button onClick={showNew} variant="primary"
+                title="Create New Item">New...</Button>
         </div>
     )
 }

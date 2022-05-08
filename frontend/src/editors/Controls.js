@@ -23,7 +23,7 @@ function registeredMapper(mapper) {
     return registeredList.map(mapper)
 }
 
-export {
+export default {
     getController,
     registeredMapper,
 }

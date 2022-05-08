@@ -5,7 +5,7 @@ import Dataplot from '../editors/Dataplot'
 import Laurel from '../editors/Laurel'
 import Opto22 from '../editors/Opto22'
 
-const Editors = {
+export default {
     "Modbus": Modbus,
     "Screen": Screen,
     "Database": Database,
@@ -13,5 +13,3 @@ const Editors = {
     "Laurel": Laurel,
     "Opto22": Opto22,
 }
-
-export default Editors

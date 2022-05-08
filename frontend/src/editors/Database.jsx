@@ -14,6 +14,7 @@ import { fixInputValue } from "./Validation"
 import { PointOptions } from '../items/Points'
 import ItemIcon from './Database.svg'
 import { useApp } from '../App'
+import Check from './Check'
 
 function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -39,6 +40,23 @@ function initialSetts() {
 
 function initialPoint() {
     return { id: "" }
+}
+
+const labels = {
+    connstr: "Connection String",
+    command: "SQL Command",
+    database: "Database",
+    dbpass: "Database Password",
+    period: "Period",
+    unit: "Unit",
+}
+
+function ItemValidator(config) {
+    const errors = []
+    function add(error) { errors.push(error) }
+    Check.isString(config.setts.connstr, add, `${labels.connstr} has invalid data type`)
+    Check.isString(config.setts.command, add, `${labels.command} has invalid data type`)
+    return errors
 }
 
 function Editor(props) {
@@ -185,4 +203,5 @@ export default {
     ItemIcon,
     ItemEditor,
     ItemInitial,
+    ItemValidator,
 }

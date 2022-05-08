@@ -14,13 +14,12 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
-import { FormEntry } from '../controls/Helper'
-import { getController } from './Controls'
-import { registeredMapper } from './Controls'
+import { FormEntry } from '../controls/Tools'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 import ItemIcon from './Screen.svg'
+import Controls from './Controls'
 import { useApp } from '../App'
 
 function ItemEditor(props) {
@@ -255,7 +254,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         const size = { width: w, height: h }
         const isSelected = selected.control === control
         const borderStroke = isSelected ? "4" : "2"
-        const controller = getController(control.type)
+        const controller = Controls.getController(control.type)
         const controlInstance = controller.Renderer({ control, size })
         const controlBorder = !preview ? (
             <rect width="100%" height="100%" fill="white" fillOpacity="0"
@@ -291,7 +290,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
 }
 
 function LeftPanel({ show, setShow, addControl }) {
-    const controlList = registeredMapper((controler, index) => {
+    const controlList = Controls.registeredMapper((controler, index) => {
         return (<ListGroup.Item action key={index}
             title={`Add new ${controler.Type}`}
             onClick={() => addControl(controler)}>
@@ -377,7 +376,7 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
 function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp, preview }) {
     const app = useApp()
     const setts = control.setts
-    const controller = getController(control.type)
+    const controller = Controls.getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
     const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, app }) : null
     const controlProps = editor ? (
@@ -503,7 +502,7 @@ function Editor(props) {
         setSetts(state.setts || init.setts)
         const previous = state.controls || init.controls
         const upgraded = previous.map(control => {
-            const controller = getController(control.type)
+            const controller = Controls.getController(control.type)
             const upgrade = controller.Upgrade
             if (upgrade) {
                 const next = { ...control }
@@ -526,14 +525,14 @@ function Editor(props) {
         valid = valid && checkRange(setts.gridY, 1, 100)
         valid = valid && checkNotBlank(setts.bgColor)
         valid = valid && controls.reduce((valid, control) => {
-            const validator = getController(control.type).Validator
+            const validator = Controls.getController(control.type).Validator
             if (validator) {
                 valid = valid && validator(control)
             }
             return valid
         }, true)
         const points = controls.reduce((points, control) => {
-            const pointer = getController(control.type).Pointer
+            const pointer = Controls.getController(control.type).Pointer
             if (pointer) {
                 pointer(control.data, (id) => {
                     if (points.indexOf(id) < 0) {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useResizeDetector } from 'react-resize-detector'
-import { getController } from '../editors/Controls'
+import Controls from '../editors/Controls'
 import { useApp } from '../App'
 
 function calcAlign(align, d, D) {
@@ -62,7 +62,7 @@ function SvgWindow({ setts, controls, points }) {
         const w = setts.width * sx
         const h = setts.height * sy
         const size = { width: w, height: h }
-        const controller = getController(control.type)
+        const controller = Controls.getController(control.type)
         const controlInstance = controller.Renderer({ control, size, points })
         return (
             <svg key={index} x={x} y={y} width={w} height={h}>

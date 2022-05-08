@@ -38,12 +38,10 @@ function upload(ext, callback) {
 const licenseExtension = "athasha.license.json"
 const backupExtension = "athasha.backup.json"
 
-const Files = {
+export default {
     licenseExtension,
     backupExtension,
     downloadTxt,
     download,
     upload,
 }
-
-export default Files
