@@ -1,9 +1,9 @@
 import React from 'react'
 
-function modbusPointAppender(item, points) {
+function modbusPointAppender(item, add) {
     item.config.points.forEach(point => {
         if (point.name.trim().length > 0) {
-            points.push({
+            add({
                 point: { name: point.name },
                 item: { id: item.id, name: item.name }
             })
@@ -11,11 +11,11 @@ function modbusPointAppender(item, points) {
     })
 }
 
-function laurelPointAppender(item, points) {
+function laurelPointAppender(item, add) {
     item.config.slaves.forEach(slave => {
         slave.points.forEach(point => {
             if (point.name.trim().length > 0) {
-                points.push({
+                add({
                     point: { name: point.name },
                     item: { id: item.id, name: item.name }
                 })
@@ -24,10 +24,10 @@ function laurelPointAppender(item, points) {
     })
 }
 
-function opto22PointAppender(item, points) {
+function opto22PointAppender(item, add) {
     item.config.points.forEach(point => {
         if (point.name.trim().length > 0) {
-            points.push({
+            add({
                 point: { name: point.name },
                 item: { id: item.id, name: item.name }
             })
@@ -45,7 +45,9 @@ function PointLister(app) {
     const points = []
     Object.values(app.state.items).forEach((item) => {
         const appender = pointAppender[item.type]
-        if (appender) appender(item, points)
+        if (appender) appender(item, function (point) {
+            points.push(point)
+        })
     })
     return points
 }
