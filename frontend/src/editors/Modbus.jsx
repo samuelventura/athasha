@@ -155,7 +155,7 @@ function Editor(props) {
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
-                    disabled={points.length < 2}>
+                    title="Delete Point" disabled={points.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -244,7 +244,8 @@ function Editor(props) {
                         <th>Address</th>
                         <th>Point Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}>
+                            <Button variant='outline-primary' size="sm" onClick={addPoint}
+                                title="Add Point">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>
