@@ -1,6 +1,5 @@
-defmodule Athasha.ModbusRunner do
+defmodule Athasha.LaurelRunner do
   alias Modbus.Master
-  alias Modbus.Float
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
@@ -19,13 +18,23 @@ defmodule Athasha.ModbusRunner do
     speed = String.to_integer(setts["speed"])
     period = String.to_integer(setts["period"])
 
-    points =
-      Enum.map(config["points"], fn point ->
-        slave = String.to_integer(point["slave"])
-        address = String.to_integer(point["address"])
-        code = point["code"]
-        name = point["name"]
-        %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
+    slaves =
+      Enum.map(config["slaves"], fn slave ->
+        address = String.to_integer(slave["address"])
+        decimals = String.to_integer(slave["decimals"])
+
+        Enum.map(slave["points"], fn point ->
+          code = point["code"]
+          name = point["name"]
+
+          %{
+            id: "#{id} #{name}",
+            slave: address,
+            decimals: decimals,
+            code: code,
+            name: name
+          }
+        end)
       end)
 
     config = %{
@@ -38,7 +47,7 @@ defmodule Athasha.ModbusRunner do
       speed: speed,
       dbpsb: dbpsb,
       period: period,
-      points: points
+      slaves: slaves
     }
 
     Items.update_status!(item, :warn, "Connecting...")
@@ -47,14 +56,16 @@ defmodule Athasha.ModbusRunner do
       {:ok, master} ->
         Items.update_status!(item, :success, "Connected")
         # avoid registering duplicates
-        Enum.reduce(points, %{}, fn point, map ->
-          id = point.id
+        Enum.reduce(slaves, %{}, fn points, map ->
+          Enum.reduce(points, map, fn point, map ->
+            id = point.id
 
-          if !Map.has_key?(map, id) do
-            Points.register_point!(id)
-          end
+            if !Map.has_key?(map, point.id) do
+              Points.register_point!(id)
+            end
 
-          Map.put(map, id, id)
+            Map.put(map, id, id)
+          end)
         end)
 
         Process.send_after(self(), :status, @status)
@@ -88,64 +99,71 @@ defmodule Athasha.ModbusRunner do
   end
 
   defp run_once(item, config, master) do
-    Enum.each(config.points, fn point ->
-      case exec_point(master, point) do
-        {:ok, value} ->
-          Points.update_point!(point.id, value)
+    Enum.each(config.slaves, fn points ->
+      Enum.reduce(points, nil, fn point, alarm ->
+        case exec_point(master, point, alarm) do
+          {:ok, {alarm, index}} ->
+            value = laurel_bit(alarm, index)
+            Points.update_point!(point.id, value)
+            alarm
 
-        {:error, reason} ->
-          Points.update_point!(point.id, nil)
-          Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
-          Raise.error({:exec_point, point, reason})
-      end
+          {:ok, value} ->
+            Points.update_point!(point.id, value)
+            alarm
+
+          {:error, reason} ->
+            Points.update_point!(point.id, nil)
+            Items.update_status!(item, :error, "#{inspect(point)} #{inspect(reason)}")
+            Raise.error({:exec_point, point, reason})
+        end
+      end)
     end)
   end
 
-  defp exec_point(master, point) do
+  defp exec_point(master, point, alarm) do
     case point.code do
+      # Item 1
       "01" ->
-        case Master.exec(master, {:rc, point.slave, point.address, 1}) do
-          {:ok, [value]} -> {:ok, value}
-          any -> any
-        end
-
-      "02" ->
-        case Master.exec(master, {:ri, point.slave, point.address, 1}) do
-          {:ok, [value]} -> {:ok, value}
-          any -> any
-        end
-
-      # 22 Opto22 Float32
-      "22" ->
-        case Master.exec(master, {:rir, point.slave, point.address, 2}) do
-          {:ok, [w0, w1]} ->
-            [value] = Float.from_be([w0, w1])
-            {:ok, value}
-
-          any ->
-            any
-        end
-
-      # 30 Laurel Reading
-      "30" ->
         laurel_decimal(master, point, 3)
 
-      "31" ->
+      # Item 2
+      "02" ->
+        laurel_decimal(master, point, 9)
+
+      # Item 3
+      "03" ->
+        laurel_decimal(master, point, 11)
+
+      # Peak
+      "11" ->
         laurel_decimal(master, point, 5)
 
-      "32" ->
+      # Valey
+      "12" ->
         laurel_decimal(master, point, 7)
 
-      "33" ->
-        laurel_alarm(master, point)
+      # Alarm 1
+      "21" ->
+        laurel_alarm(master, point, 1, alarm)
+
+      # Alarm 2
+      "22" ->
+        laurel_alarm(master, point, 2, alarm)
+
+      # Alarm 3
+      "23" ->
+        laurel_alarm(master, point, 3, alarm)
+
+      # Alarm 4
+      "24" ->
+        laurel_alarm(master, point, 4, alarm)
     end
   end
 
   defp laurel_decimal(master, point, address) do
-    # slave 2 is timing out randomly
+    # second slave is timing out randomly
     :timer.sleep(5)
     # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
-    # point.address is the number of places to shift left the decimal point
     case Master.exec(master, {:rir, point.slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<sign::1, reading::31>> = <<w0::16, w1::16>>
@@ -156,7 +174,7 @@ defmodule Athasha.ModbusRunner do
             0 -> 1
           end
 
-        value = Decimal.new(sign, reading, -point.address)
+        value = Decimal.new(sign, reading, -point.decimals)
         {:ok, value}
 
       any ->
@@ -164,27 +182,29 @@ defmodule Athasha.ModbusRunner do
     end
   end
 
-  defp laurel_alarm(master, point) do
-    # slave 2 is timing out randomly
+  defp laurel_alarm(master, point, index, nil) do
+    # second slave is timing out randomly
     :timer.sleep(5)
 
     case Master.exec(master, {:rir, point.slave, 1, 2}) do
-      {:ok, [w0, w1]} ->
-        <<_unused::28, a4::1, a3::1, a2::1, a1::1>> = <<w0::16, w1::16>>
+      {:ok, [w0, w1]} -> {:ok, {[w0, w1], index}}
+      any -> any
+    end
+  end
 
-        value =
-          case point.address do
-            1 -> a1
-            2 -> a2
-            3 -> a3
-            4 -> a4
-            _ -> 0
-          end
+  defp laurel_alarm(_master, _point, index, alarm) do
+    {:ok, {alarm, index}}
+  end
 
-        {:ok, value}
+  defp laurel_bit([w0, w1], index) do
+    <<_unused::28, a4::1, a3::1, a2::1, a1::1>> = <<w0::16, w1::16>>
 
-      any ->
-        any
+    case index do
+      1 -> a1
+      2 -> a2
+      3 -> a3
+      4 -> a4
+      _ -> 0
     end
   end
 

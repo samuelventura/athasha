@@ -9,7 +9,7 @@ defmodule Athasha.DatabaseRunner do
     config = item.config
     setts = config["setts"]
     unit = setts["unit"]
-    period = parse_int(setts["period"])
+    period = String.to_integer(setts["period"])
     database = setts["database"]
     connstr = setts["connstr"]
     command = setts["command"]
@@ -91,9 +91,4 @@ defmodule Athasha.DatabaseRunner do
   defp type_of(value) when is_float(value), do: "float"
   defp type_of(value) when is_integer(value), do: "integer"
   defp type_of(value) when is_binary(value), do: "string"
-
-  defp parse_int(value) do
-    {parsed, _} = Integer.parse(value)
-    parsed
-  end
 end

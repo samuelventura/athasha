@@ -12,12 +12,12 @@ defmodule Athasha.ScreenRunner do
     setts = config["setts"]
     password = setts["password"]
     points = config["points"]
-    period = parse_int(setts["period"])
+    period = String.to_integer(setts["period"])
 
     Items.register_password!(item, password)
 
     # reset points on each reconnection attempt
-    # check for duplicates
+    # check for duplicates before register
     Enum.reduce(points, %{}, fn point, map ->
       if !Map.has_key?(map, point) do
         Store.register!({:screen, id, point}, nil)
@@ -63,10 +63,5 @@ defmodule Athasha.ScreenRunner do
         Raise.error({:missing, point})
       end
     end)
-  end
-
-  defp parse_int(value) do
-    {parsed, _} = Integer.parse(value)
-    parsed
   end
 end

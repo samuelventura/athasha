@@ -11,8 +11,7 @@ defmodule AthashaWeb.DataplotSocket do
   end
 
   def connect(state) do
-    ids = state.params["id"]
-    {id, _} = Integer.parse(ids)
+    id = String.to_integer(state.params["id"])
     {:ok, %{logged: false, id: id}}
   end
 

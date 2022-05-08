@@ -12,6 +12,7 @@ import ItemIcon from './Modbus.svg'
 import { checkRange } from "./Validation"
 import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
+import Serial from "./Serial"
 
 function ItemEditor(props) {
     return props.show ? (<Editor {...props} />) : null
@@ -189,18 +190,7 @@ function Editor(props) {
         <Col xs={2}>
             <FloatingLabel label="Config">
                 <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
-                    <option value="8N1">8N1</option>
-                    <option value="8E1">8E1</option>
-                    <option value="8O1">8O1</option>
-                    <option value="8N2">8N2</option>
-                    <option value="8E2">8E2</option>
-                    <option value="8O2">8O2</option>
-                    <option value="7N1">7N1</option>
-                    <option value="7E1">7E1</option>
-                    <option value="7O1">7O1</option>
-                    <option value="7N2">7N2</option>
-                    <option value="7E2">7E2</option>
-                    <option value="7O2">7O2</option>
+                    {Serial.configOptions}
                 </Form.Select>
             </FloatingLabel>
         </Col>
