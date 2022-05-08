@@ -7,6 +7,7 @@ import Database from '../editors/Database'
 import Screen from '../editors/Screen'
 import Dataplot from '../editors/Dataplot'
 import Laurel from '../editors/Laurel'
+import Opto22 from '../editors/Opto22'
 
 function ItemEditor(props) {
     const noneItem = State.initial().selected
@@ -64,6 +65,7 @@ function ItemEditor(props) {
                 <Screen.ItemEditor {...eprops} show={eshow("Screen")} />
                 <Dataplot.ItemEditor {...eprops} show={eshow("Dataplot")} />
                 <Laurel.ItemEditor {...eprops} show={eshow("Laurel")} />
+                <Opto22.ItemEditor {...eprops} show={eshow("Opto22")} />
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={cancel}>
@@ -92,6 +94,8 @@ function ItemIcon(type) {
             return Dataplot.ItemIcon
         case "Laurel":
             return Laurel.ItemIcon
+        case "Opto22":
+            return Opto22.ItemIcon
         default:
             return null
     }
@@ -109,6 +113,8 @@ function ItemInitial(type) {
             return Dataplot.ItemInitial()
         case "Laurel":
             return Laurel.ItemInitial()
+        case "Opto22":
+            return Opto22.ItemInitial()
         default:
             return null
     }

@@ -24,9 +24,21 @@ function laurelPointAppender(item, points) {
     })
 }
 
+function opto22PointAppender(item, points) {
+    item.config.points.forEach(point => {
+        if (point.name.trim().length > 0) {
+            points.push({
+                point: { name: point.name },
+                item: { id: item.id, name: item.name }
+            })
+        }
+    })
+}
+
 const pointAppender = {
     "Modbus": modbusPointAppender,
     "Laurel": laurelPointAppender,
+    "Opto22": opto22PointAppender,
 }
 
 function PointLister(app) {

@@ -144,12 +144,14 @@ function Editor(props) {
                     value={point.name} onChange={e => setPoint(index, "name", e.target.value)} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}>
+                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
+                    disabled={points.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
         </tr>
     )
+
     const transSocket = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Hostname/IP Address">
@@ -164,9 +166,7 @@ function Editor(props) {
             </FloatingLabel>
         </Col>
     </Row>)
-    //datalists function like autocomplete filter, the list will be filtered by
-    //what is already present in the text box. List shows with arrow down as well.
-    //form-select wont allow keyboard editing in FF.
+
     const transSerial = (<Row>
         <Col xs={4}>
             <FloatingLabel label="Serial Port Name">
@@ -194,7 +194,9 @@ function Editor(props) {
         </Col>
 
     </Row >)
+
     const transEditor = setts.trans === "Serial" ? transSerial : transSocket
+
     return (
         <Form>
             <Row>

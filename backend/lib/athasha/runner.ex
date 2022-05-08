@@ -117,6 +117,7 @@ defmodule Athasha.Runner do
         "Database" -> Athasha.DatabaseRunner
         "Dataplot" -> Athasha.DataplotRunner
         "Laurel" -> Athasha.LaurelRunner
+        "Opto22" -> Athasha.Opto22Runner
       end
 
     id = item.id

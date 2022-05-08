@@ -118,6 +118,7 @@ function NewItem(props) {
                         {option("Database")}
                         {option("Dataplot")}
                         {option("Laurel")}
+                        {option("Opto22")}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
