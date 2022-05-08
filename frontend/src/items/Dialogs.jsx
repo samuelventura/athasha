@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Dropdown from 'react-bootstrap/Dropdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfo } from '@fortawesome/free-solid-svg-icons'
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
@@ -184,7 +184,7 @@ function ToolsButton() {
         })
     }
     return app.logged ? (
-        <Dropdown className="d-inline pt-1">
+        <Dropdown className="d-inline">
             <Dropdown.Toggle variant="link" title="System Tools">
                 <FontAwesomeIcon icon={faGear} />
             </Dropdown.Toggle>
@@ -207,7 +207,7 @@ function HostButton() {
         <Dropdown.Item key={index} href={Environ.reHost(ip)}>{ip}</Dropdown.Item>
     )
     return app.logged ? (
-        <Dropdown className="d-inline pt-1">
+        <Dropdown className="d-inline">
             <Dropdown.Toggle variant="link" title="Change Hostname/IP">
                 <FontAwesomeIcon icon={faEthernet} />
             </Dropdown.Toggle>
@@ -229,8 +229,9 @@ function InfoButton() {
         navigator.clipboard.writeText(tooltip)
     }
     return app.logged ? (
-        <Button variant="link" onClick={handleOnClick} title={tooltip + "\n\nClick to Copy to Clipboard"}>
-            <FontAwesomeIcon icon={faInfo} />
+        <Button variant="link" onClick={handleOnClick}
+            title={tooltip + "\n\nClick to Copy to Clipboard"}>
+            <FontAwesomeIcon icon={faCircleInfo} />
         </Button>
     ) : null
 }

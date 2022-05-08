@@ -19,16 +19,18 @@ function Main() {
       <AlertBanner />
       <Navbar bg="light" variant="light">
         <Container>
-          <Navbar.Brand>
-            <img src={Logo} alt="Athasha" height="32"></img>
+          <Navbar.Brand title="athasha.io">
+            <a href="https://athasha.io" target="_blank">
+              <img src={Logo} alt="Athasha" height="32"></img>
+            </a>
           </Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
               <span className='d-flex align-items-center'>
-                <InfoButton />
-                <ToolsButton />
                 <HostButton />
+                <ToolsButton />
+                <InfoButton />
                 <LogoutButton />
               </span>
             </Navbar.Text>
