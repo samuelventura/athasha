@@ -1,11 +1,15 @@
 
 function download(data, ext) {
     const json = JSON.stringify(data, null, 2)
+    downloadTxt(json, ext)
+}
+
+function downloadTxt(data, ext) {
     const element = document.createElement('a')
     const now = new Date()
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
     const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
-    element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(json))
+    element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(data))
     element.setAttribute('download', `${filename}.${ext}`)
     element.style.display = 'none'
     element.click()
@@ -37,6 +41,7 @@ const backupExtension = "athasha.backup.json"
 const Files = {
     licenseExtension,
     backupExtension,
+    downloadTxt,
     download,
     upload,
 }

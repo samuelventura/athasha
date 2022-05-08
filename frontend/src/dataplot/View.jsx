@@ -13,6 +13,7 @@ import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
 import { Tooltip, Legend } from 'recharts';
+import Files from "../items/Files"
 
 function hourAgo(hours) {
     var dt = new Date();
@@ -61,10 +62,11 @@ function DataTable({ version, config, data }) {
     const cols = config.columns
     const tableCols = cols.map((c, i) => <th key={i}>{c.name}</th>)
     function tableRow(dp) { return cols.map((c, i) => <td key={i}>{dp[i]}</td>) }
-    const tableRows = data.map((dp, i) => <tr key={i}>{tableRow(dp)}</tr>)
+    const tableRows = data.map((dp, i) => <tr key={i}><td>{i + 1}</td>{tableRow(dp)}</tr>)
     return <Table striped bordered hover>
         <thead>
             <tr>
+                <th>#</th>
                 {tableCols}
             </tr>
         </thead>
@@ -103,17 +105,10 @@ function View() {
             return p.join(sep)
         })
         const csv = heads.join(sep) + "\n" + rows.join("\n")
-        const element = document.createElement('a')
-        const now = new Date()
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-        const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
-        element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(csv))
-        element.setAttribute('download', `${filename}.athasha.dataplot.${ext}`)
-        element.style.display = 'none'
-        element.click()
+        Files.downloadTxt(csv, ext)
     }
-    function downloadCsv() { downloadData(",", "csv") }
-    function downloadTsv() { downloadData("\t", "tsv") }
+    function downloadCsv() { downloadData(",", "athasha.dataplot.csv") }
+    function downloadTsv() { downloadData("\t", "athasha.dataplot.tsv") }
     return <Container className="mt-2">
         <Row className="d-flex align-items-center">
             <Col md={1}><span className="float-end me-2">From</span></Col>
