@@ -73,29 +73,51 @@ defmodule Athasha.Server do
     {:reply, all, state}
   end
 
+  def handle_call({:apply, from, muta = %{name: "restore"}}, _from, state) do
+    state =
+      Enum.reduce(muta.args, state, fn item, state ->
+        muta = %{name: "restore", args: item}
+
+        case apply_safe(muta, from, state) do
+          {:ok, state} -> state
+          {:error, _error, state} -> state
+        end
+      end)
+
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:apply, from, muta}, _from, state) do
+    case apply_safe(muta, from, state) do
+      {:ok, state} -> {:reply, :ok, state}
+      {:error, error, state} -> {:reply, {:error, error}, state}
+    end
+  end
+
   # rescue from multi user race conditions for instance
   # restore below will throw if items not empty
   # in any other case the changeset and database
   # should throw on out of sync conditions
   # the key is to dispatch only after success
-  def handle_call({:apply, from, muta}, _from, state) do
+
+  def apply_safe(muta, from, state) do
     try do
       state = apply_muta(muta, from, state)
-      {:reply, :ok, state}
+      {:ok, state}
     rescue
       e ->
         IO.inspect({e, __STACKTRACE__, from, muta, state})
-        {:reply, {:error, e}, state}
+        {:error, e, state}
     end
   end
 
-  defp apply_muta(muta = %{name: "restore"}, from, state = %{items: %{}}) do
-    Enum.reduce(muta.args, state, fn item, state ->
-      {:ok, item} = insert(item, :id)
-      args = strip_item(item)
-      muta = %{name: "create", args: args}
-      apply_muta(:set, item, muta, from, state)
-    end)
+  defp apply_muta(muta = %{name: "restore"}, from, state) do
+    args = muta.args
+    {:ok, item} = insert(args, :id)
+    args = strip_item(item)
+    muta = Map.put(muta, :args, args)
+    muta = Map.put(muta, :name, "create")
+    apply_muta(:set, item, muta, from, state)
   end
 
   defp apply_muta(muta = %{name: "create"}, from, state) do

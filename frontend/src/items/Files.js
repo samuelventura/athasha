@@ -13,25 +13,30 @@ function download(data, ext) {
 
 function upload(ext, callback) {
     const input = document.createElement('input')
-        input.setAttribute('accept', `.${ext}`)
-        input.type = 'file'
-        input.onchange = _ => {
-            const files = Array.from(input.files)
-            const reader = new FileReader()
-            reader.addEventListener('load', (event) => {
-                const uri = event.target.result
-                //data:application/jsonbase64,XXXXX....
-                const base64 = uri.substring(uri.indexOf(",") + 1)
-                const json = atob(base64)
-                const data = JSON.parse(json)
-                callback(data)
-            })
-            reader.readAsDataURL(files[0])
-        }
-        input.click()
+    input.setAttribute('accept', `.${ext}`)
+    input.type = 'file'
+    input.onchange = _ => {
+        const files = Array.from(input.files)
+        const reader = new FileReader()
+        reader.addEventListener('load', (event) => {
+            const uri = event.target.result
+            //data:application/jsonbase64,XXXXX....
+            const base64 = uri.substring(uri.indexOf(",") + 1)
+            const json = atob(base64)
+            const data = JSON.parse(json)
+            callback(data)
+        })
+        reader.readAsDataURL(files[0])
+    }
+    input.click()
 }
 
+const licenseExtension = "athasha.license.json"
+const backupExtension = "athasha.backup.json"
+
 const Files = {
+    licenseExtension,
+    backupExtension,
     download,
     upload,
 }

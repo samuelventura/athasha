@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Environ from "../Environ"
 import State from "./State"
+import Files from "./Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
@@ -101,6 +102,11 @@ function Rows(props) {
                 props.send({ name: "create", args: clone })
                 break
             }
+            case "backup": {
+                const clone = JSON.parse(JSON.stringify(item))
+                Files.download([clone], Files.backupExtension);
+                break
+            }
             case "view": {
                 e.stopPropagation() //avoid unselection
                 const page = item.type.toLowerCase()
@@ -187,6 +193,7 @@ function Rows(props) {
                         <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'delete', item)}>Delete</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'clone', item)}>Clone</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'backup', item)}>Backup</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>

@@ -160,10 +160,10 @@ function ToolsButton() {
                 config: item.config,
             }
         })
-        Files.download(items, "athasha.backup.json")
+        Files.download(items, Files.backupExtension)
     }
     function restoreItems() {
-        Files.upload("athasha.backup.json", function (data) {
+        Files.upload(Files.backupExtension, function (data) {
             app.send({ name: "restore", args: data })
         })
     }
@@ -171,11 +171,11 @@ function ToolsButton() {
         fetch("api/licenses")
             .then(r => r.json())
             .then(list => {
-                Files.download(list, "athasha.license.json")
+                Files.download(list, Files.licenseExtension)
             })
     }
     function installLicense() {
-        Files.upload("athasha.license.json", function (data) {
+        Files.upload(Files.licenseExtension, function (data) {
             fetch("api/licenses", {
                 method: "POST",
                 body: data,
