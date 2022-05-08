@@ -24,8 +24,7 @@ function Rows(props) {
     }
 
     function handleSelect(item) {
-        const selected = isSelected(item) ? noneItem : item
-        props.dispatch({ name: "select", args: selected })
+        props.dispatch({ name: "select", args: item })
     }
 
     function selectedClass(item) {
@@ -108,7 +107,6 @@ function Rows(props) {
                 break
             }
             case "view": {
-                e.stopPropagation() //avoid unselection
                 const page = item.type.toLowerCase()
                 window.open(`${page}.html?id=${item.id}`, '_blank').focus();
                 break
@@ -182,7 +180,7 @@ function Rows(props) {
             </td>
             <td>
                 {viewAction}
-                <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)} onClick={(e) => e.stopPropagation()}>
+                <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
                     <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>
                         Edit
                     </Button>
