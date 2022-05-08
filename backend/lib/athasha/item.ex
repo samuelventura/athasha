@@ -2,6 +2,8 @@ defmodule Athasha.Item do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
+
   schema "items" do
     field(:name, :string)
     field(:type, :string)

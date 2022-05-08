@@ -9,6 +9,7 @@ import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import Environ from '../Environ'
+import Files from './Files'
 import { useApp } from '../App'
 
 function DeleteItem(props) {
@@ -149,7 +150,6 @@ function ToolsButton() {
     function copyIdentity() {
         navigator.clipboard.writeText(app.state.identity)
     }
-    const backupDisabled = Object.keys(app.state.items).length == 0
     function backupItems() {
         const items = Object.values(app.state.items).map(item => {
             return {
@@ -160,72 +160,28 @@ function ToolsButton() {
                 config: item.config,
             }
         })
-        const json = JSON.stringify(items, null, 2)
-        const element = document.createElement('a')
-        const now = new Date()
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-        const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
-        element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(json))
-        element.setAttribute('download', `${filename}.athasha.backup.json`)
-        element.style.display = 'none'
-        element.click()
+        Files.download(items, "athasha.backup.json")
     }
-    const restoreDisabled = Object.keys(app.state.items).length > 0
     function restoreItems() {
-        const input = document.createElement('input')
-        input.setAttribute('accept', ".athasha.backup.json")
-        input.type = 'file'
-        input.onchange = _ => {
-            const files = Array.from(input.files)
-            const reader = new FileReader()
-            reader.addEventListener('load', (event) => {
-                const uri = event.target.result
-                //data:application/jsonbase64,XXXXX....
-                const base64 = uri.substring(uri.indexOf(",") + 1)
-                const json = atob(base64)
-                const items = JSON.parse(json)
-                app.send({ name: "restore", args: items })
-            })
-            reader.readAsDataURL(files[0])
-        }
-        input.click()
+        Files.upload("athasha.backup.json", function (data) {
+            app.send({ name: "restore", args: data })
+        })
     }
     function backupLicenses() {
         fetch("api/licenses")
             .then(r => r.json())
             .then(list => {
-                const json = JSON.stringify(list, null, 2)
-                const element = document.createElement('a')
-                const now = new Date()
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-                const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
-                element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(json))
-                element.setAttribute('download', `${filename}.athasha.license.json`)
-                element.style.display = 'none'
-                element.click()
+                Files.download(list, "athasha.license.json")
             })
     }
     function installLicense() {
-        const input = document.createElement('input')
-        input.setAttribute('accept', ".athasha.license.json")
-        input.type = 'file'
-        input.onchange = _ => {
-            const files = Array.from(input.files)
-            const reader = new FileReader()
-            reader.addEventListener('load', (event) => {
-                const uri = event.target.result
-                //data:application/jsonbase64,XXXXX....
-                const base64 = uri.substring(uri.indexOf(",") + 1)
-                const json = atob(base64)
-                fetch("api/licenses", {
-                    method: "POST",
-                    body: json,
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(() => { fetch("api/update").then(() => window.location.reload()) })
-            })
-            reader.readAsDataURL(files[0])
-        }
-        input.click()
+        Files.upload("athasha.license.json", function (data) {
+            fetch("api/licenses", {
+                method: "POST",
+                body: data,
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => { fetch("api/update").then(() => window.location.reload()) })
+        })
     }
     return app.logged ? (
         <Dropdown className="d-inline pt-1">
@@ -235,8 +191,8 @@ function ToolsButton() {
             <Dropdown.Menu>
                 <Dropdown.Item onClick={buyLicense}>Buy License</Dropdown.Item>
                 <Dropdown.Item onClick={copyIdentity}>Copy Identity</Dropdown.Item>
-                <Dropdown.Item onClick={backupItems} disabled={backupDisabled}>Backup Items</Dropdown.Item>
-                <Dropdown.Item onClick={restoreItems} disabled={restoreDisabled}>Restore Items</Dropdown.Item>
+                <Dropdown.Item onClick={backupItems}>Backup Items</Dropdown.Item>
+                <Dropdown.Item onClick={restoreItems}>Restore Items</Dropdown.Item>
                 <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
                 <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
             </Dropdown.Menu>
