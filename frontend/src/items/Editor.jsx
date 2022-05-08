@@ -108,7 +108,7 @@ function ItemInitial(type) {
         case "Dataplot":
             return Dataplot.ItemInitial()
         case "Laurel":
-            return Laurel.ItemInitial
+            return Laurel.ItemInitial()
         default:
             return null
     }

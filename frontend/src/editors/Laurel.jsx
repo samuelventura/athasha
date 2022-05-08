@@ -61,9 +61,7 @@ function Editor(props) {
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
-            fetch("api/serials")
-                .then(r => r.json())
-                .then(l => setSerials(l))
+            Serial.fetchSerials(setSerials)
         }
     }, [trigger])
     //initialize local state
