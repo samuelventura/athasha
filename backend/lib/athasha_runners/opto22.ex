@@ -20,7 +20,7 @@ defmodule Athasha.Opto22Runner do
       Enum.map(config["points"], fn point ->
         code = point["code"]
         module = String.to_integer(point["module"])
-        number = String.to_integer(point["point"])
+        number = String.to_integer(point["number"])
         name = point["name"]
 
         %{

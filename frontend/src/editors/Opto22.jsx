@@ -60,14 +60,7 @@ function Editor(props) {
         valid = valid && points.reduce((valid, point) => {
             valid = valid && checkNotBlank(point.code)
             valid = valid && checkRange(point.module, 0, 15)
-            switch (point.code[0]) {
-                case "0": //4ch
-                    valid = valid && checkRange(point.point, 0, 3)
-                    break
-                case "1": //HD
-                    valid = valid && checkRange(point.point, 0, 31)
-                    break
-            }
+            valid = valid && checkRange(point.number, 0, 3)
             valid = valid && checkNotBlank(point.name)
             return valid
         }, true)
@@ -117,7 +110,7 @@ function Editor(props) {
                     value={point.module} onChange={e => setPoint(index, "module", e.target.value, e)} />
             </td>
             <td>
-                <Form.Control type="number" min="0" max="31" placeholder="Point Number"
+                <Form.Control type="number" min="0" max="3" placeholder="Point Number"
                     value={point.number} onChange={e => setPoint(index, "number", e.target.value, e)} />
             </td>
             <td>
