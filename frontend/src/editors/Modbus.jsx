@@ -129,10 +129,20 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Select value={point.code} onChange={e => setPoint(index, "code", e.target.value)}>
-                    <option value="01">01 Coil</option>  {/* max: 255 * 8 */}
-                    <option value="02">02 Input</option> {/* max: 255 * 8 */}
-                    <option value="03">03 Holding Register</option> {/* max: Math.floor(255 / 16)*/}
-                    <option value="04">04 Input Register</option> {/* max: Math.floor(255 / 16)*/}
+                    <option value="01">01 Coil</option>
+                    <option value="02">02 Input</option>
+                    <option value="31">03 U16BE</option>
+                    <option value="32">03 S16BE</option>
+                    <option value="33">03 U16LE</option>
+                    <option value="34">03 S16LE</option>
+                    <option value="35">03 F32BE</option>
+                    <option value="36">03 F32LE</option>
+                    <option value="41">04 U16BE</option>
+                    <option value="42">04 S16BE</option>
+                    <option value="43">04 U16LE</option>
+                    <option value="44">04 S16LE</option>
+                    <option value="45">04 F32BE</option>
+                    <option value="46">04 F32LE</option>
                 </Form.Select>
             </td>
             <td>

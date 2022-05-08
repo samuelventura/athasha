@@ -1,6 +1,5 @@
 defmodule Athasha.Opto22Runner do
   alias Modbus.Master
-  alias Modbus.Float
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
@@ -121,7 +120,7 @@ defmodule Athasha.Opto22Runner do
       "02" ->
         case Master.exec(master, {:rir, point.slave, address, 2}) do
           {:ok, [w0, w1]} ->
-            [value] = Float.from_be([w0, w1])
+            <<value::float-32>> = <<w0::16, w1::16>>
             {:ok, value}
 
           any ->

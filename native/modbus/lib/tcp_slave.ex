@@ -16,7 +16,7 @@ defmodule Modbus.Tcp.Slave do
 
   def init(init) do
     {:ok, shared} = Shared.start_link(init.model)
-    opts = [:binary, ip: init.ip, packet: :raw, active: false]
+    opts = [:binary, ip: init.ip, packet: :raw, active: false, reuseaddr: true]
 
     case :gen_tcp.listen(init.port, opts) do
       {:ok, listener} ->

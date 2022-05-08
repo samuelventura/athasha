@@ -1,6 +1,5 @@
 defmodule Athasha.ModbusRunner do
   alias Modbus.Master
-  alias Modbus.Float
   alias Athasha.Items
   alias Athasha.Raise
   alias Athasha.Points
@@ -25,7 +24,14 @@ defmodule Athasha.ModbusRunner do
         address = String.to_integer(point["address"])
         code = point["code"]
         name = point["name"]
-        %{id: "#{id} #{name}", slave: slave, address: address, code: code, name: name}
+
+        %{
+          id: "#{id} #{name}",
+          slave: slave,
+          address: address,
+          code: code,
+          name: name
+        }
       end)
 
     config = %{
@@ -104,87 +110,103 @@ defmodule Athasha.ModbusRunner do
   defp exec_point(master, point) do
     case point.code do
       "01" ->
-        case Master.exec(master, {:rc, point.slave, point.address, 1}) do
-          {:ok, [value]} -> {:ok, value}
-          any -> any
-        end
+        read_bit(master, :rc, point)
 
       "02" ->
-        case Master.exec(master, {:ri, point.slave, point.address, 1}) do
-          {:ok, [value]} -> {:ok, value}
-          any -> any
-        end
-
-      # 22 Opto22 Float32
-      "22" ->
-        case Master.exec(master, {:rir, point.slave, point.address, 2}) do
-          {:ok, [w0, w1]} ->
-            [value] = Float.from_be([w0, w1])
-            {:ok, value}
-
-          any ->
-            any
-        end
-
-      # 30 Laurel Reading
-      "30" ->
-        laurel_decimal(master, point, 3)
+        read_bit(master, :ri, point)
 
       "31" ->
-        laurel_decimal(master, point, 5)
+        read_register(master, :rhr, point, &u16be/1)
 
       "32" ->
-        laurel_decimal(master, point, 7)
+        read_register(master, :rhr, point, &s16be/1)
 
       "33" ->
-        laurel_alarm(master, point)
+        read_register(master, :rhr, point, &u16le/1)
+
+      "34" ->
+        read_register(master, :rhr, point, &s16le/1)
+
+      "35" ->
+        read_register2(master, :rhr, point, &f32be/2)
+
+      "36" ->
+        read_register2(master, :rhr, point, &f32le/2)
+
+      "41" ->
+        read_register(master, :rir, point, &u16be/1)
+
+      "42" ->
+        read_register(master, :rir, point, &s16be/1)
+
+      "43" ->
+        read_register(master, :rir, point, &u16le/1)
+
+      "44" ->
+        read_register(master, :rir, point, &s16le/1)
+
+      "45" ->
+        read_register2(master, :rir, point, &f32be/2)
+
+      "46" ->
+        read_register2(master, :rir, point, &f32le/2)
     end
   end
 
-  defp laurel_decimal(master, point, address) do
-    # slave 2 is timing out randomly
-    :timer.sleep(5)
-    # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
-    # point.address is the number of places to shift left the decimal point
-    case Master.exec(master, {:rir, point.slave, address, 2}) do
+  defp u16be(w16) do
+    <<value::unsigned-integer-big-16>> = <<w16::16>>
+    {:ok, value}
+  end
+
+  defp s16be(w16) do
+    <<value::signed-integer-big-16>> = <<w16::16>>
+    {:ok, value}
+  end
+
+  defp u16le(w16) do
+    <<value::unsigned-integer-little-16>> = <<w16::16>>
+    {:ok, value}
+  end
+
+  defp s16le(w16) do
+    <<value::signed-integer-little-16>> = <<w16::16>>
+    {:ok, value}
+  end
+
+  defp f32be(w0, w1) do
+    <<value::float-big-32>> = <<w0::16, w1::16>>
+    {:ok, value}
+  end
+
+  defp f32le(w0, w1) do
+    <<value::float-little-32>> = <<w0::16, w1::16>>
+    {:ok, value}
+  end
+
+  defp read_register2(master, code, point, transform) do
+    case Master.exec(master, {code, point.slave, point.address, 2}) do
       {:ok, [w0, w1]} ->
-        <<sign::1, reading::31>> = <<w0::16, w1::16>>
-
-        sign =
-          case sign do
-            1 -> -1
-            0 -> 1
-          end
-
-        value = Decimal.new(sign, reading, -point.address)
-        {:ok, value}
+        transform.(w0, w1)
 
       any ->
         any
     end
   end
 
-  defp laurel_alarm(master, point) do
-    # slave 2 is timing out randomly
-    :timer.sleep(5)
-
-    case Master.exec(master, {:rir, point.slave, 1, 2}) do
-      {:ok, [w0, w1]} ->
-        <<_unused::28, a4::1, a3::1, a2::1, a1::1>> = <<w0::16, w1::16>>
-
-        value =
-          case point.address do
-            1 -> a1
-            2 -> a2
-            3 -> a3
-            4 -> a4
-            _ -> 0
-          end
-
-        {:ok, value}
+  defp read_register(master, code, point, transform) do
+    case Master.exec(master, {code, point.slave, point.address, 1}) do
+      {:ok, [w16]} ->
+        transform.(w16)
 
       any ->
         any
+    end
+  end
+
+  defp read_bit(master, code, point) do
+    case Master.exec(master, {code, point.slave, point.address, 1}) do
+      {:ok, [value]} -> {:ok, value}
+      any -> any
     end
   end
 
