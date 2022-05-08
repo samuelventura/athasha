@@ -47,13 +47,17 @@ function ItemEditor(props) {
         const control = Editors[item.type]
         return control?.ItemEditor({ show: true, ...eprops })
     }
+    function itemIcon(item) {
+        const control = Editors[item.type]
+        return control ? <img className="align-middle me-2" src={ItemIcon(item.type)} width="24"
+            alt={item.type} /> : null
+    }
     return (
         <Modal show={item.id} onHide={cancel} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    <img className="align-middle me-2" src={ItemIcon(item.type)} width="24"
-                        alt={item.type} />
+                    {itemIcon(item)}
                     <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
@@ -76,11 +80,11 @@ function ItemEditor(props) {
 }
 
 function ItemIcon(type) {
-    return Editors[type]?.ItemIcon
+    return Editors[type].ItemIcon
 }
 
 function ItemInitial(type) {
-    return Editors[type]?.ItemInitial()
+    return Editors[type].ItemInitial()
 }
 
 export { ItemEditor, ItemIcon, ItemInitial }
