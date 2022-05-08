@@ -116,9 +116,12 @@ function Editor(props) {
         next[name] = value
         setSetts(next)
     }
+
+    const configOptions = Serial.configList.map((c, i) => <option key={i} value={c}>{c}</option>)
     const serialOptions = serials.map((serial, index) => {
         return <option key={index} value={serial}>{serial}</option>
     })
+
     const rows = points.map((point, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
@@ -128,13 +131,10 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Select value={point.code} onChange={e => setPoint(index, "code", e.target.value)}>
-                    <option value="01">01 DO 0=OFF 1=ON</option>
-                    <option value="02">02 DI 0=OFF 1=ON</option>
-                    <option value="22">22 Opto22 Float32</option>
-                    <option value="30">30 Laurel Reading</option>
-                    <option value="31">31 Laurel Peak</option>
-                    <option value="32">32 Laurel Valley</option>
-                    <option value="33">33 Laurel Alarm</option>
+                    <option value="01">01 Coil</option>  {/* max: 255 * 8 */}
+                    <option value="02">02 Input</option> {/* max: 255 * 8 */}
+                    <option value="03">03 Holding Register</option> {/* max: Math.floor(255 / 16)*/}
+                    <option value="04">04 Input Register</option> {/* max: Math.floor(255 / 16)*/}
                 </Form.Select>
             </td>
             <td>
@@ -190,7 +190,7 @@ function Editor(props) {
         <Col xs={2}>
             <FloatingLabel label="Config">
                 <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
-                    {Serial.configOptions}
+                    {configOptions}
                 </Form.Select>
             </FloatingLabel>
         </Col>

@@ -105,6 +105,7 @@ function Editor(props) {
         props.store({ setts, slaves })
     }, [props, setts, slaves])
 
+    const configOptions = Serial.configList.map((c, i) => <option key={i} value={c}>{c}</option>)
     const serialOptions = serials.map((serial, index) => {
         return <option key={index} value={serial}>{serial}</option>
     })
@@ -178,7 +179,7 @@ function Editor(props) {
             <Col xs={2}>
                 <FloatingLabel label="Config">
                     <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
-                        {Serial.configOptions}
+                        {configOptions}
                     </Form.Select>
                 </FloatingLabel>
             </Col>
