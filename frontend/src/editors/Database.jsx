@@ -10,10 +10,20 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { fixInputValue } from "./Validation"
 import Initial from './Database.js'
+import Check from './Check'
 
 function Editor(props) {
-    const [setts, setSetts] = useState(ItemInitial().setts)
-    const [points, setPoints] = useState(ItemInitial().points)
+    const [setts, setSetts] = useState(Initial.config().setts)
+    const [points, setPoints] = useState(Initial.config().points)
+    useEffect(() => {
+        console.log("DATABASE props", props)
+    }, [props])
+    useEffect(() => {
+        console.log("DATABASE setts", setts)
+    }, [setts])
+    useEffect(() => {
+        console.log("DATABASE points", points)
+    }, [points])
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -23,7 +33,7 @@ function Editor(props) {
     useEffect(() => {
         if (props.id) {
             const config = { setts, points }
-            const valid = Check.run(() => ItemValidator(config))
+            const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [props, setts, points])
@@ -54,7 +64,11 @@ function Editor(props) {
                 setSetts(next)
             }
         }
-        return Check.props(labels[prop], setts[prop], setProp(prop), checks[prop])
+        return Check.props(
+            Initial.labels[prop],
+            setts[prop],
+            setProp(prop),
+            Initial.checks[prop])
     }
     const rows = points.map((point, index) =>
         <tr key={index} className='align-middle'>
@@ -64,7 +78,7 @@ function Editor(props) {
             <td>
                 <Form.Select value={point.id} onChange={e => setPoint(index, "id", e.target.value)}>
                     <option value=""></option>
-                    {options}
+                    {props.points}
                 </Form.Select>
             </td>
             <td>

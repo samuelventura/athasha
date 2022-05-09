@@ -11,18 +11,22 @@ function Editor(props) {
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
     const points = useMemo(() => Points.Options(app.state.items), [app.state.items])
-    console.log("ItemEditor.item", item)
+    //console.log("ItemEditor.item", item)
     useEffect(() => {
-        console.log("ItemEditor.item effect", item)
+        console.log("ItemEditor.item effect id", item)
         setValid(false)
         setConfig({})
     }, [item.id])
+    useEffect(() => {
+        console.log("ItemEditor.item effect item", item)
+        setValid(false)
+        setConfig({})
+    }, [item])
     function accept(action) {
         const id = item.id
         props.accept(id, config, action)
     }
-    const itemEditors = Types.names.map((type, index) => {
-        const control = Types.editor(type)
+    function editorState(item, type) {
         const state = { points }
         const match = item.id && type === item.type
         state.config = match ? item.config : {}
@@ -33,26 +37,34 @@ function Editor(props) {
             if (next.valid !== valid) setValid(next.valid)
             if (JSON.stringify(next.config) !== JSON.stringify(config)) setConfig(next.config)
         } : () => { }
-        //const editor = control.ItemEditor(state)
-        return null //(<div key={index}>{editor}</div>)
-    })
-
-    function itemIcon() {
+        return state
+    }
+    const databaseState = useMemo(() => editorState(item, "Database"), [item])
+    function itemIcon({ item }) {
         const icon = Types.icon(item.type)
         return icon ? <img className="align-middle me-2" src={icon} width="24"
             alt={item.type} /> : null
     }
+    function ItemEditor({ type, state }) {
+        return Types.editor(type)(state)
+    }
+    const MemoIcon = React.memo(itemIcon)
     return (
         <Modal show={item.id} onHide={props.cancel} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {itemIcon()}
+                    <MemoIcon item={item} />
                     <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {itemEditors}
+                <ItemEditor state={databaseState} type="Database" />
+                {/* {itemEditor("Screen")}
+                {itemEditor("Modbus")}
+                {itemEditor("Dataplot")}
+                {itemEditor("Laurel")}
+                {itemEditor("Opto22")} */}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.cancel}>

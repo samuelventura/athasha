@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -14,7 +14,7 @@ import Types from "./Types"
 
 function Rows(props) {
     const app = useApp()
-    const noneItem = State.initial().selected
+    const noneItem = useMemo(() => State.initial().selected, [])
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
     const [editItem, setEditItem] = useState(noneItem)

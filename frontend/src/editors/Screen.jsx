@@ -16,9 +16,10 @@ import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
 import { fixInputValue } from "./Validation"
-import ItemIcon from './Screen.svg'
 import Controls from './Controls'
 import { useApp } from '../App'
+import Initial from './Database.js'
+import Check from './Check'
 
 function ItemInitial() {
     return {
@@ -483,9 +484,9 @@ function PreviewControl({ accept, preview, setPreview, id }) {
 }
 
 function ItemEditor(props) {
-    const [setts, setSetts] = useState(ItemInitial().setts)
-    const [controls, setControls] = useState(ItemInitial().controls)
-    const [selected, setSelected] = useState(() => initialSelected())
+    const [setts, setSetts] = useState(Initial.config().setts)
+    const [controls, setControls] = useState(Initial.config().controls)
+    const [selected, setSelected] = useState(() => Initial.selected())
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
@@ -520,7 +521,7 @@ function ItemEditor(props) {
                 return points
             }, [])
             const config = { setts, controls, points }
-            const valid = Check.run(() => ItemValidator(config))
+            const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [props, setts, controls])

@@ -10,7 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { fixInputValue } from "./Validation"
-import ItemIcon from './Dataplot.svg'
+import Initial from './Database.js'
+import Check from './Check'
 
 function ItemInitial() {
     return {
@@ -47,8 +48,8 @@ function getUniqueColor(n) {
 }
 
 function ItemEditor(props) {
-    const [setts, setSetts] = useState(ItemInitial().setts)
-    const [columns, setColumns] = useState(ItemInitial().columns)
+    const [setts, setSetts] = useState(Initial.config().setts)
+    const [columns, setColumns] = useState(Initial.config().columns)
     useEffect(() => {
         const init = ItemInitial()
         const config = props.config
@@ -58,7 +59,7 @@ function ItemEditor(props) {
     useEffect(() => {
         if (props.id) {
             const config = { setts, columns }
-            const valid = Check.run(() => ItemValidator(config))
+            const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [props, setts, columns])

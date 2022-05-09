@@ -31,6 +31,7 @@ const labels = {
     command: "SQL Command",
 }
 
+//FIXME enforce html validation
 const checks = {
     database: function (value) {
         Check.isString(value, labels.database)
@@ -43,6 +44,7 @@ const checks = {
     period: function (value) {
         Check.isString(value, labels.period)
         Check.notEmpty(value, labels.period)
+        //FIXME enforce limits
     },
     unit: function (value) {
         Check.isString(value, labels.unit)

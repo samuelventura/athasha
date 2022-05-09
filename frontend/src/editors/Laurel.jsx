@@ -10,9 +10,10 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import ItemIcon from './Laurel.svg'
 import { fixInputValue } from "./Validation"
+import Initial from './Database.js'
 import Serial from "./Serial"
+import Check from './Check'
 
 function ItemInitial() {
     return {
@@ -47,8 +48,8 @@ function initialInput() {
 }
 
 function ItemEditor(props) {
-    const [setts, setSetts] = useState(ItemInitial().setts)
-    const [slaves, setSlaves] = useState(ItemInitial().slaves)
+    const [setts, setSetts] = useState(Initial.config().setts)
+    const [slaves, setSlaves] = useState(Initial.config().slaves)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     const [tab, setTab] = useState("tab0")
@@ -67,7 +68,7 @@ function ItemEditor(props) {
     useEffect(() => {
         if (props.id) {
             const config = { setts, slaves }
-            const valid = Check.run(() => ItemValidator(config))
+            const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [props, setts, slaves])
