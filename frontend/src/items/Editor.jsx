@@ -49,10 +49,9 @@ function Editor(props) {
             <Modal.Body>
                 {itemEditor("Database")}
                 {itemEditor("Dataplot")}
+                {itemEditor("Laurel")}
                 {/* {itemEditor("Screen")}
                 {itemEditor("Modbus")}
-                {itemEditor("Dataplot")}
-                {itemEditor("Laurel")}
                 {itemEditor("Opto22")} */}
             </Modal.Body>
             <Modal.Footer>

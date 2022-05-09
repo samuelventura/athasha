@@ -47,6 +47,20 @@ function isGT(value, label, limit) {
     }
 }
 
+function isGE(value, label, limit) {
+    const num = Number(value)
+    if (num < limit) {
+        throw `${label} is not >= ${limit}`
+    }
+}
+
+function isLE(value, label, limit) {
+    const num = Number(value)
+    if (num > limit) {
+        throw `${label} is not <= ${limit}`
+    }
+}
+
 function isColor(value, label) {
     const re = /^#[0-9a-f]{6}/i
     if (!re.test(value)) {
@@ -131,4 +145,6 @@ export default {
     isNumber,
     isColor,
     isGT,
+    isGE,
+    isLE,
 }

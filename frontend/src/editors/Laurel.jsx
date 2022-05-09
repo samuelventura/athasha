@@ -10,7 +10,6 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { fixInputValue } from "./Validation"
 import Initial from './Laurel.js'
 import Serial from "./Serial"
 import Check from './Check'
@@ -21,6 +20,7 @@ function Editor(props) {
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     const [tab, setTab] = useState("tab0")
+    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
@@ -32,43 +32,135 @@ function Editor(props) {
         const config = props.config
         setSetts(config.setts || init.setts)
         setSlaves(config.slaves || init.slaves)
-    }, [props.config])
+    }, [props.id]) //primitive type required
     useEffect(() => {
-        if (props.id) {
+        if (props.id) { //required to prevent closing validations
             const config = { setts, slaves }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [props, setts, slaves])
+    }, [setts, slaves])
+    function addSlave() {
+        const next = [...slaves]
+        const slave = Initial.slave()
+        slave.address = `${next.length + 1}`
+        next.push(slave)
+        setTab("tab" + slaves.length)
+        setSlaves(next)
+    }
+    function delSlave(sindex) {
+        if (slaves.length < 2) return
+        const next = [...slaves]
+        next.splice(sindex, 1)
+        setTab("tab0")
+        setSlaves(next)
+    }
+    function setSlaveProp(sindex, name, value) {
+        const next = [...slaves]
+        const prev = next[sindex][name]
+        next[sindex][name] = value
+        setSlaves(next)
+    }
+    function addInput(sindex) {
+        const slave = slaves[sindex]
+        const next = [...slave.inputs]
+        const input = Initial.input(next.length)
+        next.push(input)
+        setSlaveProp(sindex, "inputs", next)
+    }
+    function delInput(sindex, pindex) {
+        const slave = slaves[sindex]
+        if (slave.inputs.length < 2) return
+        const next = [...slave.inputs]
+        next.splice(pindex, 1)
+        setSlaveProp(sindex, "inputs", next)
+    }
+    function setInputProp(sindex, pindex, name, value, e) {
+        const slave = slaves[sindex]
+        const next = [...slave.inputs]
+        const prev = next[pindex][name]
+        next[pindex][name] = value
+        setSlaveProp(sindex, "inputs", next)
+    }
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = { ...setts }
+                const prev = next[name]
+                next[name] = value
+                setSetts(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels[prop]
+        args.hint = Initial.hints[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks[prop]
+        args.defval = Initial.setts()[prop]
+        return Check.props(args)
+    }
+
+    function slaveProps(sindex, prop) {
+        function setProp(name) {
+            return function (value) {
+                setSlaveProp(sindex, name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.slaves[prop](sindex)
+        args.hint = Initial.hints.slaves[prop](sindex)
+        args.value = slaves[sindex][prop]
+        args.setter = setProp(prop)
+        args.check = (value) => Initial.checks.slaves[prop](sindex, value)
+        args.defval = Initial.slave()[prop]
+        return Check.props(args)
+    }
+
+    function inputProps(sindex, pindex, prop) {
+        function setProp(name) {
+            return function (value) {
+                setInputProp(sindex, pindex, name, value)
+            }
+        }
+        const slave = slaves[sindex]
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.inputs[prop](pindex)
+        args.hint = Initial.hints.inputs[prop](pindex)
+        args.value = slave.inputs[pindex][prop]
+        args.setter = setProp(prop)
+        args.check = (value) => Initial.checks.inputs[prop](pindex, value)
+        args.defval = Initial.input()[prop]
+        return Check.props(args)
+    }
 
     const configOptions = Serial.configList.map((c, i) => <option key={i} value={c}>{c}</option>)
     const serialOptions = serials.map((serial, index) => {
         return <option key={index} value={serial}>{serial}</option>
     })
 
-    function subHeaderEditor({ setts, setProp }) {
+    function subHeaderEditor() {
         return (
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label="Transport">
-                        <Form.Select value={setts.trans} onChange={e => setProp("trans", e.target.value)}>
+                    <FloatingLabel label={Initial.labels.trans}>
+                        <Form.Select {...settsProps("trans")}>
                             <option value="Socket">Socket</option>
                             <option value="Serial">Serial</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Protocol">
-                        <Form.Select value={setts.proto} onChange={e => setProp("proto", e.target.value)}>
+                    <FloatingLabel label={Initial.labels.proto}>
+                        <Form.Select {...settsProps("proto")}>
                             <option value="TCP">TCP</option>
                             <option value="RTU">RTU</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Period (ms)">
-                        <Form.Control type="number" min="0" max="10000"
-                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                    <FloatingLabel label={Initial.labels.period}>
+                        <Form.Control type="number" {...settsProps("period")} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
@@ -76,45 +168,42 @@ function Editor(props) {
         )
     }
 
-    function socketTransportEditor({ setts, setProp }) {
+    function socketTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label="Hostname/IP Address">
-                    <Form.Control type="text"
-                        value={setts.host} onChange={e => setProp("host", e.target.value)} />
+                <FloatingLabel label={Initial.labels.host}>
+                    <Form.Control type="text" {...settsProps("host")} />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label="Port">
-                    <Form.Control type="number" min="1" max="65535"
-                        value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
+                <FloatingLabel label={Initial.labels.port}>
+                    <Form.Control type="number" {...settsProps("port")} />
                 </FloatingLabel>
             </Col>
         </Row>)
     }
 
-    function serialTransportEditor({ setts, setProp }) {
+    function serialTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label="Serial Port Name">
+                <FloatingLabel label={Initial.labels.tty}>
                     <Form.Control type="text" list="serialList"
                         onClick={() => setTrigger(true)} onFocus={() => setTrigger(true)}
                         onKeyPress={e => setTrigger(e.key === 'Enter')}
-                        value={setts.tty} onChange={e => setProp("tty", e.target.value)} />
+                        {...settsProps("tty")} />
                     <datalist id="serialList">
                         {serialOptions}
                     </datalist>
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label="Baud Rate">
-                    <Form.Control type="number" min="1"
-                        value={setts.speed} onChange={e => setProp("speed", e.target.value, e)} />
+                <FloatingLabel label={Initial.labels.speed}>
+                    <Form.Control type="number" {...settsProps("speed")} />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label="Config">
-                    <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
+                <FloatingLabel label={Initial.labels.dbpsb}>
+                    <Form.Select {...settsProps("dbpsb")}>
                         {configOptions}
                     </Form.Select>
                 </FloatingLabel>
@@ -122,77 +211,27 @@ function Editor(props) {
         </Row >)
     }
 
-    function transportEditor({ setts, setProp }) {
+    function transportEditor() {
         return setts.trans === "Serial" ?
-            serialTransportEditor({ setts, setProp }) :
-            socketTransportEditor({ setts, setProp })
+            serialTransportEditor() :
+            socketTransportEditor()
     }
 
     function headerEditor() {
-        function setProp(name, value, e) {
-            const next = { ...setts }
-            const prev = next[name]
-            value = fixInputValue(e, value, prev)
-            next[name] = value
-            setSetts(next)
-        }
-        const subHeader = subHeaderEditor({ setts, setProp })
-        const transport = transportEditor({ setts, setProp })
+        const subHeader = subHeaderEditor()
+        const transport = transportEditor()
         return <>
             {subHeader}
             {transport}
         </>
     }
 
-    function setSlaveProp(sindex, name, value, e) {
-        const next = [...slaves]
-        const prev = next[sindex][name]
-        value = fixInputValue(e, value, prev)
-        next[sindex][name] = value
-        setSlaves(next)
-    }
-
-    function addSlave() {
-        const next = [...slaves]
-        const slave = initialSlave()
-        slave.address = `${next.length + 1}`
-        next.push(slave)
-        setTab("tab" + slaves.length)
-        setSlaves(next)
-    }
-
-    function delSlave(sindex) {
-        const next = [...slaves]
-        next.splice(sindex, 1)
-        setTab("tab0")
-        setSlaves(next)
-    }
-
     function slaveEditor({ sindex, slave }) {
-        function setInputProp(pindex, name, value, e) {
-            const next = [...slave.inputs]
-            const prev = next[pindex][name]
-            value = fixInputValue(e, value, prev)
-            next[pindex][name] = value
-            setSlaveProp(sindex, "inputs", next)
-        }
-        function addInput() {
-            const next = [...slave.inputs]
-            const input = initialInput()
-            input.name = `Input ${next.length + 1}`
-            next.push(input)
-            setSlaveProp(sindex, "inputs", next)
-        }
-        function delInput(pindex) {
-            const next = [...slave.inputs]
-            next.splice(pindex, 1)
-            setSlaveProp(sindex, "inputs", next)
-        }
         const listRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>
                 <td >{pindex + 1}</td>
                 <td>
-                    <Form.Select value={input.code} onChange={e => setInputProp(pindex, "code", e.target.value)}>
+                    <Form.Select {...inputProps(sindex, pindex, "code")}>
                         <option value="01">Item 1</option>
                         <option value="02">Item 2</option>
                         <option value="03">Item 3</option>
@@ -206,10 +245,10 @@ function Editor(props) {
                 </td>
                 <td>
                     <Form.Control type="text" placeholder="Input Name"
-                        value={input.name} onChange={e => setInputProp(pindex, "name", e.target.value)} />
+                        {...inputProps(sindex, pindex, "name")} />
                 </td>
                 <td>
-                    <Button variant='outline-danger' size="sm" onClick={() => delInput(pindex)}
+                    <Button variant='outline-danger' size="sm" onClick={() => delInput(sindex, pindex)}
                         title="Delete Input" disabled={slave.inputs.length < 2}>
                         <FontAwesomeIcon icon={faTimes} />
                     </Button>
@@ -220,15 +259,13 @@ function Editor(props) {
             <Tab key={sindex} eventKey={"tab" + sindex} title={"Slave " + slave.address}>
                 <Row>
                     <Col xs={2}>
-                        <FloatingLabel label="Slave ID">
-                            <Form.Control type="number" min="1" max="65535"
-                                value={slave.address} onChange={e => setSlaveProp(sindex, "address", e.target.value, e)} />
+                        <FloatingLabel label={Initial.labels.slave.address}>
+                            <Form.Control type="number" {...slaveProps(sindex, "address")} />
                         </FloatingLabel>
                     </Col>
                     <Col xs={2}>
-                        <FloatingLabel label="Decimal Digits">
-                            <Form.Control type="number" min="0" max="6"
-                                value={slave.decimals} onChange={e => setSlaveProp(sindex, "decimals", e.target.value, e)} />
+                        <FloatingLabel label={Initial.labels.slave.decimals}>
+                            <Form.Control type="number"  {...slaveProps(sindex, "decimals")} />
                         </FloatingLabel>
                     </Col>
                     <Col></Col>
@@ -246,7 +283,7 @@ function Editor(props) {
                             <th>Register Name</th>
                             <th>Input Name</th>
                             <th>
-                                <Button variant='outline-primary' size="sm" onClick={addInput}
+                                <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
                                     title="Add Input">
                                     <FontAwesomeIcon icon={faPlus} />
                                 </Button>
