@@ -30,11 +30,22 @@ const labels = {
     connstr: "Connection String",
     command: "SQL Command",
     points: {
-        id: (i) => `Point ${i+1}`
+        id: (i) => `Point ${i + 1}`
     }
 }
 
-//FIXME enforce html validation
+const hints = {
+    database: "The type of database",
+    dbpass: "Optional database password",
+    period: "Non empty integer insert period > 0",
+    unit: "One of the listed time units",
+    connstr: "Non empty connections string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
+    command: "An SQL insert command, function or store procedure call\nUse @n to reference the nth point\nFor instance @1 references point 1\nConsult your TI specialist",
+    points: {
+        id: (i) => "Select the point name from the available list"
+    }
+}
+
 const checks = {
     database: function (value) {
         Check.isString(value, labels.database)
@@ -47,7 +58,8 @@ const checks = {
     period: function (value) {
         Check.isString(value, labels.period)
         Check.notEmpty(value, labels.period)
-        //FIXME enforce limits
+        Check.isInteger(value, labels.period)
+        Check.isGT(value, labels.period, 0)
     },
     unit: function (value) {
         Check.isString(value, labels.unit)
@@ -62,9 +74,9 @@ const checks = {
         Check.notEmpty(value, labels.command)
     },
     points: {
-        id: function (value) {
-            Check.isString(value, labels.points.id)
-            Check.notEmpty(value, labels.points.id)
+        id: function (index, value) {
+            Check.isString(value, labels.points.id(index))
+            Check.notEmpty(value, labels.points.id(index))
         },
     }
 }
@@ -85,10 +97,9 @@ function validator({ setts, points }) {
     Check.isArray(points, "Points")
     Check.nonZeroLength(points, "Points")
     points.forEach((point, index) => {
-        const label = `Point ${index + 1}`
+        const label = labels.points.id(index)
         Check.hasProp(point, label, "id")
-        Check.isString(point.id, label)
-        Check.notEmpty(point.id, label)
+        checks.points.id(index, point.id)
     })
 }
 
@@ -97,6 +108,7 @@ export default {
     setts,
     point,
     labels,
+    hints,
     checks,
     validator,
 }

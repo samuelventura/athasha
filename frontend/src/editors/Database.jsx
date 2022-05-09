@@ -14,7 +14,7 @@ import Check from './Check'
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [points, setPoints] = useState(Initial.config().points)
-    const [captured, setCaptured] = useState("")
+    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -50,9 +50,11 @@ function Editor(props) {
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
+        args.hint = Initial.hints[prop]
         args.value = setts[prop]
         args.setter = setProp(prop)
         args.check = Initial.checks[prop]
+        args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
 
@@ -67,9 +69,11 @@ function Editor(props) {
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels.points[prop](index)
+        args.hint = Initial.hints.points[prop](index)
         args.value = points[index][prop]
         args.setter = setProp(prop)
-        args.check = Initial.checks.points[prop]
+        args.check = (value) => Initial.checks.points[prop](index, value)
+        args.defval = Initial.point()[prop]
         return Check.props(args)
     }
     const rows = points.map((point, index) =>
@@ -84,7 +88,8 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}>
+                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
+                    title="Delete Point">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -141,10 +146,11 @@ function Editor(props) {
             <Table>
                 <thead>
                     <tr>
-                        <th>Param</th>
-                        <th>Point</th>
+                        <th>Param Reference</th>
+                        <th>Point Name</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}>
+                            <Button variant='outline-primary' size="sm" onClick={addPoint}
+                                title="Add Point">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>
