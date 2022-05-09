@@ -8,40 +8,16 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { fixInputValue } from "./Validation"
 import Initial from './Modbus.js'
 import Serial from "./Serial"
 import Check from './Check'
-
-function ItemInitial() {
-    return {
-        setts: initialSetts(),
-        inputs: [initialInput()]
-    }
-}
-
-function initialSetts() {
-    return {
-        proto: "TCP",    //RTU
-        trans: "Socket", //Serial
-        host: "127.0.0.1",
-        port: "502",
-        tty: "COM1",
-        speed: "9600",
-        dbpsb: "8N1",
-        period: "10",
-    }
-}
-
-function initialInput() {
-    return { slave: "1", code: "01", address: "0", name: "Input 1" }
-}
 
 function ItemEditor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [inputs, setInputs] = useState(Initial.config().inputs)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
+    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
@@ -49,43 +25,68 @@ function ItemEditor(props) {
         }
     }, [trigger])
     useEffect(() => {
-        const init = ItemInitial()
+        const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
         setInputs(config.inputs || init.inputs)
-    }, [props.config])
+    }, [props.id]) //primitive type required
     useEffect(() => {
-        if (props.id) {
+        if (props.id) { //required to prevent closing validations
             const config = { setts, inputs }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [props, setts, inputs])
-    function setInput(index, name, value, e) {
-        const next = [...inputs]
-        const prev = next[index][name]
-        value = fixInputValue(e, value, prev)
-        next[index][name] = value
-        setInputs(next)
-    }
+    }, [setts, inputs])
     function addInput() {
         const next = [...inputs]
-        const input = initialInput()
-        input.name = `Input ${next.length + 1}`
+        const input = Initial.input(next.length)
         next.push(input)
         setInputs(next)
     }
     function delInput(index) {
+        if (inputs.length < 2) return
         const next = [...inputs]
         next.splice(index, 1)
         setInputs(next)
     }
-    function setProp(name, value, e) {
-        const next = { ...setts }
-        const prev = next[name]
-        value = fixInputValue(e, value, prev)
-        next[name] = value
-        setSetts(next)
+    function setInputProp(index, name, value) {
+        const next = [...inputs]
+        const prev = next[index][name]
+        next[index][name] = value
+        setInputs(next)
+    }
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = { ...setts }
+                const prev = next[name]
+                next[name] = value
+                setSetts(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels[prop]
+        args.hint = Initial.hints[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks[prop]
+        args.defval = Initial.setts()[prop]
+        return Check.props(args)
+    }
+    function inputProps(index, prop) {
+        function setProp(name) {
+            return function (value) {
+                setInputProp(index, name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.inputs[prop](index)
+        args.hint = Initial.hints.inputs[prop](index)
+        args.value = inputs[index][prop]
+        args.setter = setProp(prop)
+        args.check = (value) => Initial.checks.inputs[prop](index, value)
+        args.defval = Initial.input()[prop]
+        return Check.props(args)
     }
 
     const configOptions = Serial.configList.map((c, i) => <option key={i} value={c}>{c}</option>)
@@ -97,11 +98,10 @@ function ItemEditor(props) {
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
-                <Form.Control type="number" min="1" max="65535" placeholder="Slave ID"
-                    value={input.slave} onChange={e => setInput(index, "slave", e.target.value, e)} />
+                <Form.Control type="number" placeholder={Initial.labels.input.slave} {...inputProps(index, "slave")} />
             </td>
             <td>
-                <Form.Select value={input.code} onChange={e => setInput(index, "code", e.target.value)}>
+                <Form.Select {...inputProps(index, "code")} >
                     <option value="01">01 Coil</option>
                     <option value="02">02 Input</option>
                     <option value="31">03 U16BE</option>
@@ -119,12 +119,10 @@ function ItemEditor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" min="0" max="65535" placeholder="Address"
-                    value={input.address} onChange={e => setInput(index, "address", e.target.value, e)} />
+                <Form.Control type="number" placeholder={Initial.labels.input.address} {...inputProps(index, "address")} />
             </td>
             <td>
-                <Form.Control type="text" placeholder="Input Name"
-                    value={input.name} onChange={e => setInput(index, "name", e.target.value)} />
+                <Form.Control type="text" placeholder={Initial.labels.input.name} {...inputProps(index, "name")} />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
@@ -137,40 +135,37 @@ function ItemEditor(props) {
 
     const transSocket = (<Row>
         <Col xs={4}>
-            <FloatingLabel label="Hostname/IP Address">
-                <Form.Control type="text"
-                    value={setts.host} onChange={e => setProp("host", e.target.value)} />
+            <FloatingLabel label={Initial.labels.host}>
+                <Form.Control type="text" {...settsProps("host")} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label="Port">
-                <Form.Control type="number" min="1" max="65535"
-                    value={setts.port} onChange={e => setProp("port", e.target.value, e)} />
+            <FloatingLabel label={Initial.labels.port}>
+                <Form.Control type="number" {...settsProps("port")} />
             </FloatingLabel>
         </Col>
     </Row>)
 
     const transSerial = (<Row>
         <Col xs={4}>
-            <FloatingLabel label="Serial Port Name">
+            <FloatingLabel label={Initial.labels.tty}>
                 <Form.Control type="text" list="serialList"
                     onClick={() => setTrigger(true)} onFocus={() => setTrigger(true)}
                     onKeyPress={e => setTrigger(e.key === 'Enter')}
-                    value={setts.tty} onChange={e => setProp("tty", e.target.value)} />
+                    {...settsProps("tty")} />
                 <datalist id="serialList">
                     {serialOptions}
                 </datalist>
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label="Baud Rate">
-                <Form.Control type="number" min="1"
-                    value={setts.speed} onChange={e => setProp("speed", e.target.value, e)} />
+            <FloatingLabel label={Initial.labels.speed}>
+                <Form.Control type="number" {...settsProps("speed")} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label="Config">
-                <Form.Select value={setts.dbpsb} onChange={e => setProp("dbpsb", e.target.value)}>
+            <FloatingLabel label={Initial.labels.dbpsb}>
+                <Form.Select {...settsProps("dbpsb")}>
                     {configOptions}
                 </Form.Select>
             </FloatingLabel>
@@ -184,25 +179,24 @@ function ItemEditor(props) {
         <Form>
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label="Transport">
-                        <Form.Select value={setts.trans} onChange={e => setProp("trans", e.target.value)}>
+                    <FloatingLabel label={Initial.labels.trans}>
+                        <Form.Select {...settsProps("trans")}>
                             <option value="Socket">Socket</option>
                             <option value="Serial">Serial</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Protocol">
-                        <Form.Select value={setts.proto} onChange={e => setProp("proto", e.target.value)}>
+                    <FloatingLabel label={Initial.labels.proto}>
+                        <Form.Select {...settsProps("proto")}>
                             <option value="TCP">TCP</option>
                             <option value="RTU">RTU</option>
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Period (ms)">
-                        <Form.Control type="number" min="0" max="10000"
-                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                    <FloatingLabel label={Initial.labels.period}>
+                        <Form.Control type="number" {...settsProps("period")} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
@@ -212,10 +206,10 @@ function ItemEditor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Slave ID</th>
-                        <th>Function Code</th>
-                        <th>Address</th>
-                        <th>Input Name</th>
+                        <th>{Initial.labels.input.slave}</th>
+                        <th>{Initial.labels.input.code}</th>
+                        <th>{Initial.labels.input.address}</th>
+                        <th>{Initial.labels.input.name}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput}
                                 title="Add Input">

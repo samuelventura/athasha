@@ -50,8 +50,8 @@ function Editor(props) {
                 {itemEditor("Database")}
                 {itemEditor("Dataplot")}
                 {itemEditor("Laurel")}
-                {/* {itemEditor("Screen")}
                 {itemEditor("Modbus")}
+                {/* {itemEditor("Screen")}
                 {itemEditor("Opto22")} */}
             </Modal.Body>
             <Modal.Footer>

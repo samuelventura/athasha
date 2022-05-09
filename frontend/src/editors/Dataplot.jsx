@@ -61,7 +61,6 @@ function Editor(props) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
-
     function columnProps(index, prop) {
         function setProp(name) {
             return function (value) {

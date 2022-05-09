@@ -57,7 +57,6 @@ function Editor(props) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
-
     function pointProps(index, prop) {
         function setProp(name) {
             return function (value) {

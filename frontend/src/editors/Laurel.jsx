@@ -100,7 +100,6 @@ function Editor(props) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
-
     function slaveProps(sindex, prop) {
         function setProp(name) {
             return function (value) {
@@ -116,7 +115,6 @@ function Editor(props) {
         args.defval = Initial.slave()[prop]
         return Check.props(args)
     }
-
     function inputProps(sindex, pindex, prop) {
         function setProp(name) {
             return function (value) {
