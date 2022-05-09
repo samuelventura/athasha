@@ -4,9 +4,10 @@ import Search from "./Search"
 import Header from "./Header"
 import Rows from "./Rows"
 import New from "./New"
+import { useApp } from '../App'
 
-function Browser(props) {
-
+function Browser() {
+    const app = useApp()
     const [filter, setFilter] = useState("")
     const [sort, setSort] = useState("asc")
 
@@ -19,10 +20,10 @@ function Browser(props) {
     }
 
     function viewItems() {
-        const f = filter.toLowerCase()
-        const list = Object.values(props.state.items)
-        const filtered = list.filter(item =>
-            item.name.toLowerCase().includes(f))
+        const lower = filter.toLowerCase()
+        const items = Object.values(app.state.items)
+        const filtered = items.filter(item =>
+            item.name.toLowerCase().includes(lower))
         switch (sort) {
             case "asc":
                 return filtered.sort((f1, f2) => {
@@ -53,7 +54,7 @@ function Browser(props) {
                             />
                         </th>
                         <th>
-                            <New send={props.send} />
+                            <New send={app.send} />
                         </th>
                     </tr>
                 </thead>
@@ -68,10 +69,7 @@ function Browser(props) {
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <Rows items={viewItems()}
-                    send={props.send}
-                    dispatch={props.dispatch}
-                    selected={props.state.selected} />
+                <Rows items={viewItems()} />
             </Table>
         </>
     )

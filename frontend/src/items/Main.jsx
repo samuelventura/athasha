@@ -8,12 +8,10 @@ import { AlertBanner } from '../Dialogs'
 import { InfoButton } from './Dialogs'
 import { HostButton } from './Dialogs'
 import { ToolsButton } from './Dialogs'
-import { useApp } from '../App'
 import Browser from "./Browser"
 import Logo from '../logo.svg'
 
 function Main() {
-  const app = useApp()
   return (
     <>
       <AlertBanner />
@@ -40,11 +38,7 @@ function Main() {
       <LoginDialog />
       <ConnectDialog />
       <Container className='mt-3'>
-        <Browser
-          state={app.state}
-          dispatch={app.dispatch}
-          send={app.send}
-        />
+        <Browser />
       </Container>
     </>
   )

@@ -15,16 +15,10 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
-import { checkRange } from "./Validation"
-import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 import ItemIcon from './Screen.svg'
 import Controls from './Controls'
 import { useApp } from '../App'
-
-function ItemEditor(props) {
-    return props.show ? (<Editor {...props} />) : null
-}
 
 function ItemInitial() {
     return {
@@ -488,19 +482,18 @@ function PreviewControl({ accept, preview, setPreview, id }) {
     </span>)
 }
 
-function Editor(props) {
+function ItemEditor(props) {
     const [setts, setSetts] = useState(ItemInitial().setts)
     const [controls, setControls] = useState(ItemInitial().controls)
     const [selected, setSelected] = useState(() => initialSelected())
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
-    //initialize local state
     useEffect(() => {
         const init = ItemInitial()
-        const state = props.state
-        setSetts(state.setts || init.setts)
-        const previous = state.controls || init.controls
+        const config = props.config
+        setSetts(config.setts || init.setts)
+        const previous = config.controls || init.controls
         const upgraded = previous.map(control => {
             const controller = Controls.getController(control.type)
             const upgrade = controller.Upgrade
@@ -512,38 +505,24 @@ function Editor(props) {
             return control
         })
         setControls(upgraded)
-    }, [props.state])
-    //rebuild and store state
+    }, [props.config])
     useEffect(() => {
-        let valid = true
-        valid = valid && checkRange(setts.period, 100)
-        valid = valid && checkNotBlank(setts.scale)
-        valid = valid && checkNotBlank(setts.align)
-        valid = valid && checkRange(setts.width, 1)
-        valid = valid && checkRange(setts.height, 1)
-        valid = valid && checkRange(setts.gridX, 1, 100)
-        valid = valid && checkRange(setts.gridY, 1, 100)
-        valid = valid && checkNotBlank(setts.bgColor)
-        valid = valid && controls.reduce((valid, control) => {
-            const validator = Controls.getController(control.type).Validator
-            if (validator) {
-                valid = valid && validator(control)
-            }
-            return valid
-        }, true)
-        const points = controls.reduce((points, control) => {
-            const pointer = Controls.getController(control.type).Pointer
-            if (pointer) {
-                pointer(control.data, (id) => {
-                    if (points.indexOf(id) < 0) {
-                        points.push(id)
-                    }
-                })
-            }
-            return points
-        }, [])
-        props.setValid(valid)
-        props.store({ setts, controls, points })
+        if (props.id) {
+            const points = controls.reduce((points, control) => {
+                const pointer = Controls.getController(control.type).Pointer
+                if (pointer) {
+                    pointer(control.data, (id) => {
+                        if (points.indexOf(id) < 0) {
+                            points.push(id)
+                        }
+                    })
+                }
+                return points
+            }, [])
+            const config = { setts, controls, points }
+            const valid = Check.run(() => ItemValidator(config))
+            props.setter({ config, valid })
+        }
     }, [props, setts, controls])
     function setProp(name, value, e) {
         const next = { ...setts }
@@ -660,8 +639,4 @@ function Editor(props) {
     )
 }
 
-export default {
-    ItemIcon,
-    ItemEditor,
-    ItemInitial,
-}
+export default ItemEditor

@@ -9,14 +9,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { checkRange } from "./Validation"
-import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
 import ItemIcon from './Dataplot.svg'
-
-function ItemEditor(props) {
-    return props.show ? (<Editor {...props} />) : null
-}
 
 function ItemInitial() {
     return {
@@ -52,35 +46,21 @@ function getUniqueColor(n) {
     return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
 }
 
-function Editor(props) {
+function ItemEditor(props) {
     const [setts, setSetts] = useState(ItemInitial().setts)
     const [columns, setColumns] = useState(ItemInitial().columns)
-    //initialize local state
     useEffect(() => {
         const init = ItemInitial()
-        const state = props.state
-        setSetts(state.setts || init.setts)
-        setColumns(state.columns || init.columns)
-    }, [props.state])
-    //rebuild and store state
+        const config = props.config
+        setSetts(config.setts || init.setts)
+        setColumns(config.columns || init.columns)
+    }, [props.config])
     useEffect(() => {
-        let valid = true
-        // valid = valid && checkNotBlank(setts.password)
-        valid = valid && columns.length > 1
-        // valid = valid && checkNotBlank(setts.dbpass)
-        valid = valid && checkNotBlank(setts.database)
-        valid = valid && checkNotBlank(setts.connstr)
-        valid = valid && checkNotBlank(setts.command)
-        valid = valid && checkNotBlank(setts.ymin)
-        valid = valid && checkNotBlank(setts.ymax)
-        valid = valid && checkRange(setts.lineWidth, 1)
-        valid = valid && columns.reduce((valid, column) => {
-            valid = valid && checkNotBlank(column.name)
-            valid = valid && checkNotBlank(column.color)
-            return valid
-        }, true)
-        props.setValid(valid)
-        props.store({ setts, columns })
+        if (props.id) {
+            const config = { setts, columns }
+            const valid = Check.run(() => ItemValidator(config))
+            props.setter({ config, valid })
+        }
     }, [props, setts, columns])
     function setColumn(index, name, value, e) {
         const next = [...columns]
@@ -232,8 +212,4 @@ function Editor(props) {
     )
 }
 
-export default {
-    ItemIcon,
-    ItemEditor,
-    ItemInitial,
-}
+export default ItemEditor

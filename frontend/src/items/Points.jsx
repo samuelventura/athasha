@@ -1,63 +1,21 @@
 import React from 'react'
+import Types from './Types'
 
-function modbusPointAppender(item, add) {
-    item.config.inputs.forEach(point => {
-        if (point.name.trim().length > 0) {
-            add({
-                point: { name: point.name },
-                item: { id: item.id, name: item.name }
-            })
-        }
-    })
-}
-
-function laurelPointAppender(item, add) {
-    item.config.slaves.forEach(slave => {
-        slave.inputs.forEach(point => {
-            if (point.name.trim().length > 0) {
-                add({
-                    point: { name: point.name },
-                    item: { id: item.id, name: item.name }
-                })
-            }
-        })
-    })
-}
-
-function opto22PointAppender(item, add) {
-    item.config.inputs.forEach(point => {
-        if (point.name.trim().length > 0) {
-            add({
-                point: { name: point.name },
-                item: { id: item.id, name: item.name }
-            })
-        }
-    })
-}
-
-const pointAppender = {
-    "Modbus": modbusPointAppender,
-    "Laurel": laurelPointAppender,
-    "Opto22": opto22PointAppender,
-}
-
-function PointLister(app) {
+function List(items) {
     const points = []
-    Object.values(app.state.items).forEach((item) => {
-        const appender = pointAppender[item.type]
-        if (appender) appender(item, function (point) {
-            points.push(point)
-        })
+    function add(point) { points.push(point) }
+    Object.values(items).forEach((item) => {
+        Types.pointer(item.type)(item, add)
     })
     return points
 }
 
-function PointOptions(app) {
-    return PointLister(app).map(({ point, item }, index) => {
+function Options(items) {
+    return List(items).map(({ point, item }, index) => {
         const id = `${item.id} ${point.name}`
         const desc = `${item.name}/${point.name}`
         return <option key={index} value={id}>{desc}</option>
     })
 }
 
-export { PointLister, PointOptions }
+export default { List, Options }

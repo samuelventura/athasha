@@ -1,71 +1,61 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import Editors from './Editors'
-import State from "./State"
+import Types from './Types'
+import Points from './Points'
+import { useApp } from '../App'
 
-function ItemEditor(props) {
-    const noneItem = State.initial().selected
+function Editor(props) {
+    const app = useApp()
+    const item = props.item
     const [valid, setValid] = useState(false)
-    const [state, setState] = useState({})
-    const [next, setNext] = useState("")
-    const [item, setItem] = useState(noneItem)
-    function clearState() {
-        setItem(noneItem)
-        setValid(false)
-        setNext("")
-        setState({})
-    }
-    function accept(action) {
-        const config = JSON.parse(next)
-        props.accept(item, config, action)
-        switch (action) {
-            case "save-close":
-                clearState()
-                break
-        }
-    }
-    function cancel() {
-        props.cancel()
-        clearState()
-    }
+    const [config, setConfig] = useState({})
+    const points = useMemo(() => Points.Options(app.state.items), [app.state.items])
+    console.log("ItemEditor.item", item)
     useEffect(() => {
-        const item = props.item
-        if (item.id) {
-            setItem(item)
-            setValid(false)
-            setState(item.config)
-        }
-    }, [props.item])
-    function store(state) {
-        if (item.id) {
-            setNext(JSON.stringify(state))
-        }
+        console.log("ItemEditor.item effect", item)
+        setValid(false)
+        setConfig({})
+    }, [item.id])
+    function accept(action) {
+        const id = item.id
+        props.accept(id, config, action)
     }
-    const eprops = { state, store, accept, setValid, id: item.id }
-    function itemEditor(item) {
-        const control = Editors[item.type]
-        return control?.ItemEditor({ show: true, ...eprops })
-    }
-    function itemIcon(item) {
-        const control = Editors[item.type]
-        return control ? <img className="align-middle me-2" src={ItemIcon(item.type)} width="24"
+    const itemEditors = Types.names.map((type, index) => {
+        const control = Types.editor(type)
+        const state = { points }
+        const match = item.id && type === item.type
+        state.config = match ? item.config : {}
+        //id required for view url formation
+        state.id = match ? item.id : ""
+        state.setter = match ? (next) => {
+            console.log("NEXT", next)
+            if (next.valid !== valid) setValid(next.valid)
+            if (JSON.stringify(next.config) !== JSON.stringify(config)) setConfig(next.config)
+        } : () => { }
+        //const editor = control.ItemEditor(state)
+        return null //(<div key={index}>{editor}</div>)
+    })
+
+    function itemIcon() {
+        const icon = Types.icon(item.type)
+        return icon ? <img className="align-middle me-2" src={icon} width="24"
             alt={item.type} /> : null
     }
     return (
-        <Modal show={item.id} onHide={cancel} backdrop="static"
+        <Modal show={item.id} onHide={props.cancel} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {itemIcon(item)}
+                    {itemIcon()}
                     <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {itemEditor(item)}
+                {itemEditors}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={cancel}>
+                <Button variant="secondary" onClick={props.cancel}>
                     Cancel
                 </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => accept("save")}>
@@ -79,12 +69,4 @@ function ItemEditor(props) {
     )
 }
 
-function ItemIcon(type) {
-    return Editors[type].ItemIcon
-}
-
-function ItemInitial(type) {
-    return Editors[type].ItemInitial()
-}
-
-export { ItemEditor, ItemIcon, ItemInitial }
+export default Editor

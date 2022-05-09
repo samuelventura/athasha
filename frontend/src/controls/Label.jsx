@@ -11,7 +11,6 @@ import { checkRange } from "../editors/Validation"
 import { checkNotBlank } from "../editors/Validation"
 import { checkBoolean } from "../editors/Validation"
 import { fixInputValue } from "../editors/Validation"
-import { PointOptions } from '../items/Points'
 
 const Type = "Label"
 
@@ -150,8 +149,7 @@ function Upgrade(data) {
     return next
 }
 
-function Editor({ control, setProp, app }) {
-    const options = PointOptions(app)
+function Editor({ control, setProp, points }) {
     const data = control.data
     function setCondProp(cond) {
         return function (name, value, e) {
@@ -167,7 +165,7 @@ function Editor({ control, setProp, app }) {
             <Form.Select value={data.point} onChange={e => setProp("point", e.target.value)}
                 title="Select Data Point">
                 <option value=""></option>
-                {options}
+                {points}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">

@@ -9,13 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import ItemIcon from './Opto22.svg'
-import { checkRange } from "./Validation"
-import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
-
-function ItemEditor(props) {
-    return props.show ? (<Editor {...props} />) : null
-}
 
 function ItemInitial() {
     return {
@@ -38,34 +32,21 @@ function initialInput() {
     return { code: "01", module: "0", number: "0", name: "Input 1" }
 }
 
-function Editor(props) {
+function ItemEditor(props) {
     const [setts, setSetts] = useState(ItemInitial().setts)
     const [inputs, setInputs] = useState(ItemInitial().inputs)
-    //initialize local state
     useEffect(() => {
         const init = ItemInitial()
-        const state = props.state
-        setSetts(state.setts || init.setts)
-        setInputs(state.inputs || init.inputs)
-    }, [props.state])
-    //rebuild and store state
+        const config = props.config
+        setSetts(config.setts || init.setts)
+        setInputs(config.inputs || init.inputs)
+    }, [props.config])
     useEffect(() => {
-        let valid = true
-        valid = valid && checkNotBlank(setts.host)
-        valid = valid && checkRange(setts.port, 1, 65535)
-        valid = valid && checkRange(setts.period, 0, 10000)
-        valid = valid && checkRange(setts.slave, 0, 255)
-        valid = valid && checkNotBlank(setts.type)
-        valid = valid && inputs.length > 0
-        valid = valid && inputs.reduce((valid, input) => {
-            valid = valid && checkNotBlank(input.code)
-            valid = valid && checkRange(input.module, 0, 15)
-            valid = valid && checkRange(input.number, 0, 3)
-            valid = valid && checkNotBlank(input.name)
-            return valid
-        }, true)
-        props.setValid(valid)
-        props.store({ setts, inputs })
+        if (props.id) {
+            const config = { setts, inputs }
+            const valid = Check.run(() => ItemValidator(config))
+            props.setter({ config, valid })
+        }
     }, [props, setts, inputs])
     function setInput(index, name, value, e) {
         const next = [...inputs]
@@ -189,8 +170,4 @@ function Editor(props) {
     )
 }
 
-export default {
-    ItemIcon,
-    ItemEditor,
-    ItemInitial,
-}
+export default ItemEditor

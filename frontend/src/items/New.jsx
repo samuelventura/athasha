@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import { useApp } from '../App'
 import { NewItem } from "./Dialogs"
-import { ItemInitial } from "./Editor"
+import Initials from "./Initials"
 
 function New(props) {
     const app = useApp()
@@ -14,7 +14,7 @@ function New(props) {
 
     function handleNew(name, type) {
         setNewItem(false)
-        const config = ItemInitial(type)
+        const config = Initials(type).config()
         const args = { name, type, config, enabled: false }
         props.send({ name: "create", args })
     }

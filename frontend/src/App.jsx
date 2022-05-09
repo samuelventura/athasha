@@ -16,6 +16,8 @@ const App = React.createContext({
   dispatch: () => { },
   logged: false,
   setLogged: () => { },
+  connected: false,
+  setConnected: () => { },
   login: false,
   setLogin: () => { },
   send: Socket.send,

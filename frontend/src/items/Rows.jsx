@@ -9,22 +9,22 @@ import Files from "./Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
-import { ItemEditor, ItemIcon } from "./Editor"
+import Editor from "./Editor"
+import Types from "./Types"
 
 function Rows(props) {
     const app = useApp()
-    const state = app.state
     const noneItem = State.initial().selected
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
     const [editItem, setEditItem] = useState(noneItem)
 
     function isSelected(item) {
-        return item.id === props.selected.id
+        return item.id === app.state.selected.id
     }
 
     function handleSelect(item) {
-        props.dispatch({ name: "select", args: item })
+        app.dispatch({ name: "select", args: item })
     }
 
     function selectedClass(item) {
@@ -39,7 +39,7 @@ function Rows(props) {
 
     function handleDelete(item) {
         setDeleteItem(noneItem)
-        props.send({ name: "delete", args: { id: item.id } })
+        app.send({ name: "delete", args: { id: item.id } })
     }
 
     function clearDelete() {
@@ -48,25 +48,25 @@ function Rows(props) {
 
     function handleRename(item, name) {
         setRenameItem(noneItem)
-        props.send({ name: "rename", args: { id: item.id, name } })
+        app.send({ name: "rename", args: { id: item.id, name } })
     }
 
     function clearRename() {
         setRenameItem(noneItem)
     }
 
-    function handleEdit(item, config, action) {
+    function handleEdit(id, config, action) {
         switch (action) {
             case "save":
-                props.send({ name: "edit", args: { id: item.id, config } })
+                app.send({ name: "edit", args: { id, config } })
                 break
             case "save-close":
-                props.send({ name: "edit", args: { id: item.id, config } })
+                app.send({ name: "edit", args: { id, config } })
                 setEditItem(noneItem)
                 break
             case "save-update":
-                props.send({ name: "edit", args: { id: item.id, config } })
-                props.send({ name: "enable", args: { id: item.id, enabled: true } })
+                app.send({ name: "edit", args: { id, config } })
+                app.send({ name: "enable", args: { id, enabled: true } })
                 break
         }
     }
@@ -76,7 +76,7 @@ function Rows(props) {
     }
 
     function handleClick(e, action, item, args) {
-        props.dispatch({ name: "select", args: item })
+        app.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
                 setEditItem(item)
@@ -91,14 +91,14 @@ function Rows(props) {
                 break
             }
             case "enable": {
-                props.send({ name: "enable", args: { id: item.id, enabled: args } })
+                app.send({ name: "enable", args: { id: item.id, enabled: args } })
                 break
             }
             case "clone": {
                 const clone = JSON.parse(JSON.stringify(item))
                 clone.id = null
                 clone.enabled = false
-                props.send({ name: "create", args: clone })
+                app.send({ name: "create", args: clone })
                 break
             }
             case "backup": {
@@ -117,7 +117,7 @@ function Rows(props) {
     }
 
     function handleDoubleClick(item) {
-        props.dispatch({ name: "select", args: item })
+        app.dispatch({ name: "select", args: item })
         setEditItem(item)
     }
 
@@ -151,7 +151,7 @@ function Rows(props) {
     }
 
     function StatusBadge({ item }) {
-        const status = state.status[item.id]
+        const status = app.state.status[item.id]
         return (
             <Badge pill bg={statusBg(item, status)} title={statusTitle(item, status)}
                 className='ms-2 user-select-none'>
@@ -173,7 +173,7 @@ function Rows(props) {
             className={selectedClass(item) + ' align-middle'}
             title={item.id}>
             <td className={enabledClass(item)}>
-                <img src={ItemIcon(item.type)} width="20"
+                <img src={Types.icon(item.type)} width="20"
                     alt={item.type} className='me-2' />
                 <span className='align-middle'>{item.name}</span>
                 <StatusBadge item={item} />
@@ -199,29 +199,28 @@ function Rows(props) {
     })
 
     useEffect(() => {
-        if (props.selected.id) {
-            const id = `item_${props.selected.id}`
-            const el = document.getElementById(id)
-            if (el) {
-                el.scrollIntoViewIfNeeded ?
-                    el.scrollIntoViewIfNeeded() :
-                    el.scrollIntoView()
-            }
+        console.log("app.state.selected", app.state.selected)
+        const id = `item_${app.state.selected.id}`
+        const el = document.getElementById(id)
+        if (el) {
+            el.scrollIntoViewIfNeeded ?
+                el.scrollIntoViewIfNeeded() :
+                el.scrollIntoView()
         }
-    }, [props])
+    }, [app.state.selected])
 
+    console.log("Rows", app.logged)
     useEffect(() => {
-        if (!app.logged) {
-            const noneItem = State.initial().selected
-            setDeleteItem(noneItem)
-            setRenameItem(noneItem)
-            setEditItem(noneItem)
-        }
+        console.log("app.logged", app.logged)
+        const noneItem = State.initial().selected
+        setDeleteItem(noneItem)
+        setRenameItem(noneItem)
+        setEditItem(noneItem)
     }, [app.logged])
 
     return (
         <tbody>
-            <ItemEditor item={editItem} logged={app.logged}
+            <Editor item={editItem}
                 accept={handleEdit} cancel={clearEdit} />
             <DeleteItem item={deleteItem}
                 accept={handleDelete} cancel={clearDelete} />

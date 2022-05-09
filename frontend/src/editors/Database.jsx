@@ -8,83 +8,24 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { checkRange } from "./Validation"
-import { checkNotBlank } from "./Validation"
 import { fixInputValue } from "./Validation"
-import { PointOptions } from '../items/Points'
-import ItemIcon from './Database.svg'
-import { useApp } from '../App'
-import Check from './Check'
-
-function ItemEditor(props) {
-    return props.show ? (<Editor {...props} />) : null
-}
-
-function ItemInitial() {
-    return {
-        setts: initialSetts(),
-        points: [initialPoint()],
-    }
-}
-
-function initialSetts() {
-    return {
-        connstr: "",
-        command: "",
-        database: "sqlserver",
-        dbpass: "",
-        period: "1",
-        unit: "s",
-    }
-}
-
-function initialPoint() {
-    return { id: "" }
-}
-
-const labels = {
-    connstr: "Connection String",
-    command: "SQL Command",
-    database: "Database",
-    dbpass: "Database Password",
-    period: "Period",
-    unit: "Unit",
-}
-
-function ItemValidator(config) {
-    const errors = []
-    function add(error) { errors.push(error) }
-    Check.isString(config.setts.connstr, add, `${labels.connstr} has invalid data type`)
-    Check.isString(config.setts.command, add, `${labels.command} has invalid data type`)
-    return errors
-}
+import Initial from './Database.js'
 
 function Editor(props) {
-    const app = useApp()
     const [setts, setSetts] = useState(ItemInitial().setts)
     const [points, setPoints] = useState(ItemInitial().points)
-    //initialize local state
     useEffect(() => {
-        const init = ItemInitial()
-        const state = props.state
-        setSetts(state.setts || init.setts)
-        setPoints(state.points || init.points)
-    }, [props.state])
-    //rebuild and store state
+        const init = Initial.config()
+        const config = props.config
+        setSetts(config.setts || init.setts)
+        setPoints(config.points || init.points)
+    }, [props.config])
     useEffect(() => {
-        let valid = true
-        valid = valid && checkRange(setts.period, 1)
-        valid = valid && checkNotBlank(setts.unit)
-        valid = valid && points.length > 0
-        valid = valid && checkNotBlank(setts.database)
-        valid = valid && checkNotBlank(setts.connstr)
-        valid = valid && checkNotBlank(setts.command)
-        valid = valid && points.reduce((valid, point) => {
-            valid = valid && checkNotBlank(point.id)
-            return valid
-        }, true)
-        props.setValid(valid)
-        props.store({ setts, points })
+        if (props.id) {
+            const config = { setts, points }
+            const valid = Check.run(() => ItemValidator(config))
+            props.setter({ config, valid })
+        }
     }, [props, setts, points])
     function setPoint(index, name, value, e) {
         const next = [...points]
@@ -95,7 +36,7 @@ function Editor(props) {
     }
     function addPoint() {
         const next = [...points]
-        const point = initialPoint()
+        const point = Initial.point()
         next.push(point)
         setPoints(next)
     }
@@ -104,14 +45,17 @@ function Editor(props) {
         next.splice(index, 1)
         setPoints(next)
     }
-    function setProp(name, value, e) {
-        const next = { ...setts }
-        const prev = next[name]
-        value = fixInputValue(e, value, prev)
-        next[name] = value
-        setSetts(next)
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = { ...setts }
+                const prev = next[name]
+                next[name] = value
+                setSetts(next)
+            }
+        }
+        return Check.props(labels[prop], setts[prop], setProp(prop), checks[prop])
     }
-    const options = PointOptions(app)
     const rows = points.map((point, index) =>
         <tr key={index} className='align-middle'>
             <td>
@@ -135,7 +79,7 @@ function Editor(props) {
             <Row>
                 <Col xs={2}>
                     <FloatingLabel label="Database">
-                        <Form.Select value={setts.database} onChange={e => setProp("database", e.target.value)}>
+                        <Form.Select {...settsProps("database")}>
                             <option value="sqlserver">SQL Server</option>
                             {/* <option value="sqlite">SQLite</option> */}
                         </Form.Select>
@@ -143,19 +87,18 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Database Password">
-                        <Form.Control type="password" title={setts.dbpass}
-                            value={setts.dbpass} onChange={e => setProp("dbpass", e.target.value)} />
+                        <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={1}>
                     <FloatingLabel label="Period">
                         <Form.Control type="number" min="1"
-                            value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                            {...settsProps("period")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Unit">
-                        <Form.Select value={setts.unit} onChange={e => setProp("unit", e.target.value)}>
+                        <Form.Select {...settsProps("unit")} >
                             <option value="s">Second(s)</option>
                             <option value="m">Minute(s)</option>
                         </Form.Select>
@@ -166,7 +109,7 @@ function Editor(props) {
                 <Col>
                     <FloatingLabel label="Connection String">
                         <Form.Control type="text" as="textarea"
-                            value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
+                            {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -174,7 +117,7 @@ function Editor(props) {
                 <Col>
                     <FloatingLabel label="SQL Command">
                         <Form.Control type="text" as="textarea"
-                            value={setts.command} onChange={e => setProp("command", e.target.value)} />
+                            {...settsProps("command")} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -199,9 +142,4 @@ function Editor(props) {
     )
 }
 
-export default {
-    ItemIcon,
-    ItemEditor,
-    ItemInitial,
-    ItemValidator,
-}
+export default Editor
