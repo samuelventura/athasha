@@ -29,6 +29,9 @@ const labels = {
     unit: "Unit",
     connstr: "Connection String",
     command: "SQL Command",
+    points: {
+        id: (i) => `Point ${i+1}`
+    }
 }
 
 //FIXME enforce html validation
@@ -58,6 +61,12 @@ const checks = {
         Check.isString(value, labels.command)
         Check.notEmpty(value, labels.command)
     },
+    points: {
+        id: function (value) {
+            Check.isString(value, labels.points.id)
+            Check.notEmpty(value, labels.points.id)
+        },
+    }
 }
 
 function validator({ setts, points }) {

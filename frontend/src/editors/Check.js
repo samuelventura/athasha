@@ -40,10 +40,14 @@ function hasProp(value, label, prop) {
     }
 }
 
-function props(label, value, setter, check) {
-    const [captured, setCaptured] = useState(value)
-    function capture(e) { setCaptured(e.target.value) }
+function props({captured, setCaptured, label, value, setter, check}) {
     function recover(e) { return captured }
+    function capture(e) { 
+        setCaptured(e.target.value) 
+    }
+    function clear(e) { 
+        setCaptured("") 
+    }
     function apply(e) {
         const next = e.target.value
         setter(next)
@@ -62,6 +66,7 @@ function props(label, value, setter, check) {
         title: label,
         onFocus: function (e) {
             capture(e)
+            apply(e)
         },
         onKeyPress: function (e) {
             if (e.key === 'Enter') {
@@ -73,6 +78,7 @@ function props(label, value, setter, check) {
         },
         onBlur: function (e) {
             setter(recover(e))
+            clear(e)
             e.target.classList.remove("is-invalid");
         },
     }

@@ -8,13 +8,13 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { fixInputValue } from "./Validation"
 import Initial from './Database.js'
 import Check from './Check'
 
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [points, setPoints] = useState(Initial.config().points)
+    const [captured, setCaptured] = useState("")
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -28,13 +28,6 @@ function Editor(props) {
             props.setter({ config, valid })
         }
     }, [setts, points])
-    function setPoint(index, name, value, e) {
-        const next = [...points]
-        const prev = next[index][name]
-        value = fixInputValue(e, value, prev)
-        next[index][name] = value
-        setPoints(next)
-    }
     function addPoint() {
         const next = [...points]
         const point = Initial.point()
@@ -55,11 +48,29 @@ function Editor(props) {
                 setSetts(next)
             }
         }
-        return Check.props(
-            Initial.labels[prop],
-            setts[prop],
-            setProp(prop),
-            Initial.checks[prop])
+        const args = { captured, setCaptured }
+        args.label = Initial.labels[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks[prop]
+        return Check.props(args)
+    }
+
+    function pointProps(index, prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = [...points]
+                const prev = next[index][name]
+                next[index][name] = value
+                setPoints(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.points[prop](index)
+        args.value = points[index][prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks.points[prop]
+        return Check.props(args)
     }
     const rows = points.map((point, index) =>
         <tr key={index} className='align-middle'>
@@ -67,7 +78,7 @@ function Editor(props) {
                 {"@" + (index + 1)}
             </td>
             <td>
-                <Form.Select value={point.id} onChange={e => setPoint(index, "id", e.target.value)}>
+                <Form.Select {...pointProps(index, "id")}>
                     <option value=""></option>
                     {props.points}
                 </Form.Select>
