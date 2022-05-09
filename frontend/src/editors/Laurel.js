@@ -22,7 +22,7 @@ function slave() {
     return {
         address: "1",
         decimals: "0",
-        inputs: [initialInput()],
+        inputs: [input()],
     }
 }
 

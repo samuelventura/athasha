@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { fixInputValue } from "./Validation"
-import Initial from './Database.js'
+import Initial from './Modbus.js'
 import Serial from "./Serial"
 import Check from './Check'
 

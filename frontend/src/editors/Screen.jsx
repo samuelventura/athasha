@@ -18,7 +18,7 @@ import { FormEntry } from '../controls/Tools'
 import { fixInputValue } from "./Validation"
 import Controls from './Controls'
 import { useApp } from '../App'
-import Initial from './Database.js'
+import Initial from './Screen.js'
 import Check from './Check'
 
 function ItemInitial() {

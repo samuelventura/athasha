@@ -1,16 +1,17 @@
+import { useState } from 'react'
 import Environ from '../Environ'
 
 function isString(value, label) {
     const typeof_value = typeof value
     if (!(typeof_value === 'string' || value instanceof String)) {
-        throw  `${label} is not string: ${typeof_value}`
+        throw `${label} is not string: ${typeof_value}`
     }
 }
 
 function isArray(value, label) {
     const typeof_value = typeof value
     if (!Array.isArray(value)) {
-        throw  `${label} is not array: ${typeof_value}`
+        throw `${label} is not array: ${typeof_value}`
     }
 }
 
@@ -33,32 +34,36 @@ function nonZeroLength(value, label) {
 }
 
 function hasProp(value, label, prop) {
-    //hasOwnProperties failes with state objects
+    //hasOwnProperties fails with proxy objects?
     if (!Object.keys(value).includes(prop)) {
         throw `${label} has no property: ${prop}`
     }
 }
 
 function props(label, value, setter, check) {
+    const [captured, setCaptured] = useState(value)
+    function capture(e) { setCaptured(e.target.value) }
+    function recover(e) { return captured }
     function apply(e) {
         const next = e.target.value
+        setter(next)
         try {
             check(next)
-            setter(next)
-            e.__value = next
+            capture(e)
+            e.target.classList.remove("is-invalid");
         }
         catch (ex) {
             Environ.log(ex)
-            //FIXME add error class
+            e.target.classList.add("is-invalid");
         }
     }
     return {
         value: value,
         title: label,
-        onFocus: function(e) {
-            e.__value = e.target.value
+        onFocus: function (e) {
+            capture(e)
         },
-        onKeyPress: function(e) {
+        onKeyPress: function (e) {
             if (e.key === 'Enter') {
                 apply(e)
             }
@@ -67,19 +72,20 @@ function props(label, value, setter, check) {
             apply(e)
         },
         onBlur: function (e) {
-            setter(value)
-            //FIXME remove error class
+            setter(recover(e))
+            e.target.classList.remove("is-invalid");
         },
     }
 }
 
 function run(action) {
-    try { 
-        action() 
+    try {
+        action()
+        Environ.log("Check: Pass")
         return true
     }
-    catch(ex) {
-        Environ.log(ex)
+    catch (ex) {
+        Environ.log("Check:", ex)
         return false
     }
 }

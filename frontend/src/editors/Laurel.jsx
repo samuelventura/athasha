@@ -11,43 +11,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { fixInputValue } from "./Validation"
-import Initial from './Database.js'
+import Initial from './Laurel.js'
 import Serial from "./Serial"
 import Check from './Check'
 
-function ItemInitial() {
-    return {
-        setts: initialSetts(),
-        slaves: [initialSlave()]
-    }
-}
-
-function initialSetts() {
-    return {
-        proto: "TCP",    //RTU
-        trans: "Socket", //Serial
-        host: "127.0.0.1",
-        port: "502",
-        tty: "COM1",
-        speed: "9600",
-        dbpsb: "8N1",
-        period: "10",
-    }
-}
-
-function initialSlave() {
-    return {
-        address: "1",
-        decimals: "0",
-        inputs: [initialInput()],
-    }
-}
-
-function initialInput() {
-    return { code: "01", name: "Input 1" }
-}
-
-function ItemEditor(props) {
+function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [slaves, setSlaves] = useState(Initial.config().slaves)
     const [trigger, setTrigger] = useState(0)
@@ -60,7 +28,7 @@ function ItemEditor(props) {
         }
     }, [trigger])
     useEffect(() => {
-        const init = ItemInitial()
+        const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
         setSlaves(config.slaves || init.slaves)
@@ -310,4 +278,4 @@ function ItemEditor(props) {
     )
 }
 
-export default ItemEditor
+export default Editor

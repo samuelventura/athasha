@@ -14,8 +14,6 @@ const initials = {
     Opto22,
 }
 
-export default {
-    function(type) {
-        return initials[type]
-    }
+export default function(type) {
+    return initials[type]
 }

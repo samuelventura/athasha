@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { fixInputValue } from "./Validation"
-import Initial from './Database.js'
+import Initial from './Dataplot.js'
 import Check from './Check'
 
 function ItemInitial() {

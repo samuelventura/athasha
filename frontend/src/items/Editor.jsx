@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Types from './Types'
@@ -10,56 +10,43 @@ function Editor(props) {
     const item = props.item
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
-    const points = useMemo(() => Points.Options(app.state.items), [app.state.items])
-    //console.log("ItemEditor.item", item)
+    const points = Points.Options(app.state.items)
     useEffect(() => {
-        console.log("ItemEditor.item effect id", item)
         setValid(false)
         setConfig({})
     }, [item.id])
-    useEffect(() => {
-        console.log("ItemEditor.item effect item", item)
-        setValid(false)
-        setConfig({})
-    }, [item])
     function accept(action) {
         const id = item.id
         props.accept(id, config, action)
     }
-    function editorState(item, type) {
+    function itemEditor(type) {
         const state = { points }
         const match = item.id && type === item.type
         state.config = match ? item.config : {}
         //id required for view url formation
         state.id = match ? item.id : ""
         state.setter = match ? (next) => {
-            console.log("NEXT", next)
-            if (next.valid !== valid) setValid(next.valid)
-            if (JSON.stringify(next.config) !== JSON.stringify(config)) setConfig(next.config)
+            setValid(next.valid)
+            setConfig(next.config)
         } : () => { }
-        return state
+        return Types.editor(type)(state)
     }
-    const databaseState = useMemo(() => editorState(item, "Database"), [item])
-    function itemIcon({ item }) {
+    function itemIcon() {
         const icon = Types.icon(item.type)
         return icon ? <img className="align-middle me-2" src={icon} width="24"
             alt={item.type} /> : null
     }
-    function ItemEditor({ type, state }) {
-        return Types.editor(type)(state)
-    }
-    const MemoIcon = React.memo(itemIcon)
     return (
         <Modal show={item.id} onHide={props.cancel} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
-                    <MemoIcon item={item} />
+                    {itemIcon()}
                     <span className="align-middle">{item.name}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ItemEditor state={databaseState} type="Database" />
+                {itemEditor("Database")}
                 {/* {itemEditor("Screen")}
                 {itemEditor("Modbus")}
                 {itemEditor("Dataplot")}

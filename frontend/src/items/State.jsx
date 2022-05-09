@@ -4,7 +4,7 @@ function initial() {
   return {
     items: {},
     status: {},
-    selected: { id: "" },
+    selected: { id: "", config: {} },
     version: 0,
     hostname: "",
     identity: "",

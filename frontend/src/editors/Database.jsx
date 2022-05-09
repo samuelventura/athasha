@@ -16,27 +16,18 @@ function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [points, setPoints] = useState(Initial.config().points)
     useEffect(() => {
-        console.log("DATABASE props", props)
-    }, [props])
-    useEffect(() => {
-        console.log("DATABASE setts", setts)
-    }, [setts])
-    useEffect(() => {
-        console.log("DATABASE points", points)
-    }, [points])
-    useEffect(() => {
         const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
         setPoints(config.points || init.points)
-    }, [props.config])
+    }, [props.id]) //primitive type required
     useEffect(() => {
-        if (props.id) {
+        if (props.id) { //required to prevent closing validations
             const config = { setts, points }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [props, setts, points])
+    }, [setts, points])
     function setPoint(index, name, value, e) {
         const next = [...points]
         const prev = next[index][name]

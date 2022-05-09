@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -14,7 +14,7 @@ import Types from "./Types"
 
 function Rows(props) {
     const app = useApp()
-    const noneItem = useMemo(() => State.initial().selected, [])
+    const noneItem = State.initial().selected
     const [deleteItem, setDeleteItem] = useState(noneItem)
     const [renameItem, setRenameItem] = useState(noneItem)
     const [editItem, setEditItem] = useState(noneItem)
@@ -199,7 +199,6 @@ function Rows(props) {
     })
 
     useEffect(() => {
-        console.log("app.state.selected", app.state.selected)
         const id = `item_${app.state.selected.id}`
         const el = document.getElementById(id)
         if (el) {
@@ -209,9 +208,7 @@ function Rows(props) {
         }
     }, [app.state.selected])
 
-    console.log("Rows", app.logged)
     useEffect(() => {
-        console.log("app.logged", app.logged)
         const noneItem = State.initial().selected
         setDeleteItem(noneItem)
         setRenameItem(noneItem)
