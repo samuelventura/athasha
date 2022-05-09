@@ -19,17 +19,18 @@ function Editor(props) {
         const id = item.id
         props.accept(id, config, action)
     }
+    //id required for view url formation
     function itemEditor(type) {
         const state = { points }
         const match = item.id && type === item.type
         state.config = match ? item.config : {}
-        //id required for view url formation
         state.id = match ? item.id : ""
         state.setter = match ? (next) => {
             setValid(next.valid)
             setConfig(next.config)
         } : () => { }
-        return Types.editor(type)(state)
+        const css = match ? "" : "d-none"
+        return <div className={css}>{Types.editor(type)(state)}</div>
     }
     function itemIcon() {
         const icon = Types.icon(item.type)
@@ -47,6 +48,7 @@ function Editor(props) {
             </Modal.Header>
             <Modal.Body>
                 {itemEditor("Database")}
+                {itemEditor("Dataplot")}
                 {/* {itemEditor("Screen")}
                 {itemEditor("Modbus")}
                 {itemEditor("Dataplot")}

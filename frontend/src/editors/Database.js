@@ -30,7 +30,7 @@ const labels = {
     connstr: "Connection String",
     command: "SQL Command",
     points: {
-        id: (i) => `Point ${i + 1}`
+        id: (i) => `Point ${i + 1}`,
     }
 }
 
@@ -39,10 +39,10 @@ const hints = {
     dbpass: "Optional database password",
     period: "Non empty integer insert period > 0",
     unit: "One of the listed time units",
-    connstr: "Non empty connections string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
+    connstr: "Non empty connection string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
     command: "An SQL insert command, function or store procedure call\nUse @n to reference the nth point\nFor instance @1 references point 1\nConsult your TI specialist",
     points: {
-        id: (i) => "Select the point name from the available list"
+        id: (i) => "Select the point name from the available list",
     }
 }
 
@@ -97,8 +97,7 @@ function validator({ setts, points }) {
     Check.isArray(points, "Points")
     Check.nonZeroLength(points, "Points")
     points.forEach((point, index) => {
-        const label = labels.points.id(index)
-        Check.hasProp(point, label, "id")
+        Check.hasProp(point, labels.points.id(index), "id")
         checks.points.id(index, point.id)
     })
 }

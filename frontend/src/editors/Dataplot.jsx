@@ -9,33 +9,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { fixInputValue } from "./Validation"
 import Initial from './Dataplot.js'
 import Check from './Check'
-
-function ItemInitial() {
-    return {
-        setts: initialSetts(),
-        columns: [initialColumn("DateTime")],
-    }
-}
-
-function initialSetts() {
-    return {
-        connstr: "",
-        command: "",
-        database: "sqlserver",
-        dbpass: "",
-        password: "",
-        ymin: "0",
-        ymax: "100",
-        lineWidth: "1",
-    }
-}
-
-function initialColumn(name) {
-    return { name: name || "", color: "#000000" }
-}
 
 function getUniqueColor(n) {
     const rgb = [0, 0, 0];
@@ -47,29 +22,23 @@ function getUniqueColor(n) {
     return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
 }
 
-function ItemEditor(props) {
+function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [columns, setColumns] = useState(Initial.config().columns)
+    const [captured, setCaptured] = useState(null)
     useEffect(() => {
-        const init = ItemInitial()
+        const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
         setColumns(config.columns || init.columns)
-    }, [props.config])
+    }, [props.id]) //primitive type required
     useEffect(() => {
-        if (props.id) {
+        if (props.id) { //required to prevent closing validations
             const config = { setts, columns }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [props, setts, columns])
-    function setColumn(index, name, value, e) {
-        const next = [...columns]
-        const prev = next[index][name]
-        value = fixInputValue(e, value, prev)
-        next[index][name] = value
-        setColumns(next)
-    }
+    }, [setts, columns])
     function addColumn() {
         const next = [...columns]
         const column = initialColumn()
@@ -82,12 +51,42 @@ function ItemEditor(props) {
         next.splice(index, 1)
         setColumns(next)
     }
-    function setProp(name, value, e) {
-        const next = { ...setts }
-        const prev = next[name]
-        value = fixInputValue(e, value, prev)
-        next[name] = value
-        setSetts(next)
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = { ...setts }
+                const prev = next[name]
+                next[name] = value
+                setSetts(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels[prop]
+        args.hint = Initial.hints[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks[prop]
+        args.defval = Initial.setts()[prop]
+        return Check.props(args)
+    }
+
+    function columnProps(index, prop) {
+        function setProp(name) {
+            return function (value) {
+                const next = [...columns]
+                const prev = next[index][name]
+                next[index][name] = value
+                setColumns(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.columns[prop](index)
+        args.hint = Initial.hints.columns[prop](index)
+        args.value = columns[index][prop]
+        args.setter = setProp(prop)
+        args.check = (value) => Initial.checks.columns[prop](index, value)
+        args.defval = Initial.column()[prop]
+        return Check.props(args)
     }
     const rows = columns.map((column, index) =>
         <tr key={index} className='align-middle'>
@@ -95,15 +94,12 @@ function ItemEditor(props) {
                 {index + 1}
             </td>
             <td>
-                <Form.Control type="text" value={column.name} disabled={index == 0}
-                    onChange={e => setColumn(index, "name", e.target.value)} />
+                <Form.Control type="text" disabled={index == 0} {...columnProps(index, "name")} />
             </td>
             <td>
                 <InputGroup>
-                    <Form.Control type="color" value={column.color} onChange={e => setColumn(index, "color", e.target.value)}
-                        title={setts.bgColor} disabled={index == 0} />
-                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={column.color}
-                        onChange={e => setColumn(index, "color", e.target.value, e)} disabled={index == 0} />
+                    <Form.Control type="color" disabled={index == 0} {...columnProps(index, "color")} />
+                    <Form.Control type="text" disabled={index == 0} {...columnProps(index, "color")} />
                 </InputGroup>
             </td>
             <td>
@@ -125,7 +121,7 @@ function ItemEditor(props) {
             <Row>
                 <Col xs={2}>
                     <FloatingLabel label="Database">
-                        <Form.Select value={setts.database} onChange={e => setProp("database", e.target.value)}>
+                        <Form.Select {...settsProps("database")}>
                             <option value="sqlserver">SQL Server</option>
                             {/* <option value="sqlite">SQLite</option> */}
                         </Form.Select>
@@ -133,8 +129,7 @@ function ItemEditor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="DB Password">
-                        <Form.Control type="password" title={setts.dbpass}
-                            value={setts.dbpass} onChange={e => setProp("dbpass", e.target.value)} />
+                        <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
@@ -150,16 +145,14 @@ function ItemEditor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Password">
-                        <Form.Control type="password" title={setts.password}
-                            value={setts.password} onChange={e => setProp("password", e.target.value)} />
+                        <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
                     <FloatingLabel label="Connection String">
-                        <Form.Control type="text" as="textarea"
-                            value={setts.connstr} onChange={e => setProp("connstr", e.target.value)} />
+                        <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -167,27 +160,24 @@ function ItemEditor(props) {
                 <Col>
                     <FloatingLabel label="SQL Command">
                         <Form.Control type="text" as="textarea"
-                            value={setts.command} onChange={e => setProp("command", e.target.value)} />
+                            value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col xs={2}>
                     <FloatingLabel label="Plot Y Min">
-                        <Form.Control type="number"
-                            value={setts.ymin} onChange={e => setProp("ymin", e.target.value)} />
+                        <Form.Control type="number" {...settsProps("ymin")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Plot Y Max">
-                        <Form.Control type="number"
-                            value={setts.ymax} onChange={e => setProp("ymax", e.target.value)} />
+                        <Form.Control type="number"  {...settsProps("ymax")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label="Line Width">
-                        <Form.Control type="number" min="1"
-                            value={setts.lineWidth} onChange={e => setProp("lineWidth", e.target.value, e)} />
+                        <Form.Control type="number"  {...settsProps("lineWidth")} />
                     </FloatingLabel>
                 </Col>
             </Row>
@@ -213,4 +203,4 @@ function ItemEditor(props) {
     )
 }
 
-export default ItemEditor
+export default Editor

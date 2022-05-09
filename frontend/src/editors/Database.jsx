@@ -113,8 +113,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={1}>
                     <FloatingLabel label="Period">
-                        <Form.Control type="number" min="1"
-                            {...settsProps("period")} />
+                        <Form.Control type="number" {...settsProps("period")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
@@ -129,16 +128,14 @@ function Editor(props) {
             <Row>
                 <Col>
                     <FloatingLabel label="Connection String">
-                        <Form.Control type="text" as="textarea"
-                            {...settsProps("connstr")} />
+                        <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
                     <FloatingLabel label="SQL Command">
-                        <Form.Control type="text" as="textarea"
-                            {...settsProps("command")} />
+                        <Form.Control type="text" as="textarea" {...settsProps("command")} />
                     </FloatingLabel>
                 </Col>
             </Row>

@@ -33,10 +33,24 @@ function isInteger(value, label) {
     }
 }
 
+function isNumber(value, label) {
+    const num = Number(value)
+    if (!Number.isFinite(num)) {
+        throw `${label} is not a number`
+    }
+}
+
 function isGT(value, label, limit) {
     const num = Number(value)
     if (num <= limit) {
         throw `${label} is not > ${limit}`
+    }
+}
+
+function isColor(value, label) {
+    const re = /^#[0-9a-f]{6}/i
+    if (!re.test(value)) {
+        throw `${label} is not a color #RRGGBB`
     }
 }
 
@@ -114,5 +128,7 @@ export default {
     nonZeroLength,
     hasProp,
     isInteger,
+    isNumber,
+    isColor,
     isGT,
 }
