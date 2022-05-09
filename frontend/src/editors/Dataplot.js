@@ -3,7 +3,7 @@ import Check from './Check'
 function config() {
     return {
         setts: setts(),
-        columns: [column("DateTime")],
+        columns: [column(0), column(1)],
     }
 }
 
@@ -20,8 +20,21 @@ function setts() {
     }
 }
 
-function column(name) {
-    return { name: name || "", color: "#000000" }
+function getUniqueColor(n) {
+    const rgb = [0, 0, 0];
+    for (let i = 0; i < 24; i++) {
+        rgb[i % 3] <<= 1;
+        rgb[i % 3] |= n & 0x01;
+        n >>= 1;
+    }
+    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
+}
+
+function column(index) {
+    index = index || 0
+    const name = index ? `Column ${index + 1}` : "DateTime"
+    const color = getUniqueColor(index)
+    return { name, color }
 }
 
 const labels = {

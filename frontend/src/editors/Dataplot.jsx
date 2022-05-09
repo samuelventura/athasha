@@ -12,16 +12,6 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Dataplot.js'
 import Check from './Check'
 
-function getUniqueColor(n) {
-    const rgb = [0, 0, 0];
-    for (let i = 0; i < 24; i++) {
-        rgb[i % 3] <<= 1;
-        rgb[i % 3] |= n & 0x01;
-        n >>= 1;
-    }
-    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
-}
-
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [columns, setColumns] = useState(Initial.config().columns)
@@ -40,13 +30,15 @@ function Editor(props) {
         }
     }, [setts, columns])
     function addColumn() {
+        if (columns.length > 6) return
         const next = [...columns]
-        const column = initialColumn()
-        column.color = getUniqueColor(columns.length)
+        const column = Initial.column(next.length)
         next.push(column)
         setColumns(next)
     }
     function delColumn(index) {
+        if (index < 1 || columns.length < 3) return
+        if (columns.length < 3) return
         const next = [...columns]
         next.splice(index, 1)
         setColumns(next)
@@ -103,7 +95,7 @@ function Editor(props) {
                 </InputGroup>
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" disabled={index == 0}
+                <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 3}
                     onClick={() => delColumn(index)}>
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
@@ -120,7 +112,7 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label="Database">
+                    <FloatingLabel label={Initial.labels.database}>
                         <Form.Select {...settsProps("database")}>
                             <option value="sqlserver">SQL Server</option>
                             {/* <option value="sqlite">SQLite</option> */}
@@ -128,7 +120,7 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="DB Password">
+                    <FloatingLabel label={Initial.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
@@ -144,21 +136,21 @@ function Editor(props) {
                     </Button>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Password">
+                    <FloatingLabel label={Initial.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label="Connection String">
+                    <FloatingLabel label={Initial.labels.connstr}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label="SQL Command">
+                    <FloatingLabel label={Initial.labels.command}>
                         <Form.Control type="text" as="textarea"
                             value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
@@ -166,17 +158,17 @@ function Editor(props) {
             </Row>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label="Plot Y Min">
+                    <FloatingLabel label={Initial.labels.ymin}>
                         <Form.Control type="number" {...settsProps("ymin")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Plot Y Max">
+                    <FloatingLabel label={Initial.labels.ymax}>
                         <Form.Control type="number"  {...settsProps("ymax")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Line Width">
+                    <FloatingLabel label={Initial.labels.lineWidth}>
                         <Form.Control type="number"  {...settsProps("lineWidth")} />
                     </FloatingLabel>
                 </Col>

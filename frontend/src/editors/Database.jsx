@@ -99,7 +99,7 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label="Database">
+                    <FloatingLabel label={Initial.labels.database}>
                         <Form.Select {...settsProps("database")}>
                             <option value="sqlserver">SQL Server</option>
                             {/* <option value="sqlite">SQLite</option> */}
@@ -107,17 +107,17 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Database Password">
+                    <FloatingLabel label={Initial.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={1}>
-                    <FloatingLabel label="Period">
+                    <FloatingLabel label={Initial.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label="Unit">
+                    <FloatingLabel label={Initial.labels.unit}>
                         <Form.Select {...settsProps("unit")} >
                             <option value="s">Second(s)</option>
                             <option value="m">Minute(s)</option>
@@ -127,14 +127,14 @@ function Editor(props) {
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label="Connection String">
+                    <FloatingLabel label={Initial.labels.connstr}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label="SQL Command">
+                    <FloatingLabel label={Initial.labels.command}>
                         <Form.Control type="text" as="textarea" {...settsProps("command")} />
                     </FloatingLabel>
                 </Col>
