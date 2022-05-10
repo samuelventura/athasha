@@ -124,6 +124,7 @@ function initialDragged() {
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
 function SvgWindow({ setts, controls, selected, setSelected, setControlProp, preview }) {
+    const fsetts = Initial.fixSetts(setts)
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const resize = useResizeDetector()
@@ -141,9 +142,9 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
-    const invertedBg = invertColor(setts.bgColor, true)
-    const invertedBgC = invertColor(setts.bgColor, false)
+    const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, fsetts)
+    const invertedBg = invertColor(fsetts.bgColor, true)
+    const invertedBgC = invertColor(fsetts.bgColor, false)
     const controlList = controls.map((control, index) => {
         const setts = control.setts
         const x = setts.posX * sx
@@ -235,7 +236,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
                         stroke={invertedBg} strokeWidth="1" />
                 </pattern>
             </defs>
-            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill={fsetts.bgColor} stroke="gray" strokeWidth="1" />
             {gridRect}
             {controlList}
         </svg>
@@ -267,7 +268,27 @@ function LeftPanel({ show, setShow, addControl }) {
     )
 }
 
-function ScreenEditor({ setShow, setts, setProp, preview }) {
+function ScreenEditor({ setShow, setts, setSetts, preview }) {
+    const [captured, setCaptured] = useState(null)
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                console.log(name, value)
+                const next = { ...setts }
+                const prev = next[name]
+                next[name] = value
+                setSetts(next)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.labels[prop]
+        args.hint = Initial.hints[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.checks[prop]
+        args.defval = Initial.setts()[prop]
+        return Check.props(args)
+    }
     return (
         <Card>
             <Card.Header>
@@ -278,47 +299,43 @@ function ScreenEditor({ setShow, setts, setProp, preview }) {
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
-                    <FormEntry label="Password">
-                        <Form.Control type="password" value={setts.password}
-                            onChange={e => setProp("password", e.target.value)}
-                            title={setts.password} />
+                    <FormEntry label={Initial.labels.password}>
+                        <Form.Control type="password" {...settsProps("password")} />
                     </FormEntry>
-                    <FormEntry label="Period (ms)">
-                        <Form.Control type="number" min="100" value={setts.period} onChange={e => setProp("period", e.target.value, e)} />
+                    <FormEntry label={Initial.labels.period}>
+                        <Form.Control type="number" {...settsProps("period")} />
                     </FormEntry>
-                    <FormEntry label="Scale">
-                        <Form.Select value={setts.scale} onChange={e => setProp("scale", e.target.value)}>
+                    <FormEntry label={Initial.labels.scale}>
+                        <Form.Select {...settsProps("scale")}>
                             <option value="fit">Fit</option>
                             {/* <option value="fit-width">Fit Width</option>
                             <option value="fit-height">Fit Height</option> */}
                             <option value="stretch">Stretch</option>
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label="Align">
-                        <Form.Select value={setts.align} onChange={e => setProp("align", e.target.value)}>
+                    <FormEntry label={Initial.labels.align}>
+                        <Form.Select {...settsProps("align")}>
                             <option value="start">Start</option>
                             <option value="center">Center</option>
                             <option value="end">End</option>
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label="Width">
-                        <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
+                    <FormEntry label={Initial.labels.width}>
+                        <Form.Control type="number" {...settsProps("width")} />
                     </FormEntry>
-                    <FormEntry label="Height">
-                        <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
+                    <FormEntry label={Initial.labels.height}>
+                        <Form.Control type="number" {...settsProps("height")} />
                     </FormEntry>
-                    <FormEntry label="Grid X">
-                        <Form.Control type="number" min="1" max="100" value={setts.gridX} onChange={e => setProp("gridX", e.target.value, e)} />
+                    <FormEntry label={Initial.labels.gridX}>
+                        <Form.Control type="number" {...settsProps("gridX")} />
                     </FormEntry>
-                    <FormEntry label="Grid Y">
-                        <Form.Control type="number" min="1" max="100" value={setts.gridY} onChange={e => setProp("gridY", e.target.value, e)} />
+                    <FormEntry label={Initial.labels.gridY}>
+                        <Form.Control type="number" {...settsProps("gridY")} />
                     </FormEntry>
-                    <FormEntry label="Background">
+                    <FormEntry label={Initial.labels.bgColor}>
                         <InputGroup>
-                            <Form.Control type="color" value={setts.bgColor} onChange={e => setProp("bgColor", e.target.value)}
-                                title={setts.bgColor} />
-                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={setts.bgColor}
-                                onChange={e => setProp("bgColor", e.target.value, e)} />
+                            <Form.Control type="color" {...settsProps("bgColor")} />
+                            <Form.Control type="text" {...settsProps("bgColor")} />
                         </InputGroup>
                     </FormEntry>
                 </ListGroup.Item>
@@ -392,13 +409,13 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
     )
 }
 
-function RightPanel({ show, setShow, setts, setProp, selected, actionControl,
+function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
     setControlProp, setDataProp, preview }) {
     const { control } = selected
     const screenEditor = <ScreenEditor
         setShow={setShow}
         setts={setts}
-        setProp={setProp}
+        setSetts={setSetts}
         preview={preview}
     />
     const controlEditor = <ControlEditor
@@ -464,9 +481,9 @@ function Editor(props) {
             return control
         })
         setControls(upgraded)
-    }, [props.config])
+    }, [props.id]) //primitive type required
     useEffect(() => {
-        if (props.id) {
+        if (props.id) { //required to prevent closing validations
             const points = controls.reduce((points, control) => {
                 const pointer = Controls.getController(control.type).Pointer
                 if (pointer) {
@@ -482,31 +499,22 @@ function Editor(props) {
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [props, setts, controls])
-    function setProp(name, value, e) {
-        const next = { ...setts }
-        const prev = next[name]
-        value = fixInputValue(e, value, prev)
-        next[name] = value
-        setSetts(next)
-    }
+    }, [setts, controls])
     function setControlProp(control, name, value, e) {
         const next = [...controls]
         const prev = control.setts[name]
-        value = fixInputValue(e, value, prev)
         control.setts[name] = value
         setControls(next)
     }
     function setDataProp(control, name, value, e) {
         const next = [...controls]
         const prev = control.data[name]
-        value = fixInputValue(e, value, prev)
         control.data[name] = value
         setControls(next)
     }
     function addControl(controller) {
         const next = [...controls]
-        const control = initialControl()
+        const control = Initial.control()
         const index = next.length
         control.type = controller.Type
         if (controller.Init) {
@@ -522,7 +530,7 @@ function Editor(props) {
         next.splice(index, 1)
         setControls(next)
         if (control === selected.control) {
-            setSelected(initialSelected())
+            setSelected(Initial.selected())
         }
     }
     function upControl(control) {
@@ -586,7 +594,7 @@ function Editor(props) {
                     show={right}
                     setShow={setRight}
                     setts={setts}
-                    setProp={setProp}
+                    setSetts={setSetts}
                     selected={selected}
                     actionControl={actionControl}
                     setControlProp={setControlProp}
