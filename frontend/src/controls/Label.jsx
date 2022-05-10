@@ -7,7 +7,6 @@ import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
-import Points from "../items/Points"
 
 const Type = "Label"
 
@@ -132,7 +131,7 @@ function Validator(control) {
     return valid
 }
 
-function Editor({ control, setProp, points }) {
+function Editor({ control, setProp, globals }) {
     const data = control.data
     function setCondProp(cond) {
         return function (name, value, e) {
@@ -146,7 +145,7 @@ function Editor({ control, setProp, points }) {
             <Form.Select value={data.point} onChange={e => setProp("point", e.target.value)}
                 title="Select Data Point">
                 <option value=""></option>
-                {Points.options()}
+                {globals.points}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
@@ -334,7 +333,7 @@ function Renderer({ control, size, points }) {
         <svg>
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                 fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
-            <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
+            <text x={x} y="50%" dominantBaseline="central" fill={fgColor} style={{ pointerEvents: "none" }}
                 textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
                 {text}
             </text>

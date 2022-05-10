@@ -7,7 +7,7 @@ import Card from 'react-bootstrap/Card'
 import ListGroup from 'react-bootstrap/ListGroup'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesRight, faRemoveFormat } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
@@ -116,14 +116,15 @@ function initialDragged() {
     return {
         index: -1,
         control: {},
-        cleanup: function () { }
+        cleanup: function () { },
+        frame: {},
     }
 }
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
 function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview }) {
-    const fsetts = Initial.fixSetts(setts)
+    const fsetts = setts //Initial.fixSetts(setts)
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const resize = useResizeDetector()
@@ -144,12 +145,12 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, fsetts)
     const invertedBg = invertColor(fsetts.bgColor, true)
     const invertedBgC = invertColor(fsetts.bgColor, false)
-    const controlList = controls.map((control, index) => {
-        const setts = Initial.fixCSetts(control.setts)
-        const x = setts.posX * sx
-        const y = setts.posY * sy
-        const w = setts.width * sx
-        const h = setts.height * sy
+    function controlRender(control, index) {
+        const cetts = control.setts //Initial.fixCSetts(control.setts)
+        const x = cetts.posX * sx
+        const y = cetts.posY * sy
+        const w = cetts.width * sx
+        const h = cetts.height * sy
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
             event.stopPropagation()
@@ -159,13 +160,16 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             const setts = control.setts
             const posX = Number(setts.posX)
             const posY = Number(setts.posY)
+            const width = Number(setts.width)
+            const height = Number(setts.height)
             const point = svgCoord(ref.current, e)
             setOffset({ x: point.posX - posX, y: point.posY - posY })
             const cleanup = function () {
                 setDragged(initialDragged())
                 e.target.releasePointerCapture(e.pointerId)
             }
-            setDragged({ index, control, cleanup })
+            const frame = JSON.parse(JSON.stringify(control))
+            setDragged({ index, control, cleanup, frame })
             setSelected({ index, control })
             e.target.setPointerCapture(e.pointerId)
         }
@@ -187,20 +191,25 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
             return { svgX, svgY, posX, posY }
         }
-        function moveControl(e) {
-            const control = dragged.control
+        function moveControl(e, final) {
             const point = svgCoord(ref.current, e, offset)
-            setCSetts(control, 'posX', `${point.posX}`)
-            setCSetts(control, 'posY', `${point.posY}`)
+            const frame = dragged.frame
+            frame.setts = { ...frame.setts, ...point }
+            setDragged({ ...dragged, frame })
+            if (final) {
+                const control = dragged.control
+                setCSetts(control, 'posX', `${point.posX}`)
+                setCSetts(control, 'posY', `${point.posY}`)
+            }
         }
         function onPointerMove(e) {
             if (dragged.index >= 0) {
-                moveControl(e)
+                moveControl(e, false)
             }
         }
         function onPointerUp(e) {
             if (dragged.index >= 0) {
-                moveControl(e)
+                moveControl(e, true)
                 dragged.cleanup()
             }
         }
@@ -221,7 +230,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
                 {controlBorder}
             </svg>
         )
-    })
+    }
+    const controlList = controls.map(controlRender)
     function onClickScreen() {
         setSelected(Initial.selected())
     }
@@ -238,6 +248,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             <rect width={W} height={H} fill={fsetts.bgColor} stroke="gray" strokeWidth="1" />
             {gridRect}
             {controlList}
+            {dragged.index >= 0 ? controlRender(dragged.frame, -1) : null}
         </svg>
     </svg >)
 }
@@ -341,12 +352,12 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
 }
 
 function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
-    setDataProp, preview }) {
+    setDataProp, preview, globals }) {
     const [captured, setCaptured] = useState(null)
     const setts = control.setts
     const controller = Controls.getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp }) : null
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, globals }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -423,7 +434,7 @@ function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
 }
 
 function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
-    setCSetts, setDataProp, preview }) {
+    setCSetts, setDataProp, preview, globals }) {
     const { control } = selected
     const screenEditor = <ScreenEditor
         setShow={setShow}
@@ -440,6 +451,7 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
         actionControl={actionControl}
         setDataProp={setDataProp}
         preview={preview}
+        globals={globals}
     />
     return show ? (selected.index >= 0 ? controlEditor : screenEditor) : (
         <Button variant='link' size="sm" onClick={() => setShow(true)} title="Settings">
@@ -510,7 +522,7 @@ function Editor(props) {
                 return points
             }, [])
             const config = { setts, controls, points }
-            const valid = Check.run(() => Initial.validator(config))
+            const valid = true //Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [setts, controls])
@@ -612,6 +624,7 @@ function Editor(props) {
                     setCSetts={setCSetts}
                     setDataProp={setDataProp}
                     preview={previewControl}
+                    globals={props.globals}
                 />
             </Col>
         </Row>

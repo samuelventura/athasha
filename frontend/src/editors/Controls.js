@@ -1,5 +1,5 @@
+import ControlFrame from '../controls/Frame'
 import ControlLabel from '../controls/Label'
-import ControlEmpty from '../controls/Empty'
 
 const registeredMap = {}
 const registeredList = []
@@ -12,11 +12,11 @@ function register(control, hide) {
 }
 
 //https://vitejs.dev/guide/env-and-mode.html
-register(ControlEmpty, import.meta.env.PROD)
+register(ControlFrame, import.meta.env.PROD)
 register(ControlLabel)
 
 function getController(type) {
-    return registeredMap[type] || ControlEmpty
+    return registeredMap[type] || ControlFrame
 }
 
 function registeredMapper(mapper) {

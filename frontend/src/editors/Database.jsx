@@ -8,7 +8,6 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import Points from "../items/Points"
 import Initial from './Database.js'
 import Check from './Check'
 
@@ -82,7 +81,7 @@ function Editor(props) {
             <td>
                 <Form.Select {...pointProps(index, "id")}>
                     <option value=""></option>
-                    {Points.options()}
+                    {props.globals.points}
                 </Form.Select>
             </td>
             <td>
