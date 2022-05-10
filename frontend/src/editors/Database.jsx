@@ -8,6 +8,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import Points from "../items/Points"
 import Initial from './Database.js'
 import Check from './Check'
 
@@ -43,7 +44,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = { ...setts }
-                const prev = next[name]
                 next[name] = value
                 setSetts(next)
             }
@@ -61,7 +61,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = [...points]
-                const prev = next[index][name]
                 next[index][name] = value
                 setPoints(next)
             }
@@ -83,7 +82,7 @@ function Editor(props) {
             <td>
                 <Form.Select {...pointProps(index, "id")}>
                     <option value=""></option>
-                    {props.points}
+                    {Points.options()}
                 </Form.Select>
             </td>
             <td>

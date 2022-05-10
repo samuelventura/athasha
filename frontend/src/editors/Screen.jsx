@@ -16,7 +16,6 @@ import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
 import Controls from './Controls'
-import { useApp } from '../App'
 import Initial from './Screen.js'
 import Check from './Check'
 
@@ -123,7 +122,7 @@ function initialDragged() {
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
-function SvgWindow({ setts, controls, selected, setSelected, setControlProp, preview }) {
+function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview }) {
     const fsetts = Initial.fixSetts(setts)
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
@@ -146,7 +145,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
     const invertedBg = invertColor(fsetts.bgColor, true)
     const invertedBgC = invertColor(fsetts.bgColor, false)
     const controlList = controls.map((control, index) => {
-        const setts = control.setts
+        const setts = Initial.fixCSetts(control.setts)
         const x = setts.posX * sx
         const y = setts.posY * sy
         const w = setts.width * sx
@@ -191,8 +190,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         function moveControl(e) {
             const control = dragged.control
             const point = svgCoord(ref.current, e, offset)
-            setControlProp(control, 'posX', `${point.posX}`)
-            setControlProp(control, 'posY', `${point.posY}`)
+            setCSetts(control, 'posX', `${point.posX}`)
+            setCSetts(control, 'posY', `${point.posY}`)
         }
         function onPointerMove(e) {
             if (dragged.index >= 0) {
@@ -224,7 +223,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setControlProp, pre
         )
     })
     function onClickScreen() {
-        setSelected(initialSelected())
+        setSelected(Initial.selected())
     }
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" />) : null
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
@@ -273,9 +272,7 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
     function settsProps(prop) {
         function setProp(name) {
             return function (value) {
-                console.log(name, value)
                 const next = { ...setts }
-                const prev = next[name]
                 next[name] = value
                 setSetts(next)
             }
@@ -343,12 +340,13 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, setDataProp, preview }) {
-    const app = useApp()
+function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
+    setDataProp, preview }) {
+    const [captured, setCaptured] = useState(null)
     const setts = control.setts
     const controller = Controls.getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, app }) : null
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -359,6 +357,21 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
         <Card.Header>{control.type}</Card.Header>
         {controlProps}
     </Card>)
+    function settsProps(prop) {
+        function setProp(name) {
+            return function (value) {
+                setSetts(name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.clabels[prop]
+        args.hint = Initial.chints[prop]
+        args.value = setts[prop]
+        args.setter = setProp(prop)
+        args.check = Initial.cchecks[prop]
+        args.defval = Initial.csetts()[prop]
+        return Check.props(args)
+    }
     return (
         <>
             <Card>
@@ -389,17 +402,17 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
                         </Button>
                     </ListGroup.Item>
                     <ListGroup.Item>
-                        <FormEntry label="Position X">
-                            <Form.Control type="number" min="0" max={maxX} value={setts.posX} onChange={e => setProp("posX", e.target.value, e)} />
+                        <FormEntry label={Initial.clabels.posX}>
+                            <Form.Control type="number" {...settsProps("posX")} />
                         </FormEntry>
-                        <FormEntry label="Position Y">
-                            <Form.Control type="number" min="0" max={maxY} value={setts.posY} onChange={e => setProp("posY", e.target.value, e)} />
+                        <FormEntry label={Initial.clabels.posY}>
+                            <Form.Control type="number" {...settsProps("posY")} />
                         </FormEntry>
-                        <FormEntry label="Width">
-                            <Form.Control type="number" min="1" value={setts.width} onChange={e => setProp("width", e.target.value, e)} />
+                        <FormEntry label={Initial.clabels.width}>
+                            <Form.Control type="number" {...settsProps("width")} />
                         </FormEntry>
-                        <FormEntry label="Height">
-                            <Form.Control type="number" min="1" value={setts.height} onChange={e => setProp("height", e.target.value, e)} />
+                        <FormEntry label={Initial.clabels.height}>
+                            <Form.Control type="number" {...settsProps("height")} />
                         </FormEntry>
                     </ListGroup.Item>
                 </ListGroup>
@@ -410,7 +423,7 @@ function ControlEditor({ setShow, control, setProp, maxX, maxY, actionControl, s
 }
 
 function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
-    setControlProp, setDataProp, preview }) {
+    setCSetts, setDataProp, preview }) {
     const { control } = selected
     const screenEditor = <ScreenEditor
         setShow={setShow}
@@ -421,7 +434,7 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
     const controlEditor = <ControlEditor
         setShow={setShow}
         control={control}
-        setProp={(name, value, e) => setControlProp(control, name, value, e)}
+        setSetts={(name, value) => setCSetts(control, name, value)}
         maxX={setts.gridX - 1}
         maxY={setts.gridY - 1}
         actionControl={actionControl}
@@ -461,7 +474,7 @@ function PreviewControl({ accept, preview, setPreview, id }) {
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [controls, setControls] = useState(Initial.config().controls)
-    const [selected, setSelected] = useState(() => Initial.selected())
+    const [selected, setSelected] = useState(Initial.selected())
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
@@ -481,6 +494,7 @@ function Editor(props) {
             return control
         })
         setControls(upgraded)
+        setSelected(Initial.selected())
     }, [props.id]) //primitive type required
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
@@ -500,15 +514,13 @@ function Editor(props) {
             props.setter({ config, valid })
         }
     }, [setts, controls])
-    function setControlProp(control, name, value, e) {
+    function setCSetts(control, name, value) {
         const next = [...controls]
-        const prev = control.setts[name]
         control.setts[name] = value
         setControls(next)
     }
-    function setDataProp(control, name, value, e) {
+    function setDataProp(control, name, value) {
         const next = [...controls]
-        const prev = control.data[name]
         control.data[name] = value
         setControls(next)
     }
@@ -586,7 +598,7 @@ function Editor(props) {
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
             </Col>
             <Col className="gx-0 bg-light">
-                <SvgWindow setts={setts} controls={controls} setControlProp={setControlProp}
+                <SvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
             <Col sm="auto" style={rightStyle} className="mh-100">
@@ -597,7 +609,7 @@ function Editor(props) {
                     setSetts={setSetts}
                     selected={selected}
                     actionControl={actionControl}
-                    setControlProp={setControlProp}
+                    setCSetts={setCSetts}
                     setDataProp={setDataProp}
                     preview={previewControl}
                 />

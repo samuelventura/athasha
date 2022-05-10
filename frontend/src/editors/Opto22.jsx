@@ -42,7 +42,6 @@ function Editor(props) {
     }
     function setInputProp(index, name, value) {
         const next = [...inputs]
-        const prev = next[index][name]
         next[index][name] = value
         setInputs(next)
     }
@@ -50,7 +49,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = { ...setts }
-                const prev = next[name]
                 next[name] = value
                 setSetts(next)
             }

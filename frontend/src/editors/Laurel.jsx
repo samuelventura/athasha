@@ -56,7 +56,6 @@ function Editor(props) {
     }
     function setSlaveProp(sindex, name, value) {
         const next = [...slaves]
-        const prev = next[sindex][name]
         next[sindex][name] = value
         setSlaves(next)
     }
@@ -77,7 +76,6 @@ function Editor(props) {
     function setInputProp(sindex, pindex, name, value, e) {
         const slave = slaves[sindex]
         const next = [...slave.inputs]
-        const prev = next[pindex][name]
         next[pindex][name] = value
         setSlaveProp(sindex, "inputs", next)
     }
@@ -85,7 +83,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = { ...setts }
-                const prev = next[name]
                 next[name] = value
                 setSetts(next)
             }

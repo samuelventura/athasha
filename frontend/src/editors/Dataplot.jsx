@@ -47,7 +47,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = { ...setts }
-                const prev = next[name]
                 next[name] = value
                 setSetts(next)
             }
@@ -65,7 +64,6 @@ function Editor(props) {
         function setProp(name) {
             return function (value) {
                 const next = [...columns]
-                const prev = next[index][name]
                 next[index][name] = value
                 setColumns(next)
             }

@@ -7,6 +7,7 @@ import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
+import Points from "../items/Points"
 
 const Type = "Label"
 
@@ -131,26 +132,11 @@ function Validator(control) {
     return valid
 }
 
-function Upgrade(data) {
-    const next = { ...data }
-    const init = Init()
-    //force upgrade on the whole condition object
-    // next.cond1 = null
-    // next.cond2 = null
-    // next.cond3 = null
-    // do not || init[k] or optionals will be reset
-    Object.keys(init).forEach((k) => {
-        next[k] = next[k]
-    })
-    return next
-}
-
 function Editor({ control, setProp, points }) {
     const data = control.data
     function setCondProp(cond) {
         return function (name, value, e) {
             const next = { ...data[cond] }
-            const prev = next[name]
             next[name] = value
             setProp(cond, next)
         }
@@ -160,7 +146,7 @@ function Editor({ control, setProp, points }) {
             <Form.Select value={data.point} onChange={e => setProp("point", e.target.value)}
                 title="Select Data Point">
                 <option value=""></option>
-                {points}
+                {Points.options()}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
@@ -246,13 +232,13 @@ function Editor({ control, setProp, points }) {
                     </FormEntry>
                 </Tab>
                 <Tab eventKey="condition1" title="Cond 1">
-                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} app={app} />
+                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} />
                 </Tab>
                 <Tab eventKey="condition2" title="Cond 2">
-                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} app={app} />
+                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} />
                 </Tab>
                 <Tab eventKey="condition3" title="Cond 3">
-                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} app={app} />
+                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} />
                 </Tab>
             </Tabs>
         </>
@@ -356,8 +342,8 @@ function Renderer({ control, size, points }) {
     )
 }
 
-function Pointer(data, append) {
-    if (data.point) append(data.point)
+function Pointer(data, add) {
+    if (data.point) add(data.point)
 }
 
-export default { Type, Init, Upgrade, Editor, Renderer, Validator, Pointer }
+export default { Type, Init, Editor, Renderer, Validator, Pointer }

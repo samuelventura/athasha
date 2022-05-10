@@ -70,6 +70,47 @@ const hints = {
     bgColor: "Non empty backgroung color #RRGGBB",
 }
 
+const clabels = {
+    posX: "Position X",
+    posY: "Position Y",
+    width: "Width",
+    height: "Height",
+}
+
+const chints = {
+    posX: "Non empty integer >= 0",
+    posY: "Non empty integer >= 0",
+    width: "Non empty integer > 0",
+    height: "Non empty integer > 0",
+}
+
+const cchecks = {
+    posX: function (value) {
+        Check.isString(value, labels.posX)
+        Check.notEmpty(value, labels.posX)
+        Check.isInteger(value, labels.posX)
+        Check.isGE(value, labels.posX, 0)
+    },
+    posY: function (value) {
+        Check.isString(value, labels.posY)
+        Check.notEmpty(value, labels.posY)
+        Check.isInteger(value, labels.posY)
+        Check.isGE(value, labels.posY, 0)
+    },
+    width: function (value) {
+        Check.isString(value, labels.width)
+        Check.notEmpty(value, labels.width)
+        Check.isInteger(value, labels.width)
+        Check.isGT(value, labels.width, 0)
+    },
+    height: function (value) {
+        Check.isString(value, labels.height)
+        Check.notEmpty(value, labels.height)
+        Check.isInteger(value, labels.height)
+        Check.isGT(value, labels.height, 0)
+    },
+}
+
 function fixSetts(curr) {
     const next = {}
     const init = setts()
@@ -77,6 +118,21 @@ function fixSetts(curr) {
         const value = curr[k]
         try {
             checks[k](value)
+            next[k] = value
+        } catch (ex) {
+            next[k] = init[k]
+        }
+    })
+    return next
+}
+
+function fixCSetts(curr) {
+    const next = {}
+    const init = csetts()
+    Object.keys(curr).forEach((k) => {
+        const value = curr[k]
+        try {
+            cchecks[k](value)
             next[k] = value
         } catch (ex) {
             next[k] = init[k]
@@ -135,7 +191,7 @@ const checks = {
     },
 }
 
-function validator({ setts }) {
+function validator({ setts, controls }) {
     Check.hasProp(setts, "Setts", "password")
     Check.hasProp(setts, "Setts", "period")
     Check.hasProp(setts, "Setts", "scale")
@@ -154,6 +210,18 @@ function validator({ setts }) {
     checks.gridX(setts.gridX)
     checks.gridY(setts.gridY)
     checks.bgColor(setts.bgColor)
+    Check.isArray(controls, "Controls")
+    controls.forEach((control, index) => {
+        const clabel = `Control ${index + 1} type ${control.type}`
+        Check.hasProp(control.setts, clabel, "posX")
+        cchecks.posX(control.setts.posX)
+        Check.hasProp(control.setts, clabel, "posY")
+        cchecks.posY(control.setts.posY)
+        Check.hasProp(control.setts, clabel, "width")
+        cchecks.width(control.setts.width)
+        Check.hasProp(control.setts, clabel, "height")
+        cchecks.height(control.setts.height)
+    })
 }
 
 export default {
@@ -167,4 +235,8 @@ export default {
     checks,
     validator,
     fixSetts,
+    clabels,
+    chints,
+    cchecks,
+    fixCSetts,
 }

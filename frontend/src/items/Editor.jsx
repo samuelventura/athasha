@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Types from './Types'
-import Points from './Points'
-import { useApp } from '../App'
 
 function Editor(props) {
-    const app = useApp()
     const item = props.item
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
-    const points = Points.Options(app.state.items)
     useEffect(() => {
         setValid(false)
         setConfig({})
@@ -21,7 +17,7 @@ function Editor(props) {
     }
     //id required for view url formation
     function itemEditor(type) {
-        const state = { points }
+        const state = {}
         const match = item.id && type === item.type
         state.config = match ? item.config : {}
         state.id = match ? item.id : ""
@@ -29,8 +25,9 @@ function Editor(props) {
             setValid(next.valid)
             setConfig(next.config)
         } : () => { }
-        const css = match ? "" : "d-none"
-        return <div className={css}>{Types.editor(type)(state)}</div>
+        const editor = Types.editor(type)(state)
+        //the wrapping div destroys the screen 100vh requirement
+        return match ? editor : <div className="d-none">{editor}</div>
     }
     function itemIcon() {
         const icon = Types.icon(item.type)
