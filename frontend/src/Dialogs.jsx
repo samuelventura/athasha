@@ -44,21 +44,8 @@ function LoginDialog() {
       onLogin()
     }
   }
-  //auto reconnect views
-  useEffect(() => {
-    if (app.connected && !app.logged) {
-      const timer = setInterval(() => {
-        const session = sessioner.fetch()
-        if (session.token) {
-          const active = false
-          app.send({ name: "login", args: { session, active } })
-        }
-      }, 2000)
-      return () => { clearInterval(timer) }
-    }
-  }, [app.connected, app.logged, app.send])
-  return (
-    <Modal show={app.login} backdrop="static" centered>
+  return app.login ? (
+    <Modal show={true} backdrop="static" centered>
       <Modal.Header>
         <Modal.Title>Login</Modal.Title>
       </Modal.Header>
@@ -75,7 +62,7 @@ function LoginDialog() {
         <Button variant="primary" onClick={onLogin}>Login</Button>
       </Modal.Footer>
     </Modal>
-  )
+  ) : null
 }
 
 function LogoutButton() {

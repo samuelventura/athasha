@@ -100,6 +100,19 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
     }
     return Socket.create({ path, dispatch: intercept })
   }, [path, initial, reducer, clearAlert, errorAlert])
+  //auto reconnect views
+  useEffect(() => {
+    if (login) {
+      const timer = setInterval(() => {
+        const session = sessioner.fetch()
+        if (session.token) {
+          const active = false
+          send({ name: "login", args: { session, active } })
+        }
+      }, 2000)
+      return () => { clearInterval(timer) }
+    }
+  }, [login, send])
   return <App.Provider value={value}>{children}</App.Provider>
 }
 

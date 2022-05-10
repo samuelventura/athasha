@@ -1,10 +1,13 @@
 import Environ from "../Environ"
+import Types from "./Types"
 
 function initial() {
   return {
     items: {},
     status: {},
     selected: {},
+    targeted: {},
+    points: [],
     version: 0,
     hostname: "",
     identity: "",
@@ -29,6 +32,15 @@ function version_state(next) {
   return next
 }
 
+function update_points(next) {
+  const points = []
+  function add(point) { points.push(point) }
+  Object.values(next.items).forEach((item) => {
+    Types.pointer(item.type)(item, add)
+  })
+  next.points = points
+}
+
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
@@ -43,6 +55,7 @@ function reducer(state, { name, args, self }) {
         next.status[item.id] = {}
         next.items[item.id] = item
       })
+      update_points(next)
       return version_state(next)
     }
     case "create": {
@@ -53,12 +66,14 @@ function reducer(state, { name, args, self }) {
       if (self) {
         next.selected = item
       }
+      update_points(next)
       return version_state(next)
     }
     case "delete": {
       const next = clone_object(state)
       delete next.status[args.id]
       delete next.items[args.id]
+      update_points(next)
       return version_state(next)
     }
     case "rename": {
@@ -79,6 +94,7 @@ function reducer(state, { name, args, self }) {
       if (self) {
         next.selected = item
       }
+      update_points(next)
       return version_state(next)
     }
     case "status": {
@@ -91,6 +107,11 @@ function reducer(state, { name, args, self }) {
     case "select": {
       const next = clone_object(state)
       next.selected = args
+      return version_state(next)
+    }
+    case "target": {
+      const next = clone_object(state)
+      next.targeted = args
       return version_state(next)
     }
     case "close": {
