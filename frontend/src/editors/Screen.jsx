@@ -124,7 +124,7 @@ function initialDragged() {
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
 function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview }) {
-    const fsetts = setts //Initial.fixSetts(setts)
+    const fsetts = Initial.fixSetts(setts)
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const resize = useResizeDetector()
@@ -146,7 +146,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
     const invertedBg = invertColor(fsetts.bgColor, true)
     const invertedBgC = invertColor(fsetts.bgColor, false)
     function controlRender(control, index) {
-        const cetts = control.setts //Initial.fixCSetts(control.setts)
+        const cetts = Initial.fixCSetts(control.setts)
         const x = cetts.posX * sx
         const y = cetts.posY * sy
         const w = cetts.width * sx
@@ -194,13 +194,16 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         }
         function moveControl(e, final) {
             const point = svgCoord(ref.current, e, offset)
+            point.posX = `${point.posX}`
+            point.posY = `${point.posY}`
             const frame = dragged.frame
+            //strings required to pass fix validation above
             frame.setts = { ...frame.setts, ...point }
             setDragged({ ...dragged, frame })
             if (final) {
                 const control = dragged.control
-                setCSetts(control, 'posX', `${point.posX}`)
-                setCSetts(control, 'posY', `${point.posY}`)
+                setCSetts(control, 'posX', point.posX)
+                setCSetts(control, 'posY', point.posY)
             }
         }
         function onPointerMove(e) {
@@ -530,7 +533,7 @@ function Editor(props) {
                 return points
             }, [])
             const config = { setts, controls, points }
-            const valid = true //Check.run(() => Initial.validator(config))
+            const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
     }, [setts, controls])
