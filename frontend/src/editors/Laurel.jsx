@@ -242,8 +242,7 @@ function Editor(props) {
                     </Form.Select>
                 </td>
                 <td>
-                    <Form.Control type="text" placeholder="Input Name"
-                        {...inputProps(sindex, pindex, "name")} />
+                    <Form.Control type="text" {...inputProps(sindex, pindex, "name")} />
                 </td>
                 <td>
                     <Button variant='outline-danger' size="sm" onClick={() => delInput(sindex, pindex)}

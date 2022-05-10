@@ -51,8 +51,9 @@ function Editor(props) {
                 {itemEditor("Dataplot")}
                 {itemEditor("Laurel")}
                 {itemEditor("Modbus")}
+                {itemEditor("Opto22")}
                 {/* {itemEditor("Screen")}
-                {itemEditor("Opto22")} */}
+                 */}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={props.cancel}>

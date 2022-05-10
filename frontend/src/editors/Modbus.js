@@ -58,7 +58,7 @@ const hints = {
     dbpsb: "Select config from list",
     inputs: {
         slave: (i) => `Non empty integer [0, 255]`,
-        code: (i) => `Select the function code from available list`,
+        code: (i) => `Select the function code from list`,
         address: (i) => `Non empty integer [0, 65535]`,
         name: (i) => `Non empty input name`,
     }

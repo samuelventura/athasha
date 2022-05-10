@@ -95,7 +95,7 @@ function Editor(props) {
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 3}
-                    onClick={() => delColumn(index)}>
+                    onClick={() => delColumn(index)} title="Delete Column">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -175,12 +175,12 @@ function Editor(props) {
             <Table>
                 <thead>
                     <tr>
-                        <th>Column</th>
-                        <th>Name</th>
-                        <th>Color</th>
+                        <th>#</th>
+                        <th>{Initial.labels.column.name}</th>
+                        <th>{Initial.labels.column.color}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addColumn}
-                                disabled={columns.length > 6}>
+                                disabled={columns.length > 6} title="Add Column">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

@@ -98,7 +98,7 @@ function ItemEditor(props) {
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
-                <Form.Control type="number" placeholder={Initial.labels.input.slave} {...inputProps(index, "slave")} />
+                <Form.Control type="number" {...inputProps(index, "slave")} />
             </td>
             <td>
                 <Form.Select {...inputProps(index, "code")} >
@@ -119,10 +119,10 @@ function ItemEditor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" placeholder={Initial.labels.input.address} {...inputProps(index, "address")} />
+                <Form.Control type="number" {...inputProps(index, "address")} />
             </td>
             <td>
-                <Form.Control type="text" placeholder={Initial.labels.input.name} {...inputProps(index, "name")} />
+                <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}

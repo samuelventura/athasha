@@ -69,7 +69,7 @@ const hints = {
         decimals: (i) => `Non empty integer [0-16]`,
     },
     inputs: {
-        code: (i) => `Select the register name from available list`,
+        code: (i) => `Select the register name from list`,
         name: (i) => `Non empty input name`,
     }
 }

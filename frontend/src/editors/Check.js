@@ -101,6 +101,7 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
     return {
         value: value,
         title: `${label}\n${hint}`,
+        placeholder: label,
         onFocus: function (e) {
             capture(e.target.value)
             apply(e, e.target.value)

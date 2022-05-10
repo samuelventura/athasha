@@ -46,6 +46,10 @@ const labels = {
     ymin: "Plot Minimum Y Value",
     ymax: "Plot Maximum Y Value",
     lineWidth: "Plot Line Width",
+    column: {
+        name: "Column Name",
+        color: "Column Color",
+    },
     columns: {
         name: (i) => `Column ${i + 1} Name`,
         color: (i) => `Column ${i + 1} Color`,
