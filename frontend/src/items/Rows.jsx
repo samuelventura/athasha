@@ -1,23 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Environ from "../Environ"
-import State from "./State"
 import Files from "./Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
-import Editor from "./Editor"
+import EditItem from "./Editor"
 import Types from "./Types"
 
 function Rows(props) {
     const app = useApp()
-    const noneItem = State.initial().selected
-    const [deleteItem, setDeleteItem] = useState(noneItem)
-    const [renameItem, setRenameItem] = useState(noneItem)
-    const [editItem, setEditItem] = useState(noneItem)
 
     function isSelected(item) {
         return item.id === app.state.selected.id
@@ -37,57 +32,19 @@ function Rows(props) {
             "fw-normal" : "fst-italic"
     }
 
-    function handleDelete(item) {
-        setDeleteItem(noneItem)
-        app.send({ name: "delete", args: { id: item.id } })
-    }
-
-    function clearDelete() {
-        setDeleteItem(noneItem)
-    }
-
-    function handleRename(item, name) {
-        setRenameItem(noneItem)
-        app.send({ name: "rename", args: { id: item.id, name } })
-    }
-
-    function clearRename() {
-        setRenameItem(noneItem)
-    }
-
-    function handleEdit(id, config, action) {
-        switch (action) {
-            case "save":
-                app.send({ name: "edit", args: { id, config } })
-                break
-            case "save-close":
-                app.send({ name: "edit", args: { id, config } })
-                setEditItem(noneItem)
-                break
-            case "save-update":
-                app.send({ name: "edit", args: { id, config } })
-                app.send({ name: "enable", args: { id, enabled: true } })
-                break
-        }
-    }
-
-    function clearEdit() {
-        setEditItem(noneItem)
-    }
-
     function handleClick(e, action, item, args) {
         app.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
-                setEditItem(item)
+                app.dispatch({ name: "target", args: { action, item } })
                 break
             }
             case "delete": {
-                setDeleteItem(item)
+                app.dispatch({ name: "target", args: { action, item } })
                 break
             }
             case "rename": {
-                setRenameItem(item)
+                app.dispatch({ name: "target", args: { action, item } })
                 break
             }
             case "enable": {
@@ -118,7 +75,7 @@ function Rows(props) {
 
     function handleDoubleClick(item) {
         app.dispatch({ name: "select", args: item })
-        setEditItem(item)
+        app.dispatch({ name: "target", args: { action: "edit", item } })
     }
 
     function statusTitle(item, status) {
@@ -208,21 +165,11 @@ function Rows(props) {
         }
     }, [app.state.selected])
 
-    useEffect(() => {
-        const noneItem = State.initial().selected
-        setDeleteItem(noneItem)
-        setRenameItem(noneItem)
-        setEditItem(noneItem)
-    }, [app.logged])
-
     return (
         <tbody>
-            <Editor item={editItem}
-                accept={handleEdit} cancel={clearEdit} />
-            <DeleteItem item={deleteItem}
-                accept={handleDelete} cancel={clearDelete} />
-            <RenameItem item={renameItem}
-                accept={handleRename} cancel={clearRename} />
+            <EditItem />
+            <DeleteItem />
+            <RenameItem />
             {rows}
         </ tbody>
     )

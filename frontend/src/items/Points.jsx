@@ -1,6 +1,5 @@
 import React from 'react'
 
-
 function options(points) {
     return points.map(({ point, item }, index) => {
         const id = `${item.id} ${point.name}`

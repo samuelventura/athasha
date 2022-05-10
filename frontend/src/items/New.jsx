@@ -1,35 +1,17 @@
-import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import { useApp } from '../App'
 import { NewItem } from "./Dialogs"
-import Initials from "./Initials"
 
-function New(props) {
+function New() {
     const app = useApp()
-    const [newItem, setNewItem] = useState(false)
 
     function showNew() {
-        setNewItem(true)
+        app.dispatch({ name: "target", args: { action: "new" } })
     }
-
-    function handleNew(name, type) {
-        setNewItem(false)
-        const config = Initials(type).config()
-        const args = { name, type, config, enabled: false }
-        props.send({ name: "create", args })
-    }
-
-    function clearNew() {
-        setNewItem(false)
-    }
-
-    useEffect(() => {
-        if (!app.logged) setNewItem(false)
-    }, [app.logged])
 
     return (
         <div>
-            <NewItem show={newItem} accept={handleNew} cancel={clearNew} />
+            <NewItem />
             <Button onClick={showNew} variant="primary"
                 title="Create New Item">New...</Button>
         </div>

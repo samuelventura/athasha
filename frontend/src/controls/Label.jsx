@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import numeral from 'numeral'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
@@ -8,6 +8,7 @@ import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Label.js"
+import Points from '../items/Points'
 import Check from '../editors/Check'
 
 function CondEditor({ cond, setProp, captured, setCaptured }) {
@@ -116,7 +117,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
         <>
             <Form.Select {...fieldProps("point")} >
                 <option value=""></option>
-                {globals.points}
+                {Points.options(globals.points)}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">

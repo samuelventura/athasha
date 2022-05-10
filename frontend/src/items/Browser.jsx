@@ -54,7 +54,7 @@ function Browser() {
                             />
                         </th>
                         <th>
-                            <New send={app.send} />
+                            <New />
                         </th>
                     </tr>
                 </thead>

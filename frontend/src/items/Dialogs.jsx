@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -10,12 +10,26 @@ import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import Environ from '../Environ'
 import Files from './Files'
+import Initials from "./Initials"
+import Types from "./Types"
 import { useApp } from '../App'
+import { useFocus } from '../Focus'
 
-function DeleteItem(props) {
-    const item = props.item
-    return (
-        <Modal show={item.id} onHide={props.cancel} centered>
+function DeleteItem() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    const item = targeted.item
+    function isActive() { return action === "delete" }
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        app.send({ name: "delete", args: { id: item.id } })
+        app.dispatch({ name: "target", args: {} })
+    }
+    return isActive() ? (
+        <Modal show={true} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Danger</Modal.Title>
             </Modal.Header>
@@ -23,122 +37,139 @@ function DeleteItem(props) {
                 Delete item '{item.name}'?
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={props.cancel}>
+                <Button variant="secondary" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button variant="danger" onClick={() => props.accept(item)}>
+                <Button variant="danger" onClick={onAccept}>
                     Delete
                 </Button>
             </Modal.Footer>
         </Modal>
-    )
+    ) : null
 }
 
-function RenameItem(props) {
-    const item = props.item
+function RenameItem() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    const item = targeted.item
+    const focus = useFocus();
     const [name, setName] = useState("")
-    function handleKeyPress(e) {
+    function isActive() { return action === "rename" }
+    function isValid() { return (name.trim().length) }
+    function onKeyPress(e) {
         if (e.key === 'Enter') {
-            props.accept(item, name)
+            onAccept()
+        }
+    }
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        if (isValid()) {
+            app.send({ name: "rename", args: { id: item.id, name } })
+            app.dispatch({ name: "target", args: {} })
         }
     }
     useEffect(() => {
-        setName(item.name || "")
-    }, [item])
-    return (
-        <Modal show={item.id} onHide={props.cancel} centered>
+        if (isActive()) {
+            setName(item.name)
+        }
+    }, [targeted.action])
+    return isActive() ? (
+        <Modal show={true} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Rename</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Control autoFocus type="text" placeholder="New Name"
-                    onKeyPress={handleKeyPress}
+                <Form.Control ref={focus} type="text" placeholder="New Name"
+                    onKeyPress={onKeyPress}
                     value={name} onChange={e => setName(e.target.value)} />
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={props.cancel}>
+                <Button variant="secondary" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={() => props.accept(item, name)}>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
                     Rename
                 </Button>
             </Modal.Footer>
         </Modal>
-    )
+    ) : null
 }
 
-function NewItem(props) {
-    const nameEl = useRef(null)
+function NewItem() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    const focus = useFocus();
     const [name, setName] = useState("")
     const [type, setType] = useState("")
-    const [prev, setPrev] = useState("")
-    function enabled() {
+    function isActive() { return action === "new" }
+    function isValid() {
         return (name.trim().length > 0
             && type.trim().length > 0)
     }
-    function accept() {
-        props.accept(name, type)
-    }
-    function handleKeyPress(e) {
+    function onKeyPress(e) {
         if (e.key === 'Enter') {
-            if (enabled()) {
-                accept()
-            }
+            onAccept()
         }
     }
-    function option(type) {
-        return (<option value={type}>{type}</option>)
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
     }
-    useEffect(() => { setPrev(type) }, [type])
-    useEffect(() => {
-        if (type.trim().length > 0 && prev !== type) {
-            const token = uuidv4()
-            setName(type + " " + token.substring(0, 6))
-            nameEl.current.focus()
+    function onAccept() {
+        if (isValid()) {
+            const config = Initials(type).config()
+            const args = { name, type, config, enabled: false }
+            app.send({ name: "create", args })
+            app.dispatch({ name: "target", args: {} })
         }
-    }, [name, prev, type])
+    }
     useEffect(() => {
-        if (props.show) setType("Modbus")
-        else {
-            setName("")
+        if (isActive()) {
             setType("")
+            setName("")
         }
-    }, [props.show])
-    return (
-        <Modal show={props.show} onHide={props.cancel} centered>
+    }, [targeted.action])
+    function onTypeChanged(value) {
+        setType(value)
+        const token = uuidv4()
+        setName(value + " " + token.substring(0, 6))
+    }
+    function options() {
+        return Types.names.map((type, index) => (<option key={index} value={type}>{type}</option>))
+    }
+    return isActive() ? (
+        <Modal show={true} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>New</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
-                    <Form.Select autoFocus value={type} onChange={e => setType(e.target.value)}>
-                        {option("")}
-                        {option("Modbus")}
-                        {option("Screen")}
-                        {option("Database")}
-                        {option("Dataplot")}
-                        {option("Laurel")}
-                        {option("Opto22")}
+                    <Form.Select ref={focus} value={type} onChange={e => onTypeChanged(e.target.value)}>
+                        <option></option>
+                        {options()}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control ref={nameEl} type="text" placeholder="Name"
-                        onKeyPress={handleKeyPress}
+                    <Form.Control type="text" placeholder="Name"
+                        onKeyPress={onKeyPress}
                         value={name} onChange={e => setName(e.target.value)} />
                 </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={props.cancel}>
+                <Button variant="secondary" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={accept} disabled={!enabled()}>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
                     Create
                 </Button>
             </Modal.Footer>
         </Modal>
-    )
+    ) : null
 }
 
 function ToolsButton() {
