@@ -224,11 +224,15 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         const controlBorder = !preview ? (
             <rect width="100%" height="100%" fill="white" fillOpacity={borderOpacity}
                 stroke={invertedBgC} strokeWidth={borderStroke} />) : null
+        const controlEvents = index >= 0 ? {
+            onPointerDown: (e) => onPointerDown(e, index, control),
+            onPointerMove: (e) => onPointerMove(e),
+            onPointerUp: (e) => onPointerUp(e),
+            onClick: (e) => onClickControl(e, index, control),
+        } : {}
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
-                onPointerDown={e => onPointerDown(e, index, control)}
-                onPointerMove={e => onPointerMove(e)} onPointerUp={e => onPointerUp(e)}
-                onClick={e => onClickControl(e, index, control)}>
+                {...controlEvents}>
                 {controlInstance}
                 {controlBorder}
             </svg>
@@ -239,6 +243,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         setSelected(Initial.selected())
     }
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" />) : null
+    const dragFrame = dragged.index >= 0 ? controlRender(dragged.frame, -1) : null
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
@@ -251,7 +256,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             <rect width={W} height={H} fill={fsetts.bgColor} stroke="gray" strokeWidth="1" />
             {gridRect}
             {controlList}
-            {dragged.index >= 0 ? controlRender(dragged.frame, -1) : null}
+            {dragFrame}
         </svg>
     </svg >)
 }
