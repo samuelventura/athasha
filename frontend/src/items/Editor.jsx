@@ -14,7 +14,7 @@ function Editor(props) {
     useEffect(() => {
         setValid(false)
         setConfig({})
-        updatePoints()
+        if (item.id) updatePoints()
     }, [item.id])
     function updatePoints() {
         const items = app.state.items
@@ -26,11 +26,14 @@ function Editor(props) {
         const id = item.id
         props.accept(id, config, action)
     }
+    function cloned() {
+        return JSON.parse(JSON.stringify(item.config))
+    }
     //id required for view url formation
     function itemEditor(type) {
         const state = { globals }
         const match = item.id && type === item.type
-        state.config = match ? item.config : {}
+        state.config = match ? cloned() : {}
         state.id = match ? item.id : ""
         state.setter = match ? (next) => {
             setValid(next.valid)
