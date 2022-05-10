@@ -7,6 +7,13 @@ function isString(value, label) {
     }
 }
 
+function isBoolean(value, label) {
+    const typeof_value = typeof value
+    if (!(typeof_value === 'boolean')) {
+        throw `${label} is not boolean: ${typeof_value} ${value}`
+    }
+}
+
 function isArray(value, label) {
     const typeof_value = typeof value
     if (!Array.isArray(value)) {
@@ -136,9 +143,18 @@ function run(action) {
     }
 }
 
+function validate(values, inits, checks, label) {
+    Object.keys(inits).forEach((prop) => {
+        Check.hasProp(values, label, prop)
+        checks[prop](values[prop])
+    })
+}
+
 export default {
+    validate,
     run,
     props,
+    isBoolean,
     isString,
     isArray,
     notEmpty,

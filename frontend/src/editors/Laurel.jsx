@@ -80,7 +80,7 @@ function Editor(props) {
         setSlaveProp(sindex, "inputs", next)
     }
     function settsProps(prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 const next = { ...setts }
                 next[name] = value
@@ -91,13 +91,13 @@ function Editor(props) {
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
         args.value = setts[prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
     function slaveProps(sindex, prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 setSlaveProp(sindex, name, value)
             }
@@ -106,13 +106,13 @@ function Editor(props) {
         args.label = Initial.labels.slaves[prop](sindex)
         args.hint = Initial.hints.slaves[prop](sindex)
         args.value = slaves[sindex][prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = (value) => Initial.checks.slaves[prop](sindex, value)
         args.defval = Initial.slave()[prop]
         return Check.props(args)
     }
     function inputProps(sindex, pindex, prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 setInputProp(sindex, pindex, name, value)
             }
@@ -122,7 +122,7 @@ function Editor(props) {
         args.label = Initial.labels.inputs[prop](pindex)
         args.hint = Initial.hints.inputs[prop](pindex)
         args.value = slave.inputs[pindex][prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = (value) => Initial.checks.inputs[prop](pindex, value)
         args.defval = Initial.input()[prop]
         return Check.props(args)

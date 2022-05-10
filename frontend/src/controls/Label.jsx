@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import numeral from 'numeral'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
@@ -7,29 +7,29 @@ import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
+import Initial from "./Label.js"
+import Check from '../editors/Check'
 
-const Type = "Label"
-
-function Cond() {
-    return {
-        type: "Disabled",
-        param: "0",
-        txType: "Disabled",
-        txText: "",
-        bgEnabled: false,
-        bgColor: "#ffffff",
-        fgEnabled: false,
-        fgColor: "#ffffff",
-        brEnabled: false,
-        brColor: "#ffffff",
+function CondEditor({ cond, setProp, captured, setCaptured }) {
+    function fieldProps(prop) {
+        function setter(name) {
+            return function (value) {
+                setProp(name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.clabels[prop]
+        args.hint = Initial.chints[prop]
+        args.value = cond[prop]
+        args.setter = setter(prop)
+        args.check = Initial.cchecks[prop]
+        args.defval = Initial.cond()[prop]
+        return Check.props(args)
     }
-}
-
-function CondEditor({ cond, setProp }) {
     return (
         <>
-            <FormEntry label="Condition">
-                <Form.Select value={cond.type} onChange={e => setProp("type", e.target.value)}>
+            <FormEntry label={Initial.clabels.type}>
+                <Form.Select {...fieldProps("type")}>
                     <option value="Disabled">Disabled</option>
                     <option value="Enabled">Enabled</option>
                     <option value="Greater">Point &gt; Param</option>
@@ -38,143 +38,109 @@ function CondEditor({ cond, setProp }) {
                     <option value="LesserOrEqual">Point &le; Param</option>
                 </Form.Select>
             </FormEntry>
-            <FormEntry label="Condition Param">
-                <Form.Control type="number" value={cond.param}
-                    onChange={e => setProp("param", e.target.value, e)} />
+            <FormEntry label={Initial.clabels.param}>
+                <Form.Control type="number" {...fieldProps("param")} />
             </FormEntry>
-            <FormEntry label="Text Action">
-                <Form.Select value={cond.txType} onChange={e => setProp("txType", e.target.value)}>
+            <FormEntry label={Initial.clabels.txType}>
+                <Form.Select {...fieldProps("txType")}>
                     <option value="Disabled">Disabled</option>
                     <option value="Fixed">Fixed Text</option>
                     <option value="Format">Format Text</option>
                 </Form.Select>
             </FormEntry>
-            <FormEntry label="Text Param">
+            <FormEntry label={Initial.clabels.txText}>
                 <InputGroup>
-                    <Form.Control type="text" value={cond.txText}
-                        onChange={e => setProp("txText", e.target.value)} />
+                    <Form.Control type="text" {...fieldProps("txText")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label="Text Color">
+            <FormEntry label={Initial.clabels.fgColor}>
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.fgEnabled}
                         onChange={e => setProp("fgEnabled", e.target.checked)}
                         title="Enable Text Color" />
-                    <Form.Control type="color" value={cond.fgColor}
-                        onChange={e => setProp("fgColor", e.target.value)}
-                        title={cond.fgColor} />
-                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.fgColor}
-                        onChange={e => setProp("fgColor", e.target.value, e)} />
+                    <Form.Control type="color" {...fieldProps("fgColor")} />
+                    <Form.Control type="text" {...fieldProps("fgColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label="Background">
+            <FormEntry label={Initial.clabels.bgColor}>
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.bgEnabled}
                         onChange={e => setProp("bgEnabled", e.target.checked)}
                         title="Enable Background Color" />
-                    <Form.Control type="color" value={cond.bgColor}
-                        onChange={e => setProp("bgColor", e.target.value)}
-                        title={cond.bgColor} />
-                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.bgColor}
-                        onChange={e => setProp("bgColor", e.target.value, e)} />
+                    <Form.Control type="color" {...fieldProps("bgColor")} />
+                    <Form.Control type="text" {...fieldProps("bgColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label="Border Color">
+            <FormEntry label={Initial.clabels.brColor}>
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.brEnabled}
                         onChange={e => setProp("brEnabled", e.target.checked)}
                         title="Enable Border Color" />
-                    <Form.Control type="color" value={cond.brColor}
-                        onChange={e => setProp("brColor", e.target.value)}
-                        title={cond.brColor} />
-                    <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={cond.brColor}
-                        onChange={e => setProp("brColor", e.target.value, e)} />
+                    <Form.Control type="color" {...fieldProps("brColor")} />
+                    <Form.Control type="text" {...fieldProps("brColor")} />
                 </InputGroup>
             </FormEntry>
 
         </>)
 }
 
-function Init() {
-    return {
-        point: "",
-        text: "Label",
-        align: "Center",
-        bgEnabled: false,
-        bgColor: "#ffffff",
-        fgColor: "#000000",
-        ftSize: "10",
-        ftFamily: "RobotoThin",
-        brColor: "#000000",
-        brWidth: "0",
-        brRadius: "0",
-        cond1: Cond(),
-        cond2: Cond(),
-        cond3: Cond(),
-    }
-}
-
 function Validator(control) {
-    const data = control.data
-    let valid = true
-    // valid = valid && checkBoolean(data.bgEnabled)
-    // //valid = valid && checkNotBlank(data.text)
-    // valid = valid && checkNotBlank(data.align)
-    // valid = valid && checkNotBlank(data.bgColor)
-    // valid = valid && checkNotBlank(data.fgColor)
-    // valid = valid && checkNotBlank(data.ftFamily)
-    // valid = valid && checkRange(data.ftSize, 1)
-    // valid = valid && checkNotBlank(data.brColor)
-    // valid = valid && checkRange(data.brWidth, 0)
-    // valid = valid && checkRange(data.brRadius, 0)
-    // valid = valid && checkNotBlank(data.cdType)
-    return valid
+    return Check.run(() => { Initial.validate(control.data) })
 }
 
-function Editor({ control, setProp, globals }) {
+function Editor({ control, setProp, captured, setCaptured, globals }) {
     const data = control.data
     function setCondProp(cond) {
-        return function (name, value, e) {
+        return function (name, value) {
             const next = { ...data[cond] }
             next[name] = value
             setProp(cond, next)
         }
     }
+    function fieldProps(prop) {
+        function setter(name) {
+            return function (value) {
+                setProp(name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        args.label = Initial.dlabels[prop]
+        args.hint = Initial.dhints[prop]
+        args.value = data[prop]
+        args.setter = setter(prop)
+        args.check = Initial.dchecks[prop]
+        args.defval = Initial.data()[prop]
+        return Check.props(args)
+    }
     return (
         <>
-            <Form.Select value={data.point} onChange={e => setProp("point", e.target.value)}
-                title="Select Data Point">
+            <Form.Select {...fieldProps("point")} >
                 <option value=""></option>
                 {globals.points}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
-                    <FormEntry label="Text">
-                        <Form.Control type="text" value={data.text}
-                            onChange={e => setProp("text", e.target.value)} />
+                    <FormEntry label={Initial.dlabels.text}>
+                        <Form.Control type="text" {...fieldProps("text")} />
                     </FormEntry>
-                    <FormEntry label="Align">
-                        <Form.Select value={data.align} onChange={e => setProp("align", e.target.value)}>
+                    <FormEntry label={Initial.dlabels.align}>
+                        <Form.Select {...fieldProps("align")}>
                             <option value="Center">Center</option>
                             <option value="Left">Left</option>
                             <option value="Right">Right</option>
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label="Text Color">
+                    <FormEntry label={Initial.dlabels.fgColor}>
                         <InputGroup>
-                            <Form.Control type="color" value={data.fgColor}
-                                onChange={e => setProp("fgColor", e.target.value)}
-                                title={data.fgColor} />
-                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.fgColor}
-                                onChange={e => setProp("fgColor", e.target.value, e)} />
+                            <Form.Control type="color" {...fieldProps("fgColor")} />
+                            <Form.Control type="text" {...fieldProps("fgColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label="Font Size">
-                        <Form.Control type="number" min="1" value={data.ftSize}
-                            onChange={e => setProp("ftSize", e.target.value, e)} />
+                    <FormEntry label={Initial.dlabels.ftSize}>
+                        <Form.Control type="number" {...fieldProps("ftSize")} />
                     </FormEntry>
-                    <FormEntry label="Font Family">
-                        <Form.Select value={data.ftFamily} onChange={e => setProp("ftFamily", e.target.value)}>
+                    <FormEntry label={Initial.dlabels.ftFamily}>
+                        <Form.Select {...fieldProps("ftFamily")}>
                             <option value="RobotoThin">Roboto Thin</option>
                             <option value="RobotoLight">Roboto Light</option>
                             <option value="RobotoRegular">Roboto Regular</option>
@@ -200,44 +166,36 @@ function Editor({ control, setProp, globals }) {
                             <option value="OrbitronBlack">Orbitron Black</option>
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label="Background">
+                    <FormEntry label={Initial.dlabels.bgColor}>
                         <InputGroup>
                             <InputGroup.Checkbox checked={data.bgEnabled}
                                 onChange={e => setProp("bgEnabled", e.target.checked)}
                                 title="Enable Background Color" />
-                            <Form.Control type="color" value={data.bgColor}
-                                onChange={e => setProp("bgColor", e.target.value)}
-                                title={data.bgColor} />
-                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.bgColor}
-                                onChange={e => setProp("bgColor", e.target.value, e)} />
+                            <Form.Control type="color" {...fieldProps("bgColor")} />
+                            <Form.Control type="text" {...fieldProps("bgColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label="Border Width">
-                        <Form.Control type="number" min="0" value={data.brWidth}
-                            onChange={e => setProp("brWidth", e.target.value, e)} />
+                    <FormEntry label={Initial.dlabels.brWidth}>
+                        <Form.Control type="number" {...fieldProps("brWidth")} />
                     </FormEntry>
-                    <FormEntry label="Border Color">
+                    <FormEntry label={Initial.dlabels.brColor}>
                         <InputGroup>
-                            <Form.Control type="color" value={data.brColor}
-                                onChange={e => setProp("brColor", e.target.value)}
-                                title={data.brColor} />
-                            <Form.Control type="text" pattern="#[0-9a-fA-F]{6}" value={data.brColor}
-                                onChange={e => setProp("brColor", e.target.value, e)} />
+                            <Form.Control type="color" {...fieldProps("brColor")} />
+                            <Form.Control type="text" {...fieldProps("brColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label="Border Radius">
-                        <Form.Control type="number" min="0" max="1" step="0.01" value={data.brRadius}
-                            onChange={e => setProp("brRadius", e.target.value, e)} />
+                    <FormEntry label={Initial.dlabels.brRadius}>
+                        <Form.Control type="number" {...fieldProps("brRadius")} />
                     </FormEntry>
                 </Tab>
                 <Tab eventKey="condition1" title="Cond 1">
-                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} />
+                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
                 <Tab eventKey="condition2" title="Cond 2">
-                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} />
+                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
                 <Tab eventKey="condition3" title="Cond 3">
-                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} />
+                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
             </Tabs>
         </>
@@ -245,7 +203,6 @@ function Editor({ control, setProp, globals }) {
 }
 
 function Renderer({ control, size, points }) {
-    const setts = control.setts
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -344,5 +301,8 @@ function Renderer({ control, size, points }) {
 function Pointer(data, add) {
     if (data.point) add(data.point)
 }
+
+const Type = "Label"
+const Init = Initial.data
 
 export default { Type, Init, Editor, Renderer, Validator, Pointer }

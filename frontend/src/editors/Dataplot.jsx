@@ -44,7 +44,7 @@ function Editor(props) {
         setColumns(next)
     }
     function settsProps(prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 const next = { ...setts }
                 next[name] = value
@@ -55,13 +55,13 @@ function Editor(props) {
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
         args.value = setts[prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
     function columnProps(index, prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 const next = [...columns]
                 next[index][name] = value
@@ -72,7 +72,7 @@ function Editor(props) {
         args.label = Initial.labels.columns[prop](index)
         args.hint = Initial.hints.columns[prop](index)
         args.value = columns[index][prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = (value) => Initial.checks.columns[prop](index, value)
         args.defval = Initial.column()[prop]
         return Check.props(args)

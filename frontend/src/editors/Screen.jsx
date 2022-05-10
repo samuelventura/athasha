@@ -154,6 +154,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
             event.stopPropagation()
+            console.log("onClickControl setSelected", index, control)
             setSelected({ index, control })
         }
         function onPointerDown(e, index, control) {
@@ -202,8 +203,9 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             setDragged({ ...dragged, frame })
             if (final) {
                 const control = dragged.control
-                setCSetts(control, 'posX', point.posX)
-                setCSetts(control, 'posY', point.posY)
+                //prevent unexpected updates
+                if (cetts.posX !== point.posX) setCSetts(control, 'posX', point.posX)
+                if (cetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
             }
         }
         function onPointerMove(e) {
@@ -265,11 +267,11 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
 }
 
 function LeftPanel({ show, setShow, addControl }) {
-    const controlList = Controls.registeredMapper((controler, index) => {
+    const controlList = Controls.registeredMapper((controller, index) => {
         return (<ListGroup.Item action key={index}
-            title={`Add new ${controler.Type}`}
-            onClick={() => addControl(controler)}>
-            {controler.Type}</ListGroup.Item>)
+            title={`Add new ${controller.Type}`}
+            onClick={() => addControl(controller)}>
+            {controller.Type}</ListGroup.Item>)
     })
     return show ? (
         <Card>
@@ -292,7 +294,7 @@ function LeftPanel({ show, setShow, addControl }) {
 function ScreenEditor({ setShow, setts, setSetts, preview }) {
     const [captured, setCaptured] = useState(null)
     function settsProps(prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 const next = { ...setts }
                 next[name] = value
@@ -303,7 +305,7 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
         args.value = setts[prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
         return Check.props(args)
@@ -362,13 +364,15 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
+function ControlEditor({ setShow, selected, setCSetts, maxX, maxY, actionControl,
     setDataProp, preview, globals }) {
+    console.log("ControlEditor", selected)
     const [captured, setCaptured] = useState(null)
+    const { control } = selected
     const setts = control.setts
     const controller = Controls.getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, globals }) : null
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, globals, captured, setCaptured }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -380,16 +384,16 @@ function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
         {controlProps}
     </Card>)
     function settsProps(prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
-                setSetts(name, value)
+                setCSetts(control, name, value)
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.clabels[prop]
         args.hint = Initial.chints[prop]
         args.value = setts[prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = Initial.cchecks[prop]
         args.defval = Initial.csetts()[prop]
         return Check.props(args)
@@ -446,7 +450,6 @@ function ControlEditor({ setShow, control, setSetts, maxX, maxY, actionControl,
 
 function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
     setCSetts, setDataProp, preview, globals }) {
-    const { control } = selected
     const screenEditor = <ScreenEditor
         setShow={setShow}
         setts={setts}
@@ -455,8 +458,8 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
     />
     const controlEditor = <ControlEditor
         setShow={setShow}
-        control={control}
-        setSetts={(name, value) => setCSetts(control, name, value)}
+        selected={selected}
+        setCSetts={setCSetts}
         maxX={setts.gridX - 1}
         maxY={setts.gridY - 1}
         actionControl={actionControl}
@@ -539,6 +542,7 @@ function Editor(props) {
     }, [setts, controls])
     function setCSetts(control, name, value) {
         const next = [...controls]
+        console.log(control.setts.posY, name, value)
         control.setts[name] = value
         setControls(next)
     }

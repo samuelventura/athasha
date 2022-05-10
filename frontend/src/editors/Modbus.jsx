@@ -55,7 +55,7 @@ function Editor(props) {
         setInputs(next)
     }
     function settsProps(prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 const next = { ...setts }
                 next[name] = value
@@ -66,13 +66,13 @@ function Editor(props) {
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
         args.value = setts[prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
-        function setProp(name) {
+        function setter(name) {
             return function (value) {
                 setInputProp(index, name, value)
             }
@@ -81,7 +81,7 @@ function Editor(props) {
         args.label = Initial.labels.inputs[prop](index)
         args.hint = Initial.hints.inputs[prop](index)
         args.value = inputs[index][prop]
-        args.setter = setProp(prop)
+        args.setter = setter(prop)
         args.check = (value) => Initial.checks.inputs[prop](index, value)
         args.defval = Initial.input()[prop]
         return Check.props(args)

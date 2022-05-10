@@ -1,5 +1,5 @@
-import ControlFrame from '../controls/Frame'
-import ControlLabel from '../controls/Label'
+import ControlFrame from '../controls/Frame.jsx'
+import ControlLabel from '../controls/Label.jsx'
 
 const registeredMap = {}
 const registeredList = []

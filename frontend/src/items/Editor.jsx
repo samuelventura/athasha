@@ -31,7 +31,7 @@ function Editor(props) {
     }
     //id required for view url formation
     function itemEditor(type) {
-        const state = { globals }
+        const state = { accept, globals }
         const match = item.id && type === item.type
         state.config = match ? cloned() : {}
         state.id = match ? item.id : ""
