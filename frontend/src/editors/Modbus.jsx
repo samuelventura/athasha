@@ -12,7 +12,7 @@ import Initial from './Modbus.js'
 import Serial from "./Serial"
 import Check from './Check'
 
-function ItemEditor(props) {
+function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [inputs, setInputs] = useState(Initial.config().inputs)
     const [trigger, setTrigger] = useState(0)
@@ -226,4 +226,4 @@ function ItemEditor(props) {
     )
 }
 
-export default ItemEditor
+export default Editor

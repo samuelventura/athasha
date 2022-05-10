@@ -7,10 +7,6 @@ import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
-import { checkRange } from "../editors/Validation"
-import { checkNotBlank } from "../editors/Validation"
-import { checkBoolean } from "../editors/Validation"
-import { fixInputValue } from "../editors/Validation"
 
 const Type = "Label"
 
@@ -121,17 +117,17 @@ function Init() {
 function Validator(control) {
     const data = control.data
     let valid = true
-    valid = valid && checkBoolean(data.bgEnabled)
-    //valid = valid && checkNotBlank(data.text)
-    valid = valid && checkNotBlank(data.align)
-    valid = valid && checkNotBlank(data.bgColor)
-    valid = valid && checkNotBlank(data.fgColor)
-    valid = valid && checkNotBlank(data.ftFamily)
-    valid = valid && checkRange(data.ftSize, 1)
-    valid = valid && checkNotBlank(data.brColor)
-    valid = valid && checkRange(data.brWidth, 0)
-    valid = valid && checkRange(data.brRadius, 0)
-    valid = valid && checkNotBlank(data.cdType)
+    // valid = valid && checkBoolean(data.bgEnabled)
+    // //valid = valid && checkNotBlank(data.text)
+    // valid = valid && checkNotBlank(data.align)
+    // valid = valid && checkNotBlank(data.bgColor)
+    // valid = valid && checkNotBlank(data.fgColor)
+    // valid = valid && checkNotBlank(data.ftFamily)
+    // valid = valid && checkRange(data.ftSize, 1)
+    // valid = valid && checkNotBlank(data.brColor)
+    // valid = valid && checkRange(data.brWidth, 0)
+    // valid = valid && checkRange(data.brRadius, 0)
+    // valid = valid && checkNotBlank(data.cdType)
     return valid
 }
 
@@ -155,7 +151,6 @@ function Editor({ control, setProp, points }) {
         return function (name, value, e) {
             const next = { ...data[cond] }
             const prev = next[name]
-            value = fixInputValue(e, value, prev)
             next[name] = value
             setProp(cond, next)
         }

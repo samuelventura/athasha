@@ -15,52 +15,10 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
-import { fixInputValue } from "./Validation"
 import Controls from './Controls'
 import { useApp } from '../App'
 import Initial from './Screen.js'
 import Check from './Check'
-
-function ItemInitial() {
-    return {
-        setts: initialSetts(),
-        controls: [],
-        points: [],
-    }
-}
-
-function initialSetts() {
-    return {
-        period: "100",
-        scale: 'fit', align: 'center',
-        width: '640', height: '480',
-        gridX: '10', gridY: '10',
-        bgColor: "#ffffff",
-        password: "",
-    }
-}
-
-function initialControl() {
-    return {
-        type: "none",
-        setts: initialControlSetts(),
-        data: {},
-    }
-}
-
-function initialSelected() {
-    return {
-        index: -1,
-        control: {},
-    }
-}
-
-function initialControlSetts() {
-    return {
-        posX: '0', posY: '0',
-        width: '1', height: '1',
-    }
-}
 
 function calcAlign(align, d, D) {
     switch (align) {
@@ -483,7 +441,7 @@ function PreviewControl({ accept, preview, setPreview, id }) {
     </span>)
 }
 
-function ItemEditor(props) {
+function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [controls, setControls] = useState(Initial.config().controls)
     const [selected, setSelected] = useState(() => Initial.selected())
@@ -491,7 +449,7 @@ function ItemEditor(props) {
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
     useEffect(() => {
-        const init = ItemInitial()
+        const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
         const previous = config.controls || init.controls
@@ -640,4 +598,4 @@ function ItemEditor(props) {
     )
 }
 
-export default ItemEditor
+export default Editor

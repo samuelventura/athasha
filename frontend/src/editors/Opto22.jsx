@@ -11,7 +11,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Opto22.js'
 import Check from './Check'
 
-function ItemEditor(props) {
+function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [inputs, setInputs] = useState(Initial.config().inputs)
     const [captured, setCaptured] = useState(null)
@@ -167,4 +167,4 @@ function ItemEditor(props) {
     )
 }
 
-export default ItemEditor
+export default Editor
