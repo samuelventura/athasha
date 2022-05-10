@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -13,13 +13,13 @@ import Files from './Files'
 import Initials from "./Initials"
 import Types from "./Types"
 import { useApp } from '../App'
-import { useFocus } from '../Focus'
 
 function DeleteItem() {
     const app = useApp()
     const targeted = app.state.targeted
     const action = targeted.action
     const item = targeted.item
+    const [name, setName] = useState("")
     function isActive() { return action === "delete" }
     function onCancel() {
         app.dispatch({ name: "target", args: {} })
@@ -28,13 +28,18 @@ function DeleteItem() {
         app.send({ name: "delete", args: { id: item.id } })
         app.dispatch({ name: "target", args: {} })
     }
-    return isActive() ? (
-        <Modal show={true} onHide={onCancel} centered>
+    useEffect(() => {
+        if (isActive()) {
+            setName(item.name)
+        }
+    }, [targeted.action])
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Danger</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Delete item '{item.name}'?
+                Delete item '{name}'?
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onCancel}>
@@ -45,7 +50,7 @@ function DeleteItem() {
                 </Button>
             </Modal.Footer>
         </Modal>
-    ) : null
+    )
 }
 
 function RenameItem() {
@@ -53,7 +58,7 @@ function RenameItem() {
     const targeted = app.state.targeted
     const action = targeted.action
     const item = targeted.item
-    const focus = useFocus();
+    const focus = useRef(null)
     const [name, setName] = useState("")
     function isActive() { return action === "rename" }
     function isValid() { return (name.trim().length) }
@@ -74,15 +79,23 @@ function RenameItem() {
     useEffect(() => {
         if (isActive()) {
             setName(item.name)
+            //autoFocus fails with inputs but works with select above
+            setTimeout(() => {
+                const el = focus.current
+                if (el) {
+                    el.focus()
+                    el.select()
+                }
+            }, 0)
         }
     }, [targeted.action])
-    return isActive() ? (
-        <Modal show={true} onHide={onCancel} centered>
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Rename</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Control ref={focus} type="text" placeholder="New Name"
+                <Form.Control autoFocus ref={focus} type="text" placeholder="New Name"
                     onKeyPress={onKeyPress}
                     value={name} onChange={e => setName(e.target.value)} />
             </Modal.Body>
@@ -95,14 +108,13 @@ function RenameItem() {
                 </Button>
             </Modal.Footer>
         </Modal>
-    ) : null
+    )
 }
 
 function NewItem() {
     const app = useApp()
     const targeted = app.state.targeted
     const action = targeted.action
-    const focus = useFocus();
     const [name, setName] = useState("")
     const [type, setType] = useState("")
     function isActive() { return action === "new" }
@@ -140,15 +152,15 @@ function NewItem() {
     function options() {
         return Types.names.map((type, index) => (<option key={index} value={type}>{type}</option>))
     }
-    return isActive() ? (
-        <Modal show={true} onHide={onCancel} centered>
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
             <Modal.Header closeButton>
                 <Modal.Title>New</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
-                    <Form.Select ref={focus} value={type} onChange={e => onTypeChanged(e.target.value)}>
+                    <Form.Select autoFocus value={type} onChange={e => onTypeChanged(e.target.value)}>
                         <option></option>
                         {options()}
                     </Form.Select>
@@ -169,7 +181,7 @@ function NewItem() {
                 </Button>
             </Modal.Footer>
         </Modal>
-    ) : null
+    )
 }
 
 function ToolsButton() {
