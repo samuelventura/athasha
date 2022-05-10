@@ -147,15 +147,24 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
     const invertedBgC = invertColor(fsetts.bgColor, false)
     function controlRender(control, index) {
         const cetts = Initial.fixCSetts(control.setts)
+        //always draw them inside
+        const mpos = { posX: gx - cetts.width, posY: gy - cetts.height }
+        mpos.posX = mpos.posX < 0 ? 0 : mpos.posX
+        mpos.posY = mpos.posY < 0 ? 0 : mpos.posY
+        cetts.posX = cetts.posX > mpos.posX ? mpos.posX : cetts.posX
+        cetts.posY = cetts.posY > mpos.posY ? mpos.posY : cetts.posY
         const x = cetts.posX * sx
         const y = cetts.posY * sy
         const w = cetts.width * sx
         const h = cetts.height * sy
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
-            event.stopPropagation()
-            console.log("onClickControl setSelected", index, control)
-            setSelected({ index, control })
+            event.stopPropagation() //prevent screen click and selection clear
+            console.log("onClickControl", index, control)
+        }
+        function onFocusControl(event, index, control) {
+            console.log("onFocusControl", index, control)
+            //setTimeout(() => setSelected({ index, control }), 1000)
         }
         function onPointerDown(e, index, control) {
             const setts = control.setts
@@ -233,10 +242,13 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             onPointerDown: (e) => onPointerDown(e, index, control),
             onPointerMove: (e) => onPointerMove(e),
             onPointerUp: (e) => onPointerUp(e),
+            onFocus: (e) => onFocusControl(e, index, control),
             onClick: (e) => onClickControl(e, index, control),
         } : {}
+        //setting tabIndex adds a selection border that extends to the inner contents
         return (
-            <svg key={index} x={x} y={y} width={w} height={h} className="draggable"
+            <svg key={index} tabIndex={index} x={x} y={y}
+                width={w} height={h} className="draggable"
                 {...controlEvents}>
                 {controlInstance}
                 {controlBorder}

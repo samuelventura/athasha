@@ -94,10 +94,13 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
     function remove() { setCaptured(null) }
     function apply(e, val) {
         try {
-            setter(val)
-            check(val)
-            capture(val)
-            e.target.classList.remove("is-invalid");
+            //do not trigger full validations on each blur
+            if (val != value) {
+                setter(val)
+                check(val)
+                capture(val)
+                e.target.classList.remove("is-invalid");
+            }
             return true
         }
         catch (ex) {
@@ -125,6 +128,7 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
             apply(e, e.target.value)
         },
         onBlur: function (e) {
+            console.log("onBlur", captured)
             if (!apply(e, recover())) apply(e, defval)
             remove()
         },
