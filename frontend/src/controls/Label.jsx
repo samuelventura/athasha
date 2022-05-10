@@ -333,7 +333,7 @@ function Renderer({ control, size, points }) {
         <svg>
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                 fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
-            <text x={x} y="50%" dominantBaseline="central" fill={fgColor} style={{ pointerEvents: "none" }}
+            <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
                 textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
                 {text}
             </text>

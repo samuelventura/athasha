@@ -169,7 +169,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
                 e.target.releasePointerCapture(e.pointerId)
             }
             const frame = JSON.parse(JSON.stringify(control))
-            setDragged({ index, control, cleanup, frame })
+            setDragged({ index, control, cleanup, frame, width, height })
             setSelected({ index, control })
             e.target.setPointerCapture(e.pointerId)
         }
@@ -180,8 +180,9 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         }
         function svgCoord(el, e, o) {
             o = o || { x: 0, y: 0 }
-            const maxX = gx - 1
-            const maxY = gy - 1
+            //unreliabl to drag beyond the right and bottom edges
+            const maxX = gx - dragged.width
+            const maxY = gy - dragged.height
             const box = el.getBoundingClientRect()
             const clientX = e.clientX - box.left
             const clientY = e.clientY - box.top
@@ -218,8 +219,10 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         const borderStroke = isSelected ? "4" : "2"
         const controller = Controls.getController(control.type)
         const controlInstance = controller.Renderer({ control, size })
+        const isDragged = dragged.index === index || index < 0
+        const borderOpacity = isDragged ? "0.5" : "0"
         const controlBorder = !preview ? (
-            <rect width="100%" height="100%" fill="white" fillOpacity="0"
+            <rect width="100%" height="100%" fill="white" fillOpacity={borderOpacity}
                 stroke={invertedBgC} strokeWidth={borderStroke} />) : null
         return (
             <svg key={index} x={x} y={y} width={w} height={h} className="draggable"

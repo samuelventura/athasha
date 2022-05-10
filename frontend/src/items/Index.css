@@ -28,3 +28,10 @@ svg.draggable {
 input::-webkit-calendar-picker-indicator {
     color: white;
 }
+
+svg text {
+    -webkit-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
