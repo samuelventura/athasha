@@ -20,9 +20,9 @@ function setts() {
     }
 }
 
-function slave() {
+function slave(index) {
     return {
-        address: "1",
+        address: `${1 + (index || 0)}`,
         decimals: "0",
         inputs: [input()],
     }
@@ -45,13 +45,17 @@ const labels = {
         address: "Slave Address",
         decimals: "Decimal Digits",
     },
+    input: {
+        code: "Register Name",
+        name: "Input Name",
+    },
     slaves: {
         address: (i) => `Slave ${i + 1} Address`,
         decimals: (i) => `Slave ${i + 1} Decimal Digits`,
     },
     inputs: {
         code: (i) => `Input ${i + 1} Register Name`,
-        name: (i) => `Input ${i + 1} Input Name`,
+        name: (i) => `Input ${i + 1} Name`,
     }
 }
 

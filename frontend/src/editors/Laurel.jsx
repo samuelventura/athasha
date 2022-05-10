@@ -42,8 +42,7 @@ function Editor(props) {
     }, [setts, slaves])
     function addSlave() {
         const next = [...slaves]
-        const slave = Initial.slave()
-        slave.address = `${next.length + 1}`
+        const slave = Initial.slave(next.length)
         next.push(slave)
         setTab("tab" + slaves.length)
         setSlaves(next)
@@ -277,8 +276,8 @@ function Editor(props) {
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Register Name</th>
-                            <th>Input Name</th>
+                            <th>{Initial.labels.input.code}</th>
+                            <th>{Initial.labels.input.name}</th>
                             <th>
                                 <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
                                     title="Add Input">

@@ -142,8 +142,8 @@ function Editor(props) {
             <Table>
                 <thead>
                     <tr>
-                        <th>Param Reference</th>
-                        <th>Point Name</th>
+                        <th>#</th>
+                        <th>{Initial.labels.point.id}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addPoint}
                                 title="Add Point">

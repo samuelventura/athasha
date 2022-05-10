@@ -19,7 +19,9 @@ function setts() {
 }
 
 function point() {
-    return { id: "" }
+    return {
+        id: "",
+    }
 }
 
 const labels = {
@@ -29,6 +31,9 @@ const labels = {
     unit: "Unit",
     connstr: "Connection String",
     command: "SQL Command",
+    point: {
+        id: "Point Name",
+    },
     points: {
         id: (i) => `Point ${i + 1}`,
     }

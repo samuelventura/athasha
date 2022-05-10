@@ -18,7 +18,12 @@ function setts() {
 }
 
 function input(index) {
-    return { code: "01", module: "0", number: "0", name: `Input ${1 + (index || 0)}` }
+    return {
+        code: "01",
+        module: "0",
+        number: "0",
+        name: `Input ${1 + (index || 0)}`
+    }
 }
 
 const labels = {

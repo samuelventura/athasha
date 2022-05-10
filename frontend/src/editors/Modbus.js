@@ -21,7 +21,12 @@ function setts() {
 }
 
 function input(index) {
-    return { slave: "1", code: "01", address: `${index || 0}`, name: `Input ${1 + (index || 0)}` }
+    return {
+        slave: "1",
+        code: "01",
+        address: `${index || 0}`,
+        name: `Input ${1 + (index || 0)}`
+    }
 }
 
 const labels = {

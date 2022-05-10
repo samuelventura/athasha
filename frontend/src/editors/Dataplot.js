@@ -34,7 +34,10 @@ function column(index) {
     index = index || 0
     const name = index ? `Column ${index + 1}` : "DateTime"
     const color = getUniqueColor(index)
-    return { name, color }
+    return {
+        name,
+        color
+    }
 }
 
 const labels = {

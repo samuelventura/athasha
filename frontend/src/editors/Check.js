@@ -103,6 +103,9 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
         title: `${label}\n${hint}`,
         placeholder: label,
         onFocus: function (e) {
+            if (captured != null) {
+                throw `Not null captured ${captured}`
+            }
             capture(e.target.value)
             apply(e, e.target.value)
         },
