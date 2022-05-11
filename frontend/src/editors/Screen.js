@@ -60,9 +60,9 @@ const labels = {
 
 const hints = {
     password: "Optional screen password",
-    period: "Non empty integer insert period > 0",
+    period: "Non empty integer update period > 0",
     scale: "Select scale from list",
-    align: "Select align from list",
+    align: "Select alignment from list",
     width: "Non empty integer > 0",
     height: "Non empty integer > 0",
     gridX: "Non empty integer > 0",

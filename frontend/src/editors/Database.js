@@ -40,10 +40,10 @@ const labels = {
 }
 
 const hints = {
-    database: "The type of database",
+    database: "Select the database type from the list",
     dbpass: "Optional database password",
     period: "Non empty integer insert period > 0",
-    unit: "One of the listed time units",
+    unit: "Select time unit from the list",
     connstr: "Non empty connection string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
     command: "An SQL insert command, function or store procedure call\nUse @n to reference the nth point\nFor instance @1 references point 1\nConsult your TI specialist",
     points: {

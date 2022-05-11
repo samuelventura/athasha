@@ -60,7 +60,7 @@ const labels = {
 }
 
 const hints = {
-    database: "The type of database",
+    database: "Select the database type from the list",
     dbpass: "Optional database password",
     password: "Optional dataplot password",
     connstr: "Non empty connection string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
