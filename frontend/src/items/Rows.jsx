@@ -132,7 +132,7 @@ function Rows(props) {
             <td className={enabledClass(item)}>
                 <img src={Types.icon(item.type)} width="20"
                     alt={item.type} className='me-2' />
-                <span className='align-middle'>{item.name}</span>
+                <span className='align-middle user-select-none'>{item.name}</span>
                 <StatusBadge item={item} />
             </td>
             <td>

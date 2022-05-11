@@ -159,12 +159,13 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         const h = cetts.height * sy
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event, index, control) {
-            event.stopPropagation() //prevent screen click and selection clear
-            console.log("onClickControl", index, control)
-        }
-        function onFocusControl(event, index, control) {
-            console.log("onFocusControl", index, control)
-            //setTimeout(() => setSelected({ index, control }), 1000)
+            //prevent screen click and selection clear
+            event.stopPropagation()
+            //last change in control settings is applied
+            //to newly selected control if selected right away
+            //select on timeout to sync Checks.props blur
+            setTimeout(() => setSelected({ index, control }), 0)
+            //do not select anywhere else
         }
         function onPointerDown(e, index, control) {
             const setts = control.setts
@@ -180,7 +181,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             }
             const frame = JSON.parse(JSON.stringify(control))
             setDragged({ index, control, cleanup, frame, width, height })
-            setSelected({ index, control })
             e.target.setPointerCapture(e.pointerId)
         }
         function fixMinMax(p, min, max) {
@@ -242,12 +242,11 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             onPointerDown: (e) => onPointerDown(e, index, control),
             onPointerMove: (e) => onPointerMove(e),
             onPointerUp: (e) => onPointerUp(e),
-            onFocus: (e) => onFocusControl(e, index, control),
             onClick: (e) => onClickControl(e, index, control),
         } : {}
         //setting tabIndex adds a selection border that extends to the inner contents
         return (
-            <svg key={index} tabIndex={index} x={x} y={y}
+            <svg key={index} x={x} y={y}
                 width={w} height={h} className="draggable"
                 {...controlEvents}>
                 {controlInstance}
@@ -378,7 +377,6 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
 
 function ControlEditor({ setShow, selected, setCSetts, maxX, maxY, actionControl,
     setDataProp, preview, globals }) {
-    console.log("ControlEditor", selected)
     const [captured, setCaptured] = useState(null)
     const { control } = selected
     const setts = control.setts
@@ -554,7 +552,6 @@ function Editor(props) {
     }, [setts, controls])
     function setCSetts(control, name, value) {
         const next = [...controls]
-        console.log(control.setts.posY, name, value)
         control.setts[name] = value
         setControls(next)
     }

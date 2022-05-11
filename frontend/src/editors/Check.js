@@ -128,8 +128,9 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
             apply(e, e.target.value)
         },
         onBlur: function (e) {
-            console.log("onBlur", captured)
-            if (!apply(e, recover())) apply(e, defval)
+            if (!apply(e, recover())) {
+                apply(e, defval)
+            }
             remove()
         },
     }
