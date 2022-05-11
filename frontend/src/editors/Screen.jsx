@@ -161,27 +161,28 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         function onClickControl(event, index, control) {
             //prevent screen click and selection clear
             event.stopPropagation()
-            //last change in control settings is applied
-            //to newly selected control if selected right away
-            //select on timeout to sync Checks.props blur
-            setTimeout(() => setSelected({ index, control }), 0)
-            //do not select anywhere else
         }
-        function onPointerDown(e, index, control) {
+        function onPointerDown(event, index, control) {
             const setts = control.setts
             const posX = Number(setts.posX)
             const posY = Number(setts.posY)
             const width = Number(setts.width)
             const height = Number(setts.height)
-            const point = svgCoord(ref.current, e)
+            const point = svgCoord(ref.current, event)
             setOffset({ x: point.posX - posX, y: point.posY - posY })
             const cleanup = function () {
                 setDragged(initialDragged())
-                e.target.releasePointerCapture(e.pointerId)
+                event.target.releasePointerCapture(event.pointerId)
             }
             const frame = JSON.parse(JSON.stringify(control))
             setDragged({ index, control, cleanup, frame, width, height })
-            e.target.setPointerCapture(e.pointerId)
+            event.target.setPointerCapture(event.pointerId)
+            //firefox click never fires
+            //last change in control settings is applied
+            //to newly selected control if selected right away
+            //select on timeout to sync Checks.props blur
+            //do not select anywhere else
+            setTimeout(() => setSelected({ index, control }), 0)
         }
         function fixMinMax(p, min, max) {
             if (p < min) return min
@@ -202,8 +203,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
             return { svgX, svgY, posX, posY }
         }
-        function moveControl(e, final) {
-            const point = svgCoord(ref.current, e, offset)
+        function moveControl(event, final) {
+            const point = svgCoord(ref.current, event, offset)
             point.posX = `${point.posX}`
             point.posY = `${point.posY}`
             const frame = dragged.frame
@@ -217,14 +218,14 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
                 if (cetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
             }
         }
-        function onPointerMove(e) {
+        function onPointerMove(event) {
             if (dragged.index >= 0) {
-                moveControl(e, false)
+                moveControl(event, false)
             }
         }
-        function onPointerUp(e) {
+        function onPointerUp(event) {
             if (dragged.index >= 0) {
-                moveControl(e, true)
+                moveControl(event, true)
                 dragged.cleanup()
             }
         }
