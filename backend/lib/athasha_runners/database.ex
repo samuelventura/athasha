@@ -40,10 +40,24 @@ defmodule Athasha.DatabaseRunner do
     Items.update_status!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
+    wait_ack(port, :connect)
     Items.update_status!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(item, config, port)
+  end
+
+  defp wait_ack(port, action) do
+    receive do
+      {^port, {:data, "ok"}} ->
+        :ok
+
+      {^port, {:data, <<"ex:", msg::binary>>}} ->
+        Raise.error({action, msg})
+
+      other ->
+        Raise.error({:receive, other})
+    end
   end
 
   defp run_loop(item, config, port) do
@@ -81,6 +95,7 @@ defmodule Athasha.DatabaseRunner do
 
     dto = %{command: config.command, parameters: parameters}
     true = Port.command(port, ["b", Jason.encode!(dto)])
+    wait_ack(port, :insert)
   end
 
   defp connect_port(config) do
@@ -90,5 +105,5 @@ defmodule Athasha.DatabaseRunner do
 
   defp type_of(value) when is_float(value), do: "float"
   defp type_of(value) when is_integer(value), do: "integer"
-  defp type_of(value) when is_binary(value), do: "string"
+  defp type_of(value) when is_struct(value, Decimal), do: "decimal"
 end

@@ -18,32 +18,40 @@ using (var stdin = Console.OpenStandardInput())
         if (connstr == null) return;
         using (var db = Database.Factory(dbtype, connstr))
         {
-            while (true)
+            try
             {
-                var data = stdio.Read();
-                if (data == null) return;
-                var cmd = (char)data[0];
-                switch (cmd)
+                db.Connect();
+                stdio.WriteString("ok");
+                while (true)
                 {
-                    case 'b': //database
-                        {
-                            var json = encoder.GetString(data, 1, data.Length - 1);
-                            var dto = JsonSerializer.Deserialize<DatabaseDto>(json);
-                            db.ExecDatabase(dto);
-                            break;
-                        }
-                    case 'p': //dataplot
-                        {
-                            var json = encoder.GetString(data, 1, data.Length - 1);
-                            var dto = JsonSerializer.Deserialize<DataplotDto>(json);
-                            var resp = db.ExecDataplot(dto);
-                            stdio.WriteString(resp);
-                            break;
-                        }
-                    default:
-                        throw new Exception("Unknown command");
+                    var data = stdio.Read();
+                    if (data == null) return;
+                    var cmd = (char)data[0];
+                    switch (cmd)
+                    {
+                        case 'b': //database
+                            {
+                                var json = encoder.GetString(data, 1, data.Length - 1);
+                                var dto = JsonSerializer.Deserialize<DatabaseDto>(json);
+                                db.ExecDatabase(dto);
+                                stdio.WriteString("ok");
+                                break;
+                            }
+                        case 'p': //dataplot
+                            {
+                                var json = encoder.GetString(data, 1, data.Length - 1);
+                                var dto = JsonSerializer.Deserialize<DataplotDto>(json);
+                                var resp = db.ExecDataplot(dto);
+                                stdio.WriteString("ok");
+                                stdio.WriteString(resp);
+                                break;
+                            }
+                        default:
+                            throw new Exception("Unknown command");
+                    }
                 }
             }
+            catch (Exception ex) { stdio.WriteString("ex:" + ex.Message); throw; }
         }
     }
 }

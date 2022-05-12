@@ -99,9 +99,6 @@ function Editor(props) {
             </td>
         </tr>
     )
-    function onUpdate() {
-        props.accept("save-update")
-    }
     function onView() {
         window.open(`dataplot.html?id=${props.id}`, '_blank').focus();
     }
@@ -123,10 +120,6 @@ function Editor(props) {
                 </Col>
                 <Col></Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-end">
-                    <Button variant='link' size="sm" title="Apply Changes"
-                        onClick={onUpdate}>
-                        Update
-                    </Button>
                     <Button variant='link' size="sm" title="Launch Viewer"
                         onClick={onView}>
                         View

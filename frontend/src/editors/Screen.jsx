@@ -483,10 +483,7 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
     )
 }
 
-function PreviewControl({ accept, preview, setPreview, id }) {
-    function onUpdate() {
-        accept("save-update")
-    }
+function PreviewControl({ preview, setPreview, id }) {
     function onView() {
         window.open(`screen.html?id=${id}`, '_blank').focus();
     }
@@ -495,10 +492,6 @@ function PreviewControl({ accept, preview, setPreview, id }) {
         <Form.Check type="switch" checked={preview} onChange={e => setPreview(e.target.checked)}
             title="Toggle Preview Mode">
         </Form.Check>
-        <Button variant='link' size="sm" title="Apply Changes"
-            onClick={onUpdate}>
-            Update
-        </Button>
         <Button variant='link' size="sm" title="Launch Viewer"
             onClick={onView}>
             View
@@ -622,7 +615,6 @@ function Editor(props) {
     const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
     const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}
     const previewControl = <PreviewControl
-        accept={props.accept}
         preview={preview}
         setPreview={setPreview}
         id={props.id}

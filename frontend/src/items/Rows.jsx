@@ -107,11 +107,15 @@ function Rows(props) {
         }
     }
 
+    function statusOnClick(status) {
+        navigator.clipboard.writeText(status.msg)
+    }
+
     function StatusBadge({ item }) {
         const status = app.state.status[item.id]
         return (
             <Badge pill bg={statusBg(item, status)} title={statusTitle(item, status)}
-                className='ms-2 user-select-none'>
+                onClick={() => statusOnClick(status)} className='ms-2 user-select-none'>
                 {statusMsg(item, status)}
             </Badge>
         )

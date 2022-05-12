@@ -1,13 +1,18 @@
 using System;
 using System.Text.Json;
-using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerDatabase : Database
 {
+    private string connstr;
     private SqlConnection conn;
 
     public SqlServerDatabase(string connstr)
+    {
+        this.connstr = connstr;
+    }
+
+    public override void Connect()
     {
         conn = new SqlConnection(connstr);
         conn.Open();
@@ -15,7 +20,7 @@ public class SqlServerDatabase : Database
 
     public override void Dispose()
     {
-        conn.Dispose();
+        if (conn != null) conn.Dispose();
     }
 
     public override string ExecDataplot(DataplotDto dto)
@@ -58,11 +63,11 @@ public class SqlServerDatabase : Database
         var je = (JsonElement)dto.value;
         switch (dto.type)
         {
-            case "float":
+            case "float": //tested with Opto22 analog
                 return je.GetDouble();
-            case "integer":
+            case "integer": //tested with booleans
                 return je.GetInt64();
-            case "string":
+            case "decimal": //tested with Laurel Item 1
                 return je.GetString();
             default:
                 throw new Exception("Unknown param type");

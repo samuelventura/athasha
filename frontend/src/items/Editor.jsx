@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal'
 import Types from './Types'
 import { useApp } from '../App'
 
-function EditItem(props) {
+function EditItem() {
     const app = useApp()
     const targeted = app.state.targeted
     const action = targeted.action
@@ -26,16 +26,21 @@ function EditItem(props) {
     function onAccept(action) {
         const id = item.id
         switch (action) {
-            case "save":
+            case "save-only":
                 app.send({ name: "edit", args: { id, config } })
                 break
             case "save-close":
                 app.send({ name: "edit", args: { id, config } })
                 app.dispatch({ name: "target", args: {} })
                 break
-            case "save-update":
+            case "update-only":
                 app.send({ name: "edit", args: { id, config } })
                 app.send({ name: "enable", args: { id, enabled: true } })
+                break
+            case "update-close":
+                app.send({ name: "edit", args: { id, config } })
+                app.send({ name: "enable", args: { id, enabled: true } })
+                app.dispatch({ name: "target", args: {} })
                 break
         }
     }
@@ -44,7 +49,7 @@ function EditItem(props) {
     }
     //id required for view url formation
     function itemEditor(type) {
-        const state = { accept: onAccept, globals: { points: app.state.points } }
+        const state = { globals: { points: app.state.points } }
         const match = item.id && type === item.type
         state.config = match ? cloned() : {}
         state.id = match ? item.id : ""
@@ -82,11 +87,17 @@ function EditItem(props) {
                 <Button variant="secondary" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("save")}>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("save-only")}>
                     Save
                 </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("save-close")}>
                     Save and Close
+                </Button>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("update-only")}>
+                    Update
+                </Button>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("update-close")}>
+                    Update and Close
                 </Button>
             </Modal.Footer>
         </Modal>
