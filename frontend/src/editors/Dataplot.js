@@ -49,7 +49,7 @@ const labels = {
     command: "SQL Command",
     ymin: "Plot Minimum Y Value",
     ymax: "Plot Maximum Y Value",
-    yformat: "Axis Y tick format",
+    yformat: "Axis Y Tick Format",
     lineWidth: "Plot Line Width",
     column: {
         name: "Column Name",
