@@ -96,8 +96,10 @@ function Editor(props) {
             </td>
         </tr>
     )
-    function onTestConnectionString() {
-        Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass)
+    function onTestConnstr(e) {
+        e.target.disabled = true
+        function done() { e.target.disabled = false }
+        Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
     return (
         <Form>
@@ -129,7 +131,7 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-start">
-                    <Button variant="link" onClick={onTestConnectionString} title="Test Connection String">
+                    <Button variant="link" onClick={(e) => onTestConnstr(e)} title="Test Connection String">
                         Test
                     </Button>
                 </Col>

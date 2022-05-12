@@ -13,8 +13,6 @@ const wsQuery = locurl.search
 
 let logEnabled = import.meta.env.DEV
 
-window.enableLog = enableLog
-
 function log(...args) {
     if (logEnabled) {
         console.log(...args)
@@ -30,6 +28,10 @@ function reHost(hostname) {
     url.hostname = hostname
     return `${url}`
 }
+
+window.enableLog = enableLog
+window.logOn = () => enableLog(true)
+window.logOff = () => enableLog(false)
 
 const exports = { wsURL, wsQuery, enableLog, log, reHost }
 

@@ -1,6 +1,6 @@
 import Environ from '../Environ'
 
-function testConnectionString(app, database, connstr, dbpass) {
+function testConnectionString(app, database, connstr, dbpass, done) {
     connstr = connstr.replace("${PASSWORD}", dbpass)
     fetch("api/testconnstr", {
         method: "POST",
@@ -19,6 +19,7 @@ function testConnectionString(app, database, connstr, dbpass) {
                     app.errorAlert(r.error)
                     break;
             }
+            if (done) done()
         })
 }
 
