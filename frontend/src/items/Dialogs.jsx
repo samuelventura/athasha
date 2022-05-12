@@ -12,6 +12,7 @@ import Environ from '../Environ'
 import Files from './Files'
 import Initials from "./Initials"
 import Types from "./Types"
+import Tools from "./Tools"
 import { useApp } from '../App'
 
 function DeleteItem() {
@@ -191,7 +192,7 @@ function ToolsButton() {
         window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
     }
     function copyIdentity() {
-        navigator.clipboard.writeText(app.state.identity)
+        Tools.safeCopy(app.state.identity)
     }
     function backupItems() {
         const items = Object.values(app.state.items).map(item => {
@@ -220,7 +221,7 @@ function ToolsButton() {
     function installLicense() {
         Files.upload(Files.licenseExtension, function (data) {
             console.log(data)
-            navigator.clipboard.writeText(data)
+            Tools.safeCopy(data)
             fetch("api/licenses", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -278,7 +279,7 @@ function InfoButton() {
     const ips = app.state.ips.join(" ")
     const tooltip = `Identity: ${identity}\nIPs: ${ips}\nHostname: ${hostname}\nLicenses: ${licenses}`
     const handleOnClick = () => {
-        navigator.clipboard.writeText(tooltip)
+        Tools.safeCopy(tooltip)
     }
     return app.logged ? (
         <Button variant="link" onClick={handleOnClick}

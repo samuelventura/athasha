@@ -11,7 +11,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Dataplot.js'
 import Check from './Check'
-import Tools from './Tools'
+import Tools from '../items/Tools'
 import { useApp } from '../App'
 
 function Editor(props) {

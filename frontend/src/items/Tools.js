@@ -1,3 +1,4 @@
+import Environ from '../Environ'
 
 function testConnectionString(app, database, connstr, dbpass) {
     connstr = connstr.replace("${PASSWORD}", dbpass)
@@ -14,13 +15,23 @@ function testConnectionString(app, database, connstr, dbpass) {
                     app.successAlert("Successful connection!")
                     break;
                 case "er":
-                    navigator.clipboard.writeText(r.error)
+                    safeCopy(r.error)
                     app.errorAlert(r.error)
                     break;
             }
         })
 }
 
+function safeCopy(txt) {
+    try {
+        //ff Uncaught (in promise) DOMException: Clipboard write was blocked due to lack of user activation.
+        navigator.clipboard.writeText(txt)
+    } catch (ex) {
+        Environ.log(ex)
+    }
+}
+
 export default {
     testConnectionString,
+    safeCopy,
 }

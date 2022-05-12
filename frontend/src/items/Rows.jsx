@@ -10,6 +10,7 @@ import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
 import EditItem from "./Editor"
 import Types from "./Types"
+import Tools from "./Tools"
 
 function Rows(props) {
     const app = useApp()
@@ -108,7 +109,7 @@ function Rows(props) {
     }
 
     function statusOnClick(status) {
-        navigator.clipboard.writeText(status.msg)
+        Tools.safeCopy(status.msg)
     }
 
     function StatusBadge({ item }) {

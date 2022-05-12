@@ -11,7 +11,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Points from '../items/Points'
 import Initial from './Database.js'
 import Check from './Check'
-import Tools from './Tools'
+import Tools from '../items/Tools'
 import { useApp } from '../App'
 
 function Editor(props) {
