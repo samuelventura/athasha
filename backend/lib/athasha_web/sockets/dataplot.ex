@@ -29,8 +29,12 @@ defmodule AthashaWeb.DataplotSocket do
   end
 
   # disconnect on any item change but not status change
-  def handle_info({{:item, _}, nil, _}, state) do
+  def handle_info({{:items, _id}, nil, {_from, _version, %{name: "enable"}}}, state) do
     {:stop, :update, state}
+  end
+
+  def handle_info({{:items, _id}, nil, {_from, _version, _muta}}, state) do
+    {:ok, state}
   end
 
   def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do
@@ -53,7 +57,7 @@ defmodule AthashaWeb.DataplotSocket do
     item = Items.find_runner(id)
     Bus.register!({:status, id}, nil)
     Bus.register!({:screen, id}, nil)
-    Bus.register!({:item, id}, nil)
+    Bus.register!({:items, id}, nil)
     Bus.register!({:dataplot, self()}, nil)
     config = item.config
     args = %{id: id, type: item.type, name: item.name, config: config}

@@ -102,9 +102,6 @@ function Editor(props) {
             </td>
         </tr>
     )
-    function onView() {
-        window.open(`dataplot.html?id=${props.id}`, '_blank').focus();
-    }
     function onTestConnstr(e) {
         e.target.disabled = true
         function done() { e.target.disabled = false }
@@ -132,12 +129,6 @@ function Editor(props) {
                     </Button>
                 </Col>
                 <Col></Col>
-                <Col xs={2} className="d-flex align-items-center justify-content-end">
-                    <Button variant='link' size="sm" title="Launch Viewer"
-                        onClick={onView}>
-                        View
-                    </Button>
-                </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />

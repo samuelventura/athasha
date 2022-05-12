@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Types from './Types'
+import Status from "./Status"
 import { useApp } from '../App'
 
 function EditItem() {
@@ -20,34 +21,32 @@ function EditItem() {
             setItem(targeted.item)
         }
     }, [targeted.action])
-    function onCancel() {
-        app.dispatch({ name: "target", args: {} })
-    }
-    function onAccept(action) {
+    function onButton(action) {
         const id = item.id
         switch (action) {
-            case "save-only":
-                app.send({ name: "edit", args: { id, config } })
-                break
-            case "save-close":
-                app.send({ name: "edit", args: { id, config } })
+            case "close":
                 app.dispatch({ name: "target", args: {} })
                 break
-            case "update-only":
-                app.send({ name: "edit", args: { id, config } })
-                app.send({ name: "enable", args: { id, enabled: true } })
+            case "view":
+                const page = item.type.toLowerCase()
+                window.open(`${page}.html?id=${id}`, '_blank').focus();
                 break
-            case "update-close":
+            case "save":
+                app.send({ name: "edit", args: { id, config } })
+                break
+            case "disable":
+                app.send({ name: "enable", args: { id, enabled: false } })
+                break
+            case "save-enable":
                 app.send({ name: "edit", args: { id, config } })
                 app.send({ name: "enable", args: { id, enabled: true } })
-                app.dispatch({ name: "target", args: {} })
                 break
         }
     }
     function cloned() {
         return JSON.parse(JSON.stringify(item.config))
     }
-    //id required for view url formation
+    //id required as use effect flag
     function itemEditor(type) {
         const state = { globals: { points: app.state.points } }
         const match = item.id && type === item.type
@@ -67,12 +66,13 @@ function EditItem() {
             alt={item.type} /> : null
     }
     return (
-        <Modal show={isActive()} onHide={onCancel} backdrop="static"
+        <Modal show={isActive()} onHide={() => onButton("close")} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen>
             <Modal.Header closeButton>
                 <Modal.Title>
                     {itemIcon()}
                     <span className="align-middle">{item.name}</span>
+                    <Status item={item} status={app.state.status[item.id]} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -84,20 +84,26 @@ function EditItem() {
                 {itemEditor("Screen")}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onCancel}>
-                    Cancel
+                <Button variant="secondary" onClick={() => onButton("close")}
+                    title="Close editor without saving changes">
+                    Close
                 </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("save-only")}>
+                <Button variant="secondary" onClick={() => onButton("view")}
+                    disabled={!Types.withView.includes(item.type)}
+                    title="Launch item viewer">
+                    View
+                </Button>
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save")}
+                    title="Save changes but do not apply them yet">
                     Save
                 </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("save-close")}>
-                    Save and Close
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("disable")}
+                    title="Disable the item">
+                    Disable
                 </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("update-only")}>
-                    Update
-                </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onAccept("update-close")}>
-                    Update and Close
+                <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save-enable")}
+                    title="Save and apply changes by re-enable the item">
+                    Save and Enable
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -176,6 +176,7 @@ defmodule Athasha.Server do
     version = state.version + 1
     Items.update_all!(items, version)
     Bus.dispatch!(:items, {from, version, muta})
+    Bus.dispatch!({:items, id}, {from, version, muta})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)
   end

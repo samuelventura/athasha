@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
-import Badge from 'react-bootstrap/Badge'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Environ from "../Environ"
@@ -10,7 +9,7 @@ import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
 import EditItem from "./Editor"
 import Types from "./Types"
-import Tools from "./Tools"
+import Status from "./Status"
 
 function Rows(props) {
     const app = useApp()
@@ -79,55 +78,12 @@ function Rows(props) {
         app.dispatch({ name: "target", args: { action: "edit", item } })
     }
 
-    function statusTitle(item, status) {
-        if (!item.enabled) {
-            return "Disabled"
-        }
-        if (!status.type) {
-            return "Enabled"
-        }
-        return status.msg
-    }
-
-    function statusMsg(item, status) {
-        if (!item.enabled) {
-            return "Disabled"
-        }
-        return "Enabled"
-    }
-
-    function statusBg(item, status) {
-        if (!item.enabled) {
-            return "secondary"
-        }
-        switch (status.type) {
-            case "success": return "success"
-            case "warn": return "warning"
-            case "error": return "danger"
-            default: return "primary"
-        }
-    }
-
-    function statusOnClick(status) {
-        Tools.safeCopy(status.msg)
-    }
-
-    function StatusBadge({ item }) {
-        const status = app.state.status[item.id]
-        return (
-            <Badge pill bg={statusBg(item, status)} title={statusTitle(item, status)}
-                onClick={() => statusOnClick(status)} className='ms-2 user-select-none'>
-                {statusMsg(item, status)}
-            </Badge>
-        )
-    }
-    const itemsWithView = ["Screen", "Dataplot"]
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
             <Button variant="link" onClick={(e) => handleClick(e, 'view', item)}
                 onDoubleClick={(e) => onDoubleClick(e)}
-                disabled={!itemsWithView.includes(item.type)}>View</Button>
+                disabled={!Types.withView.includes(item.type)}>View</Button>
         )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
@@ -138,7 +94,7 @@ function Rows(props) {
                 <img src={Types.icon(item.type)} width="20"
                     alt={item.type} className='me-2' />
                 <span className='align-middle user-select-none'>{item.name}</span>
-                <StatusBadge item={item} />
+                <Status item={item} status={app.state.status[item.id]} />
             </td>
             <td>
                 {viewAction}
