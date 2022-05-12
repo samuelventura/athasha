@@ -12,6 +12,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
+AppCopyright=Copyright (C) 2022 {#MyAppPublisher}
 AppId={{A0BF8CB6-359A-4764-BD9A-4AAC09CCEA27}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
