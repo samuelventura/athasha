@@ -43,8 +43,8 @@ defmodule Athasha.DataplotRunner do
       {^port, {:data, <<"ex:", msg::binary>>}} ->
         Raise.error({action, msg})
 
-      other ->
-        Raise.error({:receive, other})
+      {^port, {:exit_status, status}} ->
+        Raise.error({:receive, {:exit_status, status}})
     end
   end
 
