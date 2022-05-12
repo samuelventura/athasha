@@ -219,9 +219,11 @@ function ToolsButton() {
     }
     function installLicense() {
         Files.upload(Files.licenseExtension, function (data) {
+            console.log(data)
+            navigator.clipboard.writeText(data)
             fetch("api/licenses", {
                 method: "POST",
-                body: data,
+                body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' }
             }).then(() => { updateAndReload() })
         })

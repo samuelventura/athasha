@@ -66,6 +66,7 @@ defmodule AthashaWeb.Router do
     get("/serials", ToolsController, :get_serials)
     get("/licenses", ToolsController, :get_licenses)
     post("/licenses", ToolsController, :post_licenses)
+    post("/testconnstr", ToolsController, :post_testconnstr)
   end
 
   scope "/", AthashaWeb do

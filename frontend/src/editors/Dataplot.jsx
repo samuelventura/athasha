@@ -11,8 +11,11 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Dataplot.js'
 import Check from './Check'
+import Tools from './Tools'
+import { useApp } from '../App'
 
 function Editor(props) {
+    const app = useApp()
     const [setts, setSetts] = useState(Initial.config().setts)
     const [columns, setColumns] = useState(Initial.config().columns)
     const [captured, setCaptured] = useState(null)
@@ -102,6 +105,9 @@ function Editor(props) {
     function onView() {
         window.open(`dataplot.html?id=${props.id}`, '_blank').focus();
     }
+    function onTestConnectionString() {
+        Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass)
+    }
     return (
         <Form>
             <Row>
@@ -117,6 +123,11 @@ function Editor(props) {
                     <FloatingLabel label={Initial.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
+                </Col>
+                <Col xs={2} className="d-flex align-items-center justify-content-start">
+                    <Button variant="link" onClick={onTestConnectionString} title="Test Connection String">
+                        Test
+                    </Button>
                 </Col>
                 <Col></Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-end">

@@ -11,8 +11,11 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Points from '../items/Points'
 import Initial from './Database.js'
 import Check from './Check'
+import Tools from './Tools'
+import { useApp } from '../App'
 
 function Editor(props) {
+    const app = useApp()
     const [setts, setSetts] = useState(Initial.config().setts)
     const [points, setPoints] = useState(Initial.config().points)
     const [captured, setCaptured] = useState(null)
@@ -93,6 +96,9 @@ function Editor(props) {
             </td>
         </tr>
     )
+    function onTestConnectionString() {
+        Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass)
+    }
     return (
         <Form>
             <Row>
@@ -121,6 +127,11 @@ function Editor(props) {
                             <option value="m">Minute(s)</option>
                         </Form.Select>
                     </FloatingLabel>
+                </Col>
+                <Col xs={2} className="d-flex align-items-center justify-content-start">
+                    <Button variant="link" onClick={onTestConnectionString} title="Test Connection String">
+                        Test
+                    </Button>
                 </Col>
             </Row>
             <Row>
