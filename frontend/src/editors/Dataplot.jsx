@@ -163,7 +163,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.yformat}>
-                        <Form.Control type="number"  {...settsProps("yformat")} />
+                        <Form.Control type="text"  {...settsProps("yformat")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
