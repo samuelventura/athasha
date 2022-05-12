@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import Table from 'react-bootstrap/Table'
+import Button from 'react-bootstrap/Button'
+import Dropdown from 'react-bootstrap/Dropdown'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Search from "./Search"
 import Header from "./Header"
 import Rows from "./Rows"
@@ -42,6 +45,14 @@ function Browser() {
         }
     }
 
+    function onDisable() {
+        Object.values(app.state.items).forEach((item) => {
+            if (item.enabled) {
+                app.send({ name: "enable", args: { id: item.id, enabled: false } })
+            }
+        })
+    }
+
     return (
         <>
             <table>
@@ -66,7 +77,17 @@ function Browser() {
                             <Header sort={sort}
                                 onSortChange={handleSortChange} />
                         </th>
-                        <th>Actions</th>
+                        <th>
+                            <Dropdown as={ButtonGroup}>
+                                <Button variant="none" disabled>
+                                    <span class="fw-bold">Actions</span>
+                                </Button>
+                                <Dropdown.Toggle split variant="link" />
+                                <Dropdown.Menu>
+                                    <Dropdown.Item onClick={onDisable}>Disable All</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </th>
                     </tr>
                 </thead>
                 <Rows items={viewItems()} />

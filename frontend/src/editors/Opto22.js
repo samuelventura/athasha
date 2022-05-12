@@ -21,7 +21,7 @@ function input(index) {
     return {
         code: "01",
         module: "0",
-        number: "0",
+        number: "1",
         name: `Input ${1 + (index || 0)}`
     }
 }
@@ -55,7 +55,7 @@ const hints = {
     inputs: {
         code: (i) => `Select the input type from list`,
         module: (i) => `Non empty integer [0, 15]`,
-        number: (i) => `Non empty integer [0, 3]`,
+        number: (i) => `Non empty integer [1, 4]`,
         name: (i) => `Non empty input name`,
     }
 }
@@ -103,8 +103,8 @@ const checks = {
         number: function (index, value) {
             Check.isString(value, labels.inputs.number(index))
             Check.notEmpty(value, labels.inputs.number(index))
-            Check.isGE(value, labels.inputs.number(index), 0)
-            Check.isLE(value, labels.inputs.number(index), 3)
+            Check.isGE(value, labels.inputs.number(index), 1)
+            Check.isLE(value, labels.inputs.number(index), 4)
         },
         name: function (index, value) {
             Check.isString(value, labels.inputs.name(index))

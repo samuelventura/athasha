@@ -14,7 +14,10 @@ function Header(props) {
 
     return (
         <div>
-            <span>Name</span>
+            {/* button just to match actions style */}
+            <Button variant="none" disabled>
+                <span class="fw-bold">Name</span>
+            </Button>
             <span>
                 <Button onClick={() => handleSortChange("asc")} variant="link"
                     size="sm" title="Sort Ascending">

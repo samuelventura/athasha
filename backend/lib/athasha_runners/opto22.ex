@@ -129,8 +129,8 @@ defmodule Athasha.Opto22Runner do
     end
   end
 
-  defp address(input = %{type: "Snap", code: "01"}), do: input.module * 4 + input.number
-  defp address(input = %{type: "Snap", code: "02"}), do: input.module * 8 + input.number
+  defp address(input = %{type: "Snap", code: "01"}), do: input.module * 4 + (input.number - 1)
+  defp address(input = %{type: "Snap", code: "02"}), do: input.module * 8 + 2 * (input.number - 1)
 
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport
