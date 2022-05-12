@@ -16,6 +16,7 @@ function setts() {
         password: "",
         ymin: "0",
         ymax: "100",
+        yformat: "0",
         lineWidth: "1",
     }
 }
@@ -48,6 +49,7 @@ const labels = {
     command: "SQL Command",
     ymin: "Plot Minimum Y Value",
     ymax: "Plot Maximum Y Value",
+    yformat: "Axis Y tick format",
     lineWidth: "Plot Line Width",
     column: {
         name: "Column Name",
@@ -67,6 +69,7 @@ const hints = {
     command: "An SQL select command, function or store procedure call\nUse @FROM and @TO to reference the start and end of the date range\nFirst returned column must be DateTime\nConsult your TI specialist",
     ymin: "Non empty number",
     ymax: "Non empty number",
+    yformat: "Use 0.00 for 2 decimal points",
     lineWidth: "Non empty integer > 0",
     columns: {
         name: (i) => "Non empty column name",
@@ -105,6 +108,10 @@ const checks = {
         Check.notEmpty(value, labels.ymax)
         Check.isNumber(value, labels.ymax)
     },
+    yformat: function (value) {
+        Check.isString(value, labels.yformat)
+        Check.notEmpty(value, labels.yformat)
+    },
     lineWidth: function (value) {
         Check.isString(value, labels.lineWidth)
         Check.notEmpty(value, labels.lineWidth)
@@ -131,6 +138,7 @@ function validator({ setts, columns }) {
     Check.hasProp(setts, "Setts", "command")
     Check.hasProp(setts, "Setts", "ymin")
     Check.hasProp(setts, "Setts", "ymax")
+    Check.hasProp(setts, "Setts", "yformat")
     Check.hasProp(setts, "Setts", "lineWidth")
     checks.database(setts.database)
     checks.dbpass(setts.dbpass)
@@ -138,6 +146,7 @@ function validator({ setts, columns }) {
     checks.command(setts.command)
     checks.ymin(setts.ymin)
     checks.ymax(setts.ymax)
+    checks.yformat(setts.yformat)
     checks.lineWidth(setts.lineWidth)
     Check.isArray(columns, "Columns")
     Check.nonZeroLength(columns, "Columns")

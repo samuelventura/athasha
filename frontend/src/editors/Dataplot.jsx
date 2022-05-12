@@ -165,6 +165,11 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
+                    <FloatingLabel label={Initial.labels.yformat}>
+                        <Form.Control type="number"  {...settsProps("yformat")} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
                     <FloatingLabel label={Initial.labels.lineWidth}>
                         <Form.Control type="number"  {...settsProps("lineWidth")} />
                     </FloatingLabel>

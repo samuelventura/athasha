@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
+import numeral from 'numeral'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Col'
 import Col from 'react-bootstrap/Col'
@@ -21,7 +22,7 @@ function hourAgo(hours) {
     return dt
 }
 
-function DataPlot({ version, config, data, defs }) {
+function DataPlot({ config, data, defs }) {
     const cols = config.columns
     const ymin = Number(config.setts.ymin)
     const ymax = Number(config.setts.ymax)
@@ -40,9 +41,13 @@ function DataPlot({ version, config, data, defs }) {
         <Line key={i} type="monotone" strokeWidth={lineWidth} dot={false}
             dataKey={cols[i + 1].name}
             stroke={cols[i + 1].color} />)
-    function formatTick(v) {
+    function formatXTick(v) {
         v = new Date(v)
         return v.toTimeString().split(' ')[0]
+    }
+    function formatYTick(v) {
+        //http://numeraljs.com/
+        return numeral(v).format(config.setts.yformat)
     }
     return <ResponsiveContainer height='100%' width='100%'
         className="mt-2">
@@ -51,14 +56,15 @@ function DataPlot({ version, config, data, defs }) {
             <Legend />
             <XAxis dataKey={cols[0].name} interval="preserveStartEnd"
                 minTickGap={20}
-                tickFormatter={formatTick} />
-            <YAxis domain={[ymin, ymax]} />
+                tickFormatter={formatXTick} />
+            <YAxis domain={[ymin, ymax]}
+                tickFormatter={formatYTick} />
             {plotLines}
         </LineChart>
     </ResponsiveContainer>
 }
 
-function DataTable({ version, config, data }) {
+function DataTable({ config, data }) {
     const cols = config.columns
     const tableCols = cols.map((c, i) => <th key={i}>{c.name}</th>)
     function tableRow(dp) { return cols.map((c, i) => <td key={i}>{dp[i]}</td>) }
@@ -79,8 +85,9 @@ function DataTable({ version, config, data }) {
 function View() {
     const app = useApp()
     const [tab, setTab] = useState('plot');
-    const [fromDate, setFromDate] = useState(hourAgo(1));
-    const [toDate, setToDate] = useState(new Date());
+    //set TO 1 hour ahead to catch updates without changing range
+    const [fromDate, setFromDate] = useState(hourAgo(2));
+    const [toDate, setToDate] = useState(hourAgo(-1));
     const send = app.send
     const data = app.state.data
     const version = app.state.version
@@ -93,9 +100,12 @@ function View() {
     dp2[cols[0].name] = toDate
     defs.push(dp1)
     defs.push(dp2)
-    const props = { version, config, data, send, defs }
+    const props = { config, data, send, defs }
+    //tested to only trigger on update button click despite large list of deps
     const dataPlot = useMemo(() => <DataPlot {...props} />, [version, config, data, send])
     const dataTable = useMemo(() => <DataTable {...props} />, [version, config, data, send])
+    //prevent svg width=0 error when table tab is selected
+    const condPlot = tab == "plot" ? dataPlot : null
     function updateData() {
         send({ name: "update", args: { fromDate, toDate } })
     }
@@ -149,7 +159,7 @@ function View() {
             className="mt-3"
         >
             <Tab eventKey="plot" title="Plot" className='plot'>
-                {dataPlot}
+                {condPlot}
             </Tab>
             <Tab eventKey="table" title="Table">
                 {dataTable}
