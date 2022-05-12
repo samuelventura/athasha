@@ -191,7 +191,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         }
         function svgCoord(el, e, o) {
             o = o || { x: 0, y: 0 }
-            //unreliabl to drag beyond the right and bottom edges
+            //unreliable to drag beyond the right and bottom edges
             const maxX = gx - dragged.width
             const maxY = gy - dragged.height
             const box = el.getBoundingClientRect()
@@ -376,7 +376,7 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
         </Card>)
 }
 
-function ControlEditor({ setShow, selected, setCSetts, maxX, maxY, actionControl,
+function ControlEditor({ setShow, selected, setCSetts, actionControl,
     setDataProp, preview, globals }) {
     const [captured, setCaptured] = useState(null)
     const { control } = selected
@@ -471,8 +471,6 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
         setShow={setShow}
         selected={selected}
         setCSetts={setCSetts}
-        maxX={setts.gridX - 1}
-        maxY={setts.gridY - 1}
         actionControl={actionControl}
         setDataProp={setDataProp}
         preview={preview}

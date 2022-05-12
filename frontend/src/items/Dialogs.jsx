@@ -223,8 +223,14 @@ function ToolsButton() {
                 method: "POST",
                 body: data,
                 headers: { 'Content-Type': 'application/json' }
-            }).then(() => { fetch("api/update").then(() => window.location.reload()) })
+            }).then(() => { updateAndReload() })
         })
+    }
+    function updateAndReload() {
+        fetch("api/update").then(() => window.location.reload())
+    }
+    function refreshIps() {
+        updateAndReload()
     }
     return app.logged ? (
         <Dropdown className="d-inline">
@@ -238,6 +244,7 @@ function ToolsButton() {
                 <Dropdown.Item onClick={restoreItems}>Restore Items</Dropdown.Item>
                 <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
                 <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
+                <Dropdown.Item onClick={refreshIps}>Refresh IPs</Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
     ) : null
