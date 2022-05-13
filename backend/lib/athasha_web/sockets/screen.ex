@@ -30,12 +30,12 @@ defmodule AthashaWeb.ScreenSocket do
   end
 
   # disconnect on any item change but not status change
-  def handle_info({{:items, _id}, nil, {_from, _version, %{name: "enable"}}}, state) do
-    {:stop, :update, state}
-  end
-
-  def handle_info({{:items, _id}, nil, {_from, _version, _muta}}, state) do
-    {:ok, state}
+  def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
+    case muta.name do
+      "enable" -> {:stop, :update, state}
+      "delete" -> {:stop, :update, state}
+      _ -> {:ok, state}
+    end
   end
 
   def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do

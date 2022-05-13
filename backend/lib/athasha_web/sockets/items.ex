@@ -64,7 +64,7 @@ defmodule AthashaWeb.ItemsSocket do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {from, version, muta}}, state) do
+  def handle_info({:items, nil, {from, version, muta, _item}}, state) do
     case state.version + 1 do
       ^version ->
         args = muta.args

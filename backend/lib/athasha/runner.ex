@@ -30,45 +30,37 @@ defmodule Athasha.Runner do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {_from, version, muta}}, state) do
+  def handle_info({:items, nil, {_from, version, muta, item}}, state) do
     state =
       case state.version + 1 do
-        ^version -> apply_muta(version, muta, state)
+        ^version -> apply_muta(version, muta, item, state)
         _ -> state
       end
 
     {:noreply, state}
   end
 
-  def apply_muta(version, muta, state) do
+  def apply_muta(version, muta, item, state) do
     state = Map.put(state, :version, version)
-    args = muta.args
 
     case muta.name do
-      "create" ->
-        start_if(args)
-        put_in(state, [:items, args.id], args)
-
-      "rename" ->
-        put_in(state, [:items, args.id, :name], args.name)
-
       "enable" ->
-        id = args.id
-        item = state.items[id]
-        stop_if(id, item.enabled)
-        item = Map.put(item, :enabled, args.enabled)
+        id = item.id
+        curr = state.items[id]
+        stop_if(id, curr.enabled)
         start_if(item)
         put_in(state, [:items, id], item)
 
-      "edit" ->
-        put_in(state, [:items, args.id, :config], args.config)
-
       "delete" ->
-        id = args.id
+        id = item.id
         item = state.items[id]
         stop_if(id, item.enabled)
         {_, state} = pop_in(state, [:items, id])
         state
+
+      _ ->
+        id = item.id
+        put_in(state, [:items, id], item)
     end
   end
 
