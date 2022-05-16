@@ -29,10 +29,15 @@ function reHost(hostname) {
     return `${url}`
 }
 
+function getEditorId() {
+    if (locurl.pathname !== "/editor.html") return null
+    return locurl.searchParams.get("id")
+}
+
 window.enableLog = enableLog
 window.logOn = () => enableLog(true)
 window.logOff = () => enableLog(false)
 
-const exports = { wsURL, wsQuery, enableLog, log, reHost }
+const exports = { wsURL, wsQuery, getEditorId, enableLog, log, reHost }
 
 export default exports

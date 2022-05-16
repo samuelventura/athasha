@@ -8,10 +8,23 @@ import { AlertBanner } from '../Dialogs'
 import { InfoButton } from './Dialogs'
 import { HostButton } from './Dialogs'
 import { ToolsButton } from './Dialogs'
+import EditItem from "./Editor"
 import Browser from "./Browser"
 import Logo from '../logo.svg'
+import { useApp } from '../App'
 
-function Main() {
+function Editor() {
+  return (
+    <>
+      <AlertBanner />
+      <LoginDialog />
+      <ConnectDialog />
+      <EditItem />
+    </>
+  )
+}
+
+function Items() {
   return (
     <>
       <AlertBanner />
@@ -42,6 +55,11 @@ function Main() {
       </Container>
     </>
   )
+}
+
+function Main() {
+  const app = useApp()
+  return app.state.editor ? <Editor /> : <Items />
 }
 
 export default Main

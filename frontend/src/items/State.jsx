@@ -3,6 +3,7 @@ import Types from "./Types"
 
 function initial() {
   return {
+    editor: Environ.getEditorId(),
     items: {},
     status: {},
     selected: {},
@@ -41,6 +42,19 @@ function update_points(next) {
   next.points = points
 }
 
+function setup_editor(next) {
+  if (next.editor) {
+    const item = next.items[next.editor]
+    if (item) {
+      next.targeted = {
+        action: "edit",
+        item
+      }
+      document.title = `Editor - ${item.name}`
+    }
+  }
+}
+
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
@@ -55,6 +69,7 @@ function reducer(state, { name, args, self }) {
         next.status[item.id] = {}
         next.items[item.id] = item
       })
+      setup_editor(next)
       update_points(next)
       return version_state(next)
     }

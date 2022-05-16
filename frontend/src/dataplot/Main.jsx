@@ -13,7 +13,7 @@ function Main() {
   const app = useApp()
   const name = app.state.name
   useEffect(() => {
-    document.title = name ? `Athasha - ${name}` : "Athasha Dataplot"
+    if (name) document.title = `Viewer - ${name}`
   }, [name])
   function NameColor() {
     const status = app.state.status

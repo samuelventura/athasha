@@ -25,7 +25,11 @@ function EditItem() {
         const id = item.id
         switch (action) {
             case "close":
-                app.dispatch({ name: "target", args: {} })
+                if (app.state.editor) {
+                    window.close()
+                } else {
+                    app.dispatch({ name: "target", args: {} })
+                }
                 break
             case "view":
                 const page = item.type.toLowerCase()
@@ -45,6 +49,10 @@ function EditItem() {
     }
     function cloned() {
         return JSON.parse(JSON.stringify(item.config))
+    }
+    function getStatus() {
+        const status = app.state.status[item.id]
+        return status || {}
     }
     //id required as use effect flag
     function itemEditor(type) {
@@ -67,12 +75,12 @@ function EditItem() {
     }
     return (
         <Modal show={isActive()} onHide={() => onButton("close")} backdrop="static"
-            centered dialogClassName="EditorModal" fullscreen>
+            centered dialogClassName="EditorModal" fullscreen keyboard={!app.state.editor}>
             <Modal.Header closeButton>
                 <Modal.Title>
                     {itemIcon()}
                     <span className="align-middle">{item.name}</span>
-                    <Status item={item} status={app.state.status[item.id]} />
+                    <Status item={item} status={getStatus()} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

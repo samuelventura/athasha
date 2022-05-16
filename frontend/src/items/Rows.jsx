@@ -36,7 +36,8 @@ function Rows(props) {
         app.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
-                app.dispatch({ name: "target", args: { action, item } })
+                // app.dispatch({ name: "target", args: { action, item } })
+                window.open(`editor.html?id=${item.id}`, '_blank').focus();
                 break
             }
             case "delete": {
@@ -73,11 +74,6 @@ function Rows(props) {
         }
     }
 
-    function handleDoubleClick(item) {
-        app.dispatch({ name: "select", args: item })
-        app.dispatch({ name: "target", args: { action: "edit", item } })
-    }
-
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
@@ -87,7 +83,7 @@ function Rows(props) {
         )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
-            onDoubleClick={() => handleDoubleClick(item)}
+            onDoubleClick={(e) => handleClick(e, "edit", item)}
             className={selectedClass(item) + ' align-middle'}
             title={item.id}>
             <td className={enabledClass(item)}>
