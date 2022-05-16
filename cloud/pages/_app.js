@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import Image from 'next/image'
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 
@@ -24,7 +25,7 @@ function MyApp({ Component, pageProps }) {
       <Toast show={!isValid()}>
         <Toast.Header closeButton={false}>Privacy Policy Consent Required</Toast.Header>
         <Toast.Body>Usage of this site requires you to consent to our&nbsp;
-          <a href="/privacy" className="ml-1 text-decoration-none">Privacy Policy</a>
+          <Link href="/privacy"><a className="ml-1 text-decoration-none">Privacy Policy</a></Link>
           &nbsp;regarding cookies and data collection.
         </Toast.Body>
         <div className="border-top d-flex justify-content-end">
@@ -45,9 +46,9 @@ function MyApp({ Component, pageProps }) {
     <main>
       <div className="container py-4">
         <header className="pb-3 mb-4 border-bottom">
-          <a href="/" className="d-flex align-items-center text-dark text-decoration-none">
-            <img src="/logo.svg" alt="Athasha" height="48"></img>
-          </a>
+          <Link href="/"><a className="d-flex align-items-center text-dark text-decoration-none">
+            <Image src="/logo.svg" alt="Athasha" height="48" />
+          </a></Link>
         </header>
 
         <Component {...pageProps} />
