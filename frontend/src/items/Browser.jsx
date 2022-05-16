@@ -25,7 +25,9 @@ function Browser() {
     function viewItems() {
         const lower = filter.toLowerCase()
         const items = Object.values(app.state.items)
+        const group = app.state.group
         const filtered = items.filter(item =>
+            (group.length === 0 || item.group === group) &&
             item.name.toLowerCase().includes(lower))
         switch (sort) {
             case "asc":
@@ -53,6 +55,14 @@ function Browser() {
         })
     }
 
+    function groupOptions() {
+        function onClick(group) { app.dispatch({ name: "group", args: group }) }
+        return app.state.groups.map((group, index) => {
+            const label = group.length > 0 ? group : "[All]"
+            return <Dropdown.Item key={index} onClick={() => onClick(group)}>{label}</Dropdown.Item>
+        })
+    }
+
     return (
         <>
             <table>
@@ -74,8 +84,19 @@ function Browser() {
                 <thead>
                     <tr>
                         <th>
-                            <Header sort={sort}
+                            <Header sort={sort} name="Name"
                                 onSortChange={handleSortChange} />
+                        </th>
+                        <th>
+                            <Dropdown as={ButtonGroup}>
+                                <Button variant="none" disabled>
+                                    <span className="fw-bold">Group</span>
+                                </Button>
+                                <Dropdown.Toggle split variant="link" />
+                                <Dropdown.Menu>
+                                    {groupOptions()}
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </th>
                         <th>
                             <Dropdown as={ButtonGroup}>

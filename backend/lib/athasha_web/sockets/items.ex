@@ -135,6 +135,9 @@ defmodule AthashaWeb.ItemsSocket do
         "rename" ->
           %{name: "rename", args: %{id: args["id"], name: args["name"]}}
 
+        "regroup" ->
+          %{name: "regroup", args: %{id: args["id"], group: args["group"]}}
+
         "enable" ->
           %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
 
@@ -150,6 +153,7 @@ defmodule AthashaWeb.ItemsSocket do
             args: %{
               name: args["name"],
               type: args["type"],
+              group: args["group"],
               enabled: args["enabled"],
               config: args["config"]
             }

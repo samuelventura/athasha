@@ -7,6 +7,7 @@ import Files from "./Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
+import { RegroupItem } from "./Dialogs"
 import EditItem from "./Editor"
 import Types from "./Types"
 import Status from "./Status"
@@ -45,6 +46,10 @@ function Rows(props) {
                 break
             }
             case "rename": {
+                app.dispatch({ name: "target", args: { action, item } })
+                break
+            }
+            case "regroup": {
                 app.dispatch({ name: "target", args: { action, item } })
                 break
             }
@@ -92,6 +97,7 @@ function Rows(props) {
                 <span className='align-middle user-select-none'>{item.name}</span>
                 <Status item={item} status={app.state.status[item.id]} />
             </td>
+            <td>{item.group}</td>
             <td>
                 {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
@@ -101,6 +107,7 @@ function Rows(props) {
                     <Dropdown.Toggle split variant="link" />
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'rename', item)}>Rename</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'regroup', item)}>Regroup</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'delete', item)}>Delete</Dropdown.Item>
@@ -127,6 +134,7 @@ function Rows(props) {
             <EditItem />
             <DeleteItem />
             <RenameItem />
+            <RegroupItem />
             {rows}
         </ tbody>
     )

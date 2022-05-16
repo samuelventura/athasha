@@ -139,6 +139,10 @@ defmodule Athasha.Server do
     apply_muta(:update, muta, from, state)
   end
 
+  defp apply_muta(muta = %{name: "regroup"}, from, state) do
+    apply_muta(:update, muta, from, state)
+  end
+
   defp apply_muta(muta = %{name: "enable"}, from, state) do
     apply_muta(:update, muta, from, state)
   end
@@ -192,11 +196,11 @@ defmodule Athasha.Server do
   end
 
   defp insert(args) do
-    Item.changeset(%Item{}, args) |> Repo.insert()
+    Item.changeset(%Item{}, args) |> Repo.insert(returning: true)
   end
 
   defp insert(args, :id) do
-    Item.changeset(%Item{}, args, :id) |> Repo.insert()
+    Item.changeset(%Item{}, args, :id) |> Repo.insert(returning: true)
   end
 
   defp strip_tuple({_id, item}) do

@@ -6,6 +6,7 @@ defmodule Athasha.Repo.Migrations.CreateItems do
       add(:id, :uuid, primary_key: true, null: false)
       add(:name, :string, null: false)
       add(:type, :string, null: false)
+      add(:group, :string, null: false, default: "")
       add(:enabled, :boolean, null: false, default: false)
       add(:config, :map, null: false)
 

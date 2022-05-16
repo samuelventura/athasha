@@ -4,6 +4,8 @@ import Types from "./Types"
 function initial() {
   return {
     editor: Environ.getEditorId(),
+    group: "",
+    groups: [],
     items: {},
     status: {},
     selected: {},
@@ -55,6 +57,18 @@ function setup_editor(next) {
   }
 }
 
+function update_groups(next) {
+  const groups = {}
+  Object.values(next.items).forEach((item) => {
+    const group = item.group
+    groups[group] = group
+  })
+  next.groups = Object.keys(groups).sort()
+  if (next.groups.length === 0) {
+    next.groups = [""]
+  }
+}
+
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "all": {
@@ -71,6 +85,7 @@ function reducer(state, { name, args, self }) {
       })
       setup_editor(next)
       update_points(next)
+      update_groups(next)
       return version_state(next)
     }
     case "create": {
@@ -82,6 +97,7 @@ function reducer(state, { name, args, self }) {
         next.selected = item
       }
       update_points(next)
+      update_groups(next)
       return version_state(next)
     }
     case "delete": {
@@ -89,11 +105,18 @@ function reducer(state, { name, args, self }) {
       delete next.status[args.id]
       delete next.items[args.id]
       update_points(next)
+      update_groups(next)
       return version_state(next)
     }
     case "rename": {
       const next = clone_object(state)
       next.items[args.id].name = args.name
+      return version_state(next)
+    }
+    case "regroup": {
+      const next = clone_object(state)
+      next.items[args.id].group = args.group
+      update_groups(next)
       return version_state(next)
     }
     case "enable": {
@@ -127,6 +150,11 @@ function reducer(state, { name, args, self }) {
     case "target": {
       const next = clone_object(state)
       next.targeted = args
+      return version_state(next)
+    }
+    case "group": {
+      const next = clone_object(state)
+      next.group = args
       return version_state(next)
     }
     case "close": {

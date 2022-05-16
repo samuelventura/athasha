@@ -112,6 +112,64 @@ function RenameItem() {
     )
 }
 
+function RegroupItem() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    const item = targeted.item
+    const focus = useRef(null)
+    const [group, setGroup] = useState("")
+    function isActive() { return action === "regroup" }
+    function isValid() { return true }
+    function onKeyPress(e) {
+        if (e.key === 'Enter') {
+            onAccept()
+        }
+    }
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        if (isValid()) {
+            app.send({ name: "regroup", args: { id: item.id, group: group.trim() } })
+            app.dispatch({ name: "target", args: {} })
+        }
+    }
+    useEffect(() => {
+        if (isActive()) {
+            setGroup(item.group)
+            //autoFocus fails with inputs but works with select above
+            setTimeout(() => {
+                const el = focus.current
+                if (el) {
+                    el.focus()
+                    el.select()
+                }
+            }, 0)
+        }
+    }, [targeted.action])
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Regroup</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Control autoFocus ref={focus} type="text" placeholder="New Group"
+                    onKeyPress={onKeyPress}
+                    value={group} onChange={e => setGroup(e.target.value)} />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+                    Regroup
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 function NewItem() {
     const app = useApp()
     const targeted = app.state.targeted
@@ -134,7 +192,7 @@ function NewItem() {
     function onAccept() {
         if (isValid()) {
             const config = Initials(type).config()
-            const args = { name, type, config, enabled: false }
+            const args = { name, type, config, enabled: false, group: app.state.group }
             app.send({ name: "create", args })
             app.dispatch({ name: "target", args: {} })
         }
@@ -289,4 +347,4 @@ function InfoButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, RenameItem, InfoButton, HostButton, ToolsButton }
+export { NewItem, DeleteItem, RenameItem, RegroupItem, InfoButton, HostButton, ToolsButton }

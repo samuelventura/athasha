@@ -7,6 +7,7 @@ defmodule Athasha.Item do
   schema "items" do
     field(:name, :string)
     field(:type, :string)
+    field(:group, :string, default: "")
     field(:enabled, :boolean, default: false)
     field(:config, :map)
 
@@ -16,7 +17,7 @@ defmodule Athasha.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:name, :type, :enabled, :config])
+    |> cast(attrs, [:name, :type, :group, :enabled, :config])
     |> validate_required([:name, :type, :enabled, :config])
   end
 
@@ -25,6 +26,6 @@ defmodule Athasha.Item do
   end
 
   def strip(item) do
-    Map.take(item, [:id, :name, :type, :enabled, :config])
+    Map.take(item, [:id, :name, :type, :group, :enabled, :config])
   end
 end
