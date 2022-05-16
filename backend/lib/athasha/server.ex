@@ -114,7 +114,7 @@ defmodule Athasha.Server do
   defp apply_muta(muta = %{name: "restore"}, from, state) do
     args = muta.args
     {:ok, item} = insert(args, :id)
-    args = strip_item(item)
+    args = Item.strip(item)
     muta = Map.put(muta, :args, args)
     muta = Map.put(muta, :name, "create")
     apply_muta(:set, item, muta, from, state)
@@ -123,7 +123,7 @@ defmodule Athasha.Server do
   defp apply_muta(muta = %{name: "create"}, from, state) do
     args = muta.args
     {:ok, item} = insert(args)
-    args = strip_item(item)
+    args = Item.strip(item)
     muta = Map.put(muta, :args, args)
     apply_muta(:set, item, muta, from, state)
   end
@@ -173,7 +173,7 @@ defmodule Athasha.Server do
           Map.delete(items, id)
       end
 
-    item = strip_item(item)
+    item = Item.strip(item)
     version = state.version + 1
     Items.update_all!(items, version)
     Bus.dispatch!(:items, {from, version, muta, item})
@@ -200,10 +200,6 @@ defmodule Athasha.Server do
   end
 
   defp strip_tuple({_id, item}) do
-    strip_item(item)
-  end
-
-  defp strip_item(item) do
-    Map.take(item, [:id, :name, :type, :enabled, :config])
+    Item.strip(item)
   end
 end

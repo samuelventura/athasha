@@ -56,7 +56,7 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
-  def handle_info({:password, nil, _}, state) do
+  def handle_info({:logout, nil, _}, state) do
     {:stop, :init, state}
   end
 

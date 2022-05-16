@@ -23,4 +23,8 @@ defmodule Athasha.Item do
   def changeset(item, attrs, :id) do
     changeset(item, attrs) |> cast(attrs, [:id])
   end
+
+  def strip(item) do
+    Map.take(item, [:id, :name, :type, :enabled, :config])
+  end
 end

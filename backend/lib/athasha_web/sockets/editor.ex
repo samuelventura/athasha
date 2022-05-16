@@ -1,11 +1,10 @@
-defmodule AthashaWeb.ScreenSocket do
+defmodule AthashaWeb.EditorSocket do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
-  @item "Screen"
   alias Athasha.Bus
   alias Athasha.Auth
+  alias Athasha.Item
   alias Athasha.Items
-  alias Athasha.Points
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -29,35 +28,20 @@ defmodule AthashaWeb.ScreenSocket do
     reply_text(resp, state)
   end
 
-  # disconnect on any item enable|delete event
-  def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
-    case muta.name do
-      "enable" -> {:stop, :update, state}
-      "delete" -> {:stop, :update, state}
-      _ -> {:ok, state}
-    end
-  end
-
-  def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do
-    args = %{id: point, value: value}
-    resp = %{name: "point", args: args}
-    reply_text(resp, state)
-  end
-
   def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end
 
+  def handle_info({:logout, nil, _}, state) do
+    {:stop, :init, state}
+  end
+
   def handle_info(:logged, state = %{id: id}) do
-    item = Items.find_runner(id)
+    item = Items.find_item(id) |> Item.strip()
     Bus.register!({:status, id}, nil)
-    Bus.register!({:screen, id}, nil)
-    Bus.register!({:items, id}, nil)
-    config = item.config
-    initial = Points.screen_points(id) |> Enum.map(&initial_point/1)
-    args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
-    resp = %{name: "view", args: args}
+    Bus.register!(:logout, nil)
+    resp = %{name: "edit", args: item}
     reply_text(resp, state)
   end
 
@@ -71,10 +55,10 @@ defmodule AthashaWeb.ScreenSocket do
     {:ok, state}
   end
 
-  defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
+  defp handle_event(event = %{"name" => "login"}, state = %{logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Items.find_password(id, @item)
+    password = Auth.password()
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->
@@ -89,16 +73,18 @@ defmodule AthashaWeb.ScreenSocket do
     end
   end
 
-  # defp handle_event(_event, state = %{logged: true}) do
-  #   {:ok, state}
-  # end
+  defp handle_event(event = %{"name" => "update"}, state = %{id: id, logged: true}) do
+    args = event["args"]
+    Bus.dispatch!({:dataplot, id}, {self(), args})
+    {:ok, state}
+  end
+
+  defp handle_event(_event, state = %{logged: true}) do
+    {:ok, state}
+  end
 
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
-  end
-
-  defp initial_point({id, _, value}) do
-    %{id: id, value: value}
   end
 end

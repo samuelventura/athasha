@@ -99,9 +99,9 @@ defmodule AthashaWeb.DataplotSocket do
     {:ok, state}
   end
 
-  defp handle_event(_event, state = %{logged: true}) do
-    {:ok, state}
-  end
+  # defp handle_event(_event, state = %{logged: true}) do
+  #   {:ok, state}
+  # end
 
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
