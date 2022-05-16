@@ -173,11 +173,11 @@ defmodule Athasha.Server do
           Map.delete(items, id)
       end
 
+    item = strip_item(item)
     version = state.version + 1
     Items.update_all!(items, version)
-    strip = strip_item(item)
-    Bus.dispatch!(:items, {from, version, muta, strip})
-    Bus.dispatch!({:items, id}, {from, version, muta, strip})
+    Bus.dispatch!(:items, {from, version, muta, item})
+    Bus.dispatch!({:items, id}, {from, version, muta, item})
     state = Map.put(state, :items, items)
     Map.put(state, :version, version)
   end

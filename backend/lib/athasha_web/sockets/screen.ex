@@ -29,7 +29,7 @@ defmodule AthashaWeb.ScreenSocket do
     reply_text(resp, state)
   end
 
-  # disconnect on any item change but not status change
+  # disconnect on any item enable|delete event
   def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
     case muta.name do
       "enable" -> {:stop, :update, state}

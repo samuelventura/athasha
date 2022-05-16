@@ -17,12 +17,13 @@ defmodule Athasha.Runner do
   end
 
   def init(_initial) do
-    {:ok, _} = Runners.start_link()
     Bus.register!(:items, nil)
+    {:ok, _} = Runners.start_link()
     all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: all.version, items: items}
     all.items |> Enum.each(&start_if/1)
+    check_count(state)
     {:ok, state}
   end
 
@@ -37,6 +38,7 @@ defmodule Athasha.Runner do
         _ -> state
       end
 
+    check_count(state)
     {:noreply, state}
   end
 
@@ -44,10 +46,8 @@ defmodule Athasha.Runner do
     state = Map.put(state, :version, version)
 
     case muta.name do
-      "enable" ->
+      "create" ->
         id = item.id
-        curr = state.items[id]
-        stop_if(id, curr.enabled)
         start_if(item)
         put_in(state, [:items, id], item)
 
@@ -58,13 +58,20 @@ defmodule Athasha.Runner do
         {_, state} = pop_in(state, [:items, id])
         state
 
+      "enable" ->
+        id = item.id
+        curr = state.items[id]
+        stop_if(id, curr.enabled)
+        start_if(item)
+        put_in(state, [:items, id], item)
+
       _ ->
         id = item.id
         put_in(state, [:items, id], item)
     end
   end
 
-  # initial/rescue 1s delay to avoid exceeding
+  # initial/rescue delay to avoid exceeding
   # the default supervisor restart intensity
   def start_runner(modu, item) do
     pid =
@@ -143,4 +150,13 @@ defmodule Athasha.Runner do
         join_runner(id)
     end
   end
+
+  defp check_count(state) do
+    c1 = Runners.count()
+    c2 = Enum.count(state.items, fn {_id, item} -> item.enabled end)
+    assert_count(c1, c2)
+  end
+
+  defp assert_count(count, count), do: nil
+  defp assert_count(c1, c2), do: Raise.error({:count, c1, c2})
 end

@@ -19,6 +19,10 @@ defmodule Athasha.Runners do
     end
   end
 
+  def count() do
+    Supervisor.count_children(__MODULE__).specs
+  end
+
   def start_runner(child_spec) do
     Supervisor.start_link([child_spec], strategy: :one_for_one)
   end
