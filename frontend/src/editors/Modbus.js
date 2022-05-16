@@ -25,7 +25,9 @@ function input(index) {
         slave: "1",
         code: "01",
         address: `${index || 0}`,
-        name: `Input ${1 + (index || 0)}`
+        name: `Input ${1 + (index || 0)}`,
+        factor: "1",
+        offset: "0",
     }
 }
 
@@ -43,12 +45,16 @@ const labels = {
         code: "Function Code",
         address: "Input Address",
         name: "Input Name",
+        factor: "Value Factor",
+        offset: "Value Offset",
     },
     inputs: {
         slave: (i) => `Input ${i + 1} Slave Address`,
         code: (i) => `Input ${i + 1} Function Code`,
         address: (i) => `Input ${i + 1} Address`,
         name: (i) => `Input ${i + 1} Name`,
+        factor: (i) => `Input ${i + 1} Factor`,
+        offset: (i) => `Input ${i + 1} Offset`,
     },
 }
 
@@ -66,6 +72,8 @@ const hints = {
         code: (i) => `Select the function code from list`,
         address: (i) => `Non empty integer [0, 65535]`,
         name: (i) => `Non empty input name`,
+        factor: (i) => `Non empty number m in f(x)=m*x+b`,
+        offset: (i) => `Non empty number b in f(x)=m*x+b`,
     }
 }
 
@@ -130,6 +138,16 @@ const checks = {
             Check.isString(value, labels.inputs.name(index))
             Check.notEmpty(value, labels.inputs.name(index))
         },
+        factor: function (index, value) {
+            Check.isString(value, labels.inputs.factor(index))
+            Check.notEmpty(value, labels.inputs.factor(index))
+            Check.isNumber(value, labels.inputs.factor(index))
+        },
+        offset: function (index, value) {
+            Check.isString(value, labels.inputs.offset(index))
+            Check.notEmpty(value, labels.inputs.offset(index))
+            Check.isNumber(value, labels.inputs.offset(index))
+        },
     },
 }
 
@@ -161,6 +179,10 @@ function validator({ setts, inputs }) {
         checks.inputs.address(index, input.address)
         Check.hasProp(input, labels.inputs.name(index), "name")
         checks.inputs.name(index, input.name)
+        Check.hasProp(input, labels.inputs.factor(index), "factor")
+        checks.inputs.factor(index, input.factor)
+        Check.hasProp(input, labels.inputs.offset(index), "offset")
+        checks.inputs.offset(index, input.offset)
     })
 }
 

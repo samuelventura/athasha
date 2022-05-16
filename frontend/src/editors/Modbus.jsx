@@ -123,6 +123,12 @@ function Editor(props) {
                 <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
+                <Form.Control type="number" {...inputProps(index, "factor")} />
+            </td>
+            <td>
+                <Form.Control type="number" {...inputProps(index, "offset")} />
+            </td>
+            <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
                     title="Delete Input" disabled={inputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
@@ -208,6 +214,8 @@ function Editor(props) {
                         <th>{Initial.labels.input.code}</th>
                         <th>{Initial.labels.input.address}</th>
                         <th>{Initial.labels.input.name}</th>
+                        <th>{Initial.labels.input.factor}</th>
+                        <th>{Initial.labels.input.offset}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput}
                                 title="Add Input">

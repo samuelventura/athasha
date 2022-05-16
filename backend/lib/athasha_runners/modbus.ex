@@ -24,13 +24,18 @@ defmodule Athasha.ModbusRunner do
         address = String.to_integer(input["address"])
         code = input["code"]
         name = input["name"]
+        factor = Decimal.new(input["factor"]) |> Decimal.to_float()
+        offset = Decimal.new(input["offset"]) |> Decimal.to_float()
 
         %{
           id: "#{id} #{name}",
           slave: slave,
           address: address,
           code: code,
-          name: name
+          name: name,
+          factor: factor,
+          offset: offset,
+          calib: calibrator(factor, offset)
         }
       end)
 
@@ -97,6 +102,7 @@ defmodule Athasha.ModbusRunner do
     Enum.each(config.inputs, fn input ->
       case exec_input(master, input) do
         {:ok, value} ->
+          value = input.calib.(value)
           Points.update_point!(input.id, value)
 
         {:error, reason} ->
@@ -106,6 +112,13 @@ defmodule Athasha.ModbusRunner do
       end
     end)
   end
+
+  defp calibrator(factor, offset) do
+    fn value -> calibrate(value, factor, offset) end
+  end
+
+  defp calibrate(value, 1, 0), do: value
+  defp calibrate(value, factor, offset), do: value * factor + offset
 
   defp exec_input(master, input) do
     case input.code do
