@@ -11,5 +11,4 @@ function download(prefix, data) {
     element.click()
 }
 
-
 export default download

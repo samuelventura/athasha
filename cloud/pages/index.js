@@ -11,9 +11,8 @@ export default function Home() {
   const disabled = id.trim().length == 0
   return (
     <>
-      <Jumbo title="Lean Automation Software">
-        <p className="col-md-8 fs-4">We hate bloated and over-restricting software as much as you do.
-          Our mission is to create lean, reliable, and affordable automation software tools.</p>
+      <Jumbo title="Automation Now">
+        <p className="col-md-8 fs-4">Link plant floor devices to IT services in minutes, not months.</p>
       </Jumbo>
 
       <div className="row align-items-md-stretch">

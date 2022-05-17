@@ -26,7 +26,7 @@ export default function Home() {
   }, [router.query])
   function options() {
     return license ? <ul>
-      <li>You can <Link href={`/recover?id=${license.identity}`}>recover</Link> your licenses at any time.</li>
+      <li>You can <Link href={`/recover?query=${license.identity}`}>recover</Link> your licenses at any time.</li>
     </ul> : null
   }
   return (

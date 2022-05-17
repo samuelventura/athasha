@@ -15,9 +15,11 @@ export default async function handler(req, res) {
     const aid = session.metadata.athasha_id
     const qty = Number(session.metadata.quantity)
     const email = session.customer_details.email
-    db.run("INSERT INTO payments (pid, sid, aid, qty, email, json) VALUES (?, ?, ?, ?, ?, ?)",
-      [pid, sid, aid, qty, email, JSON.stringify(session)])
     const license = signer({ pid, qty, aid })
-    res.status(200).json({ email, license })
+    db.serialize(() => {
+      db.run("INSERT INTO payments (pid, sid, aid, qty, email, license, json) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [pid, sid, aid, qty, email, JSON.stringify(license), JSON.stringify(session)])
+    })
+    res.status(200).json({ license })
   }
 }

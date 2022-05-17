@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -50,7 +51,7 @@ export default function Home() {
       <Jumbo title="Transparent Princing">
         <p className="col-md-8 fs-4">{`Flat $USD ${cost} per item license.`}</p>
         <ul>
-          <li>Please evaluate at your convenience.</li>
+          <li><Link href="/download">Evaluate</Link> at your convenience, for as long as you need to.</li>
           <li>Purchases are final.</li>
         </ul>
       </Jumbo>
@@ -79,7 +80,7 @@ export default function Home() {
           <Col sm="5"><span className='fw-bold'>$USD {total()}</span> before VAT</Col>
           <Col sm="2" className="d-flex justify-content-end">
             <Button onClick={checkout} disabled={disabled} variant="primary"
-              title="Buy License">Buy Now</Button>
+              title="Pay Now">Pay Now</Button>
           </Col>
         </Row>
       </div>
