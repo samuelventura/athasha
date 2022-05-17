@@ -17,16 +17,43 @@ export default function Home() {
   function total() {
     return numeral(cost * qty).format('0,0.00')
   }
+  function checkout() {
+    fetch('/api/buy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ qty, id }),
+    })
+      .then(r => r.json())
+      .then(r => { window.location.href = r.url })
+  }
   useEffect(() => {
     if (router.query.id) {
       setId(router.query.id)
       setRo(true)
     }
+    if (router.query.qty) {
+      setQty(router.query.qty)
+    }
   }, [router.query])
+  function fixQty(value) {
+    value = Number(value)
+    if (Number.isInteger(value) && value > 0 && value <= 100) {
+      setQty(`${value}`)
+    } else {
+      setQty(qty)
+    }
+  }
   return (
     <>
-      <Jumbo title="Transparent Princing" text={`$USD ${cost} per item license.
-      No hidden fees, no surprises.`} />
+      <Jumbo title="Transparent Princing">
+        <p className="col-md-8 fs-4">{`Flat $USD ${cost} per item license.`}</p>
+        <ul>
+          <li>Please evaluate at your convenience.</li>
+          <li>Purchases are final.</li>
+        </ul>
+      </Jumbo>
 
       <div className="row align-items-md-stretch">
         <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
@@ -43,27 +70,16 @@ export default function Home() {
             Quantity
           </Form.Label>
           <Col sm="7">
-            <Form.Select
-              value={qty} onChange={(e) => setQty(e.target.value)}>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </Form.Select>
+            <Form.Control type="number" placeholder="Type or Paste your Identity Key Here"
+              value={qty} onChange={(e) => fixQty(e.target.value)} />
           </Col>
         </Form.Group>
         <Row>
           <Col sm="1">Total</Col>
           <Col sm="5"><span className='fw-bold'>$USD {total()}</span> before VAT</Col>
           <Col sm="2" className="d-flex justify-content-end">
-            <Button disabled={disabled} variant="primary" title="Buy License">Buy Now</Button>
+            <Button onClick={checkout} disabled={disabled} variant="primary"
+              title="Buy License">Buy Now</Button>
           </Col>
         </Row>
       </div>
