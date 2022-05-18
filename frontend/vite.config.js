@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html'),
         screen: resolve(__dirname, 'screen.html'),
+        editor: resolve(__dirname, 'editor.html'),
         dataplot: resolve(__dirname, 'dataplot.html')
       }
     }
