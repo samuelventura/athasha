@@ -10,7 +10,7 @@ import Jumbo from '../components/jumbo'
 
 export default function Home() {
   const router = useRouter()
-  const cost = "49.99"
+  const cost = "58"
   const [id, setId] = useState("")
   const [qty, setQty] = useState("1")
   const [ro, setRo] = useState(false)
@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <>
       <Jumbo title="Transparent Princing">
-        <p className="col-md-8 fs-4">{`Flat $USD ${cost} per item license.`}</p>
+        <p className="col-md-8 fs-4">{`Flat USD $${cost} per item license.`}</p>
         <ul>
           <li><Link href="/download">Download</Link> and evaluate at your convenience, for as long as you need to.</li>
           <li>Lifetime free upgrades.</li>
@@ -78,7 +78,7 @@ export default function Home() {
         </Form.Group>
         <Row>
           <Col sm="1">Total</Col>
-          <Col sm="5"><span className='fw-bold'>$USD {total()}</span> before VAT</Col>
+          <Col sm="5"><span className='fw-bold'>USD ${total()}</span></Col>
           <Col sm="2" className="d-flex justify-content-end">
             <Button onClick={checkout} disabled={disabled} variant="primary"
               title="Pay Now">Pay Now</Button>
