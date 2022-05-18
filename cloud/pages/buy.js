@@ -52,6 +52,7 @@ export default function Home() {
         <p className="col-md-8 fs-4">{`Flat $USD ${cost} per item license.`}</p>
         <ul>
           <li><Link href="/download">Evaluate</Link> at your convenience, for as long as you need to.</li>
+          <li>Lifetime free upgrades.</li>
           <li>Purchases are final.</li>
         </ul>
       </Jumbo>

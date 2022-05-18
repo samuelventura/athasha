@@ -28,7 +28,7 @@ export default function Home() {
             <Link href={`/buy?id=${id}`}>
               <Button disabled={disabled} variant="link" title="Buy License">Buy</Button>
             </Link>
-            <Link href={`/recover?id=${id}`}>
+            <Link href={`/recover?query=${id}`}>
               <Button disabled={disabled} variant="link" title="Recover License">Recover</Button>
             </Link>
           </Col>

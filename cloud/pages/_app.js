@@ -62,7 +62,9 @@ function MyApp({ Component, pageProps }) {
               <h5>Resources</h5>
               <ul className="list-unstyled text-small">
                 <li className="mb-1"><Link href="/"><a className="link-secondary text-decoration-none">Home</a></Link></li>
+                <li className="mb-1"><Link href="/recover"><a className="link-secondary text-decoration-none">Recover</a></Link></li>
                 <li className="mb-1"><Link href="/download"><a className="link-secondary text-decoration-none">Download</a></Link></li>
+                <li className="mb-1"><Link href="/buy"><a className="link-secondary text-decoration-none">Buy</a></Link></li>
               </ul>
             </div>
             <div className="col-6 col-md">

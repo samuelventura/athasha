@@ -25,7 +25,9 @@ function testConnectionString(app, database, connstr, dbpass, done) {
 
 function safeCopy(txt) {
     try {
-        //ff Uncaught (in promise) DOMException: Clipboard write was blocked due to lack of user activation.
+        //chrome not working with non loopback addresses
+        //ff Uncaught (in promise) DOMException: 
+        //Clipboard write was blocked due to lack of user activation.
         navigator.clipboard.writeText(txt)
     } catch (ex) {
         Environ.log(ex)

@@ -1,11 +1,7 @@
 const crypto = require('crypto');
-const path = require('path');
-const os = require('os');
 const fs = require('fs');
 
-const home = os.homedir();
-const pemp = path.join(home, ".ssh", "athasha.pem")
-const pem = fs.readFileSync(pemp);
+const pem = fs.readFileSync(process.env.PRIVKEY);
 const key = pem.toString('ascii');
 
 function signer({ qty, pid, aid }) {

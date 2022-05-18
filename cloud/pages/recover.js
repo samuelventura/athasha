@@ -12,7 +12,7 @@ export default function Home() {
   const router = useRouter()
   const [rows, setRows] = useState(null)
   const [query, setQuery] = useState("")
-  function search() {
+  function search(query) {
     setRows(null)
     fetch("/api/get", {
       method: 'POST',
@@ -27,6 +27,7 @@ export default function Home() {
   useEffect(() => {
     if (router.query.query) {
       setQuery(router.query.query)
+      search(router.query.query)
     }
   }, [router.query])
   function localDate(dt) {
@@ -81,7 +82,7 @@ export default function Home() {
               value={query} onChange={(e) => setQuery(e.target.value)} />
           </Col>
           <Col sm="2" className="d-flex justify-content-start">
-            <Button onClick={search} variant="primary"
+            <Button onClick={() => search(query)} variant="primary"
               title="Search">Search</Button>
           </Col>
         </Form.Group>
