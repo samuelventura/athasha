@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -7,6 +8,7 @@ import Button from 'react-bootstrap/Button'
 import { useEffect, useState } from 'react'
 import Jumbo from '../components/jumbo'
 import download from '../tools/download'
+import moment from 'moment'
 
 export default function Home() {
   const router = useRouter()
@@ -31,21 +33,25 @@ export default function Home() {
     }
   }, [router.query])
   function localDate(dt) {
-    const date = new Date(`${dt} UTC`);
-    return date.toLocaleString()
+    const format = "YYYY-MM-DD hh:mm:ss"
+    const date = moment.utc(dt, format)
+    return date.local().format(format)
   }
   function tableRows(rows) {
     function onClick(row) {
       download(row.license.identity, [row.license])
     }
     return rows.map((row, index) => {
+      //adding copy on click is unreliable and make manually 
+      //selecting the text for copying impossible
+      //text-break for smartphone fluid rendering
       return <tr key={index} className="align-middle">
         <td>{index + 1}</td>
-        <td>{localDate(row.dt)}</td>
+        <td className='text-break'>{localDate(row.dt)}</td>
         <td>{row.qty}</td>
-        <td>{row.email}</td>
-        <td>{row.aid}</td>
-        <td><Button onClick={() => onClick(row)} variant="link">Download</Button></td>
+        <td className='text-break'>{row.email}</td>
+        <td className='text-break'>{row.aid}</td>
+        <td className='text-break'><Button onClick={() => onClick(row)} variant="link">Download</Button></td>
       </tr>
     })
   }
@@ -82,8 +88,9 @@ export default function Home() {
               value={query} onChange={(e) => setQuery(e.target.value)} />
           </Col>
           <Col sm="2" className="d-flex justify-content-start">
-            <Button onClick={() => search(query)} variant="primary"
-              title="Search">Search</Button>
+            <Link href={`/recover?query=${query}`}>
+              <Button variant="primary" title="Search">Search</Button>
+            </Link>
           </Col>
         </Form.Group>
 
