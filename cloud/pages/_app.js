@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
+import Script from 'next/script'
 import Link from 'next/link'
 import Image from 'next/image'
 import Toast from 'react-bootstrap/Toast'
@@ -38,6 +39,21 @@ function MyApp({ Component, pageProps }) {
   }
 
   return <>
+    {/* Do not put this scripts within or below head */}
+    <Script
+      strategy="lazyOnload"
+      src={`https://www.googletagmanager.com/gtag/js?id=G-TMPGXYK1VB`}
+    />
+    <Script id="google-analytics" strategy="lazyOnload">
+      {`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TMPGXYK1VB', {
+          page_path: window.location.pathname,
+        });
+      `}
+    </Script>
     <Head>
       <title>Athasha</title>
       <meta name="description" content="Athasha" />
