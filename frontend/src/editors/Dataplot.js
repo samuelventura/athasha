@@ -116,7 +116,7 @@ const checks = {
         Check.isString(value, labels.lineWidth)
         Check.notEmpty(value, labels.lineWidth)
         Check.isInteger(value, labels.lineWidth)
-        Check.isGT(value, labels.lineWidth, 0)
+        Check.isGE(value, labels.lineWidth, 1)
     },
     columns: {
         name: function (index, value) {

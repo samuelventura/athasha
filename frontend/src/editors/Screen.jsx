@@ -336,7 +336,7 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
                         <Form.Control type="password" {...settsProps("password")} />
                     </FormEntry>
                     <FormEntry label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} />
+                        <Form.Control type="number" {...settsProps("period")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.labels.scale}>
                         <Form.Select {...settsProps("scale")}>
@@ -354,16 +354,16 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
                         </Form.Select>
                     </FormEntry>
                     <FormEntry label={Initial.labels.width}>
-                        <Form.Control type="number" {...settsProps("width")} />
+                        <Form.Control type="number" {...settsProps("width")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.labels.height}>
-                        <Form.Control type="number" {...settsProps("height")} />
+                        <Form.Control type="number" {...settsProps("height")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.labels.gridX}>
-                        <Form.Control type="number" {...settsProps("gridX")} />
+                        <Form.Control type="number" {...settsProps("gridX")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.labels.gridY}>
-                        <Form.Control type="number" {...settsProps("gridY")} />
+                        <Form.Control type="number" {...settsProps("gridY")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.labels.bgColor}>
                         <InputGroup>
@@ -446,10 +446,10 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                             <Form.Control type="number" {...settsProps("posY")} />
                         </FormEntry>
                         <FormEntry label={Initial.clabels.width}>
-                            <Form.Control type="number" {...settsProps("width")} />
+                            <Form.Control type="number" {...settsProps("width")} min="1" />
                         </FormEntry>
                         <FormEntry label={Initial.clabels.height}>
-                            <Form.Control type="number" {...settsProps("height")} />
+                            <Form.Control type="number" {...settsProps("height")} min="1" />
                         </FormEntry>
                     </ListGroup.Item>
                 </ListGroup>

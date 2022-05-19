@@ -89,25 +89,23 @@ const cchecks = {
         Check.isString(value, labels.posX)
         Check.notEmpty(value, labels.posX)
         Check.isInteger(value, labels.posX)
-        Check.isGE(value, labels.posX, 0)
     },
     posY: function (value) {
         Check.isString(value, labels.posY)
         Check.notEmpty(value, labels.posY)
         Check.isInteger(value, labels.posY)
-        Check.isGE(value, labels.posY, 0)
     },
     width: function (value) {
         Check.isString(value, labels.width)
         Check.notEmpty(value, labels.width)
         Check.isInteger(value, labels.width)
-        Check.isGT(value, labels.width, 0)
+        Check.isGE(value, labels.width, 1)
     },
     height: function (value) {
         Check.isString(value, labels.height)
         Check.notEmpty(value, labels.height)
         Check.isInteger(value, labels.height)
-        Check.isGT(value, labels.height, 0)
+        Check.isGE(value, labels.height, 1)
     },
 }
 
@@ -150,7 +148,7 @@ const checks = {
         Check.isString(value, labels.period)
         Check.notEmpty(value, labels.period)
         Check.isInteger(value, labels.period)
-        Check.isGT(value, labels.period, 0)
+        Check.isGE(value, labels.period, 1)
     },
     scale: function (value) {
         Check.isString(value, labels.scale)
@@ -164,25 +162,25 @@ const checks = {
         Check.isString(value, labels.width)
         Check.notEmpty(value, labels.width)
         Check.isInteger(value, labels.width)
-        Check.isGT(value, labels.width, 0)
+        Check.isGE(value, labels.width, 1)
     },
     height: function (value) {
         Check.isString(value, labels.height)
         Check.notEmpty(value, labels.height)
         Check.isInteger(value, labels.height)
-        Check.isGT(value, labels.height, 0)
+        Check.isGE(value, labels.height, 1)
     },
     gridX: function (value) {
         Check.isString(value, labels.gridX)
         Check.notEmpty(value, labels.gridX)
         Check.isInteger(value, labels.gridX)
-        Check.isGT(value, labels.gridX, 0)
+        Check.isGE(value, labels.gridX, 1)
     },
     gridY: function (value) {
         Check.isString(value, labels.gridY)
         Check.notEmpty(value, labels.gridY)
         Check.isInteger(value, labels.gridY)
-        Check.isGT(value, labels.gridY, 0)
+        Check.isGE(value, labels.gridY, 1)
     },
     bgColor: function (value) {
         Check.isString(value, labels.bgColor)

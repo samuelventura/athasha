@@ -83,7 +83,7 @@ const dchecks = {
         Check.isString(value, dlabels.ftSize)
         Check.notEmpty(value, dlabels.ftSize)
         Check.isInteger(value, dlabels.ftSize)
-        Check.isGT(value, dlabels.ftSize, 0)
+        Check.isGE(value, dlabels.ftSize, 1)
     },
     ftFamily: function (value) {
         Check.isString(value, dlabels.ftFamily)

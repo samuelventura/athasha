@@ -138,7 +138,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.ftSize}>
-                        <Form.Control type="number" {...fieldProps("ftSize")} />
+                        <Form.Control type="number" {...fieldProps("ftSize")} min="1" />
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.ftFamily}>
                         <Form.Select {...fieldProps("ftFamily")}>
@@ -177,7 +177,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brWidth}>
-                        <Form.Control type="number" {...fieldProps("brWidth")} />
+                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" />
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brColor}>
                         <InputGroup>
@@ -186,7 +186,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brRadius}>
-                        <Form.Control type="number" {...fieldProps("brRadius")} />
+                        <Form.Control type="number" {...fieldProps("brRadius")} min="0" max="1" step="0.1" />
                     </FormEntry>
                 </Tab>
                 <Tab eventKey="condition1" title="Cond 1">

@@ -168,7 +168,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.lineWidth}>
-                        <Form.Control type="number"  {...settsProps("lineWidth")} />
+                        <Form.Control type="number"  {...settsProps("lineWidth")} min="1" />
                     </FloatingLabel>
                 </Col>
             </Row>

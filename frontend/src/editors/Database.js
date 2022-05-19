@@ -64,7 +64,7 @@ const checks = {
         Check.isString(value, labels.period)
         Check.notEmpty(value, labels.period)
         Check.isInteger(value, labels.period)
-        Check.isGT(value, labels.period, 0)
+        Check.isGE(value, labels.period, 1)
     },
     unit: function (value) {
         Check.isString(value, labels.unit)

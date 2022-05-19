@@ -96,7 +96,7 @@ function Editor(props) {
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "slave")} />
+                <Form.Control type="number" {...inputProps(index, "slave")} min="0" max="255" />
             </td>
             <td>
                 <Form.Select {...inputProps(index, "code")} >
@@ -117,7 +117,7 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "address")} />
+                <Form.Control type="number" {...inputProps(index, "address")} min="0" max="65535" />
             </td>
             <td>
                 <Form.Control type="text" {...inputProps(index, "name")} />
@@ -145,7 +145,7 @@ function Editor(props) {
         </Col>
         <Col xs={2}>
             <FloatingLabel label={Initial.labels.port}>
-                <Form.Control type="number" {...settsProps("port")} />
+                <Form.Control type="number" {...settsProps("port")} min="0" max="65535" />
             </FloatingLabel>
         </Col>
     </Row>)
@@ -164,7 +164,7 @@ function Editor(props) {
         </Col>
         <Col xs={2}>
             <FloatingLabel label={Initial.labels.speed}>
-                <Form.Control type="number" {...settsProps("speed")} />
+                <Form.Control type="number" {...settsProps("speed")} min="1" />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
@@ -200,7 +200,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} />
+                        <Form.Control type="number" {...settsProps("period")} min="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>

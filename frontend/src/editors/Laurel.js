@@ -112,7 +112,7 @@ const checks = {
         Check.isString(value, labels.speed)
         Check.notEmpty(value, labels.speed)
         Check.isInteger(value, labels.speed)
-        Check.isGT(value, labels.speed, 0)
+        Check.isGE(value, labels.speed, 1)
     },
     dbpsb: function (value) {
         Check.isString(value, labels.dbpsb)
@@ -129,7 +129,7 @@ const checks = {
             Check.isString(value, labels.slaves.decimals(index))
             Check.notEmpty(value, labels.slaves.decimals(index))
             Check.isGE(value, labels.slaves.decimals(index), 0)
-            Check.isLE(value, labels.slaves.decimals(index), 16)
+            Check.isLE(value, labels.slaves.decimals(index), 6)
         },
     },
     inputs: {

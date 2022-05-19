@@ -90,7 +90,7 @@ const checks = {
         Check.isString(value, labels.period)
         Check.notEmpty(value, labels.period)
         Check.isInteger(value, labels.period)
-        Check.isGT(value, labels.period, 0)
+        Check.isGE(value, labels.period, 1)
     },
     host: function (value) {
         Check.isString(value, labels.host)
@@ -111,7 +111,7 @@ const checks = {
         Check.isString(value, labels.speed)
         Check.notEmpty(value, labels.speed)
         Check.isInteger(value, labels.speed)
-        Check.isGT(value, labels.speed, 0)
+        Check.isGE(value, labels.speed, 1)
     },
     dbpsb: function (value) {
         Check.isString(value, labels.dbpsb)

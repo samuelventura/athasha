@@ -72,7 +72,7 @@ export default function Home() {
             Quantity
           </Form.Label>
           <Col sm="7">
-            <Form.Control type="number" placeholder="Type or Paste your Identity Key Here"
+            <Form.Control type="number"
               value={qty} onChange={(e) => fixQty(e.target.value)} />
           </Col>
         </Form.Group>
