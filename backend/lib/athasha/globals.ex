@@ -2,8 +2,10 @@ defmodule Athasha.Globals do
   use GenServer
   alias Athasha.Spec
   alias Athasha.Auth
-  alias Athasha.Tools
   alias Athasha.Store
+  alias Athasha.Environ
+
+  @key :global
 
   def child_spec(_) do
     Spec.forWorker(__MODULE__)
@@ -13,94 +15,65 @@ defmodule Athasha.Globals do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def update() do
-    Process.send(__MODULE__, :update, [])
+  def init(_initial) do
+    all = load_all()
+    register!(:identity, all.identity)
+    register!(:licenses, all.licenses)
+    register!(:hostname, all.hostname)
+    register!(:addresses, all.addresses)
+    {:ok, all}
   end
 
-  def info() do
+  def handle_call(:update, _from, _state) do
+    all = load_all()
+    update!(:identity, all.identity)
+    update!(:licenses, all.licenses)
+    update!(:hostname, all.hostname)
+    update!(:addresses, all.addresses)
+    {:reply, all, all}
+  end
+
+  def update() do
+    GenServer.call(__MODULE__, :update)
+  end
+
+  def load_all() do
+    identity = Environ.load_identity()
+
+    %{
+      identity: identity,
+      licenses: Auth.count_licenses(identity),
+      hostname: Environ.load_hostname(),
+      addresses: Environ.load_addresses()
+    }
+  end
+
+  def find_all() do
     %{
       identity: find_identity(),
       licenses: find_licenses(),
       hostname: find_hostname(),
-      ips: find_ips()
+      addresses: find_addresses()
     }
   end
 
-  def find_licenses() do
-    case Store.lookup({:licenses}) do
-      [{_, licenses}] -> licenses
+  def find_identity(), do: find(:identity)
+  def find_licenses(), do: find(:licenses)
+  def find_hostname(), do: find(:hostname)
+  def find_addresses(), do: find(:addresses)
+
+  defp find(key) do
+    case Store.lookup({@key, key}) do
+      [{_, value}] -> value
       [] -> nil
     end
   end
 
-  def find_identity() do
-    case Store.lookup({:identity}) do
-      [{_, identity}] -> identity
-      [] -> nil
-    end
+  defp register!(key, value) do
+    Store.register!({@key, key}, value)
   end
 
-  def find_hostname() do
-    case Store.lookup({:hostname}) do
-      [{_, hostname}] -> hostname
-      [] -> nil
-    end
-  end
-
-  def find_ips() do
-    case Store.lookup({:ips}) do
-      [{_, ips}] -> ips
-      [] -> nil
-    end
-  end
-
-  def init(_initial) do
-    identity = Auth.identity()
-    register_identity!(identity)
-    register_licenses!(Auth.licenses(identity))
-    register_hostname!(Tools.hostname())
-    register_ips!(Tools.ips())
-    {:ok, nil}
-  end
-
-  def handle_info(:update, state) do
-    identity = Auth.identity()
-    update_identity!(identity)
-    update_licenses!(Auth.licenses(identity))
-    update_hostname!(Tools.hostname())
-    update_ips!(Tools.ips())
-    {:noreply, state}
-  end
-
-  defp register_ips!(ips) do
-    Store.register!({:ips}, ips)
-  end
-
-  defp update_ips!(ips) do
-    Store.update!({:ips}, fn _ -> ips end)
-  end
-
-  defp register_hostname!(hostname) do
-    Store.register!({:hostname}, hostname)
-  end
-
-  defp update_hostname!(hostname) do
-    Store.update!({:hostname}, fn _ -> hostname end)
-  end
-
-  defp register_identity!(identity) do
-    Store.register!({:identity}, identity)
-  end
-
-  defp update_identity!(identity) do
-    Store.update!({:identity}, fn _ -> identity end)
-  end
-
-  defp register_licenses!(licenses) do
-    Store.register!({:licenses}, licenses)
-  end
-
-  defp update_licenses!(licenses) do
-    Store.update!({:licenses}, fn _ -> licenses end)
+  defp update!(key, value) do
+    Store.update!({@key, key}, fn _ -> value end)
   end
 end

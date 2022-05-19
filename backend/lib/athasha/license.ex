@@ -3,7 +3,7 @@ defmodule Athasha.License do
   import Ecto.Changeset
 
   schema "licenses" do
-    field(:key, :string)
+    field(:purchase, :string)
     field(:identity, :string)
     field(:quantity, :integer)
     field(:signature, :string)
@@ -14,8 +14,8 @@ defmodule Athasha.License do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:key, :identity, :quantity, :signature])
-    |> validate_required([:key, :identity, :quantity, :signature])
-    |> unique_constraint([:key])
+    |> cast(attrs, [:purchase, :identity, :quantity, :signature])
+    |> validate_required([:purchase, :identity, :quantity, :signature])
+    |> unique_constraint([:purchase])
   end
 end

@@ -9,6 +9,7 @@ defmodule Athasha.Server do
   alias Athasha.Repo
   alias Athasha.Item
   alias Athasha.Items
+  alias Athasha.Environ
 
   def child_spec(_) do
     Spec.forWorker(__MODULE__)
@@ -44,7 +45,7 @@ defmodule Athasha.Server do
   end
 
   def handle_info(:check, state) do
-    total = Auth.licenses()
+    total = Environ.load_identity() |> Auth.count_licenses()
 
     Enum.reduce(state.items, 0, fn {_, item}, count ->
       case item.enabled do

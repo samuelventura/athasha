@@ -1,57 +1,25 @@
 defmodule Athasha.Auth do
   alias Athasha.License
-  alias Athasha.Ports
+  alias Athasha.Environ
+  alias Athasha.Crypto
   alias Athasha.Repo
   alias Athasha.Bus
 
-  def licenses(identity \\ nil) do
-    identity =
-      case identity do
-        nil -> identity()
-        identity -> identity
-      end
+  def count_licenses(identity) do
+    pubkey = Environ.load_pubkey()
 
-    # works with openssl keys but not with ssh-keygen keys
-    path = Path.join(:code.priv_dir(:athasha), "athasha.pub")
-    pubkey = File.read!(path)
-    pubsha1 = sha1(pubkey)
-    [pubkey] = :public_key.pem_decode(pubkey)
-    pubkey = :public_key.pem_entry_decode(pubkey)
-
-    # last wins on duplicates
-    map =
+    # filter by identity
+    # database unique index prevents duplicates
+    list =
       Repo.all(License)
-      |> Enum.reduce(%{}, fn lic, map ->
-        case lic.identity do
-          ^identity -> Map.put(map, lic.key, lic)
-          _ -> map
-        end
-      end)
+      |> Enum.filter(fn lic -> lic.identity == identity end)
 
-    total =
-      Enum.reduce(map, 0, fn {_, lic}, count ->
-        msg = message(lic.quantity, lic.key, identity)
-        signature = lic.signature |> Base.decode64!()
-
-        case :public_key.verify(msg, :sha512, signature, pubkey) do
-          true -> count + lic.quantity
-          false -> count
-        end
-      end)
-
-    case pubsha1 do
-      "c145f9acb4f5b462bbcef81e70feeeea01518876" -> total
-      _ -> 0
-    end
-  end
-
-  def password() do
-    root_path = Application.get_env(:athasha, :root_path)
-
-    case File.read(Path.join(root_path, "athasha.config.pwd")) do
-      {:ok, data} -> String.trim(data)
-      _ -> ""
-    end
+    Enum.reduce(list, 0, fn lic, count ->
+      case Crypto.verify_license(lic, pubkey) do
+        true -> count + lic.quantity
+        false -> count
+      end
+    end)
   end
 
   def logout() do
@@ -61,40 +29,6 @@ defmodule Athasha.Auth do
   def login(_token, _proof, nil), do: false
 
   def login(token, proof, password) do
-    proof == sha1("#{token}:#{password}")
-  end
-
-  def sha1(data) do
-    :crypto.hash(:sha, data) |> Base.encode16() |> String.downcase()
-  end
-
-  def identity() do
-    [line] = Ports.read_lines("identity")
-    line
-  end
-
-  def message(quantity, key, identity) do
-    "#{quantity}:#{key}:#{identity}"
-  end
-
-  # Process.send(Globals, :update, [])
-  def insert_local(quantity, key) do
-    license = generate_local(quantity, key)
-    License.changeset(%License{}, license) |> Repo.insert()
-  end
-
-  def generate_local(quantity, key) do
-    home = System.user_home!()
-    path = Path.join([home, ".ssh", "athasha.pem"])
-    generate(quantity, key, identity(), path)
-  end
-
-  def generate(quantity, key, identity, path) do
-    pem = File.read!(path)
-    [privkey] = :public_key.pem_decode(pem)
-    privkey = :public_key.pem_entry_decode(privkey)
-    msg = message(quantity, key, identity)
-    signature = :public_key.sign(msg, :sha512, privkey) |> Base.encode64()
-    %{key: key, quantity: quantity, identity: identity, signature: signature}
+    proof == Crypto.sha1("#{token}:#{password}")
   end
 end

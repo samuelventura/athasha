@@ -1,28 +1,37 @@
 defmodule Athasha.Tools do
   alias Athasha.Repo
-  alias Athasha.Globals
+  alias Athasha.Ports
+  alias Athasha.Crypto
   alias Athasha.License
+  alias Athasha.Environ
 
-  def licenses() do
+  def load_licenses() do
     Repo.all(License)
     |> Enum.map(fn lic ->
-      Map.take(lic, [:key, :quantity, :identity, :signature])
+      Map.take(lic, [:purchase, :quantity, :identity, :signature])
     end)
   end
 
-  def add_licenses(list) do
+  def insert_licenses(list) do
     received = length(list)
-    identity = Globals.find_identity()
+    identity = Environ.load_identity()
+    pubkey = Environ.load_pubkey()
 
     installed =
       Enum.reduce(list, 0, fn lic, count ->
-        case lic["identity"] do
+        case lic.identity do
           ^identity ->
-            cs = License.changeset(%License{}, lic)
+            case Crypto.verify_license(lic, pubkey) do
+              true ->
+                cs = License.changeset(%License{}, lic)
 
-            case Repo.insert(cs) do
-              {:error, _} -> count
-              {:ok, _} -> count + 1
+                case Repo.insert(cs) do
+                  {:error, _} -> count
+                  {:ok, _} -> count + 1
+                end
+
+              false ->
+                count
             end
 
           _ ->
@@ -33,21 +42,22 @@ defmodule Athasha.Tools do
     %{received: received, installed: installed, identity: identity}
   end
 
-  def hostname() do
-    {:ok, hostname} = :inet.gethostname()
-    to_string(hostname)
+  def test_connstr(params) do
+    port = Ports.open4("database", [params.database])
+    true = Port.command(port, params.connstr)
+
+    receive do
+      {^port, {:data, "ok"}} ->
+        true = Port.close(port)
+        %{result: :ok}
+
+      {^port, {:data, <<"ex:", msg::binary>>}} ->
+        true = Port.close(port)
+        %{result: :er, error: msg}
+
+      {^port, {:exit_status, status}} ->
+        # ** (ArgumentError) argument error :erlang.port_close(#Port<0.17>)
+        %{result: :er, error: "Unexpected port exit #{status}"}
+    end
   end
-
-  def ips() do
-    {:ok, triples} = :inet.getif()
-    triples = Enum.filter(triples, &is_not_localhost/1)
-
-    Enum.map(triples, fn triple ->
-      {{oct1, oct2, oct3, oct4}, _broadcast, _mask} = triple
-      "#{oct1}.#{oct2}.#{oct3}.#{oct4}"
-    end)
-  end
-
-  defp is_not_localhost({{127, 0, 0, 1}, _broadcast, _mask}), do: false
-  defp is_not_localhost({_ip, _broadcast, _mask}), do: true
 end

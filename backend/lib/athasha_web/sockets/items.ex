@@ -5,6 +5,7 @@ defmodule AthashaWeb.ItemsSocket do
   alias Athasha.Auth
   alias Athasha.Server
   alias Athasha.Globals
+  alias Athasha.Environ
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -39,19 +40,8 @@ defmodule AthashaWeb.ItemsSocket do
     Bus.register!(:logout, nil)
     all = Server.all()
     state = Map.put(state, :version, all.version)
-    identity = Globals.find_identity()
-    licenses = Globals.find_licenses()
-    hostname = Globals.find_hostname()
-    ips = Globals.find_ips()
-
-    args = %{
-      items: all.items,
-      identity: identity,
-      licenses: licenses,
-      hostname: hostname,
-      ips: ips
-    }
-
+    args = Globals.find_all()
+    args = Map.put(args, :items, all.items)
     resp = %{name: "all", args: args}
     reply_text(resp, state)
   end
@@ -92,7 +82,7 @@ defmodule AthashaWeb.ItemsSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Auth.password()
+    password = Environ.load_password()
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

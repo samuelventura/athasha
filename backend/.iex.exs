@@ -12,7 +12,10 @@ alias Athasha.Server
 alias Athasha.Runner
 alias Athasha.Helper
 alias Athasha.Tools
+alias Athasha.Environ
+alias Athasha.Crypto
 alias Athasha.License
 alias Athasha.Globals
+alias Athasha.Develop
 alias Modbus.Master
 alias Modbus.Float
