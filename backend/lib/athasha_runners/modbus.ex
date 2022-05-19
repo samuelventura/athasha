@@ -116,7 +116,7 @@ defmodule Athasha.Runner.Modbus do
     fn value -> calibrate(value, factor, offset) end
   end
 
-  defp calibrate(value, 1, 0), do: value
+  defp calibrate(value, 1.0, 0.0), do: value
   defp calibrate(value, factor, offset), do: value * factor + offset
 
   defp exec_input(master, input) do
