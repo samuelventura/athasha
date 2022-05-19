@@ -11,8 +11,8 @@ defmodule AthashaWeb.ItemsSocket do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
   end
 
-  def connect(_state) do
-    {:ok, %{logged: false}}
+  def connect(state) do
+    {:ok, %{logged: false, id: state.params["id"]}}
   end
 
   def init(state) do
@@ -34,9 +34,19 @@ defmodule AthashaWeb.ItemsSocket do
     reply_text(resp, state)
   end
 
+  def handle_info({{:status, id}, nil, status}, state) do
+    status = Map.put(status, :id, id)
+    resp = %{name: "status", args: status}
+    reply_text(resp, state)
+  end
+
   def handle_info(:logged, state) do
+    case state.id do
+      nil -> Bus.register!(:status, nil)
+      id -> Bus.register!({:status, id}, nil)
+    end
+
     Bus.register!(:items, nil)
-    Bus.register!(:status, nil)
     Bus.register!(:logout, nil)
     all = Server.all()
     state = Map.put(state, :version, all.version)
@@ -97,7 +107,7 @@ defmodule AthashaWeb.ItemsSocket do
     end
   end
 
-  defp handle_event(event = %{"name" => "restore"}, state = %{logged: true}) do
+  defp handle_event(event = %{"name" => "restore"}, state = %{logged: true, id: nil}) do
     name = event["name"]
 
     args =
@@ -116,40 +126,47 @@ defmodule AthashaWeb.ItemsSocket do
     {:ok, state}
   end
 
-  defp handle_event(event, state = %{logged: true}) do
+  defp handle_event(event, state = %{logged: true, id: id}) do
     name = event["name"]
     args = event["args"]
-
-    event =
-      case name do
-        "rename" ->
-          %{name: "rename", args: %{id: args["id"], name: args["name"]}}
-
-        "enable" ->
-          %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
-
-        "edit" ->
-          %{name: "edit", args: %{id: args["id"], config: args["config"]}}
-
-        "delete" ->
-          %{name: "delete", args: %{id: args["id"]}}
-
-        "create" ->
-          %{
-            name: "create",
-            args: %{
-              name: args["name"],
-              type: args["type"],
-              enabled: args["enabled"],
-              config: args["config"]
-            }
-          }
-      end
-
+    event = fix_event(name, args, id)
     # ignore event collision (do not check :ok =)
     Server.apply(event)
-
     {:ok, state}
+  end
+
+  defp fix_event(name, args, nil) do
+    case name do
+      "rename" ->
+        %{name: "rename", args: %{id: args["id"], name: args["name"]}}
+
+      "enable" ->
+        %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
+
+      "edit" ->
+        %{name: "edit", args: %{id: args["id"], config: args["config"]}}
+
+      "delete" ->
+        %{name: "delete", args: %{id: args["id"]}}
+
+      "create" ->
+        %{
+          name: "create",
+          args: %{
+            name: args["name"],
+            type: args["type"],
+            enabled: args["enabled"],
+            config: args["config"]
+          }
+        }
+    end
+  end
+
+  defp fix_event(name, args, _id) do
+    case name do
+      "enable" -> fix_event(name, args, nil)
+      "edit" -> fix_event(name, args, nil)
+    end
   end
 
   defp reply_text(resp, state) do
