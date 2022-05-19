@@ -4,7 +4,7 @@ defmodule Modbus.Tcp.Transport do
   @to 2000
 
   def open(opts) do
-    ip = Keyword.fetch!(opts, :ip)
+    ip = Keyword.fetch!(opts, :ip) |> fix_ip
     port = Keyword.fetch!(opts, :port)
     timeout = Keyword.get(opts, :timeout, @to)
     opts = [:binary, packet: :raw, active: false]
@@ -29,4 +29,13 @@ defmodule Modbus.Tcp.Transport do
   def close(socket) do
     :gen_tcp.close(socket)
   end
+
+  defp fix_ip(ip) when is_binary(ip) do
+    ip
+    |> String.to_charlist()
+    |> :inet.parse_address()
+    |> elem(1)
+  end
+
+  defp fix_ip(ip), do: ip
 end
