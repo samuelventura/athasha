@@ -1,8 +1,6 @@
 defmodule Athasha.Runner.Screen do
-  alias Athasha.Bus
   alias Athasha.Raise
-  alias Athasha.Store
-  alias Athasha.Points
+  alias Athasha.PubSub
   @status 1000
 
   def run(item) do
@@ -13,20 +11,19 @@ defmodule Athasha.Runner.Screen do
     points = config["points"]
     period = String.to_integer(setts["period"])
 
-    Store.Password.register!(item, password)
+    PubSub.Password.register!(item, password)
 
     # reset points on each reconnection attempt
     # check for duplicates before register
     Enum.reduce(points, %{}, fn point, map ->
       if !Map.has_key?(map, point) do
-        Store.register!({:screen, id, point}, nil)
-        Bus.dispatch!({:screen, id}, {point, nil})
+        PubSub.Screen.register!(id, point)
       end
 
       Map.put(map, point, point)
     end)
 
-    Store.Status.update!(item, :success, "Connected")
+    PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(id, item, points, period)
@@ -40,7 +37,7 @@ defmodule Athasha.Runner.Screen do
   defp wait_once(id, item, points, period) do
     receive do
       :status ->
-        Store.Status.update!(item, :success, "Running")
+        PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -54,9 +51,8 @@ defmodule Athasha.Runner.Screen do
 
   defp run_once(id, points) do
     Enum.each(points, fn point ->
-      value = Points.get_value(point)
-      Store.update!({:screen, id, point}, fn _ -> value end)
-      Bus.dispatch!({:screen, id}, {point, value})
+      value = PubSub.Input.get_value(point)
+      PubSub.Screen.update!(id, point, value)
 
       if value == nil do
         Raise.error({:missing, point})

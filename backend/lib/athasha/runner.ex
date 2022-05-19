@@ -3,9 +3,9 @@ defmodule Athasha.Runner do
 
   alias Athasha.Bus
   alias Athasha.Spec
-  alias Athasha.Store
   alias Athasha.Raise
   alias Athasha.Server
+  alias Athasha.PubSub
   alias Athasha.Runners
 
   def child_spec(_) do
@@ -79,21 +79,21 @@ defmodule Athasha.Runner do
         try do
           # ensure status if linked process dies
           Process.flag(:trap_exit, true)
-          Store.Runner.register!(item)
-          Store.Status.register!(item, :warn, "Starting...")
+          PubSub.Runner.register!(item)
+          PubSub.Status.register!(item, :warn, "Starting...")
           :timer.sleep(1000)
           modu.run(item)
           Raise.error({:normal_exit, item.id})
         rescue
           e in RuntimeError ->
-            Store.Status.update!(item, :error, e.message)
+            PubSub.Status.update!(item, :error, e.message)
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
 
           # mostly for debugging: FunctionClauseError, ...
           e ->
-            Store.Status.update!(item, :error, "#{inspect(e)}")
+            PubSub.Status.update!(item, :error, "#{inspect(e)}")
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
@@ -141,7 +141,7 @@ defmodule Athasha.Runner do
   end
 
   defp join_runner(id) do
-    case Store.Runner.pid(id) do
+    case PubSub.Runner.pid(id) do
       nil ->
         :ok
 

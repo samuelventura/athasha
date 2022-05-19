@@ -2,8 +2,8 @@ defmodule Athasha.Auth do
   alias Athasha.License
   alias Athasha.Environ
   alias Athasha.Crypto
+  alias Athasha.PubSub
   alias Athasha.Repo
-  alias Athasha.Bus
 
   def count_licenses(identity) do
     pubkey = Environ.load_pubkey()
@@ -23,7 +23,7 @@ defmodule Athasha.Auth do
   end
 
   def logout() do
-    Bus.dispatch!(:logout, nil)
+    PubSub.Logout.dispatch!()
   end
 
   def login(_token, _proof, nil), do: false

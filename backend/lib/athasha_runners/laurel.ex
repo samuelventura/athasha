@@ -1,8 +1,7 @@
 defmodule Athasha.Runner.Laurel do
   alias Modbus.Master
   alias Athasha.Raise
-  alias Athasha.Store
-  alias Athasha.Points
+  alias Athasha.PubSub
   @status 1000
 
   def run(item) do
@@ -50,18 +49,18 @@ defmodule Athasha.Runner.Laurel do
       slaves: slaves
     }
 
-    Store.Status.update!(item, :warn, "Connecting...")
+    PubSub.Status.update!(item, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        Store.Status.update!(item, :success, "Connected")
+        PubSub.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(slaves, %{}, fn inputs, map ->
           Enum.reduce(inputs, map, fn input, map ->
             id = input.id
 
             if !Map.has_key?(map, input.id) do
-              Points.register_point!(id)
+              PubSub.Input.register!(id)
             end
 
             Map.put(map, id, id)
@@ -73,7 +72,7 @@ defmodule Athasha.Runner.Laurel do
         run_loop(item, config, master)
 
       {:error, reason} ->
-        Store.Status.update!(item, :error, "#{inspect(reason)}")
+        PubSub.Status.update!(item, :error, "#{inspect(reason)}")
         Raise.error({:connect_master, config, reason})
     end
   end
@@ -86,7 +85,7 @@ defmodule Athasha.Runner.Laurel do
   defp wait_once(item, config, master) do
     receive do
       :status ->
-        Store.Status.update!(item, :success, "Running")
+        PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -104,16 +103,16 @@ defmodule Athasha.Runner.Laurel do
         case exec_input(master, input, alarm) do
           {:ok, {alarm, index}} ->
             value = laurel_bit(alarm, index)
-            Points.update_point!(input.id, value)
+            PubSub.Input.update!(input.id, value)
             alarm
 
           {:ok, value} ->
-            Points.update_point!(input.id, value)
+            PubSub.Input.update!(input.id, value)
             alarm
 
           {:error, reason} ->
-            Points.update_point!(input.id, nil)
-            Store.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+            PubSub.Input.update!(input.id, nil)
+            PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
             Raise.error({:exec_input, input, reason})
         end
       end)

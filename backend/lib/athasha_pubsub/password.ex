@@ -1,4 +1,4 @@
-defmodule Athasha.Store.Password do
+defmodule Athasha.PubSub.Password do
   alias Athasha.Store
 
   @key :password

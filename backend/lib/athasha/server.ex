@@ -7,7 +7,7 @@ defmodule Athasha.Server do
   alias Athasha.Spec
   alias Athasha.Repo
   alias Athasha.Item
-  alias Athasha.Store
+  alias Athasha.PubSub
   alias Athasha.Environ
 
   def child_spec(_) do
@@ -20,10 +20,10 @@ defmodule Athasha.Server do
 
   def init(_initial) do
     items = Repo.all(Item)
-    items |> Enum.each(fn item -> Store.Item.register!(Item.strip(item)) end)
+    items |> Enum.each(fn item -> PubSub.Item.register!(Item.strip(item)) end)
     items = items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: 0, items: items}
-    Store.Items.register!(strip_map(items))
+    PubSub.Items.register!(strip_map(items))
     Process.send_after(self(), :check, 0)
     {:ok, state}
   end
@@ -158,15 +158,15 @@ defmodule Athasha.Server do
     items =
       case action do
         :set ->
-          Store.Item.register!(Item.strip(item))
+          PubSub.Item.register!(Item.strip(item))
           Map.put(items, id, item)
 
         :put ->
-          Store.Item.update!(Item.strip(item))
+          PubSub.Item.update!(Item.strip(item))
           Map.put(items, id, item)
 
         :del ->
-          Store.Item.unregister!(Item.strip(item))
+          PubSub.Item.unregister!(Item.strip(item))
           Map.delete(items, id)
       end
 
@@ -174,7 +174,7 @@ defmodule Athasha.Server do
     state = Map.put(state, :items, items)
     item = Item.strip(item)
     items = strip_map(items)
-    Store.Items.update!(items, version, item, from, muta)
+    PubSub.Items.update!(items, version, item, from, muta)
     Map.put(state, :version, version)
   end
 

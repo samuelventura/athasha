@@ -4,7 +4,7 @@ defmodule AthashaWeb.DataplotSocket do
   @item "Dataplot"
   alias Athasha.Bus
   alias Athasha.Auth
-  alias Athasha.Store
+  alias Athasha.PubSub
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -48,7 +48,7 @@ defmodule AthashaWeb.DataplotSocket do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = Store.Runner.find(id)
+    item = PubSub.Runner.find(id)
     Bus.register!({:status, id}, nil)
     Bus.register!({:items, id}, nil)
     Bus.register!({:dataplot, self()}, nil)
@@ -71,7 +71,7 @@ defmodule AthashaWeb.DataplotSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Store.Password.find(id, @item)
+    password = PubSub.Password.find(id, @item)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->
@@ -88,7 +88,7 @@ defmodule AthashaWeb.DataplotSocket do
 
   defp handle_event(event = %{"name" => "update"}, state = %{id: id, logged: true}) do
     args = event["args"]
-    Bus.dispatch!({:dataplot, id}, {self(), args})
+    PubSub.Dataplot.request!(id, args)
     {:ok, state}
   end
 

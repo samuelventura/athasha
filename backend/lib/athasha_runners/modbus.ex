@@ -1,8 +1,7 @@
 defmodule Athasha.Runner.Modbus do
   alias Modbus.Master
   alias Athasha.Raise
-  alias Athasha.Store
-  alias Athasha.Points
+  alias Athasha.PubSub
   @status 1000
 
   def run(item) do
@@ -52,17 +51,17 @@ defmodule Athasha.Runner.Modbus do
       inputs: inputs
     }
 
-    Store.Status.update!(item, :warn, "Connecting...")
+    PubSub.Status.update!(item, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        Store.Status.update!(item, :success, "Connected")
+        PubSub.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
           id = input.id
 
           if !Map.has_key?(map, id) do
-            Points.register_point!(id)
+            PubSub.Input.register!(id)
           end
 
           Map.put(map, id, id)
@@ -73,7 +72,7 @@ defmodule Athasha.Runner.Modbus do
         run_loop(item, config, master)
 
       {:error, reason} ->
-        Store.Status.update!(item, :error, "#{inspect(reason)}")
+        PubSub.Status.update!(item, :error, "#{inspect(reason)}")
         Raise.error({:connect_master, config, reason})
     end
   end
@@ -86,7 +85,7 @@ defmodule Athasha.Runner.Modbus do
   defp wait_once(item, config, master) do
     receive do
       :status ->
-        Store.Status.update!(item, :success, "Running")
+        PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -103,11 +102,11 @@ defmodule Athasha.Runner.Modbus do
       case exec_input(master, input) do
         {:ok, value} ->
           value = input.calib.(value)
-          Points.update_point!(input.id, value)
+          PubSub.Input.update!(input.id, value)
 
         {:error, reason} ->
-          Points.update_point!(input.id, nil)
-          Store.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+          PubSub.Input.update!(input.id, nil)
+          PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
           Raise.error({:exec_input, input, reason})
       end
     end)

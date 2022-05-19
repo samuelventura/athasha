@@ -1,8 +1,7 @@
 defmodule Athasha.Runner.Database do
   alias Athasha.Raise
   alias Athasha.Ports
-  alias Athasha.Store
-  alias Athasha.Points
+  alias Athasha.PubSub
   @status 1000
 
   def run(item) do
@@ -37,11 +36,11 @@ defmodule Athasha.Runner.Database do
       command: command
     }
 
-    Store.Status.update!(item, :warn, "Connecting...")
+    PubSub.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
-    Store.Status.update!(item, :success, "Connected")
+    PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(item, config, port)
@@ -68,7 +67,7 @@ defmodule Athasha.Runner.Database do
   defp wait_once(item, config, port) do
     receive do
       :status ->
-        Store.Status.update!(item, :success, "Running")
+        PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -84,7 +83,7 @@ defmodule Athasha.Runner.Database do
     parameters =
       Enum.map(config.points, fn point ->
         id = point.id
-        value = Points.get_value(id)
+        value = PubSub.Input.get_value(id)
 
         if value == nil do
           Raise.error({:missing, id})

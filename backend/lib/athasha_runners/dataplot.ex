@@ -2,7 +2,7 @@ defmodule Athasha.Runner.Dataplot do
   alias Athasha.Bus
   alias Athasha.Ports
   alias Athasha.Raise
-  alias Athasha.Store
+  alias Athasha.PubSub
   @status 1000
 
   def run(item) do
@@ -15,7 +15,7 @@ defmodule Athasha.Runner.Dataplot do
     dbpass = setts["dbpass"]
     connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
-    Store.Password.register!(item, password)
+    PubSub.Password.register!(item, password)
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
@@ -25,11 +25,11 @@ defmodule Athasha.Runner.Dataplot do
       command: command
     }
 
-    Store.Status.update!(item, :warn, "Connecting...")
+    PubSub.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
-    Store.Status.update!(item, :success, "Connected")
+    PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Bus.register!({:dataplot, item.id}, nil)
     run_loop(item, config, port)
@@ -56,7 +56,7 @@ defmodule Athasha.Runner.Dataplot do
   defp wait_once(item = %{id: id}, config, port) do
     receive do
       :status ->
-        Store.Status.update!(item, :success, "Running")
+        PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       {{:dataplot, ^id}, nil, {from, args}} ->
@@ -67,7 +67,7 @@ defmodule Athasha.Runner.Dataplot do
         receive do
           {^port, {:data, data}} ->
             data = Jason.decode!(data)
-            Bus.dispatch!({:dataplot, from}, data)
+            PubSub.Dataplot.response!(from, data)
 
           {^port, {:exit_status, status}} ->
             Raise.error({:receive, {:exit_status, status}})

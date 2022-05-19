@@ -1,4 +1,4 @@
-defmodule Athasha.Store.Status do
+defmodule Athasha.PubSub.Status do
   alias Athasha.Store
   alias Athasha.Bus
 

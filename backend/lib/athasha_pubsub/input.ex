@@ -1,8 +1,8 @@
-defmodule Athasha.Points do
+defmodule Athasha.PubSub.Input do
   alias Athasha.Store
   alias Athasha.Bus
 
-  @key :point
+  @key :input
 
   def list() do
     match = {{@key, :"$1"}, :"$2", :"$3"}
@@ -11,19 +11,19 @@ defmodule Athasha.Points do
     Store.select(query)
   end
 
-  def register_point!(id) do
+  def register!(id) do
     key = {@key, id}
     Store.register!(key, nil)
-    dispatch_point!(id, nil)
+    dispatch!(id, nil)
   end
 
-  def update_point!(id, value) do
+  def update!(id, value) do
     key = {@key, id}
     Store.update!(key, fn _ -> value end)
-    dispatch_point!(id, value)
+    dispatch!(id, value)
   end
 
-  defp dispatch_point!(id, value) do
+  defp dispatch!(id, value) do
     Bus.dispatch!({@key, id}, value)
   end
 
@@ -37,12 +37,5 @@ defmodule Athasha.Points do
       [{value}] -> value
       [] -> nil
     end
-  end
-
-  def screen_points(id) do
-    match = {{:screen, id, :"$1"}, :"$2", :"$3"}
-    select = {{:"$1", :"$2", :"$3"}}
-    query = [{match, [], [select]}]
-    Store.select(query)
   end
 end

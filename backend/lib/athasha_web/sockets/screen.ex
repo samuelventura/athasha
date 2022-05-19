@@ -4,8 +4,7 @@ defmodule AthashaWeb.ScreenSocket do
   @item "Screen"
   alias Athasha.Bus
   alias Athasha.Auth
-  alias Athasha.Store
-  alias Athasha.Points
+  alias Athasha.PubSub
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -50,12 +49,12 @@ defmodule AthashaWeb.ScreenSocket do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = Store.Runner.find(id)
+    item = PubSub.Runner.find(id)
     Bus.register!({:status, id}, nil)
     Bus.register!({:screen, id}, nil)
     Bus.register!({:items, id}, nil)
     config = item.config
-    initial = Points.screen_points(id) |> Enum.map(&initial_point/1)
+    initial = PubSub.Screen.list(id) |> Enum.map(&initial_point/1)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}
     reply_text(resp, state)
@@ -74,7 +73,7 @@ defmodule AthashaWeb.ScreenSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Store.Password.find(id, @item)
+    password = PubSub.Password.find(id, @item)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

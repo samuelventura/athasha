@@ -1,4 +1,4 @@
-defmodule Athasha.Store.Runner do
+defmodule Athasha.PubSub.Runner do
   alias Athasha.Store
 
   @key :runner
