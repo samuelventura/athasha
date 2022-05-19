@@ -9,6 +9,7 @@ case $COMMAND in
         (cd backend && mix deps.get --only prod)
         (cd backend && MIX_ENV=prod mix compile)
         (cd backend && MIX_ENV=prod mix assets.deploy)
+        (dos2unix backend/_build/prod/lib/athasha/priv/athasha.pub)
         #requires dev dependencies
         #(cd backend && mix phx.gen.release)
         rsync -avr frontend/dist/ backend/priv/client
