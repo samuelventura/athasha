@@ -13,7 +13,7 @@ function initial() {
     hostname: "",
     identity: "",
     licenses: 0,
-    ips: [],
+    addresses: [],
   }
 }
 
@@ -64,7 +64,7 @@ function reducer(state, { name, args, self }) {
       next.hostname = args.hostname
       next.identity = args.identity
       next.licenses = args.licenses
-      next.ips = args.ips
+      next.addresses = args.addresses
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item

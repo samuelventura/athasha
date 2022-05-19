@@ -1,4 +1,4 @@
-defmodule Athasha.Helper do
+defmodule Athasha.Repl do
   # REPL debugging helpers
 
   # returns list of local named processes

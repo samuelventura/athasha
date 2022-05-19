@@ -1,7 +1,7 @@
-defmodule Athasha.Opto22Runner do
+defmodule Athasha.Runner.Opto22 do
   alias Modbus.Master
-  alias Athasha.Items
   alias Athasha.Raise
+  alias Athasha.Store
   alias Athasha.Points
   @status 1000
 
@@ -43,11 +43,11 @@ defmodule Athasha.Opto22Runner do
       inputs: inputs
     }
 
-    Items.update_status!(item, :warn, "Connecting...")
+    Store.Status.update!(item, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        Items.update_status!(item, :success, "Connected")
+        Store.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
           id = input.id
@@ -64,7 +64,7 @@ defmodule Athasha.Opto22Runner do
         run_loop(item, config, master)
 
       {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(reason)}")
+        Store.Status.update!(item, :error, "#{inspect(reason)}")
         Raise.error({:connect_master, config, reason})
     end
   end
@@ -77,7 +77,7 @@ defmodule Athasha.Opto22Runner do
   defp wait_once(item, config, master) do
     receive do
       :status ->
-        Items.update_status!(item, :success, "Running")
+        Store.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -97,7 +97,7 @@ defmodule Athasha.Opto22Runner do
 
         {:error, reason} ->
           Points.update_point!(input.id, nil)
-          Items.update_status!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+          Store.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
           Raise.error({:exec_input, input, reason})
       end
     end)

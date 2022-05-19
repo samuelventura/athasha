@@ -1,7 +1,7 @@
-defmodule Athasha.LaurelRunner do
+defmodule Athasha.Runner.Laurel do
   alias Modbus.Master
-  alias Athasha.Items
   alias Athasha.Raise
+  alias Athasha.Store
   alias Athasha.Points
   @status 1000
 
@@ -50,11 +50,11 @@ defmodule Athasha.LaurelRunner do
       slaves: slaves
     }
 
-    Items.update_status!(item, :warn, "Connecting...")
+    Store.Status.update!(item, :warn, "Connecting...")
 
     case connect_master(config) do
       {:ok, master} ->
-        Items.update_status!(item, :success, "Connected")
+        Store.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(slaves, %{}, fn inputs, map ->
           Enum.reduce(inputs, map, fn input, map ->
@@ -73,7 +73,7 @@ defmodule Athasha.LaurelRunner do
         run_loop(item, config, master)
 
       {:error, reason} ->
-        Items.update_status!(item, :error, "#{inspect(reason)}")
+        Store.Status.update!(item, :error, "#{inspect(reason)}")
         Raise.error({:connect_master, config, reason})
     end
   end
@@ -86,7 +86,7 @@ defmodule Athasha.LaurelRunner do
   defp wait_once(item, config, master) do
     receive do
       :status ->
-        Items.update_status!(item, :success, "Running")
+        Store.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->
@@ -113,7 +113,7 @@ defmodule Athasha.LaurelRunner do
 
           {:error, reason} ->
             Points.update_point!(input.id, nil)
-            Items.update_status!(item, :error, "#{inspect(input)} #{inspect(reason)}")
+            Store.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
             Raise.error({:exec_input, input, reason})
         end
       end)

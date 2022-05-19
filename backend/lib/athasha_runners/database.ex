@@ -1,7 +1,7 @@
-defmodule Athasha.DatabaseRunner do
-  alias Athasha.Items
+defmodule Athasha.Runner.Database do
   alias Athasha.Raise
   alias Athasha.Ports
+  alias Athasha.Store
   alias Athasha.Points
   @status 1000
 
@@ -37,11 +37,11 @@ defmodule Athasha.DatabaseRunner do
       command: command
     }
 
-    Items.update_status!(item, :warn, "Connecting...")
+    Store.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
-    Items.update_status!(item, :success, "Connected")
+    Store.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(item, config, port)
@@ -68,7 +68,7 @@ defmodule Athasha.DatabaseRunner do
   defp wait_once(item, config, port) do
     receive do
       :status ->
-        Items.update_status!(item, :success, "Running")
+        Store.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->

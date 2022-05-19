@@ -1,8 +1,8 @@
-defmodule Athasha.DataplotRunner do
+defmodule Athasha.Runner.Dataplot do
   alias Athasha.Bus
-  alias Athasha.Items
   alias Athasha.Ports
   alias Athasha.Raise
+  alias Athasha.Store
   @status 1000
 
   def run(item) do
@@ -15,7 +15,7 @@ defmodule Athasha.DataplotRunner do
     dbpass = setts["dbpass"]
     connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
-    Items.register_password!(item, password)
+    Store.Password.register!(item, password)
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
@@ -25,11 +25,11 @@ defmodule Athasha.DataplotRunner do
       command: command
     }
 
-    Items.update_status!(item, :warn, "Connecting...")
+    Store.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
-    Items.update_status!(item, :success, "Connected")
+    Store.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Bus.register!({:dataplot, item.id}, nil)
     run_loop(item, config, port)
@@ -56,7 +56,7 @@ defmodule Athasha.DataplotRunner do
   defp wait_once(item = %{id: id}, config, port) do
     receive do
       :status ->
-        Items.update_status!(item, :success, "Running")
+        Store.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       {{:dataplot, ^id}, nil, {from, args}} ->

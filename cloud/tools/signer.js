@@ -9,7 +9,7 @@ function signer({ qty, pid, aid }) {
     sign.update(`${qty}:${pid}:${aid}`);
     const signature = sign.sign(key, 'base64');
     return {
-        key: pid,
+        purchase: pid,
         quantity: qty,
         identity: aid,
         signature: signature,

@@ -3,12 +3,11 @@ defmodule Athasha.Server do
   # 1hr in millis
   @check 1000 * 60 * 60
 
-  alias Athasha.Bus
   alias Athasha.Auth
   alias Athasha.Spec
   alias Athasha.Repo
   alias Athasha.Item
-  alias Athasha.Items
+  alias Athasha.Store
   alias Athasha.Environ
 
   def child_spec(_) do
@@ -21,13 +20,10 @@ defmodule Athasha.Server do
 
   def init(_initial) do
     items = Repo.all(Item)
-    Items.register_all!(items)
-    items |> Enum.each(fn item -> Items.register_item!(item) end)
+    items |> Enum.each(fn item -> Store.Item.register!(Item.strip(item)) end)
     items = items |> Enum.into(%{}, &{&1.id, &1})
-
     state = %{version: 0, items: items}
-    all = get_all(state)
-    Bus.dispatch!(:items, {:init, all})
+    Store.Items.register!(strip_map(items))
     Process.send_after(self(), :check, 0)
     {:ok, state}
   end
@@ -162,30 +158,24 @@ defmodule Athasha.Server do
     items =
       case action do
         :set ->
-          Items.register_item!(item)
+          Store.Item.register!(Item.strip(item))
           Map.put(items, id, item)
 
         :put ->
-          Items.update_item!(item)
+          Store.Item.update!(Item.strip(item))
           Map.put(items, id, item)
 
         :del ->
-          Items.unregister_item!(item)
+          Store.Item.unregister!(Item.strip(item))
           Map.delete(items, id)
       end
 
-    item = Item.strip(item)
     version = state.version + 1
-    Items.update_all!(items, version)
-    Bus.dispatch!(:items, {from, version, muta, item})
-    Bus.dispatch!({:items, id}, {from, version, muta, item})
     state = Map.put(state, :items, items)
+    item = Item.strip(item)
+    items = strip_map(items)
+    Store.Items.update!(items, version, item, from, muta)
     Map.put(state, :version, version)
-  end
-
-  defp get_all(state) do
-    items = state.items |> Enum.map(&strip_tuple/1)
-    %{version: state.version, items: items}
   end
 
   defp update(item, args) do
@@ -200,7 +190,16 @@ defmodule Athasha.Server do
     Item.changeset(%Item{}, args, :id) |> Repo.insert()
   end
 
+  defp get_all(state) do
+    items = strip_map(state.items)
+    %{version: state.version, items: items}
+  end
+
   defp strip_tuple({_id, item}) do
     Item.strip(item)
+  end
+
+  defp strip_map(items) do
+    items |> Enum.map(&strip_tuple/1)
   end
 end

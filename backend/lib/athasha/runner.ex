@@ -3,8 +3,8 @@ defmodule Athasha.Runner do
 
   alias Athasha.Bus
   alias Athasha.Spec
+  alias Athasha.Store
   alias Athasha.Raise
-  alias Athasha.Items
   alias Athasha.Server
   alias Athasha.Runners
 
@@ -27,7 +27,7 @@ defmodule Athasha.Runner do
     {:ok, state}
   end
 
-  def handle_info({:items, nil, {:init, _all}}, state) do
+  def handle_info({:items, nil, {:init, _items}}, state) do
     {:stop, :init, state}
   end
 
@@ -79,21 +79,21 @@ defmodule Athasha.Runner do
         try do
           # ensure status if linked process dies
           Process.flag(:trap_exit, true)
-          Items.register_runner!(item)
-          Items.register_status!(item, :warn, "Starting...")
+          Store.Runner.register!(item)
+          Store.Status.register!(item, :warn, "Starting...")
           :timer.sleep(1000)
           modu.run(item)
           Raise.error({:normal_exit, item.id})
         rescue
           e in RuntimeError ->
-            Items.update_status!(item, :error, e.message)
+            Store.Status.update!(item, :error, e.message)
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
 
           # mostly for debugging: FunctionClauseError, ...
           e ->
-            Items.update_status!(item, :error, "#{inspect(e)}")
+            Store.Status.update!(item, :error, "#{inspect(e)}")
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
@@ -111,12 +111,12 @@ defmodule Athasha.Runner do
   defp start(item) do
     modu =
       case item.type do
-        "Screen" -> Athasha.ScreenRunner
-        "Modbus" -> Athasha.ModbusRunner
-        "Database" -> Athasha.DatabaseRunner
-        "Dataplot" -> Athasha.DataplotRunner
-        "Laurel" -> Athasha.LaurelRunner
-        "Opto22" -> Athasha.Opto22Runner
+        "Screen" -> Athasha.Runner.Screen
+        "Modbus" -> Athasha.Runner.Modbus
+        "Database" -> Athasha.Runner.Database
+        "Dataplot" -> Athasha.Runner.Dataplot
+        "Laurel" -> Athasha.Runner.Laurel
+        "Opto22" -> Athasha.Runner.Opto22
       end
 
     id = item.id
@@ -141,7 +141,7 @@ defmodule Athasha.Runner do
   end
 
   defp join_runner(id) do
-    case Items.runner_pid(id) do
+    case Store.Runner.pid(id) do
       nil ->
         :ok
 

@@ -1,16 +1,15 @@
 alias Athasha.Bus
+alias Athasha.Repl
 alias Athasha.Auth
 alias Athasha.Spec
 alias Athasha.Repo
 alias Athasha.Item
 alias Athasha.Ports
 alias Athasha.Store
-alias Athasha.Items
 alias Athasha.Raise
 alias Athasha.Points
 alias Athasha.Server
 alias Athasha.Runner
-alias Athasha.Helper
 alias Athasha.Tools
 alias Athasha.Environ
 alias Athasha.Crypto

@@ -1,7 +1,6 @@
-defmodule Athasha.ScreenRunner do
+defmodule Athasha.Runner.Screen do
   alias Athasha.Bus
   alias Athasha.Raise
-  alias Athasha.Items
   alias Athasha.Store
   alias Athasha.Points
   @status 1000
@@ -14,7 +13,7 @@ defmodule Athasha.ScreenRunner do
     points = config["points"]
     period = String.to_integer(setts["period"])
 
-    Items.register_password!(item, password)
+    Store.Password.register!(item, password)
 
     # reset points on each reconnection attempt
     # check for duplicates before register
@@ -27,7 +26,7 @@ defmodule Athasha.ScreenRunner do
       Map.put(map, point, point)
     end)
 
-    Items.update_status!(item, :success, "Connected")
+    Store.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(id, item, points, period)
@@ -41,7 +40,7 @@ defmodule Athasha.ScreenRunner do
   defp wait_once(id, item, points, period) do
     receive do
       :status ->
-        Items.update_status!(item, :success, "Running")
+        Store.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
 
       :once ->

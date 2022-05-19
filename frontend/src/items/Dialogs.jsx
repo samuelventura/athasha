@@ -232,9 +232,6 @@ function ToolsButton() {
     function updateAndReload() {
         fetch("api/update").then(() => window.location.reload())
     }
-    function refreshIps() {
-        updateAndReload()
-    }
     return app.logged ? (
         <Dropdown className="d-inline">
             <Dropdown.Toggle variant="link" title="System Tools">
@@ -247,7 +244,7 @@ function ToolsButton() {
                 <Dropdown.Item onClick={restoreItems}>Restore Items</Dropdown.Item>
                 <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
                 <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
-                <Dropdown.Item onClick={refreshIps}>Refresh IPs</Dropdown.Item>
+                <Dropdown.Item onClick={updateAndReload}>Refresh Info</Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
     ) : null
@@ -255,8 +252,8 @@ function ToolsButton() {
 
 function HostButton() {
     const app = useApp()
-    const ips = [app.state.hostname, ...app.state.ips, "localhost", "127.0.0.1"]
-    const dropdownItems = ips.map((ip, index) =>
+    const addresses = [app.state.hostname, ...app.state.addresses, "localhost", "127.0.0.1"]
+    const dropdownItems = addresses.map((ip, index) =>
         <Dropdown.Item key={index} href={Environ.reHost(ip)}>{ip}</Dropdown.Item>
     )
     return app.logged ? (
@@ -276,8 +273,8 @@ function InfoButton() {
     const identity = app.state.identity
     const licenses = app.state.licenses
     const hostname = app.state.hostname
-    const ips = app.state.ips.join(" ")
-    const tooltip = `Identity: ${identity}\nIPs: ${ips}\nHostname: ${hostname}\nLicenses: ${licenses}`
+    const addresses = app.state.addresses.join(" ")
+    const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}`
     const handleOnClick = () => {
         Tools.safeCopy(tooltip)
     }

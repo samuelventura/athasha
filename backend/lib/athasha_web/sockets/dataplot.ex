@@ -4,7 +4,7 @@ defmodule AthashaWeb.DataplotSocket do
   @item "Dataplot"
   alias Athasha.Bus
   alias Athasha.Auth
-  alias Athasha.Items
+  alias Athasha.Store
 
   def child_spec(_opts) do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
@@ -37,12 +37,6 @@ defmodule AthashaWeb.DataplotSocket do
     end
   end
 
-  def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do
-    args = %{id: point, value: value}
-    resp = %{name: "point", args: args}
-    reply_text(resp, state)
-  end
-
   def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
@@ -54,9 +48,8 @@ defmodule AthashaWeb.DataplotSocket do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = Items.find_runner(id)
+    item = Store.Runner.find(id)
     Bus.register!({:status, id}, nil)
-    Bus.register!({:screen, id}, nil)
     Bus.register!({:items, id}, nil)
     Bus.register!({:dataplot, self()}, nil)
     config = item.config
@@ -78,7 +71,7 @@ defmodule AthashaWeb.DataplotSocket do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = Items.find_password(id, @item)
+    password = Store.Password.find(id, @item)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

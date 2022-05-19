@@ -50,7 +50,7 @@ defmodule AthashaWeb.ItemsSocket do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {:init, _all}}, state) do
+  def handle_info({:items, nil, {:init, _items}}, state) do
     {:stop, :init, state}
   end
 
