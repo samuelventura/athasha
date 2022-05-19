@@ -20,7 +20,7 @@ defmodule Athasha.Runner.Modbus do
     inputs =
       Enum.map(config["inputs"], fn input ->
         slave = String.to_integer(input["slave"])
-        address = String.to_integer(input["address"])
+        address = String.to_integer(input["address"]) - 1
         code = input["code"]
         name = input["name"]
         factor = Decimal.new(input["factor"]) |> Decimal.to_float()
@@ -121,47 +121,59 @@ defmodule Athasha.Runner.Modbus do
 
   defp exec_input(master, input) do
     case input.code do
-      "01" ->
+      "01 Coil" ->
         read_bit(master, :rc, input)
 
-      "02" ->
+      "02 Input" ->
         read_bit(master, :ri, input)
 
-      "31" ->
+      "03 U16BE" ->
         read_register(master, :rhr, input, &u16be/1)
 
-      "32" ->
+      "03 S16BE" ->
         read_register(master, :rhr, input, &s16be/1)
 
-      "33" ->
+      "03 U16LE" ->
         read_register(master, :rhr, input, &u16le/1)
 
-      "34" ->
+      "03 S16LE" ->
         read_register(master, :rhr, input, &s16le/1)
 
-      "35" ->
-        read_register2(master, :rhr, input, &f32be/2)
+      "03 F32BED" ->
+        read_register2(master, :rhr, input, &f32bed/2)
 
-      "36" ->
-        read_register2(master, :rhr, input, &f32le/2)
+      "03 F32LED" ->
+        read_register2(master, :rhr, input, &f32led/2)
 
-      "41" ->
+      "03 F32BER" ->
+        read_register2(master, :rhr, input, &f32ber/2)
+
+      "03 F32LER" ->
+        read_register2(master, :rhr, input, &f32ler/2)
+
+      "04 U16BE" ->
         read_register(master, :rir, input, &u16be/1)
 
-      "42" ->
+      "04 S16BE" ->
         read_register(master, :rir, input, &s16be/1)
 
-      "43" ->
+      "04 U16LE" ->
         read_register(master, :rir, input, &u16le/1)
 
-      "44" ->
+      "04 S16LE" ->
         read_register(master, :rir, input, &s16le/1)
 
-      "45" ->
-        read_register2(master, :rir, input, &f32be/2)
+      "04 F32BED" ->
+        read_register2(master, :rir, input, &f32bed/2)
 
-      "46" ->
-        read_register2(master, :rir, input, &f32le/2)
+      "04 F32LED" ->
+        read_register2(master, :rir, input, &f32led/2)
+
+      "04 F32BER" ->
+        read_register2(master, :rir, input, &f32ber/2)
+
+      "04 F32LER" ->
+        read_register2(master, :rir, input, &f32ler/2)
     end
   end
 
@@ -185,13 +197,23 @@ defmodule Athasha.Runner.Modbus do
     {:ok, value}
   end
 
-  defp f32be(w0, w1) do
+  defp f32bed(w0, w1) do
     <<value::float-big-32>> = <<w0::16, w1::16>>
     {:ok, value}
   end
 
-  defp f32le(w0, w1) do
+  defp f32led(w0, w1) do
     <<value::float-little-32>> = <<w0::16, w1::16>>
+    {:ok, value}
+  end
+
+  defp f32ber(w0, w1) do
+    <<value::float-big-32>> = <<w1::16, w0::16>>
+    {:ok, value}
+  end
+
+  defp f32ler(w0, w1) do
+    <<value::float-little-32>> = <<w1::16, w0::16>>
     {:ok, value}
   end
 

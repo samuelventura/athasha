@@ -7,6 +7,27 @@ function config() {
     }
 }
 
+const fuctions = [
+    "01 Coil",
+    "02 Input",
+    "03 U16BE",
+    "03 S16BE",
+    "03 U16LE",
+    "03 S16LE",
+    "03 F32BED",
+    "03 F32LED",
+    "03 F32BER",
+    "03 F32LER",
+    "04 U16BE",
+    "04 S16BE",
+    "04 U16LE",
+    "04 S16LE",
+    "04 F32BED",
+    "04 F32LED",
+    "04 F32BER",
+    "04 F32LER"
+]
+
 function setts() {
     return {
         proto: "TCP",    //RTU
@@ -23,8 +44,8 @@ function setts() {
 function input(index) {
     return {
         slave: "1",
-        code: "01",
-        address: `${index || 0}`,
+        code: "01 Coil",
+        address: `${1 + (index || 0)}`,
         name: `Input ${1 + (index || 0)}`,
         factor: "1",
         offset: "0",
@@ -131,8 +152,8 @@ const checks = {
         address: function (index, value) {
             Check.isString(value, labels.inputs.address(index))
             Check.notEmpty(value, labels.inputs.address(index))
-            Check.isGE(value, labels.inputs.address(index), 0)
-            Check.isLE(value, labels.inputs.address(index), 65535)
+            Check.isGE(value, labels.inputs.address(index), 1)
+            Check.isLE(value, labels.inputs.address(index), 65536)
         },
         name: function (index, value) {
             Check.isString(value, labels.inputs.name(index))
@@ -187,6 +208,7 @@ function validator({ setts, inputs }) {
 }
 
 export default {
+    fuctions,
     config,
     setts,
     input,

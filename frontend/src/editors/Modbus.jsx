@@ -91,7 +91,7 @@ function Editor(props) {
     const serialOptions = serials.map((serial, index) => {
         return <option key={index} value={serial}>{serial}</option>
     })
-
+    const functionOptions = Initial.fuctions.map((code, index) => <option key={index} value={code}>{code}</option>)
     const rows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
@@ -100,24 +100,11 @@ function Editor(props) {
             </td>
             <td>
                 <Form.Select {...inputProps(index, "code")} >
-                    <option value="01">01 Coil</option>
-                    <option value="02">02 Input</option>
-                    <option value="31">03 U16BE</option>
-                    <option value="32">03 S16BE</option>
-                    <option value="33">03 U16LE</option>
-                    <option value="34">03 S16LE</option>
-                    <option value="35">03 F32BE</option>
-                    <option value="36">03 F32LE</option>
-                    <option value="41">04 U16BE</option>
-                    <option value="42">04 S16BE</option>
-                    <option value="43">04 U16LE</option>
-                    <option value="44">04 S16LE</option>
-                    <option value="45">04 F32BE</option>
-                    <option value="46">04 F32LE</option>
+                    {functionOptions}
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "address")} min="0" max="65535" />
+                <Form.Control type="number" {...inputProps(index, "address")} min="1" max="65536" />
             </td>
             <td>
                 <Form.Control type="text" {...inputProps(index, "name")} />
