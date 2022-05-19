@@ -34,6 +34,7 @@ defmodule Athasha.Runner.Modbus do
           name: name,
           factor: factor,
           offset: offset,
+          getter: getter(code),
           calib: calibrator(factor, offset)
         }
       end)
@@ -120,60 +121,64 @@ defmodule Athasha.Runner.Modbus do
   defp calibrate(value, factor, offset), do: value * factor + offset
 
   defp exec_input(master, input) do
-    case input.code do
+    input.getter.(master, input)
+  end
+
+  defp getter(code) do
+    case code do
       "01 Coil" ->
-        read_bit(master, :rc, input)
+        fn master, input -> read_bit(master, :rc, input) end
 
       "02 Input" ->
-        read_bit(master, :ri, input)
+        fn master, input -> read_bit(master, :ri, input) end
 
       "03 U16BE" ->
-        read_register(master, :rhr, input, &u16be/1)
+        fn master, input -> read_register(master, :rhr, input, &u16be/1) end
 
       "03 S16BE" ->
-        read_register(master, :rhr, input, &s16be/1)
+        fn master, input -> read_register(master, :rhr, input, &s16be/1) end
 
       "03 U16LE" ->
-        read_register(master, :rhr, input, &u16le/1)
+        fn master, input -> read_register(master, :rhr, input, &u16le/1) end
 
       "03 S16LE" ->
-        read_register(master, :rhr, input, &s16le/1)
+        fn master, input -> read_register(master, :rhr, input, &s16le/1) end
 
       "03 F32BED" ->
-        read_register2(master, :rhr, input, &f32bed/2)
+        fn master, input -> read_register2(master, :rhr, input, &f32bed/2) end
 
       "03 F32LED" ->
-        read_register2(master, :rhr, input, &f32led/2)
+        fn master, input -> read_register2(master, :rhr, input, &f32led/2) end
 
       "03 F32BER" ->
-        read_register2(master, :rhr, input, &f32ber/2)
+        fn master, input -> read_register2(master, :rhr, input, &f32ber/2) end
 
       "03 F32LER" ->
-        read_register2(master, :rhr, input, &f32ler/2)
+        fn master, input -> read_register2(master, :rhr, input, &f32ler/2) end
 
       "04 U16BE" ->
-        read_register(master, :rir, input, &u16be/1)
+        fn master, input -> read_register(master, :rir, input, &u16be/1) end
 
       "04 S16BE" ->
-        read_register(master, :rir, input, &s16be/1)
+        fn master, input -> read_register(master, :rir, input, &s16be/1) end
 
       "04 U16LE" ->
-        read_register(master, :rir, input, &u16le/1)
+        fn master, input -> read_register(master, :rir, input, &u16le/1) end
 
       "04 S16LE" ->
-        read_register(master, :rir, input, &s16le/1)
+        fn master, input -> read_register(master, :rir, input, &s16le/1) end
 
       "04 F32BED" ->
-        read_register2(master, :rir, input, &f32bed/2)
+        fn master, input -> read_register2(master, :rir, input, &f32bed/2) end
 
       "04 F32LED" ->
-        read_register2(master, :rir, input, &f32led/2)
+        fn master, input -> read_register2(master, :rir, input, &f32led/2) end
 
       "04 F32BER" ->
-        read_register2(master, :rir, input, &f32ber/2)
+        fn master, input -> read_register2(master, :rir, input, &f32ber/2) end
 
       "04 F32LER" ->
-        read_register2(master, :rir, input, &f32ler/2)
+        fn master, input -> read_register2(master, :rir, input, &f32ler/2) end
     end
   end
 
