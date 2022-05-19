@@ -9,13 +9,12 @@ function testConnectionString(app, database, connstr, dbpass, done) {
     })
         .then(r => r.json())
         .then((r) => {
-            console.log(r)
             switch (r.result) {
                 case "ok":
                     app.successAlert("Successful connection!")
                     break;
                 case "er":
-                    safeCopy(r.error)
+                    copyToClipboard(r.error)
                     app.errorAlert(r.error)
                     break;
             }
@@ -23,13 +22,9 @@ function testConnectionString(app, database, connstr, dbpass, done) {
         })
 }
 
-function safeCopy(txt) {
-    //chrome not working with non loopback addresses
-    //ff Uncaught (in promise) DOMException: 
-    //Clipboard write was blocked due to lack of user activation.
-    copyToClipboard(txt)
-}
-
+//chrome not working with non loopback addresses
+//ff Uncaught (in promise) DOMException: 
+//Clipboard write was blocked due to lack of user activation.
 //https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript/33928558#33928558
 // Copies a string to the clipboard. Must be called from within an
 // event handler such as click. May return false if it failed, but
@@ -65,5 +60,5 @@ function copyToClipboard(text) {
 
 export default {
     testConnectionString,
-    safeCopy,
+    copyToClipboard,
 }

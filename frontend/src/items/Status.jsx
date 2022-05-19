@@ -32,7 +32,7 @@ function statusBg(item, status) {
 }
 
 function statusOnClick(status) {
-    Tools.safeCopy(status.msg)
+    Tools.copyToClipboard(status.msg)
 }
 
 function Status({ item, status }) {

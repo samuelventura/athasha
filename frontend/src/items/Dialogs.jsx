@@ -192,7 +192,7 @@ function ToolsButton() {
         window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
     }
     function copyIdentity() {
-        Tools.safeCopy(app.state.identity)
+        Tools.copyToClipboard(app.state.identity)
     }
     function backupItems() {
         const items = Object.values(app.state.items).map(item => {
@@ -220,8 +220,7 @@ function ToolsButton() {
     }
     function installLicense() {
         Files.upload(Files.licenseExtension, function (data) {
-            console.log(data)
-            Tools.safeCopy(data)
+            Tools.copyToClipboard(data)
             fetch("api/licenses", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -276,7 +275,7 @@ function InfoButton() {
     const addresses = app.state.addresses.join(" ")
     const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}`
     const handleOnClick = () => {
-        Tools.safeCopy(tooltip)
+        Tools.copyToClipboard(tooltip)
     }
     return app.logged ? (
         <Button variant="link" onClick={handleOnClick}

@@ -22,7 +22,6 @@ export default function Home() {
   }, [])
   useEffect(() => {
     if (router.query.file) {
-      console.log(router.query.file)
       const element = document.createElement('a')
       element.setAttribute('href', `/api/file?f=${router.query.file}`)
       element.setAttribute('download', router.query.file)
