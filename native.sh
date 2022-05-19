@@ -3,7 +3,12 @@
 COMMAND="${1:-build}"
 
 case "$OSTYPE" in
-  darwin*)  TARGET=osx-arm64 ;; 
+  darwin*)  
+    case `uname -m` in
+      arm64) TARGET=osx-arm64 ;;
+      *)     TARGET=osx-x64 ;;
+    esac
+  ;; 
   linux*)   TARGET=linux-x64 ;;
   *)        TARGET=win10-x64 ;;
 esac
@@ -22,15 +27,17 @@ case "$OSTYPE" in
     ;;
 esac
 
-#rsync -avr  native/ports/priv/dotnet/ /c/Athasha/athasha/lib/ports-0.1.0/priv/dotnet
+# in osx with dotnet 6.0.300
+# warning NETSDK1179: One of '--self-contained' or '--no-self-contained' options are required when '--runtime' is used.
+OPTIONS="--configuration Release --runtime $TARGET --self-contained true"
 case $COMMAND in
     build)
-    (cd native/serial && dotnet publish -c Release -r $TARGET --self-contained true)
-    (cd native/database && dotnet publish -c Release -r $TARGET --self-contained true)
-    (cd native/identity && dotnet publish -c Release -r $TARGET --self-contained true)
-    (cd native/monitor && dotnet publish -c Release -r $TARGET --self-contained true)
-    (cd native/input && dotnet publish -c Release -r $TARGET --self-contained true)
-    (cd native/perms && dotnet publish -c Release -r $TARGET --self-contained true)
+    (cd native/serial && dotnet publish $OPTIONS)
+    (cd native/database && dotnet publish $OPTIONS)
+    (cd native/identity && dotnet publish $OPTIONS)
+    (cd native/monitor && dotnet publish $OPTIONS)
+    (cd native/input && dotnet publish $OPTIONS)
+    (cd native/perms && dotnet publish $OPTIONS)
     mkdir -p native/ports/priv
     rsync -avr native/serial/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/database/$PUBLISH native/ports/priv/dotnet
