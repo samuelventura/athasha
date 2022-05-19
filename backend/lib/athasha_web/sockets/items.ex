@@ -162,7 +162,7 @@ defmodule AthashaWeb.ItemsSocket do
     end
   end
 
-  defp fix_event(name, args, _id) do
+  defp fix_event(name, args = %{"id" => id}, id) do
     case name do
       "enable" -> fix_event(name, args, nil)
       "edit" -> fix_event(name, args, nil)
