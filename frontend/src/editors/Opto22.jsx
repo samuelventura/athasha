@@ -98,6 +98,9 @@ function Editor(props) {
                 <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
+                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" />
+            </td>
+            <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
                     title="Delete Input" disabled={inputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
@@ -154,6 +157,7 @@ function Editor(props) {
                         <th>{Initial.labels.input.module}</th>
                         <th>{Initial.labels.input.number}</th>
                         <th>{Initial.labels.input.name}</th>
+                        <th>{Initial.labels.input.decimals}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput}
                                 title="Add Input">

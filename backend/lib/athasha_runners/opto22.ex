@@ -2,6 +2,7 @@ defmodule Athasha.Runner.Opto22 do
   alias Modbus.Master
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Number
   @status 1000
 
   def run(item) do
@@ -21,6 +22,7 @@ defmodule Athasha.Runner.Opto22 do
         module = String.to_integer(input["module"])
         number = String.to_integer(input["number"])
         name = input["name"]
+        decimals = Decimal.new(input["decimals"]) |> Decimal.to_integer()
 
         %{
           id: "#{id} #{name}",
@@ -29,7 +31,9 @@ defmodule Athasha.Runner.Opto22 do
           code: code,
           module: module,
           number: number,
-          name: name
+          name: name,
+          decimals: decimals,
+          trimmer: Number.trimmer(decimals)
         }
       end)
 
@@ -97,6 +101,7 @@ defmodule Athasha.Runner.Opto22 do
     Enum.each(config.inputs, fn input ->
       case exec_input(master, input) do
         {:ok, value} ->
+          value = input.trimmer.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->

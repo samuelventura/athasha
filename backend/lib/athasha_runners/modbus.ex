@@ -2,6 +2,7 @@ defmodule Athasha.Runner.Modbus do
   alias Modbus.Master
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Number
   @status 1000
 
   def run(item) do
@@ -26,6 +27,7 @@ defmodule Athasha.Runner.Modbus do
         name = input["name"]
         factor = Decimal.new(input["factor"]) |> Decimal.to_float()
         offset = Decimal.new(input["offset"]) |> Decimal.to_float()
+        decimals = Decimal.new(input["decimals"]) |> Decimal.to_integer()
 
         %{
           id: "#{id} #{name}",
@@ -35,8 +37,10 @@ defmodule Athasha.Runner.Modbus do
           name: name,
           factor: factor,
           offset: offset,
+          decimals: decimals,
           getter: getter(code),
-          calib: calibrator(factor, offset)
+          trimmer: Number.trimmer(decimals),
+          calib: Number.calibrator(factor, offset)
         }
       end)
 
@@ -108,6 +112,7 @@ defmodule Athasha.Runner.Modbus do
       case exec_input(master, input) do
         {:ok, value} ->
           value = input.calib.(value)
+          value = input.trimmer.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
@@ -117,13 +122,6 @@ defmodule Athasha.Runner.Modbus do
       end
     end)
   end
-
-  defp calibrator(factor, offset) do
-    fn value -> calibrate(value, factor, offset) end
-  end
-
-  defp calibrate(value, 1.0, 0.0), do: value
-  defp calibrate(value, factor, offset), do: value * factor + offset
 
   defp exec_input(master, input) do
     input.getter.(master, input)

@@ -12,6 +12,7 @@ alias Athasha.Crypto
 alias Athasha.Points
 alias Athasha.Server
 alias Athasha.Runner
+alias Athasha.Number
 alias Athasha.PubSub
 alias Athasha.Environ
 alias Athasha.License
