@@ -39,7 +39,8 @@ export default function Home() {
   }
   function tableRows(rows) {
     function onClick(row) {
-      download(row.license.identity, [row.license])
+      const file = `${row.license.identity}-${row.license.purchase}`
+      download(file, [row.license])
     }
     return rows.map((row, index) => {
       //adding copy on click is unreliable and make manually 
@@ -51,20 +52,26 @@ export default function Home() {
         <td>{row.qty}</td>
         <td className='text-break'>{row.email}</td>
         <td className='text-break'>{row.aid}</td>
-        <td className='text-break'><Button onClick={() => onClick(row)} variant="link">Download</Button></td>
+        <td className='text-break'><Button onClick={() => onClick(row)}
+          variant="link" title="Download One">Download</Button></td>
       </tr>
     })
   }
   function licensesTable() {
+    function onClickAll() {
+      const list = rows.map((row) => row.license)
+      download(query, list)
+    }
     return rows ? (<Table striped bordered hover>
       <thead>
-        <tr>
+        <tr className="align-middle">
           <th>#</th>
           <th>Timestamp</th>
           <th>Qty</th>
           <th>Email</th>
           <th>Identity</th>
-          <th>Actions</th>
+          <th>Actions <Button onClick={() => onClickAll()} className="mb-1"
+            variant="link" title="Download All">All</Button></th>
         </tr>
       </thead>
       <tbody>
