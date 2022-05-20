@@ -17,6 +17,7 @@ function setts() {
         speed: "9600",
         dbpsb: "8N1",
         period: "10",
+        password: "",
     }
 }
 
@@ -38,6 +39,7 @@ const labels = {
     host: "Hostname/IP Address",
     port: "TCP Port",
     period: "Period (ms)",
+    password: "Viewer Password",
     tty: "Serial Port Name",
     speed: "Baud Rate",
     dbpsb: "Config",
@@ -65,6 +67,7 @@ const hints = {
     host: "Non empty hostname or IP address",
     port: "Non empty integer [0, 65535]",
     period: "Non empty integer > 0",
+    password: "Optional viewer password",
     tty: "Select serial port from list\nType begining of name to show completing list\nPress ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
@@ -92,6 +95,9 @@ const checks = {
         Check.notEmpty(value, labels.period)
         Check.isInteger(value, labels.period)
         Check.isGT(value, labels.period, 0)
+    },
+    password: function (value) {
+        Check.isString(value, labels.period)
     },
     host: function (value) {
         Check.isString(value, labels.host)

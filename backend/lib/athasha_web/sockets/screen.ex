@@ -88,10 +88,6 @@ defmodule AthashaWeb.Socket.Screen do
     end
   end
 
-  # defp handle_event(_event, state = %{logged: true}) do
-  #   {:ok, state}
-  # end
-
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}

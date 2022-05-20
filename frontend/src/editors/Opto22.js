@@ -13,6 +13,7 @@ function setts() {
         host: "127.0.0.1",
         port: "502",
         period: "10",
+        password: "",
         slave: "1",
     }
 }
@@ -31,6 +32,7 @@ const labels = {
     host: "Hostname/IP Address",
     port: "TCP Port",
     period: "Period (ms)",
+    password: "Viewer Password",
     slave: "Slave Address",
     input: {
         code: "Input Type",
@@ -51,6 +53,7 @@ const hints = {
     host: "Non empty hostname or IP address",
     port: "Non empty integer [0, 65535]",
     period: "Non empty integer > 0",
+    password: "Optional viewer password",
     slave: "Non empty integer [0, 255]",
     inputs: {
         code: (i) => `Select the input type from list`,
@@ -81,6 +84,9 @@ const checks = {
         Check.notEmpty(value, labels.period)
         Check.isInteger(value, labels.period)
         Check.isGE(value, labels.period, 1)
+    },
+    password: function (value) {
+        Check.isString(value, labels.period)
     },
     slave: function (value) {
         Check.isString(value, labels.slave)

@@ -1,7 +1,6 @@
-defmodule AthashaWeb.Socket.Dataplot do
+defmodule AthashaWeb.Socket.Points do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
-  @item "Dataplot"
   alias Athasha.Bus
   alias Athasha.Auth
   alias Athasha.PubSub
@@ -37,24 +36,32 @@ defmodule AthashaWeb.Socket.Dataplot do
     end
   end
 
+  def handle_info({{:input, id}, nil, {name, value}}, state = %{id: id}) do
+    args = %{name: name, value: value}
+    resp = %{name: "point", args: args}
+    reply_text(resp, state)
+  end
+
   def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end
 
-  def handle_info({{:dataplot, _self}, nil, data}, state) do
-    resp = %{name: "data", args: data}
-    reply_text(resp, state)
-  end
-
-  def handle_info(:logged, state = %{id: id}) do
-    item = PubSub.Runner.find(id)
+  def handle_info(:logged, state = %{id: id, item: item}) do
     Bus.register!({:status, id}, nil)
+    Bus.register!({:input, id}, nil)
     Bus.register!({:items, id}, nil)
-    Bus.register!({:dataplot, self()}, nil)
-    config = item.config
-    args = %{id: id, type: item.type, name: item.name, config: config}
+
+    args = %{
+      id: id,
+      type: item.type,
+      name: item.name,
+      initial: PubSub.Input.get_inputs(id) |> Enum.map(&initial_point/1),
+      config: item.config
+    }
+
     resp = %{name: "view", args: args}
+    state = Map.put(state, :type, item.type)
     reply_text(resp, state)
   end
 
@@ -71,12 +78,21 @@ defmodule AthashaWeb.Socket.Dataplot do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = PubSub.Password.find(id, @item)
+    item = PubSub.Runner.find(id)
+
+    type =
+      case item do
+        nil -> nil
+        _ -> item.type
+      end
+
+    password = PubSub.Password.find(id, type)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->
         Process.send_after(self(), :logged, 0)
         state = Map.put(state, :logged, true)
+        state = Map.put(state, :item, item)
         resp = %{name: "session", args: session}
         reply_text(resp, state)
 
@@ -86,14 +102,12 @@ defmodule AthashaWeb.Socket.Dataplot do
     end
   end
 
-  defp handle_event(event = %{"name" => "update"}, state = %{id: id, logged: true}) do
-    args = event["args"]
-    PubSub.Dataplot.request!(id, args)
-    {:ok, state}
-  end
-
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
+  end
+
+  defp initial_point({name, value}) do
+    %{name: name, value: value}
   end
 end

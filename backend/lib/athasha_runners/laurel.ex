@@ -16,6 +16,9 @@ defmodule Athasha.Runner.Laurel do
     port = String.to_integer(setts["port"])
     speed = String.to_integer(setts["speed"])
     period = String.to_integer(setts["period"])
+    password = setts["password"]
+
+    PubSub.Password.register!(item, password)
 
     slaves =
       Enum.map(config["slaves"], fn slave ->
@@ -57,13 +60,13 @@ defmodule Athasha.Runner.Laurel do
         # avoid registering duplicates
         Enum.reduce(slaves, %{}, fn inputs, map ->
           Enum.reduce(inputs, map, fn input, map ->
-            id = input.id
+            iid = input.id
 
-            if !Map.has_key?(map, input.id) do
-              PubSub.Input.register!(id)
+            if !Map.has_key?(map, iid) do
+              PubSub.Input.register!(id, iid, input.name)
             end
 
-            Map.put(map, id, id)
+            Map.put(map, iid, iid)
           end)
         end)
 
@@ -97,21 +100,21 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp run_once(item, config, master) do
+  defp run_once(item = %{id: id}, config, master) do
     Enum.each(config.slaves, fn inputs ->
       Enum.reduce(inputs, nil, fn input, alarm ->
         case exec_input(master, input, alarm) do
           {:ok, {alarm, index}} ->
             value = laurel_bit(alarm, index)
-            PubSub.Input.update!(input.id, value)
+            PubSub.Input.update!(id, input.id, input.name, value)
             alarm
 
           {:ok, value} ->
-            PubSub.Input.update!(input.id, value)
+            PubSub.Input.update!(id, input.id, input.name, value)
             alarm
 
           {:error, reason} ->
-            PubSub.Input.update!(input.id, nil)
+            PubSub.Input.update!(id, input.id, input.name, nil)
             PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
             Raise.error({:exec_input, input, reason})
         end

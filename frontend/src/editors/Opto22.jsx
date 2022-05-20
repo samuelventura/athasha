@@ -125,6 +125,11 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
+                <Col xs={2}>
+                    <FloatingLabel label={Initial.labels.password}>
+                        <Form.Control type="password" {...settsProps("password")} />
+                    </FloatingLabel>
+                </Col>
             </Row>
             <Row>
                 <Col xs={2}>

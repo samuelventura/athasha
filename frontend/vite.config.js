@@ -12,7 +12,10 @@ export default defineConfig({
         views: resolve(__dirname, 'views.html'),
         screen: resolve(__dirname, 'screen.html'),
         editor: resolve(__dirname, 'editor.html'),
-        dataplot: resolve(__dirname, 'dataplot.html')
+        dataplot: resolve(__dirname, 'dataplot.html'),
+        modbus: resolve(__dirname, 'modbus.html'),
+        opto22: resolve(__dirname, 'opto22.html'),
+        laurel: resolve(__dirname, 'laurel.html'),
       }
     }
   },
@@ -25,6 +28,12 @@ export default defineConfig({
         ws: true
       },
       '/views/websocket': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      },
+      '/points/websocket': {
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         secure: false,

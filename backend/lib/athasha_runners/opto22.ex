@@ -13,6 +13,9 @@ defmodule Athasha.Runner.Opto22 do
     period = String.to_integer(setts["period"])
     slave = String.to_integer(setts["slave"])
     type = setts["type"]
+    password = setts["password"]
+
+    PubSub.Password.register!(item, password)
 
     inputs =
       Enum.map(config["inputs"], fn input ->
@@ -49,13 +52,13 @@ defmodule Athasha.Runner.Opto22 do
         PubSub.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
-          id = input.id
+          iid = input.id
 
-          if !Map.has_key?(map, id) do
-            PubSub.Input.register!(id)
+          if !Map.has_key?(map, iid) do
+            PubSub.Input.register!(id, iid, input.name)
           end
 
-          Map.put(map, id, id)
+          Map.put(map, iid, iid)
         end)
 
         Process.send_after(self(), :status, @status)
@@ -88,14 +91,14 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp run_once(item, config, master) do
+  defp run_once(item = %{id: id}, config, master) do
     Enum.each(config.inputs, fn input ->
       case exec_input(master, input) do
         {:ok, value} ->
-          PubSub.Input.update!(input.id, value)
+          PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
-          PubSub.Input.update!(input.id, nil)
+          PubSub.Input.update!(id, input.id, input.name, nil)
           PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
           Raise.error({:exec_input, input, reason})
       end

@@ -12,6 +12,7 @@ defmodule AthashaWeb.Endpoint do
 
   socket("/items", AthashaWeb.Socket.Items, websocket: [timeout: 10000], longpoll: false)
   socket("/views", AthashaWeb.Socket.Views, websocket: [timeout: 10000], longpoll: false)
+  socket("/points", AthashaWeb.Socket.Points, websocket: [timeout: 10000], longpoll: false)
   socket("/screen", AthashaWeb.Socket.Screen, websocket: [timeout: 10000], longpoll: false)
   socket("/dataplot", AthashaWeb.Socket.Dataplot, websocket: [timeout: 10000], longpoll: false)
 

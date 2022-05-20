@@ -16,6 +16,9 @@ defmodule Athasha.Runner.Modbus do
     port = String.to_integer(setts["port"])
     speed = String.to_integer(setts["speed"])
     period = String.to_integer(setts["period"])
+    password = setts["password"]
+
+    PubSub.Password.register!(item, password)
 
     inputs =
       Enum.map(config["inputs"], fn input ->
@@ -59,13 +62,13 @@ defmodule Athasha.Runner.Modbus do
         PubSub.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
-          id = input.id
+          iid = input.id
 
-          if !Map.has_key?(map, id) do
-            PubSub.Input.register!(id)
+          if !Map.has_key?(map, iid) do
+            PubSub.Input.register!(id, iid, input.name)
           end
 
-          Map.put(map, id, id)
+          Map.put(map, iid, iid)
         end)
 
         Process.send_after(self(), :status, @status)
@@ -98,15 +101,15 @@ defmodule Athasha.Runner.Modbus do
     end
   end
 
-  defp run_once(item, config, master) do
+  defp run_once(item = %{id: id}, config, master) do
     Enum.each(config.inputs, fn input ->
       case exec_input(master, input) do
         {:ok, value} ->
           value = input.calib.(value)
-          PubSub.Input.update!(input.id, value)
+          PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
-          PubSub.Input.update!(input.id, nil)
+          PubSub.Input.update!(id, input.id, input.name, nil)
           PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
           Raise.error({:exec_input, input, reason})
       end
