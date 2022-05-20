@@ -20,7 +20,8 @@ export default function Home() {
         .then(r => r.json())
         .then(r => {
           setLicense(r.license)
-          download(r.license.identity, [r.license])
+          const file = `${r.license.identity}-${r.license.purchase}`
+          download(file, [r.license])
         })
     }
   }, [router.query])
