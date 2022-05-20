@@ -1,11 +1,18 @@
 import 'bootstrap/dist/css/bootstrap.css'
+import '../styles/index.css'
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Script from 'next/script'
 import Link from 'next/link'
 import Image from 'next/image'
-import Toast from 'react-bootstrap/Toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faComment } from '@fortawesome/free-solid-svg-icons'
 import ToastContainer from 'react-bootstrap/ToastContainer'
+import FloatingLabel from 'react-bootstrap/FloatingLabel'
+import Toast from 'react-bootstrap/Toast'
+import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
+import Form from 'react-bootstrap/Form'
 
 function MyApp({ Component, pageProps }) {
   function CookieConsent() {
@@ -36,6 +43,62 @@ function MyApp({ Component, pageProps }) {
         </div>
       </Toast>
     </ToastContainer>
+  }
+
+  function ContactMessage() {
+    const [show, setShow] = useState(false)
+    const [email, setEmail] = useState("")
+    const [message, setMessage] = useState("")
+    function isValid() {
+      return email.trim().length > 0
+        && message.trim().length > 0
+        && email.indexOf("@") > 0
+    }
+    function onClick() { setShow(true) }
+    function onCancel() {
+      setEmail("")
+      setMessage("")
+      setShow(false)
+    }
+    function onAccept() {
+      fetch("/api/send", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, message }),
+      })
+        .then(onCancel)
+    }
+    return <>
+      <Modal show={show} onHide={onCancel} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Leave Us a Message</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <FloatingLabel label="Your Email">
+            <Form.Control autoFocus type="email"
+              value={email} onChange={e => setEmail(e.target.value)} />
+          </FloatingLabel>
+          <FloatingLabel label="Your Message">
+            <Form.Control type="text" as="textarea" style={{ height: '8em' }}
+              value={message} onChange={e => setMessage(e.target.value)} />
+          </FloatingLabel>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+            Send
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <ToastContainer className="p-3 leaveMessage" position="bottom-end"
+        title="Leave Us a Message" onClick={onClick}>
+        <Toast show={true} className="shadow-none border-0"><FontAwesomeIcon icon={faComment} /></Toast>
+      </ToastContainer>
+    </>
   }
 
   return <>
@@ -99,6 +162,7 @@ function MyApp({ Component, pageProps }) {
           </div>
         </footer>
         <CookieConsent />
+        <ContactMessage />
       </div>
     </main>
   </>

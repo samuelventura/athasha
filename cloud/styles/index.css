@@ -1,0 +1,12 @@
+.leaveMessage {
+    cursor: pointer;
+    max-width: 5em;
+}
+
+.fa-comment {
+    color: gray;
+}
+
+.fa-comment:hover {
+    color: steelblue;
+}
