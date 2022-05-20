@@ -55,7 +55,7 @@ function MyApp({ Component, pageProps }) {
       `}
     </Script>
     <Head>
-      <title>Athasha</title>
+      <title>Athasha.IO</title>
       <meta name="description" content="Link OT devices to IT services in no time." />
       <link rel="icon" href="/favicon.svg" />
     </Head>

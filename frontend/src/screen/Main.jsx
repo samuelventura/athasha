@@ -13,7 +13,7 @@ function Main() {
   const app = useApp()
   const name = app.state.name
   useEffect(() => {
-    if (name) document.title = `Viewer - ${name}`
+    if (name) document.title = `Athasha Screen Viewer - ${name}`
   }, [name])
   function NameColor() {
     const status = app.state.status

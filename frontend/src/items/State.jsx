@@ -51,7 +51,7 @@ function setup_editor(next) {
         action: "edit",
         item
       }
-      document.title = `Editor - ${item.name}`
+      document.title = `Athasha ${item.type} Editor - ${item.name}`
     }
   }
 }
