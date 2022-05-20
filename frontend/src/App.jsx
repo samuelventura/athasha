@@ -100,11 +100,13 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
     }
     return Socket.create({ path, dispatch: intercept })
   }, [path, initial, reducer, clearAlert, errorAlert])
-  //auto reconnect views
+  //auto reconnect item views
+  //views listing never gets here
   useEffect(() => {
     if (login) {
       const timer = setInterval(() => {
         const session = sessioner.fetch()
+        console.log(session)
         if (session.token) {
           const active = false
           send({ name: "login", args: { session, active } })

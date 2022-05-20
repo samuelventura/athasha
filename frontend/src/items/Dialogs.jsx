@@ -8,11 +8,11 @@ import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
-import Environ from '../Environ'
-import Files from './Files'
+import Clipboard from "../tools/Clipboard"
+import Router from '../tools/Router'
+import Files from '../tools/Files'
 import Initials from "./Initials"
 import Types from "./Types"
-import Tools from "./Tools"
 import { useApp } from '../App'
 
 function DeleteItem() {
@@ -191,8 +191,11 @@ function ToolsButton() {
         const id = app.state.identity
         window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
     }
+    function viewList() {
+        window.open("views.html", '_blank').focus();
+    }
     function copyIdentity() {
-        Tools.copyToClipboard(app.state.identity)
+        Clipboard.copyText(app.state.identity)
     }
     function backupItems() {
         const items = Object.values(app.state.items).map(item => {
@@ -204,10 +207,10 @@ function ToolsButton() {
                 config: item.config,
             }
         })
-        Files.download(items, Files.backupExtension)
+        Files.downloadJson(items, Files.backupExtension)
     }
     function restoreItems() {
-        Files.upload(Files.backupExtension, function (data) {
+        Files.uploadJson(Files.backupExtension, function (data) {
             app.send({ name: "restore", args: data })
         })
     }
@@ -215,18 +218,21 @@ function ToolsButton() {
         fetch("api/licenses")
             .then(r => r.json())
             .then(list => {
-                Files.download(list, Files.licenseExtension)
+                Files.downloadJson(list, Files.licenseExtension)
             })
     }
     function installLicense() {
-        Files.upload(Files.licenseExtension, function (data) {
-            Tools.copyToClipboard(data)
+        Files.uploadJson(Files.licenseExtension, function (data) {
+            Clipboard.copyText(data)
             fetch("api/licenses", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' }
             }).then(() => { updateAndReload() })
         })
+    }
+    function checkLicenses() {
+        fetch("api/check")
     }
     function updateAndReload() {
         fetch("api/update").then(() => window.location.reload())
@@ -237,12 +243,14 @@ function ToolsButton() {
                 <FontAwesomeIcon icon={faGear} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
+                <Dropdown.Item onClick={viewList}>View List</Dropdown.Item>
                 <Dropdown.Item onClick={buyLicense}>Buy License</Dropdown.Item>
                 <Dropdown.Item onClick={copyIdentity}>Copy Identity</Dropdown.Item>
                 <Dropdown.Item onClick={backupItems}>Backup Items</Dropdown.Item>
                 <Dropdown.Item onClick={restoreItems}>Restore Items</Dropdown.Item>
                 <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
                 <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
+                <Dropdown.Item onClick={checkLicenses}>Check Licenses</Dropdown.Item>
                 <Dropdown.Item onClick={updateAndReload}>Refresh Info</Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
@@ -253,7 +261,7 @@ function HostButton() {
     const app = useApp()
     const addresses = [app.state.hostname, ...app.state.addresses, "localhost", "127.0.0.1"]
     const dropdownItems = addresses.map((ip, index) =>
-        <Dropdown.Item key={index} href={Environ.reHost(ip)}>{ip}</Dropdown.Item>
+        <Dropdown.Item key={index} href={Router.reHost(ip)}>{ip}</Dropdown.Item>
     )
     return app.logged ? (
         <Dropdown className="d-inline">
@@ -275,7 +283,7 @@ function InfoButton() {
     const addresses = app.state.addresses.join(" ")
     const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}`
     const handleOnClick = () => {
-        Tools.copyToClipboard(tooltip)
+        Clipboard.copyText(tooltip)
     }
     return app.logged ? (
         <Button variant="link" onClick={handleOnClick}

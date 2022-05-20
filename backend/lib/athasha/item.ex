@@ -27,4 +27,8 @@ defmodule Athasha.Item do
   def strip(item) do
     Map.take(item, [:id, :name, :type, :enabled, :config])
   end
+
+  def head(item) do
+    Map.take(item, [:id, :name, :type, :enabled])
+  end
 end

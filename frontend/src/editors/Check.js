@@ -1,4 +1,4 @@
-import Environ from '../Environ'
+import Log from '../tools/Log'
 
 function isString(value, label) {
     const typeof_value = typeof value
@@ -139,11 +139,11 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
 function run(action) {
     try {
         action()
-        Environ.log("Check: Pass")
+        Log.log("Check: Pass")
         return true
     }
     catch (ex) {
-        Environ.log("Check:", ex)
+        Log.log("Check:", ex)
         return false
     }
 }

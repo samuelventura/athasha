@@ -24,7 +24,8 @@ defmodule Athasha.Server do
     items = items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: 0, items: items}
     PubSub.Items.register!(strip_map(items))
-    Process.send_after(self(), :check, 0)
+    check = Process.send_after(self(), :check, 0)
+    state = Map.put(state, :check, check)
     {:ok, state}
   end
 
@@ -43,7 +44,9 @@ defmodule Athasha.Server do
   def handle_info(:check, state) do
     total = Environ.load_identity() |> Auth.count_licenses()
 
-    Enum.reduce(state.items, 0, fn {_, item}, count ->
+    Enum.map(state.items, &elem(&1, 1))
+    |> Enum.shuffle()
+    |> Enum.reduce(0, fn item, count ->
       case item.enabled do
         true ->
           if count >= total do
@@ -61,7 +64,9 @@ defmodule Athasha.Server do
       end
     end)
 
-    Process.send_after(self(), :check, @check)
+    Process.cancel_timer(state.check)
+    check = Process.send_after(self(), :check, @check)
+    state = Map.put(state, :check, check)
     {:noreply, state}
   end
 

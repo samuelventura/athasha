@@ -1,4 +1,4 @@
-defmodule AthashaWeb.DataplotSocket do
+defmodule AthashaWeb.Socket.Dataplot do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   @item "Dataplot"

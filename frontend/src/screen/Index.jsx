@@ -4,7 +4,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { AppContext } from '../App'
 import Session from '../Session'
-import Environ from '../Environ'
+import Router from '../tools/Router'
 import Main from './Main'
 import State from './State'
 import './Index.css'
@@ -14,7 +14,7 @@ ReactDOM.render(
     <AppContext path="screen"
       reducer={State.reducer}
       initial={State.initial}
-      sessioner={Session.api("screen" + Environ.wsQuery)}>
+      sessioner={Session.api("screen" + Router.wsQuery)}>
       <Main />
     </AppContext>
   </React.StrictMode>,

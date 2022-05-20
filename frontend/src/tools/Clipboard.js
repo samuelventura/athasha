@@ -1,7 +1,8 @@
+import Log from './Log'
+
 //chrome not working with non loopback addresses
 //ff Uncaught (in promise) DOMException: 
 //tools/Clipboard write was blocked due to lack of user activation.
-
 //https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript/33928558#33928558
 // Copies a string to the clipboard. Must be called from within an
 // event handler such as click. May return false if it failed, but
@@ -38,4 +39,3 @@ function copyText(text) {
 export default {
     copyText,
 }
-

@@ -1,4 +1,4 @@
-defmodule AthashaWeb.ItemsSocket do
+defmodule AthashaWeb.Socket.Items do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   alias Athasha.Bus

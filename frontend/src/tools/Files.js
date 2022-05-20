@@ -1,10 +1,10 @@
 
-function download(data, ext) {
+function downloadJson(data, ext) {
     const json = JSON.stringify(data, null, 2)
-    downloadTxt(json, ext)
+    downloadText(json, ext)
 }
 
-function downloadTxt(data, ext) {
+function downloadText(data, ext) {
     const element = document.createElement('a')
     const now = new Date()
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
@@ -15,7 +15,7 @@ function downloadTxt(data, ext) {
     element.click()
 }
 
-function upload(ext, callback) {
+function uploadJson(ext, callback) {
     const input = document.createElement('input')
     input.setAttribute('accept', `.${ext}`)
     input.type = 'file'
@@ -41,7 +41,7 @@ const backupExtension = "athasha.backup.json"
 export default {
     licenseExtension,
     backupExtension,
-    downloadTxt,
-    download,
-    upload,
+    downloadText,
+    downloadJson,
+    uploadJson,
 }

@@ -1,4 +1,4 @@
-import Environ from "../Environ"
+import Log from "../tools/Log"
 
 function initial() {
   return {
@@ -44,7 +44,7 @@ function reducer(state, { name, args, self }) {
       return initial()
     }
     default:
-      Environ.log("Unknown mutation", name, args, self)
+      Log.log("Unknown mutation", name, args, self)
       return state
   }
 }

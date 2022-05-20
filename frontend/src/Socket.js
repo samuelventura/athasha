@@ -1,11 +1,12 @@
-import Environ from "./Environ"
+import Router from "./tools/Router"
+import Log from "./tools/Log"
 
 // requirements
 // - no sense to implement a connection timeout
 // - incremental reconnect timer
 // - 10s idle timeout
 function create(app) {
-    return createSocket(Environ.wsURL, Environ.wsQuery, app)
+    return createSocket(Router.wsURL, Router.wsQuery, app)
 }
 
 function createSocket(base, query, { path, dispatch }) {
@@ -20,18 +21,18 @@ function createSocket(base, query, { path, dispatch }) {
 
     function safe(action) {
         try { action() }
-        catch (e) { Environ.log("exception", e) }
+        catch (e) { Log.log("exception", e) }
     }
 
     function send(msg) {
-        Environ.log("ws.send", disposed, closed, msg)
+        Log.log("ws.send", disposed, closed, msg)
         if (disposed) return
         if (closed) return
         safe(() => ws.send(JSON.stringify(msg)))
     }
 
     function dispose() {
-        Environ.log("dispose", disposed, closed, reco, idle, conn, ws)
+        Log.log("dispose", disposed, closed, reco, idle, conn, ws)
         disposed = true
         if (reco) { clearTimeout(reco); reco = null }
         if (idle) { clearTimeout(idle); idle = null }
@@ -40,7 +41,7 @@ function createSocket(base, query, { path, dispatch }) {
     }
 
     function close() {
-        Environ.log("close", disposed, closed, reco, idle, ws)
+        Log.log("close", disposed, closed, reco, idle, ws)
         if (ws) safe(() => ws.close())
         clear_conn()
     }
@@ -66,10 +67,10 @@ function createSocket(base, query, { path, dispatch }) {
     function connect() {
         let url = base + path + "/websocket" + query
         ws = new WebSocket(url)
-        Environ.log("connect", reco, url, ws)
+        Log.log("connect", reco, url, ws)
         conn = setTimeout(close, 4000)
         ws.onclose = (event) => {
-            Environ.log("ws.close", event)
+            Log.log("ws.close", event)
             closed = true
             stop_idle()
             if (disposed) return
@@ -81,7 +82,7 @@ function createSocket(base, query, { path, dispatch }) {
         ws.onmessage = (event) => {
             reset_idle()
             const msg = JSON.parse(event.data)
-            Environ.log("ws.message", msg)
+            Log.log("ws.message", msg)
             switch (msg.name) {
                 case "ping":
                     send({ name: "pong" })
@@ -92,11 +93,11 @@ function createSocket(base, query, { path, dispatch }) {
             }
         }
         ws.onerror = (event) => {
-            Environ.log("ws.error", event)
+            Log.log("ws.error", event)
             clear_conn()
         }
         ws.onopen = (event) => {
-            Environ.log("ws.open", event)
+            Log.log("ws.open", event)
             closed = false
             reco_ms = 1000
             reset_idle()
@@ -109,7 +110,7 @@ function createSocket(base, query, { path, dispatch }) {
 }
 
 function send(msg) {
-    Environ.log("nop.send", msg)
+    Log.log("nop.send", msg)
 }
 
 var exports = { create, send }

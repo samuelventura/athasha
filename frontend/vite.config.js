@@ -9,6 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: resolve(__dirname, 'index.html'),
+        views: resolve(__dirname, 'views.html'),
         screen: resolve(__dirname, 'screen.html'),
         editor: resolve(__dirname, 'editor.html'),
         dataplot: resolve(__dirname, 'dataplot.html')
@@ -18,6 +19,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/items/websocket': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      },
+      '/views/websocket': {
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         secure: false,

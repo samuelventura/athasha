@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import Environ from "../Environ"
-import Files from "./Files"
+import Log from "../tools/Log"
+import Files from "../tools/Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
@@ -61,7 +61,7 @@ function Rows(props) {
             }
             case "backup": {
                 const clone = JSON.parse(JSON.stringify(item))
-                Files.download([clone], Files.backupExtension);
+                Files.downloadJson([clone], Files.backupExtension);
                 break
             }
             case "view": {
@@ -70,7 +70,7 @@ function Rows(props) {
                 break
             }
             default:
-                Environ.log("Unknown action", action, item)
+                Log.log("Unknown action", action, item)
         }
     }
 

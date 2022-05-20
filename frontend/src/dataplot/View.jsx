@@ -14,7 +14,7 @@ import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
 import { Tooltip, Legend } from 'recharts';
-import Files from "../items/Files"
+import Files from "../tools/Files"
 
 function hourAgo(hours) {
     var dt = new Date();
@@ -115,7 +115,7 @@ function View() {
             return p.join(sep)
         })
         const csv = heads.join(sep) + "\n" + rows.join("\n")
-        Files.downloadTxt(csv, ext)
+        Files.downloadText(csv, ext)
     }
     function downloadCsv() { downloadData(",", "athasha.dataplot.csv") }
     function downloadTsv() { downloadData("\t", "athasha.dataplot.tsv") }

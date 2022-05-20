@@ -1,9 +1,10 @@
-import Environ from "../Environ"
+import Router from "../tools/Router"
+import Log from "../tools/Log"
 import Types from "./Types"
 
 function initial() {
   return {
-    editor: Environ.getEditorId(),
+    editor: Router.getEditorId(),
     items: {},
     status: {},
     selected: {},
@@ -133,7 +134,7 @@ function reducer(state, { name, args, self }) {
       return initial()
     }
     default:
-      Environ.log("Unknown mutation", name, args, self)
+      Log.log("Unknown mutation", name, args, self)
       return state
   }
 }

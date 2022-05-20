@@ -1,6 +1,6 @@
 import React from 'react'
 import Badge from 'react-bootstrap/Badge'
-import Tools from "./Tools"
+import Clipboard from "../tools/Clipboard"
 
 function statusTitle(item, status) {
     if (!item.enabled) {
@@ -32,7 +32,7 @@ function statusBg(item, status) {
 }
 
 function statusOnClick(status) {
-    Tools.copyToClipboard(status.msg)
+    Clipboard.copyText(status.msg)
 }
 
 function Status({ item, status }) {

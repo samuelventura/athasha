@@ -1,4 +1,4 @@
-defmodule AthashaWeb.ScreenSocket do
+defmodule AthashaWeb.Socket.Screen do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   @item "Screen"

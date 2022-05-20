@@ -11,22 +11,14 @@ if (pathname.endsWith(".html")) {
 const wsURL = `${wsproto}//${locurl.host}${pathname}`
 const wsQuery = locurl.search
 
-let logEnabled = import.meta.env.DEV
-
-function log(...args) {
-    if (logEnabled) {
-        console.log(...args)
-    }
-}
-
-function enableLog(enable) {
-    logEnabled = enable
-}
-
 function reHost(hostname) {
     const url = new URL(window.location.href)
     url.hostname = hostname
     return `${url}`
+}
+
+function isViews() {
+    return (locurl.pathname === "/views.html")
 }
 
 function getEditorId() {
@@ -34,10 +26,6 @@ function getEditorId() {
     return locurl.searchParams.get("id")
 }
 
-window.enableLog = enableLog
-window.logOn = () => enableLog(true)
-window.logOff = () => enableLog(false)
-
-const exports = { wsURL, wsQuery, getEditorId, enableLog, log, reHost }
+const exports = { wsURL, wsQuery, getEditorId, isViews, reHost }
 
 export default exports
