@@ -46,6 +46,7 @@ function MyApp({ Component, pageProps }) {
   }
 
   function ContactMessage() {
+    const [pulse, setPulse] = useState(false)
     const [show, setShow] = useState(false)
     const [email, setEmail] = useState("")
     const [message, setMessage] = useState("")
@@ -70,6 +71,10 @@ function MyApp({ Component, pageProps }) {
       })
         .then(onCancel)
     }
+    useEffect(() => {
+      const timer = setInterval(() => { setPulse(!pulse) }, 500)
+      return () => clearInterval(timer)
+    })
     return <>
       <Modal show={show} onHide={onCancel} centered>
         <Modal.Header closeButton>
@@ -96,7 +101,9 @@ function MyApp({ Component, pageProps }) {
       </Modal>
       <ToastContainer className="p-3 leaveMessage" position="bottom-end"
         title="Leave Us a Message" onClick={onClick}>
-        <Toast show={true} className="shadow-none border-0"><FontAwesomeIcon icon={faComment} /></Toast>
+        <Toast show={true} className="shadow-none border-0">
+          <FontAwesomeIcon icon={faComment} className={pulse && !show ? "icon-up" : "icon-down"} />
+        </Toast>
       </ToastContainer>
     </>
   }
