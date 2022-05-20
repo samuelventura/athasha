@@ -207,7 +207,7 @@ function ToolsButton() {
                 config: item.config,
             }
         })
-        Files.downloadJson(items, Files.backupExtension)
+        Files.downloadJson(items, app.state.hostname, Files.backupExtension)
     }
     function restoreItems() {
         Files.uploadJson(Files.backupExtension, function (data) {
@@ -218,7 +218,7 @@ function ToolsButton() {
         fetch("api/licenses")
             .then(r => r.json())
             .then(list => {
-                Files.downloadJson(list, Files.licenseExtension)
+                Files.downloadJson(list, app.state.hostname, Files.licenseExtension)
             })
     }
     function installLicense() {

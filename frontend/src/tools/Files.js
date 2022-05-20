@@ -1,16 +1,16 @@
 
-function downloadJson(data, ext) {
+function downloadJson(data, prefix, ext) {
     const json = JSON.stringify(data, null, 2)
-    downloadText(json, ext)
+    downloadText(json, prefix, ext)
 }
 
-function downloadText(data, ext) {
+function downloadText(data, prefix, ext) {
     const element = document.createElement('a')
     const now = new Date()
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
     const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
     element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(data))
-    element.setAttribute('download', `${filename}.${ext}`)
+    element.setAttribute('download', `${prefix}-${filename}.${ext}`)
     element.style.display = 'none'
     element.click()
 }

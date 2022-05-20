@@ -62,7 +62,7 @@ function Rows(props) {
             }
             case "backup": {
                 const clone = JSON.parse(JSON.stringify(item))
-                Files.downloadJson([clone], Files.backupExtension);
+                Files.downloadJson([clone], item.name, Files.backupExtension);
                 break
             }
             case "view": {

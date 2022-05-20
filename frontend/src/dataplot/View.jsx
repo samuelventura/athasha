@@ -115,7 +115,7 @@ function View() {
             return p.join(sep)
         })
         const csv = heads.join(sep) + "\n" + rows.join("\n")
-        Files.downloadText(csv, ext)
+        Files.downloadText(csv, app.state.name, ext)
     }
     function downloadCsv() { downloadData(",", "athasha.dataplot.csv") }
     function downloadTsv() { downloadData("\t", "athasha.dataplot.tsv") }
