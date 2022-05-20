@@ -32,7 +32,7 @@ const labels = {
     host: "Hostname/IP Address",
     port: "TCP Port",
     period: "Period (ms)",
-    password: "Viewer Password",
+    password: "Access Password",
     slave: "Slave Address",
     input: {
         code: "Input Type",
@@ -53,7 +53,7 @@ const hints = {
     host: "Non empty hostname or IP address",
     port: "Non empty integer [0, 65535]",
     period: "Non empty integer > 0",
-    password: "Optional viewer password",
+    password: "Optional access password",
     slave: "Non empty integer [0, 255]",
     inputs: {
         code: (i) => `Select the input type from list`,

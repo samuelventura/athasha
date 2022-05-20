@@ -44,7 +44,7 @@ function column(index) {
 const labels = {
     database: "Database",
     dbpass: "Database Password",
-    password: "Dataplot Password",
+    password: "Access Password",
     connstr: "Connection String",
     command: "SQL Command",
     ymin: "Plot Minimum Y Value",
@@ -64,7 +64,7 @@ const labels = {
 const hints = {
     database: "Select the database type from the list",
     dbpass: "Optional database password",
-    password: "Optional dataplot password",
+    password: "Optional access password",
     connstr: "Non empty connection string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
     command: "An SQL select command, function or store procedure call\nUse @FROM and @TO to reference the start and end of the date range\nFirst returned column must be DateTime\nConsult your TI specialist",
     ymin: "Non empty number",

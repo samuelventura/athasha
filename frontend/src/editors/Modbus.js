@@ -62,7 +62,7 @@ const labels = {
     tty: "Serial Port Name",
     speed: "Baud Rate",
     dbpsb: "Config",
-    password: "Viewer Password",
+    password: "Access Password",
     input: {
         slave: "Slave Address",
         code: "Function Code",
@@ -87,17 +87,30 @@ const hints = {
     host: "Non empty hostname or IP address",
     port: "Non empty integer [0, 65535]",
     period: "Non empty integer > 0",
-    password: "Optional viewer password",
-    tty: "Select serial port from list\nType begining of name to show completing list\nPress ENTER to update list",
+    password: "Optional access password",
+    tty: "Select serial port from list"
+    +"\nType begining of name to show completing list"
+    +"\nPress ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     inputs: {
-        slave: (i) => `Non empty integer [0, 255]`,
-        code: (i) => `Select the function code from list`,
-        address: (i) => `Non empty integer [0, 65535]`,
-        name: (i) => `Non empty input name`,
-        factor: (i) => `Non empty number m in f(x)=m*x+b`,
-        offset: (i) => `Non empty number b in f(x)=m*x+b`,
+        slave: (i) => "Non empty integer [0, 255]",
+        code: (i) => "Select the function code from list"
+        +"\n01 Read Coil"
+        +"\n02 Read Input"
+        +"\n03 Read Holding Register"
+        +"\n04 Read Input Register"
+        + "\nF Float"
+        + "\nU Unsigned Integer"
+        + "\nS Signed Integer"
+        + "\n16/32 Number of Bits"
+        + "\nBE Big Endian"
+        + "\nLE Little Endian"
+        + "\nD/R Direct/Reversed",
+        address: (i) => "Non empty integer [1, 65536]",
+        name: (i) => "Non empty input name",
+        factor: (i) => "Non empty number m in f(x)=m*x+b",
+        offset: (i) => "Non empty number b in f(x)=m*x+b",
     }
 }
 

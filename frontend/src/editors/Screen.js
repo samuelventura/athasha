@@ -47,7 +47,7 @@ function csetts() {
 }
 
 const labels = {
-    password: "Password",
+    password: "Access Password",
     period: "Period (ms)",
     scale: "Scale",
     align: "Align",
@@ -59,7 +59,7 @@ const labels = {
 }
 
 const hints = {
-    password: "Optional screen password",
+    password: "Optional access password",
     period: "Non empty integer update period > 0",
     scale: "Select scale from list",
     align: "Select alignment from list",
