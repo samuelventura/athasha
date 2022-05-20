@@ -89,9 +89,8 @@ function Rows(props) {
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
             onDoubleClick={(e) => handleClick(e, "edit", item)}
-            className={selectedClass(item) + ' align-middle'}
-            title={item.id}>
-            <td className={enabledClass(item)}>
+            className={selectedClass(item) + ' align-middle'}>
+            <td className={enabledClass(item)} title={item.id}>
                 <img src={Types.icon(item.type)} width="20"
                     alt={item.type} className='me-2' />
                 <span className='align-middle user-select-none'>{item.name}</span>

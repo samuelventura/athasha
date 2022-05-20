@@ -2,7 +2,7 @@ import Environ from "../tools/Router"
 
 function initial() {
   return {
-    id: 0,
+    id: "",
     name: "",
     config: { setts: { ymin: 0, ymax: 100, lineWidth: 1 }, columns: [{ name: "" }] },
     status: {},

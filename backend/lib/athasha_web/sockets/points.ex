@@ -91,7 +91,7 @@ defmodule AthashaWeb.Socket.Points do
         _ -> item.type
       end
 
-    password = PubSub.Password.find(id, type)
+    password = PubSub.Password.find_typed(id, type)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

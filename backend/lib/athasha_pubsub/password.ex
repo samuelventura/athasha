@@ -1,5 +1,6 @@
 defmodule Athasha.PubSub.Password do
   alias Athasha.Store
+  alias Athasha.Crypto
 
   @key :password
   @list [{{{@key, :"$1", :"$2"}, :"$3", :"$4"}, [], [{{:"$1", :"$2", :"$3", :"$4"}}]}]
@@ -10,12 +11,20 @@ defmodule Athasha.PubSub.Password do
 
   def register!(item, password) do
     Store.register!({@key, item.id, item.type}, password)
+    Store.register!({@key, item.id}, {password, Crypto.sha1("#{item.id}:#{password}")})
   end
 
-  def find(id, type) do
+  def find_typed(id, type) do
     case Store.lookup({@key, id, type}) do
       [{_, password}] -> password
       [] -> nil
+    end
+  end
+
+  def find(id) do
+    case Store.lookup({@key, id}) do
+      [{_, {password, hash}}] -> {password, hash}
+      [] -> {nil, nil}
     end
   end
 end

@@ -76,7 +76,7 @@ defmodule AthashaWeb.Socket.Dataplot do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = PubSub.Password.find(id, @item)
+    password = PubSub.Password.find_typed(id, @item)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

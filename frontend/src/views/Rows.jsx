@@ -20,8 +20,8 @@ function Rows(props) {
         return Types.withView.includes(item.type) ? (
             <tr key={item.id} id={"item_" + item.id}
                 onDoubleClick={(e) => handleClick(item)}
-                className='align-middle' title={item.id}>
-                <td className={enabledClass(item)}>
+                className='align-middle'>
+                <td className={enabledClass(item)} title={item.id}>
                     <img src={Types.icon(item.type)} width="20"
                         alt={item.type} className='me-2' />
                     <span className='align-middle user-select-none'>{item.name}</span>

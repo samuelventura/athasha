@@ -2,7 +2,7 @@ import Log from "../tools/Log"
 
 function initial() {
   return {
-    id: 0,
+    id: "",
     name: "",
     type: "",
     status: {},
