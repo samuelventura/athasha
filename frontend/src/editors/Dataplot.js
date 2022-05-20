@@ -65,8 +65,14 @@ const hints = {
     database: "Select the database type from the list",
     dbpass: "Optional database password",
     password: "Optional access password",
-    connstr: "Non empty connection string for your DB\nUse ${PASSWORD} to insert the Database Password\nConsult your TI specialist\nSee https://www.connectionstrings.com/",
-    command: "An SQL select command, function or store procedure call\nUse @FROM and @TO to reference the start and end of the date range\nFirst returned column must be DateTime\nConsult your TI specialist",
+    connstr: "Non empty connection string for your DB"
+    +"\nUse ${PASSWORD} to insert the Database Password"
+    +"\nConsult your IT specialist"
+    +"\nSee https://www.connectionstrings.com/",
+    command: "An SQL select command, function or store procedure call"
+    +"\nUse @FROM and @TO to reference the start and end of the date range"
+    +"\nFirst returned column must be DateTime"
+    +"\nConsult your IT specialist",
     ymin: "Non empty number",
     ymax: "Non empty number",
     yformat: "Use 0.00 for 2 decimal points",

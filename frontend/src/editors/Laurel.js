@@ -68,7 +68,9 @@ const hints = {
     port: "Non empty integer [0, 65535]",
     period: "Non empty integer > 0",
     password: "Optional access password",
-    tty: "Select serial port from list\nType begining of name to show completing list\nPress ENTER to update list",
+    tty: "Select serial port from list"
+    +"\nType begining of name to show completing list"
+    +"\nPress ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     slaves: {
