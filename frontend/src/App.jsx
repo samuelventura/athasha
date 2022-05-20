@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react'
-import Socket from './Socket'
+import Socket from './tools/Socket'
 
 function initialAlert() { return { type: "", message: "" } }
 function initialSessioner() {

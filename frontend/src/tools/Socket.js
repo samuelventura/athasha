@@ -1,5 +1,5 @@
-import Router from "./tools/Router"
-import Log from "./tools/Log"
+import Router from "./Router"
+import Log from "./Log"
 
 // requirements
 // - no sense to implement a connection timeout

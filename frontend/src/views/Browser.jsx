@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
+import Filter from '../tools/Filter'
 import Search from "./Search"
 import Header from "./Header"
 import Rows from "./Rows"
@@ -20,26 +21,7 @@ function Browser() {
     }
 
     function viewItems() {
-        const lower = filter.toLowerCase()
-        const items = Object.values(app.state.items)
-        const filtered = items.filter(item =>
-            item.name.toLowerCase().includes(lower))
-        switch (sort) {
-            case "asc":
-                return filtered.sort((f1, f2) => {
-                    let r = f1.name.localeCompare(f2.name)
-                    if (!r) r = f1.id - f2.id
-                    return r
-                })
-            case "desc":
-                return filtered.sort((f2, f1) => {
-                    let r = f1.name.localeCompare(f2.name)
-                    if (!r) r = f1.id - f2.id
-                    return r
-                })
-            default:
-                return filtered
-        }
+        return Filter.apply(app.state.items, filter, sort)
     }
 
     return (
