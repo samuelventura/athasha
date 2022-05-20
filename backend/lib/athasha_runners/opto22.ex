@@ -15,8 +15,6 @@ defmodule Athasha.Runner.Opto22 do
     type = setts["type"]
     password = setts["password"]
 
-    PubSub.Password.register!(item, password)
-
     inputs =
       Enum.map(config["inputs"], fn input ->
         code = input["code"]
@@ -60,6 +58,10 @@ defmodule Athasha.Runner.Opto22 do
 
           Map.put(map, iid, iid)
         end)
+
+        names = Enum.map(inputs, & &1.name)
+        PubSub.Input.reg_names!(id, names)
+        PubSub.Password.register!(item, password)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)

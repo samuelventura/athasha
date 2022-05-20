@@ -3,12 +3,24 @@ defmodule Athasha.PubSub.Input do
   alias Athasha.Bus
 
   @key :input
+  @keys :inputs
 
   def list() do
     match = {{@key, :"$1"}, :"$2", :"$3"}
     select = {{:"$1", :"$2", :"$3"}}
     query = [{match, [], [select]}]
     Store.select(query)
+  end
+
+  def reg_names!(id, names) do
+    Store.register!({@keys, id}, names)
+  end
+
+  def get_names!(id) do
+    case Store.lookup({@keys, id}) do
+      [{_, names}] -> names
+      [] -> nil
+    end
   end
 
   def register!(id, iid, name) do

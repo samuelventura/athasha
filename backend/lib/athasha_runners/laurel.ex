@@ -18,8 +18,6 @@ defmodule Athasha.Runner.Laurel do
     period = String.to_integer(setts["period"])
     password = setts["password"]
 
-    PubSub.Password.register!(item, password)
-
     slaves =
       Enum.map(config["slaves"], fn slave ->
         address = String.to_integer(slave["address"])
@@ -66,9 +64,21 @@ defmodule Athasha.Runner.Laurel do
               PubSub.Input.register!(id, iid, input.name)
             end
 
-            Map.put(map, iid, iid)
+            Map.put(map, iid, input)
           end)
         end)
+
+        inputs =
+          Enum.reduce(slaves, [], fn inputs, list ->
+            Enum.reduce(inputs, list, fn input, list ->
+              [input | list]
+            end)
+          end)
+          |> Enum.reverse()
+
+        names = Enum.map(inputs, & &1.name)
+        PubSub.Input.reg_names!(id, names)
+        PubSub.Password.register!(item, password)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)

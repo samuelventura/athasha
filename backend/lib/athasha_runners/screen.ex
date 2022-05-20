@@ -11,8 +11,6 @@ defmodule Athasha.Runner.Screen do
     points = config["points"]
     period = String.to_integer(setts["period"])
 
-    PubSub.Password.register!(item, password)
-
     # reset points on each reconnection attempt
     # check for duplicates before register
     Enum.reduce(points, %{}, fn point, map ->
@@ -23,6 +21,7 @@ defmodule Athasha.Runner.Screen do
       Map.put(map, point, point)
     end)
 
+    PubSub.Password.register!(item, password)
     PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)

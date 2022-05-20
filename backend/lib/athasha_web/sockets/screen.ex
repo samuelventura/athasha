@@ -28,6 +28,10 @@ defmodule AthashaWeb.Socket.Screen do
     reply_text(resp, state)
   end
 
+  def handle_info({{:error, _id}, nil, _error}, state) do
+    {:stop, :error, state}
+  end
+
   # disconnect on any item enable|delete event
   def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
     case muta.name do
@@ -50,6 +54,7 @@ defmodule AthashaWeb.Socket.Screen do
 
   def handle_info(:logged, state = %{id: id}) do
     item = PubSub.Runner.find(id)
+    Bus.register!({:error, id}, nil)
     Bus.register!({:status, id}, nil)
     Bus.register!({:screen, id}, nil)
     Bus.register!({:items, id}, nil)

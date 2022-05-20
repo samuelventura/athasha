@@ -86,14 +86,18 @@ defmodule Athasha.Runner do
           Raise.error({:normal_exit, item.id})
         rescue
           e in RuntimeError ->
-            PubSub.Status.update!(item, :error, e.message)
+            error = e.message
+            Bus.dispatch!({:error, item.id}, error)
+            PubSub.Status.update!(item, :error, error)
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
 
           # mostly for debugging: FunctionClauseError, ...
           e ->
-            PubSub.Status.update!(item, :error, "#{inspect(e)}")
+            error = "#{inspect(e)}"
+            Bus.dispatch!({:error, item.id}, error)
+            PubSub.Status.update!(item, :error, error)
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__

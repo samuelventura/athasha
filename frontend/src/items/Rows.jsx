@@ -7,6 +7,7 @@ import Files from "../tools/Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
+import Clipboard from "../tools/Clipboard"
 import EditItem from "./Editor"
 import Types from "./Types"
 import Status from "./Status"
@@ -69,6 +70,10 @@ function Rows(props) {
                 window.open(`${page}.html?id=${item.id}`, '_blank').focus();
                 break
             }
+            case "copy-id": {
+                Clipboard.copyText(item.id)
+                break
+            }
             default:
                 Log.log("Unknown action", action, item)
         }
@@ -106,6 +111,7 @@ function Rows(props) {
                         <Dropdown.Item onClick={(e) => handleClick(e, 'delete', item)}>Delete</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'clone', item)}>Clone</Dropdown.Item>
                         <Dropdown.Item onClick={(e) => handleClick(e, 'backup', item)}>Backup</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => handleClick(e, 'copy-id', item)}>Copy ID</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>

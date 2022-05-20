@@ -18,8 +18,6 @@ defmodule Athasha.Runner.Modbus do
     period = String.to_integer(setts["period"])
     password = setts["password"]
 
-    PubSub.Password.register!(item, password)
-
     inputs =
       Enum.map(config["inputs"], fn input ->
         slave = String.to_integer(input["slave"])
@@ -70,6 +68,10 @@ defmodule Athasha.Runner.Modbus do
 
           Map.put(map, iid, iid)
         end)
+
+        names = Enum.map(inputs, & &1.name)
+        PubSub.Input.reg_names!(id, names)
+        PubSub.Password.register!(item, password)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)

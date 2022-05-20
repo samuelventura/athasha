@@ -4,17 +4,17 @@ import { useApp } from '../App'
 
 function View() {
     const app = useApp()
-    const rows = Object.entries(app.state.points).map(([name, value], index) => {
+    const rows = app.state.names.map((name, index) => {
         return <tr key={index}>
             <td>{name}</td>
-            <td>{value}</td>
+            <td>{app.state.values[name]}</td>
         </tr>
     })
     return <Table className='items mt-1' hover>
         <thead>
             <tr>
-                <th>Point Name</th>
-                <th>Point Value</th>
+                <th className="col-6">Point Name</th>
+                <th className="col-6">Point Value</th>
             </tr>
         </thead>
         <tbody>{rows}</tbody>

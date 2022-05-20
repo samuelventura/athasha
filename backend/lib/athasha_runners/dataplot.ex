@@ -15,8 +15,6 @@ defmodule Athasha.Runner.Dataplot do
     dbpass = setts["dbpass"]
     connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
-    PubSub.Password.register!(item, password)
-
     config = %{
       item: Map.take(item, [:id, :name, :type]),
       password: password,
@@ -29,6 +27,7 @@ defmodule Athasha.Runner.Dataplot do
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
+    PubSub.Password.register!(item, password)
     PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Bus.register!({:dataplot, item.id}, nil)
