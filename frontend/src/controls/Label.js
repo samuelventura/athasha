@@ -65,7 +65,6 @@ const dhints = {
 const dchecks = {
     input: function (value) {
         Check.isString(value, dlabels.input)
-        Check.notEmpty(value, dlabels.input)
     },
     text: function (value) {
         Check.isString(value, dlabels.text)
@@ -186,15 +185,15 @@ const cchecks = {
     brEnabled: function (value) {
         Check.isBoolean(value, clabels.brEnabled)
     },
-    fgColor: function (value) {
+    brColor: function (value) {
         Check.isString(value, clabels.brColor)
         Check.notEmpty(value, clabels.brColor)
         Check.isColor(value, clabels.brColor)
     },
 }
 
-function validate(data) {
-    Check.validate(data, data(), dchecks, "data")
+function validate(control) {
+    Check.validate(control.data, data(), dchecks, "data")
 }
 
 export default {

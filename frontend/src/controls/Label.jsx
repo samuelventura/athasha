@@ -85,10 +85,6 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         </>)
 }
 
-function Validator(control) {
-    return Check.run(() => { Initial.validate(control.data) })
-}
-
 function Editor({ control, setProp, captured, setCaptured, globals }) {
     const data = control.data
     function setCondProp(cond) {
@@ -266,23 +262,26 @@ function Renderer({ control, size, inputs }) {
         }
     }
 
-    //decimals received as strings
-    const iid = data.input
-    if (iid) {
-        //Number(null) -> 0
-        //Number(undefined) -> NaN
-        let value = inputs[iid]
-        if (value !== null) {
-            value = Number(value)
-            if (!isNaN(value)) {
-                if (data.cond1.type !== "Disabled") {
-                    evalCondition(data.cond1, value)
-                }
-                if (data.cond2.type !== "Disabled") {
-                    evalCondition(data.cond2, value)
-                }
-                if (data.cond3.type !== "Disabled") {
-                    evalCondition(data.cond3, value)
+    //null while editing
+    if (inputs) {
+        //decimals received as strings
+        const iid = data.input
+        if (iid) {
+            //Number(null) -> 0
+            //Number(undefined) -> NaN
+            let value = inputs[iid]
+            if (value !== null) {
+                value = Number(value)
+                if (!isNaN(value)) {
+                    if (data.cond1.type !== "Disabled") {
+                        evalCondition(data.cond1, value)
+                    }
+                    if (data.cond2.type !== "Disabled") {
+                        evalCondition(data.cond2, value)
+                    }
+                    if (data.cond3.type !== "Disabled") {
+                        evalCondition(data.cond3, value)
+                    }
                 }
             }
         }
@@ -298,6 +297,10 @@ function Renderer({ control, size, inputs }) {
             </text>
         </svg>
     )
+}
+
+function Validator(control) {
+    Initial.validate(control)
 }
 
 function InputExtractor(data, add) {

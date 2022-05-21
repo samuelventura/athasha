@@ -106,7 +106,6 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
     if (login) {
       const timer = setInterval(() => {
         const session = sessioner.fetch()
-        console.log(session)
         if (session.token) {
           const active = false
           send({ name: "login", args: { session, active } })

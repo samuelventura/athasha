@@ -1,4 +1,5 @@
 import Check from './Check'
+import Controls from './Controls'
 
 function config() {
     return {
@@ -219,6 +220,9 @@ function validator({ setts, controls }) {
         cchecks.width(control.setts.width)
         Check.hasProp(control.setts, clabel, "height")
         cchecks.height(control.setts.height)
+        const controller = Controls.getController(control.type)
+        const validator = controller.Validator
+        if (validator) validator(control)
     })
 }
 

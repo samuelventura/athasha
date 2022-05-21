@@ -150,7 +150,7 @@ function run(action) {
 
 function validate(values, inits, checks, label) {
     Object.keys(inits).forEach((prop) => {
-        Check.hasProp(values, label, prop)
+        hasProp(values, label, prop)
         checks[prop](values[prop])
     })
 }

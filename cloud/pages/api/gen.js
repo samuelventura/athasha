@@ -12,7 +12,6 @@ export default async function handler(req, res) {
       if (!err) {
         if (row) { //returns undefined if not found
           const license = JSON.parse(row.license)
-          // console.log("existing", license)
           res.status(200).json({ license })
           resolve()
         } else {
@@ -26,7 +25,6 @@ export default async function handler(req, res) {
             const qty = Number(session.metadata.quantity)
             const email = session.customer_details.email
             const license = signer({ pid, qty, aid })
-            // console.log("new", license)
             db.run("INSERT INTO payments (pid, sid, aid, qty, email, license, json) VALUES (?, ?, ?, ?, ?, ?, ?)",
               [pid, sid, aid, qty, email, JSON.stringify(license), JSON.stringify(session)], (err) => {
                 if (!err) {
