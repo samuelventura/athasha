@@ -29,10 +29,8 @@ defmodule Athasha.Runner.Laurel do
 
           %{
             id: "#{id} #{name}",
-            slave: address,
-            decimals: decimals,
-            code: code,
-            name: name
+            name: name,
+            getter: getter(code, address, decimals)
           }
         end)
       end)
@@ -113,7 +111,7 @@ defmodule Athasha.Runner.Laurel do
   defp run_once(item = %{id: id}, config, master) do
     Enum.each(config.slaves, fn inputs ->
       Enum.reduce(inputs, nil, fn input, alarm ->
-        case exec_input(master, input, alarm) do
+        case input.getter.(master, alarm) do
           {:ok, {alarm, index}} ->
             value = laurel_bit(alarm, index)
             PubSub.Input.update!(id, input.id, input.name, value)
@@ -132,51 +130,26 @@ defmodule Athasha.Runner.Laurel do
     end)
   end
 
-  defp exec_input(master, input, alarm) do
-    case input.code do
-      # Item 1
-      "01" ->
-        laurel_decimal(master, input, 3)
-
-      # Item 2
-      "02" ->
-        laurel_decimal(master, input, 9)
-
-      # Item 3
-      "03" ->
-        laurel_decimal(master, input, 11)
-
-      # Peak
-      "11" ->
-        laurel_decimal(master, input, 5)
-
-      # Valey
-      "12" ->
-        laurel_decimal(master, input, 7)
-
-      # Alarm 1
-      "21" ->
-        laurel_alarm(master, input, 1, alarm)
-
-      # Alarm 2
-      "22" ->
-        laurel_alarm(master, input, 2, alarm)
-
-      # Alarm 3
-      "23" ->
-        laurel_alarm(master, input, 3, alarm)
-
-      # Alarm 4
-      "24" ->
-        laurel_alarm(master, input, 4, alarm)
+  defp getter(code, slave, decimals) do
+    case code do
+      "Item 1" -> fn master, _alarm -> laurel_decimal(master, slave, 3, decimals) end
+      "Item 2" -> fn master, _alarm -> laurel_decimal(master, slave, 9, decimals) end
+      "Item 3" -> fn master, _alarm -> laurel_decimal(master, slave, 11, decimals) end
+      "Peak" -> fn master, _alarm -> laurel_decimal(master, slave, 5, decimals) end
+      "Valley" -> fn master, _alarm -> laurel_decimal(master, slave, 7, decimals) end
+      "Alarm 1" -> fn master, alarm -> laurel_alarm(master, slave, 1, alarm) end
+      "Alarm 2" -> fn master, alarm -> laurel_alarm(master, slave, 2, alarm) end
+      "Alarm 3" -> fn master, alarm -> laurel_alarm(master, slave, 3, alarm) end
+      "Alarm 4" -> fn master, alarm -> laurel_alarm(master, slave, 4, alarm) end
     end
   end
 
-  defp laurel_decimal(master, input, address) do
+  defp laurel_decimal(master, slave, address, decimals) do
     # second slave is timing out randomly
+    # reading decimal digits causes resets
     :timer.sleep(5)
-    # {:ok, [d0]} = Master.exec master, {:rhr, 1, 87, 1} causes resets
-    case Master.exec(master, {:rir, input.slave, address, 2}) do
+
+    case Master.exec(master, {:rir, slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<sign::1, reading::31>> = <<w0::16, w1::16>>
 
@@ -186,7 +159,7 @@ defmodule Athasha.Runner.Laurel do
             0 -> 1
           end
 
-        value = Decimal.new(sign, reading, -input.decimals)
+        value = Decimal.new(sign, reading, -decimals)
         {:ok, value}
 
       any ->
@@ -194,11 +167,11 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp laurel_alarm(master, input, index, nil) do
+  defp laurel_alarm(master, slave, index, nil) do
     # second slave is timing out randomly
     :timer.sleep(5)
 
-    case Master.exec(master, {:rir, input.slave, 1, 2}) do
+    case Master.exec(master, {:rir, slave, 1, 2}) do
       {:ok, [w0, w1]} -> {:ok, {[w0, w1], index}}
       any -> any
     end

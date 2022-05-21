@@ -1,5 +1,17 @@
 import Check from './Check'
 
+const inputCodes = [
+    "Item 1",
+    "Item 2",
+    "Item 3",
+    "Peak",
+    "Valley",
+    "Alarm 1",
+    "Alarm 2",
+    "Alarm 3",
+    "Alarm 4",
+]
+
 function config() {
     return {
         setts: setts(),
@@ -69,8 +81,8 @@ const hints = {
     period: "Non empty integer > 0",
     password: "Optional access password",
     tty: "Select serial port from list"
-    +"\nType begining of name to show completing list"
-    +"\nPress ENTER to update list",
+        + "\nType begining of name to show completing list"
+        + "\nPress ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     slaves: {
@@ -189,6 +201,7 @@ function validator({ setts, slaves }) {
 }
 
 export default {
+    inputCodes,
     config,
     setts,
     slave,

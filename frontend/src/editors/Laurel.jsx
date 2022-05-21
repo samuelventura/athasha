@@ -225,21 +225,14 @@ function Editor(props) {
         </>
     }
 
+    const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
     function slaveEditor({ sindex, slave }) {
         const listRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>
                 <td >{pindex + 1}</td>
                 <td>
                     <Form.Select {...inputProps(sindex, pindex, "code")}>
-                        <option value="01">Item 1</option>
-                        <option value="02">Item 2</option>
-                        <option value="03">Item 3</option>
-                        <option value="11">Peak</option>
-                        <option value="12">Valley</option>
-                        <option value="21">Alarm 1</option>
-                        <option value="22">Alarm 2</option>
-                        <option value="23">Alarm 3</option>
-                        <option value="24">Alarm 4</option>
+                        {inputOptions}
                     </Form.Select>
                 </td>
                 <td>
