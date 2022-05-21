@@ -1,6 +1,6 @@
 import Router from "../tools/Router"
 import Log from "../tools/Log"
-import Types from "./Types"
+import Extractor from "./Extractor"
 
 function initial() {
   return {
@@ -9,7 +9,8 @@ function initial() {
     status: {},
     selected: {},
     targeted: {},
-    points: [],
+    inputs: [],
+    outputs: [],
     version: 0,
     hostname: "",
     identity: "",
@@ -35,12 +36,16 @@ function version_state(next) {
 }
 
 function update_points(next) {
-  const points = []
-  function add(point) { points.push(point) }
+  const inputs = []
+  const outputs = []
+  const addInput = (point) => inputs.push(point)
+  const addOutput = (point) => outputs.push(point)
   Object.values(next.items).forEach((item) => {
-    Types.pointer(item.type)(item, add)
+    Extractor.inputExtractor(item.type)(item, addInput)
+    Extractor.outputExtractor(item.type)(item, addOutput)
   })
-  next.points = points
+  next.inputs = inputs
+  next.outputs = outputs
 }
 
 function setup_editor(next) {

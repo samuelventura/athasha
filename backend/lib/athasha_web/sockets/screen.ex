@@ -41,9 +41,9 @@ defmodule AthashaWeb.Socket.Screen do
     end
   end
 
-  def handle_info({{:screen, id}, nil, {point, value}}, state = %{id: id}) do
-    args = %{id: point, value: value}
-    resp = %{name: "point", args: args}
+  def handle_info({{:screen, id}, nil, {input, value}}, state = %{id: id}) do
+    args = %{id: input, value: value}
+    resp = %{name: "input", args: args}
     reply_text(resp, state)
   end
 
@@ -59,7 +59,7 @@ defmodule AthashaWeb.Socket.Screen do
     Bus.register!({:screen, id})
     Bus.register!({:items, id})
     config = item.config
-    initial = PubSub.Screen.list(id) |> Enum.map(&initial_point/1)
+    initial = PubSub.Screen.list(id) |> Enum.map(&initial_input/1)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}
     resp = %{name: "view", args: args}
     reply_text(resp, state)
@@ -98,7 +98,7 @@ defmodule AthashaWeb.Socket.Screen do
     {:reply, :ok, {:text, json}, state}
   end
 
-  defp initial_point({id, _, value}) do
+  defp initial_input({id, _, value}) do
     %{id: id, value: value}
   end
 end

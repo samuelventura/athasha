@@ -50,7 +50,7 @@ function calcGeom(parent, setts) {
     return { gx, gy, sx, sy, W, H, vb, vp }
 }
 
-function SvgWindow({ setts, controls, points }) {
+function SvgWindow({ setts, controls, inputs }) {
     const { ref, width, height } = useResizeDetector()
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
@@ -63,7 +63,7 @@ function SvgWindow({ setts, controls, points }) {
         const h = setts.height * sy
         const size = { width: w, height: h }
         const controller = Controls.getController(control.type)
-        const controlInstance = controller.Renderer({ control, size, points })
+        const controlInstance = controller.Renderer({ control, size, inputs })
         return (
             <svg key={index} x={x} y={y} width={w} height={h}>
                 {controlInstance}
@@ -82,8 +82,8 @@ function View() {
     const app = useApp()
     const setts = app.state.setts
     const controls = app.state.controls
-    const points = app.state.points
-    return <SvgWindow setts={setts} controls={controls} points={points} />
+    const inputs = app.state.inputs
+    return <SvgWindow setts={setts} controls={controls} inputs={inputs} />
 }
 
 export default View

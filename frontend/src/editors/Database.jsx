@@ -17,31 +17,31 @@ import { useApp } from '../App'
 function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(Initial.config().setts)
-    const [points, setPoints] = useState(Initial.config().points)
+    const [inputs, setInputs] = useState(Initial.config().inputs)
     const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
-        setPoints(config.points || init.points)
+        setInputs(config.inputs || init.inputs)
     }, [props.id]) //primitive type required
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
-            const config = { setts, points }
+            const config = { setts, inputs }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [setts, points])
-    function addPoint() {
-        const next = [...points]
-        const point = Initial.point()
-        next.push(point)
-        setPoints(next)
+    }, [setts, inputs])
+    function addInput() {
+        const next = [...inputs]
+        const input = Initial.input()
+        next.push(input)
+        setInputs(next)
     }
-    function delPoint(index) {
-        const next = [...points]
+    function delInput(index) {
+        const next = [...inputs]
         next.splice(index, 1)
-        setPoints(next)
+        setInputs(next)
     }
     function settsProps(prop) {
         function setter(name) {
@@ -60,37 +60,37 @@ function Editor(props) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
-    function pointProps(index, prop) {
+    function inputProps(index, prop) {
         function setter(name) {
             return function (value) {
-                const next = [...points]
+                const next = [...inputs]
                 next[index][name] = value
-                setPoints(next)
+                setInputs(next)
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.points[prop](index)
-        args.hint = Initial.hints.points[prop](index)
-        args.value = points[index][prop]
+        args.label = Initial.labels.inputs[prop](index)
+        args.hint = Initial.hints.inputs[prop](index)
+        args.value = inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.points[prop](index, value)
-        args.defval = Initial.point()[prop]
+        args.check = (value) => Initial.checks.inputs[prop](index, value)
+        args.defval = Initial.input()[prop]
         return Check.props(args)
     }
-    const rows = points.map((point, index) =>
+    const rows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td>
                 {"@" + (index + 1)}
             </td>
             <td>
-                <Form.Select {...pointProps(index, "id")}>
+                <Form.Select {...inputProps(index, "id")}>
                     <option value=""></option>
-                    {Points.options(props.globals.points)}
+                    {Points.options(props.globals.inputs)}
                 </Form.Select>
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" onClick={() => delPoint(index)}
-                    title="Delete Point">
+                <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
+                    title="Delete Input">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
             </td>
@@ -155,10 +155,10 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{Initial.labels.point.id}</th>
+                        <th>{Initial.labels.input.id}</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addPoint}
-                                title="Add Point">
+                            <Button variant='outline-primary' size="sm" onClick={addInput}
+                                title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

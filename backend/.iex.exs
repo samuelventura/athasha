@@ -9,7 +9,6 @@ alias Athasha.Ports
 alias Athasha.Store
 alias Athasha.Raise
 alias Athasha.Crypto
-alias Athasha.Points
 alias Athasha.Server
 alias Athasha.Runner
 alias Athasha.Number

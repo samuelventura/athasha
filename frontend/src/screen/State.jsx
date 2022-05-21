@@ -7,7 +7,7 @@ function initial() {
     status: {},
     setts: {},
     controls: [],
-    points: {},
+    inputs: {},
   }
 }
 
@@ -24,9 +24,9 @@ function reducer(state, { name, args, self }) {
       next.status = {}
       next.setts = args.config.setts
       next.controls = args.config.controls
-      next.points = {}
-      args.initial.forEach(point => {
-        next.points[point.id] = point.value
+      next.inputs = {}
+      args.initial.forEach(input => {
+        next.inputs[input.id] = input.value
       })
       return next
     }
@@ -35,9 +35,9 @@ function reducer(state, { name, args, self }) {
       next.status = args
       return next
     }
-    case "point": {
+    case "input": {
       const next = clone_object(state)
-      next.points[args.id] = args.value
+      next.inputs[args.id] = args.value
       return next
     }
     case "close": {

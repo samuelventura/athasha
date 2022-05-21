@@ -519,18 +519,18 @@ function Editor(props) {
     }, [props.id]) //primitive type required
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
-            const points = controls.reduce((points, control) => {
-                const pointer = Controls.getController(control.type).Pointer
-                if (pointer) {
-                    pointer(control.data, (id) => {
-                        if (points.indexOf(id) < 0) {
-                            points.push(id)
+            const inputs = controls.reduce((inputs, control) => {
+                const inputExtractor = Controls.getController(control.type).InputExtractor
+                if (inputExtractor) {
+                    inputExtractor(control.data, (id) => {
+                        if (inputs.indexOf(id) < 0) {
+                            inputs.push(id)
                         }
                     })
                 }
-                return points
+                return inputs
             }, [])
-            const config = { setts, controls, points }
+            const config = { setts, controls, inputs }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }

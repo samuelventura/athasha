@@ -3,7 +3,7 @@ import Check from './Check'
 function config() {
     return {
         setts: setts(),
-        points: [point()],
+        inputs: [input()],
     }
 }
 
@@ -18,7 +18,7 @@ function setts() {
     }
 }
 
-function point() {
+function input() {
     return {
         id: "",
     }
@@ -31,11 +31,11 @@ const labels = {
     unit: "Unit",
     connstr: "Connection String",
     command: "SQL Command",
-    point: {
-        id: "Point Name",
+    input: {
+        id: "Input Name",
     },
-    points: {
-        id: (i) => `Point ${i + 1}`,
+    inputs: {
+        id: (i) => `Input ${i + 1}`,
     }
 }
 
@@ -45,15 +45,15 @@ const hints = {
     period: "Non empty integer insert period > 0",
     unit: "Select time unit from the list",
     connstr: "Non empty connection string for your DB"
-    +"\nUse ${PASSWORD} to insert the Database Password"
-    +"\nConsult your IT specialist"
-    +"\nSee https://www.connectionstrings.com/",
+        + "\nUse ${PASSWORD} to insert the Database Password"
+        + "\nConsult your IT specialist"
+        + "\nSee https://www.connectionstrings.com/",
     command: "An SQL insert command, function or store procedure call"
-    +"\nUse @n to reference the nth point"
-    +"\nFor instance @1 references point 1"
-    +"\nConsult your IT specialist",
-    points: {
-        id: (i) => "Select the point name from the list",
+        + "\nUse @n to reference the nth input"
+        + "\nFor instance @1 references input 1"
+        + "\nConsult your IT specialist",
+    inputs: {
+        id: (i) => "Select the input name from the list",
     }
 }
 
@@ -84,15 +84,15 @@ const checks = {
         Check.isString(value, labels.command)
         Check.notEmpty(value, labels.command)
     },
-    points: {
+    inputs: {
         id: function (index, value) {
-            Check.isString(value, labels.points.id(index))
-            Check.notEmpty(value, labels.points.id(index))
+            Check.isString(value, labels.inputs.id(index))
+            Check.notEmpty(value, labels.inputs.id(index))
         },
     }
 }
 
-function validator({ setts, points }) {
+function validator({ setts, inputs }) {
     Check.hasProp(setts, "Setts", "database")
     Check.hasProp(setts, "Setts", "dbpass")
     Check.hasProp(setts, "Setts", "period")
@@ -105,18 +105,18 @@ function validator({ setts, points }) {
     checks.unit(setts.unit)
     checks.connstr(setts.connstr)
     checks.command(setts.command)
-    Check.isArray(points, "Points")
-    Check.nonZeroLength(points, "Points")
-    points.forEach((point, index) => {
-        Check.hasProp(point, labels.points.id(index), "id")
-        checks.points.id(index, point.id)
+    Check.isArray(inputs, "Inputs")
+    Check.nonZeroLength(inputs, "Inputs")
+    inputs.forEach((input, index) => {
+        Check.hasProp(input, labels.inputs.id(index), "id")
+        checks.inputs.id(index, input.id)
     })
 }
 
 export default {
     config,
     setts,
-    point,
+    input,
     labels,
     hints,
     checks,

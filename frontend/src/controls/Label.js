@@ -17,7 +17,7 @@ function cond() {
 
 function data() {
     return {
-        point: "",
+        input: "",
         text: "Label",
         align: "Center",
         fgColor: "#000000",
@@ -35,7 +35,7 @@ function data() {
 }
 
 const dlabels = {
-    point: "Point",
+    input: "Input",
     text: "Text",
     align: "Align",
     fgColor: "Text Color",
@@ -49,7 +49,7 @@ const dlabels = {
 }
 
 const dhints = {
-    point: "Select optional data point from list",
+    input: "Select optional data input from list",
     text: "Default text to show on label",
     align: "Label text alignment",
     fgColor: "Non empty text color #RRGGBB",
@@ -63,9 +63,9 @@ const dhints = {
 }
 
 const dchecks = {
-    point: function (value) {
-        Check.isString(value, dlabels.point)
-        Check.notEmpty(value, dlabels.point)
+    input: function (value) {
+        Check.isString(value, dlabels.input)
+        Check.notEmpty(value, dlabels.input)
     },
     text: function (value) {
         Check.isString(value, dlabels.text)

@@ -21,16 +21,16 @@ defmodule Athasha.Runner.Database do
         "m" -> period * 1000 * 60
       end
 
-    points =
-      Enum.with_index(config["points"])
-      |> Enum.map(fn {point, index} ->
-        %{index: index, id: point["id"], param: "@#{index + 1}"}
+    inputs =
+      Enum.with_index(config["inputs"])
+      |> Enum.map(fn {input, index} ->
+        %{index: index, id: input["id"], param: "@#{index + 1}"}
       end)
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
       period: period,
-      points: points,
+      inputs: inputs,
       database: database,
       connstr: connstr,
       command: command
@@ -81,8 +81,8 @@ defmodule Athasha.Runner.Database do
 
   defp run_once(_item, config, port) do
     parameters =
-      Enum.map(config.points, fn point ->
-        id = point.id
+      Enum.map(config.inputs, fn input ->
+        id = input.id
         value = PubSub.Input.get_value(id)
 
         if value == nil do

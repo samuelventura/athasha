@@ -11,13 +11,13 @@ defmodule Athasha.PubSub.Screen do
     Store.select(query)
   end
 
-  def register!(id, point) do
-    Store.register!({@key, id, point})
-    Bus.dispatch!({@key, id}, {point, nil})
+  def register!(id, input) do
+    Store.register!({@key, id, input})
+    Bus.dispatch!({@key, id}, {input, nil})
   end
 
-  def update!(id, point, value) do
-    Store.update!({@key, id, point}, fn _ -> value end)
-    Bus.dispatch!({@key, id}, {point, value})
+  def update!(id, input, value) do
+    Store.update!({@key, id, input}, fn _ -> value end)
+    Bus.dispatch!({@key, id}, {input, value})
   end
 end

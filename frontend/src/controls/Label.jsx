@@ -33,10 +33,10 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                 <Form.Select {...fieldProps("type")}>
                     <option value="Disabled">Disabled</option>
                     <option value="Enabled">Enabled</option>
-                    <option value="Greater">Point &gt; Param</option>
-                    <option value="GreaterOrEqual">Point &ge; Param</option>
-                    <option value="Lesser">Point &lt; Param</option>
-                    <option value="LesserOrEqual">Point &le; Param</option>
+                    <option value="Greater">Input &gt; Param</option>
+                    <option value="GreaterOrEqual">Input &ge; Param</option>
+                    <option value="Lesser">Input &lt; Param</option>
+                    <option value="LesserOrEqual">Input &le; Param</option>
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.clabels.param}>
@@ -115,9 +115,9 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
     }
     return (
         <>
-            <Form.Select {...fieldProps("point")} >
+            <Form.Select {...fieldProps("input")} >
                 <option value=""></option>
-                {Points.options(globals.points)}
+                {Points.options(globals.inputs)}
             </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
@@ -203,7 +203,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
     )
 }
 
-function Renderer({ control, size, points }) {
+function Renderer({ control, size, inputs }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -266,22 +266,23 @@ function Renderer({ control, size, points }) {
         }
     }
 
-    if (points) {
-        const pid = data.point
-        if (pid) {
-            let value = points[pid]
-            if (value !== null) {
-                value = Number(value)
-                if (!isNaN(value)) {
-                    if (data.cond1.type !== "Disabled") {
-                        evalCondition(data.cond1, value)
-                    }
-                    if (data.cond2.type !== "Disabled") {
-                        evalCondition(data.cond2, value)
-                    }
-                    if (data.cond3.type !== "Disabled") {
-                        evalCondition(data.cond3, value)
-                    }
+    //decimals received as strings
+    const iid = data.input
+    if (iid) {
+        //Number(null) -> 0
+        //Number(undefined) -> NaN
+        let value = inputs[iid]
+        if (value !== null) {
+            value = Number(value)
+            if (!isNaN(value)) {
+                if (data.cond1.type !== "Disabled") {
+                    evalCondition(data.cond1, value)
+                }
+                if (data.cond2.type !== "Disabled") {
+                    evalCondition(data.cond2, value)
+                }
+                if (data.cond3.type !== "Disabled") {
+                    evalCondition(data.cond3, value)
                 }
             }
         }
@@ -299,11 +300,11 @@ function Renderer({ control, size, points }) {
     )
 }
 
-function Pointer(data, add) {
-    if (data.point) add(data.point)
+function InputExtractor(data, add) {
+    if (data.input) add(data.input)
 }
 
 const Type = "Label"
 const Init = Initial.data
 
-export default { Type, Init, Editor, Renderer, Validator, Pointer }
+export default { Type, Init, Editor, Renderer, Validator, InputExtractor }

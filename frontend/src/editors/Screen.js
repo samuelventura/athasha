@@ -4,7 +4,7 @@ function config() {
     return {
         setts: setts(),
         controls: [],
-        points: [],
+        inputs: [],
     }
 }
 

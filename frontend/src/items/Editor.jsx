@@ -56,7 +56,7 @@ function EditItem() {
     }
     //id required as use effect flag
     function itemEditor(type) {
-        const state = { globals: { points: app.state.points } }
+        const state = { globals: { inputs: app.state.inputs, outputs: app.state.outputs } }
         const match = item.id && type === item.type
         state.config = match ? cloned() : {}
         state.id = match ? item.id : ""
