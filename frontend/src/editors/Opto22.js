@@ -1,9 +1,14 @@
 import Check from './Check'
 
+
+const inputCodes = ["4chd", "4cha"]
+const outputCodes = ["4chd", "4cha"]
+
 function config() {
     return {
         setts: setts(),
-        inputs: [input()]
+        inputs: [input()],
+        outputs: [output()],
     }
 }
 
@@ -28,6 +33,15 @@ function input(index) {
     }
 }
 
+function output(index) {
+    return {
+        code: "4chd",
+        module: "0",
+        number: "1",
+        name: `Output ${1 + (index || 0)}`,
+    }
+}
+
 const labels = {
     type: "Product Family",
     host: "Hostname/IP Address",
@@ -49,6 +63,19 @@ const labels = {
         name: (i) => `Input ${i + 1} Name`,
         decimals: (i) => `Input ${i + 1} Number of Decimals`,
     },
+    output: {
+        code: "Output Type",
+        module: "Module Number",
+        number: "Point Number",
+        name: "Output Name",
+    },
+    outputs: {
+        code: (i) => `Output ${i + 1} Type`,
+        module: (i) => `Output ${i + 1} Module Number`,
+        number: (i) => `Output ${i + 1} Point Number`,
+        name: (i) => `Output ${i + 1} Name`,
+        decimals: (i) => `Output ${i + 1} Number of Decimals`,
+    },
 }
 
 const hints = {
@@ -64,7 +91,13 @@ const hints = {
         number: (i) => "Non empty integer [1, 4]",
         name: (i) => "Non empty input name",
         decimals: (i) => "Non empty integer >= 0",
-    }
+    },
+    outputs: {
+        code: (i) => "Select the output type from list",
+        module: (i) => "Non empty integer [0, 15]",
+        number: (i) => "Non empty integer [1, 4]",
+        name: (i) => "Non empty output name",
+    },
 }
 
 const checks = {
@@ -127,9 +160,37 @@ const checks = {
             Check.isGE(value, labels.decimals, 0)
         },
     },
+    outputs: {
+        code: function (index, value) {
+            Check.isString(value, labels.outputs.code(index))
+            Check.notEmpty(value, labels.outputs.code(index))
+        },
+        module: function (index, value) {
+            Check.isString(value, labels.outputs.module(index))
+            Check.notEmpty(value, labels.outputs.module(index))
+            Check.isGE(value, labels.outputs.module(index), 0)
+            Check.isLE(value, labels.outputs.module(index), 15)
+        },
+        number: function (index, value) {
+            Check.isString(value, labels.outputs.number(index))
+            Check.notEmpty(value, labels.outputs.number(index))
+            Check.isGE(value, labels.outputs.number(index), 1)
+            Check.isLE(value, labels.outputs.number(index), 4)
+        },
+        name: function (index, value) {
+            Check.isString(value, labels.outputs.name(index))
+            Check.notEmpty(value, labels.outputs.name(index))
+        },
+        decimals: function (index, value) {
+            Check.isString(value, labels.decimals)
+            Check.notEmpty(value, labels.decimals)
+            Check.isInteger(value, labels.decimals)
+            Check.isGE(value, labels.decimals, 0)
+        },
+    },
 }
 
-function validator({ setts, inputs }) {
+function validator({ setts, inputs, outputs }) {
     Check.hasProp(setts, "Setts", "type")
     Check.hasProp(setts, "Setts", "host")
     Check.hasProp(setts, "Setts", "port")
@@ -154,12 +215,27 @@ function validator({ setts, inputs }) {
         Check.hasProp(input, labels.inputs.decimals(index), "decimals")
         checks.inputs.decimals(index, input.decimals)
     })
+    Check.isArray(outputs, "Outputs")
+    Check.nonZeroLength(outputs, "Outputs")
+    outputs.forEach((output, index) => {
+        Check.hasProp(output, labels.outputs.code(index), "code")
+        checks.outputs.code(index, output.code)
+        Check.hasProp(output, labels.outputs.module(index), "module")
+        checks.outputs.module(index, output.module)
+        Check.hasProp(output, labels.outputs.number(index), "number")
+        checks.outputs.number(index, output.number)
+        Check.hasProp(output, labels.outputs.name(index), "name")
+        checks.outputs.name(index, output.name)
+    })
 }
 
 export default {
+    inputCodes,
+    outputCodes,
     config,
     setts,
     input,
+    output,
     labels,
     hints,
     checks,
