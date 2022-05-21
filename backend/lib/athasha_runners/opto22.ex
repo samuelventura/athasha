@@ -3,6 +3,7 @@ defmodule Athasha.Runner.Opto22 do
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Number
+  alias Athasha.Bus
   @status 1000
 
   def run(item) do
@@ -27,16 +28,24 @@ defmodule Athasha.Runner.Opto22 do
 
         %{
           id: "#{id} #{name}",
-          type: type,
-          slave: slave,
-          code: code,
-          module: module,
-          number: number,
           name: name,
-          decimals: decimals,
-          address: address,
           getter: fn master -> getter(master, code, slave, address) end,
           trimmer: Number.trimmer(decimals)
+        }
+      end)
+
+    outputs =
+      Enum.map(config["outputs"], fn output ->
+        code = output["code"]
+        module = String.to_integer(output["module"])
+        number = String.to_integer(output["number"])
+        name = output["name"]
+        address = address(type, code, module, number)
+
+        %{
+          id: "#{id} #{name}",
+          name: name,
+          setter: fn master, value -> setter(master, code, slave, address, value) end
         }
       end)
 
@@ -47,7 +56,8 @@ defmodule Athasha.Runner.Opto22 do
       host: host,
       port: port,
       period: period,
-      inputs: inputs
+      inputs: inputs,
+      outputs: outputs
     }
 
     PubSub.Status.update!(item, :warn, "Connecting...")
@@ -55,6 +65,7 @@ defmodule Athasha.Runner.Opto22 do
     case connect_master(config) do
       {:ok, master} ->
         PubSub.Status.update!(item, :success, "Connected")
+
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
           iid = input.id
@@ -66,13 +77,27 @@ defmodule Athasha.Runner.Opto22 do
           Map.put(map, iid, iid)
         end)
 
+        # avoid registering duplicates
+        Enum.reduce(outputs, %{}, fn output, map ->
+          oid = output.id
+
+          if !Map.has_key?(map, oid) do
+            PubSub.Output.register!(id, oid, output.name)
+          end
+
+          Map.put(map, oid, oid)
+        end)
+
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
         PubSub.Password.register!(item, password)
+        names = Enum.map(outputs, & &1.name)
+        PubSub.Output.reg_names!(id, names)
+        Enum.each(outputs, fn output -> Bus.register!({:output, output.id}) end)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)
-        run_loop(item, config, master)
+        run_loop(item, config, master, %{})
 
       {:error, reason} ->
         PubSub.Status.update!(item, :error, "#{inspect(reason)}")
@@ -80,29 +105,34 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp run_loop(item, config, master) do
-    wait_once(item, config, master)
-    run_loop(item, config, master)
+  defp run_loop(item, config, master, values) do
+    values = wait_once(item, config, master, values)
+    run_loop(item, config, master, values)
   end
 
-  defp wait_once(item, config, master) do
+  defp wait_once(item, config, master, values) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
+        values
 
       :once ->
-        run_once(item, config, master)
+        run_once(item, config, master, values)
         Process.send_after(self(), :once, config.period)
+        %{}
+
+      {{:output, id}, _, value} ->
+        Map.put(values, id, value)
 
       other ->
         Raise.error({:receive, other})
     end
   end
 
-  defp run_once(item = %{id: id}, config, master) do
+  defp run_once(item = %{id: id}, config, master, values) do
     Enum.each(config.inputs, fn input ->
-      case exec_input(master, input) do
+      case input.getter.(master) do
         {:ok, value} ->
           value = input.trimmer.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
@@ -113,16 +143,27 @@ defmodule Athasha.Runner.Opto22 do
           Raise.error({:exec_input, input, reason})
       end
     end)
+
+    Enum.each(config.outputs, fn output ->
+      value = values[output.id]
+
+      if value != nil do
+        case output.setter.(master, value) do
+          :ok ->
+            PubSub.Output.update!(id, output.id, output.name, value)
+
+          {:error, reason} ->
+            PubSub.Output.update!(id, output.id, output.name, nil)
+            PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
+            Raise.error({:exec_output, output, reason})
+        end
+      end
+    end)
   end
 
-  # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf
-  # <<255,255,255,255>> IEEE754 NaN from analog channel 32 (had to restart the controller)
-  defp exec_input(master, input) do
-    input.getter.(master)
-  end
-
+  # 4ch Digital, pag 12
+  # 4ch Analog, pag 13
   defp getter(master, "4chd", slave, address) do
-    # 4ch Digital, pag 12
     case Master.exec(master, {:ri, slave, address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
@@ -130,7 +171,6 @@ defmodule Athasha.Runner.Opto22 do
   end
 
   defp getter(master, "4cha", slave, address) do
-    # 4ch Analog, pag 13
     case Master.exec(master, {:rir, slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<value::float-big-32>> = <<w0::16, w1::16>>
@@ -139,6 +179,16 @@ defmodule Athasha.Runner.Opto22 do
       any ->
         any
     end
+  end
+
+  defp setter(master, "4chd", slave, address, value) do
+    Master.exec(master, {:fc, slave, address, value})
+  end
+
+  defp setter(master, "4cha", slave, address, value) do
+    value = Number.to_float(value)
+    <<w0::16, w1::16>> = <<value::float-big-32>>
+    Master.exec(master, {:phr, slave, address, [w0, w1]})
   end
 
   defp address("Snap", "4chd", module, number), do: module * 4 + (number - 1)

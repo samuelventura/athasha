@@ -52,17 +52,17 @@ defmodule AthashaWeb.Socket.Points do
   end
 
   def handle_info(:logged, state = %{id: id, item: item}) do
-    Bus.register!({:error, id}, nil)
-    Bus.register!({:status, id}, nil)
-    Bus.register!({:input, id}, nil)
-    Bus.register!({:items, id}, nil)
+    Bus.register!({:error, id})
+    Bus.register!({:status, id})
+    Bus.register!({:input, id})
+    Bus.register!({:items, id})
 
     args = %{
       id: id,
       type: item.type,
       name: item.name,
       initial: PubSub.Input.get_inputs(id) |> Enum.map(&initial_point/1),
-      names: PubSub.Input.get_names!(id)
+      names: PubSub.Input.get_names(id)
     }
 
     resp = %{name: "view", args: args}

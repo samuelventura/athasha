@@ -54,10 +54,10 @@ defmodule AthashaWeb.Socket.Screen do
 
   def handle_info(:logged, state = %{id: id}) do
     item = PubSub.Runner.find(id)
-    Bus.register!({:error, id}, nil)
-    Bus.register!({:status, id}, nil)
-    Bus.register!({:screen, id}, nil)
-    Bus.register!({:items, id}, nil)
+    Bus.register!({:error, id})
+    Bus.register!({:status, id})
+    Bus.register!({:screen, id})
+    Bus.register!({:items, id})
     config = item.config
     initial = PubSub.Screen.list(id) |> Enum.map(&initial_point/1)
     args = %{id: id, type: item.type, name: item.name, initial: initial, config: config}

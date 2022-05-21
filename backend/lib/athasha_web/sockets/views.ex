@@ -34,8 +34,8 @@ defmodule AthashaWeb.Socket.Views do
   end
 
   def handle_info(:logged, state) do
-    Bus.register!(:status, nil)
-    Bus.register!(:items, nil)
+    Bus.register!(:status)
+    Bus.register!(:items)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = %{addresses: Globals.find_addresses()}

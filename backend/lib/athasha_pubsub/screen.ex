@@ -12,7 +12,7 @@ defmodule Athasha.PubSub.Screen do
   end
 
   def register!(id, point) do
-    Store.register!({@key, id, point}, nil)
+    Store.register!({@key, id, point})
     Bus.dispatch!({@key, id}, {point, nil})
   end
 

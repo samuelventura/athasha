@@ -17,7 +17,7 @@ defmodule Athasha.Runner do
   end
 
   def init(_initial) do
-    Bus.register!(:items, nil)
+    Bus.register!(:items)
     {:ok, _} = Runners.start_link()
     all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})

@@ -30,7 +30,7 @@ defmodule Athasha.Runner.Dataplot do
     PubSub.Password.register!(item, password)
     PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
-    Bus.register!({:dataplot, item.id}, nil)
+    Bus.register!({:dataplot, item.id})
     run_loop(item, config, port)
   end
 

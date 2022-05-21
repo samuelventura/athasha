@@ -23,4 +23,8 @@ defmodule Athasha.Number do
   def trim(value, decimals) when is_struct(value, Decimal) do
     Decimal.round(value, decimals)
   end
+
+  def to_float(value) when is_float(value), do: value
+  def to_float(value) when is_integer(value), do: :erlang.float(value)
+  def to_float(value) when is_struct(value, Decimal), do: Decimal.to_float(value)
 end

@@ -35,7 +35,7 @@ defmodule Athasha.Store do
 
   def update!(key, updater) do
     case update(key, updater) do
-      {_, _} -> :ok
+      {new, old} -> {new, old}
       :error -> Raise.error({__ENV__.function, {key, updater}})
     end
   end

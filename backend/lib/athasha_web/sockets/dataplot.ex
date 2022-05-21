@@ -53,10 +53,10 @@ defmodule AthashaWeb.Socket.Dataplot do
 
   def handle_info(:logged, state = %{id: id}) do
     item = PubSub.Runner.find(id)
-    Bus.register!({:error, id}, nil)
-    Bus.register!({:status, id}, nil)
-    Bus.register!({:items, id}, nil)
-    Bus.register!({:dataplot, self()}, nil)
+    Bus.register!({:error, id})
+    Bus.register!({:status, id})
+    Bus.register!({:items, id})
+    Bus.register!({:dataplot, self()})
     config = item.config
     args = %{id: id, type: item.type, name: item.name, config: config}
     resp = %{name: "view", args: args}

@@ -42,12 +42,12 @@ defmodule AthashaWeb.Socket.Items do
 
   def handle_info(:logged, state) do
     case state.id do
-      nil -> Bus.register!(:status, nil)
-      id -> Bus.register!({:status, id}, nil)
+      nil -> Bus.register!(:status)
+      id -> Bus.register!({:status, id})
     end
 
-    Bus.register!(:items, nil)
-    Bus.register!(:logout, nil)
+    Bus.register!(:items)
+    Bus.register!(:logout)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = Globals.find_all()
