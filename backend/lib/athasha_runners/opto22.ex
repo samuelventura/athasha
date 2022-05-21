@@ -23,6 +23,7 @@ defmodule Athasha.Runner.Opto22 do
         number = String.to_integer(input["number"])
         name = input["name"]
         decimals = Decimal.new(input["decimals"]) |> Decimal.to_integer()
+        address = address(type, code, module, number)
 
         %{
           id: "#{id} #{name}",
@@ -33,6 +34,8 @@ defmodule Athasha.Runner.Opto22 do
           number: number,
           name: name,
           decimals: decimals,
+          address: address,
+          getter: fn master -> getter(master, code, slave, address) end,
           trimmer: Number.trimmer(decimals)
         }
       end)
@@ -115,31 +118,31 @@ defmodule Athasha.Runner.Opto22 do
   # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf
   # <<255,255,255,255>> IEEE754 NaN from analog channel 32 (had to restart the controller)
   defp exec_input(master, input) do
-    address = address(input)
+    input.getter.(master)
+  end
 
-    case input.code do
-      # 4ch Digital, pag 12
-      "01" ->
-        case Master.exec(master, {:ri, input.slave, address, 1}) do
-          {:ok, [value]} -> {:ok, value}
-          any -> any
-        end
-
-      # 4ch Analog, pag 13
-      "02" ->
-        case Master.exec(master, {:rir, input.slave, address, 2}) do
-          {:ok, [w0, w1]} ->
-            <<value::float-big-32>> = <<w0::16, w1::16>>
-            {:ok, value}
-
-          any ->
-            any
-        end
+  defp getter(master, "4chd", slave, address) do
+    # 4ch Digital, pag 12
+    case Master.exec(master, {:ri, slave, address, 1}) do
+      {:ok, [value]} -> {:ok, value}
+      any -> any
     end
   end
 
-  defp address(input = %{type: "Snap", code: "01"}), do: input.module * 4 + (input.number - 1)
-  defp address(input = %{type: "Snap", code: "02"}), do: input.module * 8 + 2 * (input.number - 1)
+  defp getter(master, "4cha", slave, address) do
+    # 4ch Analog, pag 13
+    case Master.exec(master, {:rir, slave, address, 2}) do
+      {:ok, [w0, w1]} ->
+        <<value::float-big-32>> = <<w0::16, w1::16>>
+        {:ok, value}
+
+      any ->
+        any
+    end
+  end
+
+  defp address("Snap", "4chd", module, number), do: module * 4 + (number - 1)
+  defp address("Snap", "4cha", module, number), do: module * 8 + 2 * (number - 1)
 
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport

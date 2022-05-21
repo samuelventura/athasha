@@ -20,7 +20,7 @@ function setts() {
 
 function input(index) {
     return {
-        code: "01",
+        code: "4chd",
         module: "0",
         number: "1",
         name: `Input ${1 + (index || 0)}`,

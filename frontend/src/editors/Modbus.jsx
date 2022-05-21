@@ -95,10 +95,10 @@ function Editor(props) {
     const rows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
-            <td>
+            <td >
                 <Form.Control type="number" {...inputProps(index, "slave")} min="0" max="255" />
             </td>
-            <td>
+            <td className='w-auto'>
                 <Form.Select {...inputProps(index, "code")} >
                     {functionOptions}
                 </Form.Select>
@@ -206,12 +206,12 @@ function Editor(props) {
                     <tr>
                         <th>#</th>
                         <th>{Initial.labels.input.slave}</th>
-                        <th>{Initial.labels.input.code}</th>
+                        <th className='col-2'>{Initial.labels.input.code}</th>
                         <th>{Initial.labels.input.address}</th>
-                        <th>{Initial.labels.input.name}</th>
+                        <th className='col-2'>{Initial.labels.input.name}</th>
                         <th>{Initial.labels.input.factor}</th>
                         <th>{Initial.labels.input.offset}</th>
-                        <th>{Initial.labels.input.decimals}</th>
+                        <th className='col-1'>{Initial.labels.input.decimals}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput}
                                 title="Add Input">

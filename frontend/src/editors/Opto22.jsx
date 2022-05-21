@@ -82,8 +82,8 @@ function Editor(props) {
             <td >{index + 1}</td>
             <td>
                 <Form.Select {...inputProps(index, "code")}>
-                    <option value="01">4ch Digital</option>
-                    <option value="02">4ch Analog</option>
+                    <option value="4chd">4ch Digital</option>
+                    <option value="4cha">4ch Analog</option>
                     {/* <option value="11">HD Digital</option>
                     <option value="12">HD Analog</option> */}
                 </Form.Select>
