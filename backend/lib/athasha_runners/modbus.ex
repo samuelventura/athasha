@@ -3,6 +3,7 @@ defmodule Athasha.Runner.Modbus do
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Number
+  alias Athasha.Bus
   @status 1000
 
   def run(item) do
@@ -31,15 +32,26 @@ defmodule Athasha.Runner.Modbus do
 
         %{
           id: "#{id} #{name}",
-          slave: slave,
-          address: address,
-          code: code,
           name: name,
-          factor: factor,
-          offset: offset,
-          decimals: decimals,
-          getter: getter(code),
-          trimmer: Number.trimmer(decimals),
+          getter: getter(code, slave, address),
+          trim: Number.trimmer(decimals),
+          calib: Number.calibrator(factor, offset)
+        }
+      end)
+
+    outputs =
+      Enum.map(config["outputs"], fn output ->
+        slave = String.to_integer(output["slave"])
+        address = String.to_integer(output["address"]) - 1
+        code = output["code"]
+        name = output["name"]
+        factor = Decimal.new(output["factor"]) |> Decimal.to_float()
+        offset = Decimal.new(output["offset"]) |> Decimal.to_float()
+
+        %{
+          id: "#{id} #{name}",
+          name: name,
+          setter: setter(code, slave, address),
           calib: Number.calibrator(factor, offset)
         }
       end)
@@ -54,7 +66,8 @@ defmodule Athasha.Runner.Modbus do
       speed: speed,
       dbpsb: dbpsb,
       period: period,
-      inputs: inputs
+      inputs: inputs,
+      outputs: outputs
     }
 
     PubSub.Status.update!(item, :warn, "Connecting...")
@@ -62,6 +75,7 @@ defmodule Athasha.Runner.Modbus do
     case connect_master(config) do
       {:ok, master} ->
         PubSub.Status.update!(item, :success, "Connected")
+
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
           iid = input.id
@@ -73,13 +87,27 @@ defmodule Athasha.Runner.Modbus do
           Map.put(map, iid, iid)
         end)
 
+        # avoid registering duplicates
+        Enum.reduce(outputs, %{}, fn output, map ->
+          oid = output.id
+
+          if !Map.has_key?(map, oid) do
+            PubSub.Output.register!(id, oid, output.name)
+          end
+
+          Map.put(map, oid, oid)
+        end)
+
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
         PubSub.Password.register!(item, password)
+        names = Enum.map(outputs, & &1.name)
+        PubSub.Output.reg_names!(id, names)
+        Enum.each(outputs, fn output -> Bus.register!({:output, output.id}) end)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)
-        run_loop(item, config, master)
+        run_loop(item, config, master, %{})
 
       {:error, reason} ->
         PubSub.Status.update!(item, :error, "#{inspect(reason)}")
@@ -87,32 +115,37 @@ defmodule Athasha.Runner.Modbus do
     end
   end
 
-  defp run_loop(item, config, master) do
-    wait_once(item, config, master)
-    run_loop(item, config, master)
+  defp run_loop(item, config, master, values) do
+    values = wait_once(item, config, master, values)
+    run_loop(item, config, master, values)
   end
 
-  defp wait_once(item, config, master) do
+  defp wait_once(item, config, master, values) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
+        values
 
       :once ->
-        run_once(item, config, master)
+        run_once(item, config, master, values)
         Process.send_after(self(), :once, config.period)
+        %{}
+
+      {{:output, id}, _, value} ->
+        Map.put(values, id, value)
 
       other ->
         Raise.error({:receive, other})
     end
   end
 
-  defp run_once(item = %{id: id}, config, master) do
+  defp run_once(item = %{id: id}, config, master, values) do
     Enum.each(config.inputs, fn input ->
-      case exec_input(master, input) do
+      case input.getter.(master) do
         {:ok, value} ->
           value = input.calib.(value)
-          value = input.trimmer.(value)
+          value = input.trim.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
@@ -121,135 +154,163 @@ defmodule Athasha.Runner.Modbus do
           Raise.error({:exec_input, input, reason})
       end
     end)
+
+    Enum.each(config.outputs, fn output ->
+      value = values[output.id]
+
+      if value != nil do
+        value = output.calib.(value)
+
+        case output.setter.(master, value) do
+          :ok ->
+            PubSub.Output.update!(id, output.id, output.name, value)
+
+          {:error, reason} ->
+            PubSub.Output.update!(id, output.id, output.name, nil)
+            PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
+            Raise.error({:exec_output, output, reason})
+        end
+      end
+    end)
   end
 
-  defp exec_input(master, input) do
-    input.getter.(master, input)
-  end
-
-  defp getter(code) do
+  defp getter(code, slave, address) do
     case code do
       "01 Coil" ->
-        fn master, input -> read_bit(master, :rc, input) end
+        fn master -> read_bit(master, :rc, slave, address) end
 
       "02 Input" ->
-        fn master, input -> read_bit(master, :ri, input) end
+        fn master -> read_bit(master, :ri, slave, address) end
 
       "03 U16BE" ->
-        fn master, input -> read_register(master, :rhr, input, &u16be/1) end
+        fn master -> read_register(master, :rhr, slave, address, &Number.r_u16be/1) end
 
       "03 S16BE" ->
-        fn master, input -> read_register(master, :rhr, input, &s16be/1) end
+        fn master -> read_register(master, :rhr, slave, address, &Number.r_s16be/1) end
 
       "03 U16LE" ->
-        fn master, input -> read_register(master, :rhr, input, &u16le/1) end
+        fn master -> read_register(master, :rhr, slave, address, &Number.r_u16le/1) end
 
       "03 S16LE" ->
-        fn master, input -> read_register(master, :rhr, input, &s16le/1) end
+        fn master -> read_register(master, :rhr, slave, address, &Number.r_s16le/1) end
 
       "03 F32BED" ->
-        fn master, input -> read_register2(master, :rhr, input, &f32bed/2) end
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32bed/1) end
 
       "03 F32LED" ->
-        fn master, input -> read_register2(master, :rhr, input, &f32led/2) end
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32led/1) end
 
       "03 F32BER" ->
-        fn master, input -> read_register2(master, :rhr, input, &f32ber/2) end
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32ber/1) end
 
       "03 F32LER" ->
-        fn master, input -> read_register2(master, :rhr, input, &f32ler/2) end
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32ler/1) end
 
       "04 U16BE" ->
-        fn master, input -> read_register(master, :rir, input, &u16be/1) end
+        fn master -> read_register(master, :rir, slave, address, &Number.r_u16be/1) end
 
       "04 S16BE" ->
-        fn master, input -> read_register(master, :rir, input, &s16be/1) end
+        fn master -> read_register(master, :rir, slave, address, &Number.r_s16be/1) end
 
       "04 U16LE" ->
-        fn master, input -> read_register(master, :rir, input, &u16le/1) end
+        fn master -> read_register(master, :rir, slave, address, &Number.r_u16le/1) end
 
       "04 S16LE" ->
-        fn master, input -> read_register(master, :rir, input, &s16le/1) end
+        fn master -> read_register(master, :rir, slave, address, &Number.r_s16le/1) end
 
       "04 F32BED" ->
-        fn master, input -> read_register2(master, :rir, input, &f32bed/2) end
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_f32bed/1) end
 
       "04 F32LED" ->
-        fn master, input -> read_register2(master, :rir, input, &f32led/2) end
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_f32led/1) end
 
       "04 F32BER" ->
-        fn master, input -> read_register2(master, :rir, input, &f32ber/2) end
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_f32ber/1) end
 
       "04 F32LER" ->
-        fn master, input -> read_register2(master, :rir, input, &f32ler/2) end
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_f32ler/1) end
     end
   end
 
-  defp u16be(w16) do
-    <<value::unsigned-integer-big-16>> = <<w16::16>>
-    {:ok, value}
-  end
+  defp setter(code, slave, address) do
+    case code do
+      "05 Coil" ->
+        fn master, value -> write_bit(master, :fc, slave, address, value) end
 
-  defp s16be(w16) do
-    <<value::signed-integer-big-16>> = <<w16::16>>
-    {:ok, value}
-  end
+      "06 U16BE" ->
+        fn master, value ->
+          write_register(master, :phr, slave, address, Number.w_u16be(value))
+        end
 
-  defp u16le(w16) do
-    <<value::unsigned-integer-little-16>> = <<w16::16>>
-    {:ok, value}
-  end
+      "06 S16BE" ->
+        fn master, value ->
+          write_register(master, :phr, slave, address, Number.w_s16be(value))
+        end
 
-  defp s16le(w16) do
-    <<value::signed-integer-little-16>> = <<w16::16>>
-    {:ok, value}
-  end
+      "06 U16LE" ->
+        fn master, value ->
+          write_register(master, :phr, slave, address, Number.w_u16le(value))
+        end
 
-  defp f32bed(w0, w1) do
-    <<value::float-big-32>> = <<w0::16, w1::16>>
-    {:ok, value}
-  end
+      "06 S16LE" ->
+        fn master, value ->
+          write_register(master, :phr, slave, address, Number.w_s16le(value))
+        end
 
-  defp f32led(w0, w1) do
-    <<value::float-little-32>> = <<w0::16, w1::16>>
-    {:ok, value}
-  end
+      "16 F32BED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, Number.w_f32bed(value))
+        end
 
-  defp f32ber(w0, w1) do
-    <<value::float-big-32>> = <<w1::16, w0::16>>
-    {:ok, value}
-  end
+      "16 F32LED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, Number.w_f32led(value))
+        end
 
-  defp f32ler(w0, w1) do
-    <<value::float-little-32>> = <<w1::16, w0::16>>
-    {:ok, value}
-  end
+      "16 F32BER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, Number.w_f32ber(value))
+        end
 
-  defp read_register2(master, code, input, transform) do
-    case Master.exec(master, {code, input.slave, input.address, 2}) do
-      {:ok, [w0, w1]} ->
-        transform.(w0, w1)
-
-      any ->
-        any
+      "16 F32LER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, Number.w_f32ler(value))
+        end
     end
   end
 
-  defp read_register(master, code, input, transform) do
-    case Master.exec(master, {code, input.slave, input.address, 1}) do
-      {:ok, [w16]} ->
-        transform.(w16)
-
-      any ->
-        any
+  defp read_register2(master, code, slave, address, transform) do
+    case Master.exec(master, {code, slave, address, 2}) do
+      {:ok, [w0, w1]} -> {:ok, transform.([w0, w1])}
+      any -> any
     end
   end
 
-  defp read_bit(master, code, input) do
-    case Master.exec(master, {code, input.slave, input.address, 1}) do
+  defp read_register(master, code, slave, address, transform) do
+    case Master.exec(master, {code, slave, address, 1}) do
+      {:ok, [value]} -> {:ok, transform.(value)}
+      any -> any
+    end
+  end
+
+  defp read_bit(master, code, slave, address) do
+    case Master.exec(master, {code, slave, address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
     end
+  end
+
+  defp write_bit(master, code, slave, address, value) do
+    value = Number.to_bit(value)
+    Master.exec(master, {code, slave, address, value})
+  end
+
+  defp write_register(master, code, slave, address, value) do
+    Master.exec(master, {code, slave, address, value})
+  end
+
+  defp write_register2(master, code, slave, address, value) do
+    Master.exec(master, {code, slave, address, value})
   end
 
   defp modbus_proto(%{proto: "TCP"}), do: Modbus.Tcp.Protocol
