@@ -1,4 +1,4 @@
-defmodule Athasha.Runner.Database do
+defmodule Athasha.Runner.Datalog do
   alias Athasha.Raise
   alias Athasha.Ports
   alias Athasha.PubSub

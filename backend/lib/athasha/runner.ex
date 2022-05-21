@@ -117,7 +117,7 @@ defmodule Athasha.Runner do
       case item.type do
         "Screen" -> Athasha.Runner.Screen
         "Modbus" -> Athasha.Runner.Modbus
-        "Database" -> Athasha.Runner.Database
+        "Datalog" -> Athasha.Runner.Datalog
         "Dataplot" -> Athasha.Runner.Dataplot
         "Laurel" -> Athasha.Runner.Laurel
         "Opto22" -> Athasha.Runner.Opto22

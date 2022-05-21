@@ -1,4 +1,4 @@
-import Database from '../editors/Database.js'
+import Datalog from '../editors/Datalog.js'
 import Modbus from '../editors/Modbus.js'
 import Screen from '../editors/Screen.js'
 import Dataplot from '../editors/Dataplot.js'
@@ -6,7 +6,7 @@ import Laurel from '../editors/Laurel.js'
 import Opto22 from '../editors/Opto22.js'
 
 const initials = {
-    Database,
+    Datalog,
     Modbus,
     Screen,
     Dataplot,
@@ -14,6 +14,6 @@ const initials = {
     Opto22,
 }
 
-export default function(type) {
+export default function (type) {
     return initials[type]
 }

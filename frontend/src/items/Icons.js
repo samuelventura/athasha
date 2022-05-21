@@ -1,12 +1,12 @@
 import Modbus from '../editors/Modbus.svg'
-import Database from '../editors/Database.svg'
+import Datalog from '../editors/Datalog.svg'
 import Screen from '../editors/Screen.svg'
 import Dataplot from '../editors/Dataplot.svg'
 import Laurel from '../editors/Laurel.svg'
 import Opto22 from '../editors/Opto22.svg'
 
 const icons = {
-    Database,
+    Datalog,
     Modbus,
     Screen,
     Dataplot,
@@ -14,6 +14,6 @@ const icons = {
     Opto22,
 }
 
-export default function(type) {
+export default function (type) {
     return icons[type]
 }
