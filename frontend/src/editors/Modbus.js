@@ -3,11 +3,12 @@ import Check from './Check'
 function config() {
     return {
         setts: setts(),
-        inputs: [input()]
+        inputs: [input()],
+        outputs: [output()],
     }
 }
 
-const fuctions = [
+const inputCodes = [
     "01 Coil",
     "02 Input",
     "03 U16BE",
@@ -26,6 +27,18 @@ const fuctions = [
     "04 F32LED",
     "04 F32BER",
     "04 F32LER"
+]
+
+const outputCodes = [
+    "05 Coil",
+    "06 U16BE",
+    "06 S16BE",
+    "06 U16LE",
+    "06 S16LE",
+    "16 F32BED",
+    "16 F32LED",
+    "16 F32BER",
+    "16 F32LER",
 ]
 
 function setts() {
@@ -54,6 +67,16 @@ function input(index) {
     }
 }
 
+function output(index) {
+    return {
+        slave: "1",
+        code: "05 Coil",
+        address: `${1 + (index || 0)}`,
+        name: `Output ${1 + (index || 0)}`,
+        factor: "1",
+        offset: "0",
+    }
+}
 const labels = {
     trans: "Transport",
     proto: "Protocol",
@@ -73,6 +96,14 @@ const labels = {
         offset: "Value Offset",
         decimals: "Number of Decimals",
     },
+    output: {
+        slave: "Slave Address",
+        code: "Function Code",
+        address: "Output Address",
+        name: "Output Name",
+        factor: "Value Factor",
+        offset: "Value Offset",
+    },
     inputs: {
         slave: (i) => `Input ${i + 1} Slave Address`,
         code: (i) => `Input ${i + 1} Function Code`,
@@ -81,6 +112,14 @@ const labels = {
         factor: (i) => `Input ${i + 1} Factor`,
         offset: (i) => `Input ${i + 1} Offset`,
         decimals: (i) => `Input ${i + 1} Number of Decimals`,
+    },
+    outputs: {
+        slave: (i) => `Output ${i + 1} Slave Address`,
+        code: (i) => `Output ${i + 1} Function Code`,
+        address: (i) => `Output ${i + 1} Address`,
+        name: (i) => `Output ${i + 1} Name`,
+        factor: (i) => `Output ${i + 1} Factor`,
+        offset: (i) => `Output ${i + 1} Offset`,
     },
 }
 
@@ -92,30 +131,48 @@ const hints = {
     period: "Non empty integer > 0",
     password: "Optional access password",
     tty: "Select serial port from list"
-    +"\nType begining of name to show completing list"
-    +"\nPress ENTER to update list",
+        + "\nType begining of name to show completing list"
+        + "\nPress ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     inputs: {
         slave: (i) => "Non empty integer [0, 255]",
         code: (i) => "Select the function code from list"
-        +"\n01 Read Coil"
-        +"\n02 Read Input"
-        +"\n03 Read Holding Register"
-        +"\n04 Read Input Register"
-        + "\nF Float"
-        + "\nU Unsigned Integer"
-        + "\nS Signed Integer"
-        + "\n16/32 Number of Bits"
-        + "\nBE Big Endian"
-        + "\nLE Little Endian"
-        + "\nD/R Direct/Reversed",
+            + "\n01 Read Coil"
+            + "\n02 Read Input"
+            + "\n03 Read Holding Register"
+            + "\n04 Read Input Register"
+            + "\nF Float"
+            + "\nU Unsigned Integer"
+            + "\nS Signed Integer"
+            + "\n16/32 Number of Bits"
+            + "\nBE Big Endian"
+            + "\nLE Little Endian"
+            + "\nD/R Direct/Reversed",
         address: (i) => "Non empty integer [1, 65536]",
         name: (i) => "Non empty input name",
         factor: (i) => "Non empty number m in f(x)=m*x+b",
         offset: (i) => "Non empty number b in f(x)=m*x+b",
         decimals: (i) => "Non empty integer >= 0",
-    }
+    },
+    outputs: {
+        slave: (i) => "Non empty integer [0, 255]",
+        code: (i) => "Select the function code from list"
+            + "\n05 Write Coil"
+            + "\n06 Write Register"
+            + "\n16 Write Registers"
+            + "\nF Float"
+            + "\nU Unsigned Integer"
+            + "\nS Signed Integer"
+            + "\n16/32 Number of Bits"
+            + "\nBE Big Endian"
+            + "\nLE Little Endian"
+            + "\nD/R Direct/Reversed",
+        address: (i) => "Non empty integer [1, 65536]",
+        name: (i) => "Non empty input name",
+        factor: (i) => "Non empty number m in f(x)=m*x+b",
+        offset: (i) => "Non empty number b in f(x)=m*x+b",
+    },
 }
 
 const checks = {
@@ -199,9 +256,41 @@ const checks = {
             Check.isGE(value, labels.decimals, 0)
         },
     },
+    outputs: {
+        slave: function (index, value) {
+            Check.isString(value, labels.outputs.slave(index))
+            Check.notEmpty(value, labels.outputs.slave(index))
+            Check.isGE(value, labels.outputs.slave(index), 0)
+            Check.isLE(value, labels.outputs.slave(index), 255)
+        },
+        code: function (index, value) {
+            Check.isString(value, labels.outputs.code(index))
+            Check.notEmpty(value, labels.outputs.code(index))
+        },
+        address: function (index, value) {
+            Check.isString(value, labels.outputs.address(index))
+            Check.notEmpty(value, labels.outputs.address(index))
+            Check.isGE(value, labels.outputs.address(index), 1)
+            Check.isLE(value, labels.outputs.address(index), 65536)
+        },
+        name: function (index, value) {
+            Check.isString(value, labels.outputs.name(index))
+            Check.notEmpty(value, labels.outputs.name(index))
+        },
+        factor: function (index, value) {
+            Check.isString(value, labels.outputs.factor(index))
+            Check.notEmpty(value, labels.outputs.factor(index))
+            Check.isNumber(value, labels.outputs.factor(index))
+        },
+        offset: function (index, value) {
+            Check.isString(value, labels.outputs.offset(index))
+            Check.notEmpty(value, labels.outputs.offset(index))
+            Check.isNumber(value, labels.outputs.offset(index))
+        },
+    },
 }
 
-function validator({ setts, inputs }) {
+function validator({ setts, inputs, outputs }) {
     Check.hasProp(setts, "Setts", "trans")
     Check.hasProp(setts, "Setts", "proto")
     Check.hasProp(setts, "Setts", "host")
@@ -236,13 +325,31 @@ function validator({ setts, inputs }) {
         Check.hasProp(input, labels.inputs.decimals(index), "decimals")
         checks.inputs.decimals(index, input.decimals)
     })
+    Check.isArray(outputs, "Output")
+    Check.nonZeroLength(outputs, "Output")
+    outputs.forEach((output, index) => {
+        Check.hasProp(output, labels.outputs.slave(index), "slave")
+        checks.outputs.slave(index, output.slave)
+        Check.hasProp(output, labels.outputs.code(index), "code")
+        checks.outputs.code(index, output.code)
+        Check.hasProp(output, labels.outputs.address(index), "address")
+        checks.outputs.address(index, output.address)
+        Check.hasProp(output, labels.outputs.name(index), "name")
+        checks.outputs.name(index, output.name)
+        Check.hasProp(output, labels.outputs.factor(index), "factor")
+        checks.outputs.factor(index, output.factor)
+        Check.hasProp(output, labels.outputs.offset(index), "offset")
+        checks.outputs.offset(index, output.offset)
+    })
 }
 
 export default {
-    fuctions,
+    inputCodes,
+    outputCodes,
     config,
     setts,
     input,
+    output,
     labels,
     hints,
     checks,
