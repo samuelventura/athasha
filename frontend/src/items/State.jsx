@@ -62,7 +62,7 @@ function setup_editor(next) {
   }
 }
 
-function reducer(state, { name, args, self }) {
+function reducer(state, { name, args, self, restore }) {
   switch (name) {
     case "all": {
       const next = clone_object(state)
@@ -87,6 +87,8 @@ function reducer(state, { name, args, self }) {
       next.status[args.id] = {}
       if (self) {
         next.selected = item
+      }
+      if (self && !restore) {
         next.created = item
       }
       update_points(next)

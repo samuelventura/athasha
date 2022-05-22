@@ -119,6 +119,7 @@ defmodule Athasha.Server do
     args = Item.strip(item)
     muta = Map.put(muta, :args, args)
     muta = Map.put(muta, :name, "create")
+    muta = Map.put(muta, :restore, true)
     apply_muta(:set, item, muta, from, state)
   end
 
