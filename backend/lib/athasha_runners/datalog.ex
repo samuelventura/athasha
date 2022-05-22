@@ -104,5 +104,4 @@ defmodule Athasha.Runner.Datalog do
 
   defp type_of(value) when is_float(value), do: "float"
   defp type_of(value) when is_integer(value), do: "integer"
-  defp type_of(value) when is_struct(value, Decimal), do: "decimal"
 end

@@ -159,7 +159,12 @@ defmodule Athasha.Runner.Laurel do
             0 -> 1
           end
 
-        value = Decimal.new(sign, reading, -decimals)
+        value =
+          case decimals do
+            0 -> sign * reading
+            _ -> sign * reading * :math.pow(10, -decimals)
+          end
+
         {:ok, value}
 
       any ->

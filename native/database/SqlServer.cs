@@ -85,8 +85,6 @@ public class SqlServerDatabase : Database
                 return je.GetDouble();
             case "integer": //tested with booleans
                 return je.GetInt64();
-            case "decimal": //tested with Laurel Item 1
-                return je.GetString();
             default:
                 throw new Exception("Unknown param type");
         }

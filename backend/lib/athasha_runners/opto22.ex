@@ -23,7 +23,7 @@ defmodule Athasha.Runner.Opto22 do
         module = String.to_integer(input["module"])
         number = String.to_integer(input["number"])
         name = input["name"]
-        decimals = Decimal.new(input["decimals"]) |> Decimal.to_integer()
+        decimals = String.to_integer(input["decimals"])
         address = address(type, code, module, number)
 
         %{
@@ -186,7 +186,7 @@ defmodule Athasha.Runner.Opto22 do
   end
 
   defp setter(master, "4cha", slave, address, value) do
-    value = Number.to_float(value)
+    value = :erlang.float(value)
     <<w0::16, w1::16>> = <<value::float-big-32>>
     Master.exec(master, {:phr, slave, address, [w0, w1]})
   end

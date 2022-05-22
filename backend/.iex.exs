@@ -18,4 +18,3 @@ alias Athasha.License
 alias Athasha.Globals
 alias Athasha.Develop
 alias Modbus.Master
-alias Modbus.Float

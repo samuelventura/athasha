@@ -26,9 +26,9 @@ defmodule Athasha.Runner.Modbus do
         address = String.to_integer(input["address"]) - 1
         code = input["code"]
         name = input["name"]
-        factor = Decimal.new(input["factor"]) |> Decimal.to_float()
-        offset = Decimal.new(input["offset"]) |> Decimal.to_float()
-        decimals = Decimal.new(input["decimals"]) |> Decimal.to_integer()
+        factor = Number.parse_float!(input["factor"])
+        offset = Number.parse_float!(input["offset"])
+        decimals = String.to_integer(input["decimals"])
 
         %{
           id: "#{id} #{name}",
@@ -45,8 +45,8 @@ defmodule Athasha.Runner.Modbus do
         address = String.to_integer(output["address"]) - 1
         code = output["code"]
         name = output["name"]
-        factor = Decimal.new(output["factor"]) |> Decimal.to_float()
-        offset = Decimal.new(output["offset"]) |> Decimal.to_float()
+        factor = Number.parse_float!(output["factor"])
+        offset = Number.parse_float!(output["offset"])
 
         %{
           id: "#{id} #{name}",
