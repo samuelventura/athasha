@@ -90,7 +90,7 @@ const hints = {
         module: (i) => "Non empty integer [0, 15]",
         number: (i) => "Non empty integer [1, 4]",
         name: (i) => "Non empty input name",
-        decimals: (i) => "Non empty integer >= 0",
+        decimals: (i) => "Non empty integer [0, 15]",
     },
     outputs: {
         code: (i) => "Select the output type from list",
@@ -158,6 +158,7 @@ const checks = {
             Check.notEmpty(value, labels.decimals)
             Check.isInteger(value, labels.decimals)
             Check.isGE(value, labels.decimals, 0)
+            Check.isLE(value, labels.decimals, 15)
         },
     },
     outputs: {
@@ -180,12 +181,6 @@ const checks = {
         name: function (index, value) {
             Check.isString(value, labels.outputs.name(index))
             Check.notEmpty(value, labels.outputs.name(index))
-        },
-        decimals: function (index, value) {
-            Check.isString(value, labels.decimals)
-            Check.notEmpty(value, labels.decimals)
-            Check.isInteger(value, labels.decimals)
-            Check.isGE(value, labels.decimals, 0)
         },
     },
 }

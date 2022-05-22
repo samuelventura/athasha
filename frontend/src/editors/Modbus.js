@@ -153,7 +153,7 @@ const hints = {
         name: (i) => "Non empty input name",
         factor: (i) => "Non empty number m in f(x)=m*x+b",
         offset: (i) => "Non empty number b in f(x)=m*x+b",
-        decimals: (i) => "Non empty integer >= 0",
+        decimals: (i) => "Non empty integer [0, 15]",
     },
     outputs: {
         slave: (i) => "Non empty integer [0, 255]",
@@ -254,6 +254,7 @@ const checks = {
             Check.notEmpty(value, labels.decimals)
             Check.isInteger(value, labels.decimals)
             Check.isGE(value, labels.decimals, 0)
+            Check.isLE(value, labels.decimals, 15)
         },
     },
     outputs: {

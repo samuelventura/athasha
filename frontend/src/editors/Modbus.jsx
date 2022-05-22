@@ -152,7 +152,7 @@ function Editor(props) {
                 <Form.Control type="number" {...inputProps(index, "offset")} />
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" step="1" />
+                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" max="15" step="1" />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
