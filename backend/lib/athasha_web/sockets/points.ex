@@ -3,6 +3,7 @@ defmodule AthashaWeb.Socket.Points do
   @ping 5000
   alias Athasha.Bus
   alias Athasha.Auth
+  alias Athasha.Number
   alias Athasha.PubSub
 
   def child_spec(_opts) do
@@ -71,10 +72,8 @@ defmodule AthashaWeb.Socket.Points do
       ivalues: PubSub.Input.get_values(id) |> Enum.map(&initial_point/1),
       inames: PubSub.Input.get_names(id),
       ovalues: PubSub.Output.get_values(id) |> Enum.map(&initial_point/1),
-      onames: PubSub.Output.get_names(id),
+      onames: PubSub.Output.get_names(id)
     }
-
-    IO.inspect {id, args.onames}
 
     resp = %{name: "view", args: args}
     state = Map.put(state, :type, item.type)
@@ -116,6 +115,14 @@ defmodule AthashaWeb.Socket.Points do
         resp = %{name: "login", args: args["active"]}
         reply_text(resp, state)
     end
+  end
+
+  defp handle_event(event = %{"name" => "output"}, state = %{id: id, logged: true}) do
+    args = event["args"]
+    name = args["name"]
+    value = Number.parse_number!(args["value"])
+    Bus.dispatch!({:output, "#{id} #{name}"}, value)
+    {:ok, state}
   end
 
   defp reply_text(resp, state) do

@@ -1,6 +1,10 @@
 import React from 'react'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import InputGroup from 'react-bootstrap/InputGroup'
 import Clipboard from '../tools/Clipboard'
 import numeral from 'numeral'
 import { useApp } from '../App'
@@ -34,11 +38,30 @@ function View() {
     })
     const outputRows = app.state.onames.map((name, index) => {
         const point = pointId(name)
+        const ovalue = app.state.ovalues[name]
+        const value = app.state.values[name]
+        const disabled = !(typeof value === 'string' && value.trim().length > 0)
+        function onSend(value) {
+            app.send({ name: "output", args: { name, value } })
+        }
+        function setValue(value) {
+            app.dispatch({ name: "value", args: { name, value } })
+        }
         return <tr key={index} className="align-middle">
             <td title={point}>{name}</td>
-            <td>{formatFloat(app.state.ovalues[name])}</td>
+            <td>{formatFloat(ovalue)}</td>
             <td>
-                <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
+                <Row>
+                    <Col>
+                        <InputGroup>
+                            <Form.Control type="number" value={value} onChange={(e) => setValue(e.target.value)}></Form.Control>
+                            <Button onClick={() => onSend(value)} disabled={disabled}>Send</Button>
+                        </InputGroup>
+                    </Col>
+                    <Col>
+                        <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
+                    </Col>
+                </Row>
             </td>
         </tr>
     })

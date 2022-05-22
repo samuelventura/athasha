@@ -4,6 +4,13 @@ defmodule Athasha.Number do
     value
   end
 
+  def parse_number!(str) do
+    case String.contains?(str, ".") do
+      true -> parse_float!(str)
+      false -> String.to_integer(str)
+    end
+  end
+
   def calibrator(factor, offset) do
     fn value -> calibrate(value, factor, offset) end
   end
