@@ -118,6 +118,7 @@ defmodule Athasha.Runner do
         "Screen" -> Athasha.Runner.Screen
         "Modbus" -> Athasha.Runner.Modbus
         "Datalog" -> Athasha.Runner.Datalog
+        "Datafetch" -> Athasha.Runner.Datafetch
         "Dataplot" -> Athasha.Runner.Dataplot
         "Laurel" -> Athasha.Runner.Laurel
         "Opto22" -> Athasha.Runner.Opto22

@@ -44,7 +44,25 @@ public class SqlServerDatabase : Database
         }
     }
 
-    public override void ExecDatabase(DatabaseDto dto)
+    public override string ExecDatafetch(DatafetchDto dto)
+    {
+        using (var cmd = new SqlCommand(dto.command, conn))
+        {
+            using (var reader = cmd.ExecuteReader())
+            {
+                var list = new List<object[]>();
+                while (reader.Read() && list.Count < 1)
+                {
+                    var values = new object[reader.FieldCount];
+                    reader.GetValues(values);
+                    list.Add(values);
+                }
+                return JsonSerializer.Serialize(list);
+            }
+        }
+    }
+
+    public override void ExecDatalog(DatalogDto dto)
     {
         using (var cmd = new SqlCommand(dto.command, conn))
         {

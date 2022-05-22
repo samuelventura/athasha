@@ -1,4 +1,5 @@
 import Datalog from '../editors/Datalog.js'
+import Datafetch from '../editors/Datafetch.js'
 import Modbus from '../editors/Modbus.js'
 import Screen from '../editors/Screen.js'
 import Dataplot from '../editors/Dataplot.js'
@@ -7,6 +8,7 @@ import Opto22 from '../editors/Opto22.js'
 
 const initials = {
     Datalog,
+    Datafetch,
     Modbus,
     Screen,
     Dataplot,

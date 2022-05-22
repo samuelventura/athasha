@@ -1,14 +1,16 @@
-defmodule Athasha.Runner.Datalog do
-  alias Athasha.Raise
+defmodule Athasha.Runner.Datafetch do
   alias Athasha.Ports
+  alias Athasha.Raise
   alias Athasha.PubSub
   @status 1000
 
   def run(item) do
+    id = item.id
     config = item.config
     setts = config["setts"]
     unit = setts["unit"]
     period = String.to_integer(setts["period"])
+    password = setts["password"]
     database = setts["database"]
     connstr = setts["connstr"]
     command = setts["command"]
@@ -22,18 +24,24 @@ defmodule Athasha.Runner.Datalog do
       end
 
     inputs =
-      Enum.with_index(config["inputs"])
-      |> Enum.map(fn {input, index} ->
-        %{index: index, id: input["id"], param: "@#{index + 1}"}
+      Enum.map(config["columns"], fn column ->
+        name = column["name"]
+
+        %{
+          id: "#{id} #{name}",
+          name: name
+        }
       end)
 
     config = %{
       item: Map.take(item, [:id, :name, :type]),
       period: period,
-      inputs: inputs,
+      password: password,
       database: database,
       connstr: connstr,
-      command: command
+      command: command,
+      inputs: inputs,
+      count: length(inputs)
     }
 
     PubSub.Status.update!(item, :warn, "Connecting...")
@@ -41,6 +49,21 @@ defmodule Athasha.Runner.Datalog do
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
     PubSub.Status.update!(item, :success, "Connected")
+
+    # avoid registering duplicates
+    Enum.reduce(inputs, %{}, fn input, map ->
+      iid = input.id
+
+      if !Map.has_key?(map, iid) do
+        PubSub.Input.register!(id, iid, input.name)
+      end
+
+      Map.put(map, iid, iid)
+    end)
+
+    names = Enum.map(inputs, & &1.name)
+    PubSub.Input.reg_names!(id, names)
+    PubSub.Password.register!(item, password)
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
     run_loop(item, config, port)
@@ -79,30 +102,53 @@ defmodule Athasha.Runner.Datalog do
     end
   end
 
-  defp run_once(_item, config, port) do
-    parameters =
-      Enum.map(config.inputs, fn input ->
-        id = input.id
-        value = PubSub.Input.get_value(id)
+  defp run_once(item, config, port) do
+    args = Map.put(%{}, "command", config.command)
+    true = Port.command(port, ["f", Jason.encode!(args)])
+    wait_ack(port, :select)
 
-        if value == nil do
-          Raise.error({:missing, id})
+    receive do
+      {^port, {:data, data}} ->
+        case Jason.decode!(data) do
+          [] ->
+            update_inputs(item, config, [])
+            Raise.error({:empty, data})
+
+          [row] ->
+            rl = length(row)
+            il = config.count
+
+            case rl == il do
+              false ->
+                update_inputs(item, config, [])
+                Raise.error({:mismatch, il, rl, row})
+
+              true ->
+                update_inputs(item, config, row)
+            end
         end
 
-        %{value: value, type: type_of(value)}
-      end)
+      {^port, {:exit_status, status}} ->
+        Raise.error({:receive, {:exit_status, status}})
+    end
+  end
 
-    dto = %{command: config.command, parameters: parameters}
-    true = Port.command(port, ["l", Jason.encode!(dto)])
-    wait_ack(port, :insert)
+  defp update_inputs(item, config, []) do
+    row = for _ <- 1..config.count, do: nil
+    update_inputs(item, config, row)
+  end
+
+  defp update_inputs(item, config, row) do
+    id = item.id
+
+    Enum.zip(config.inputs, row)
+    |> Enum.each(fn {input, value} ->
+      PubSub.Input.update!(id, input.id, input.name, value)
+    end)
   end
 
   defp connect_port(config) do
     args = [config.database]
     Ports.open4("database", args)
   end
-
-  defp type_of(value) when is_float(value), do: "float"
-  defp type_of(value) when is_integer(value), do: "integer"
-  defp type_of(value) when is_struct(value, Decimal), do: "decimal"
 end

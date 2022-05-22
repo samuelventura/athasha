@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
-import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -9,7 +8,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Dataplot.js'
+import Initial from './Datafetch.js'
 import Check from './Check'
 import Tools from '../items/Tools'
 import { useApp } from '../App'
@@ -33,14 +32,13 @@ function Editor(props) {
         }
     }, [setts, columns])
     function addColumn() {
-        if (columns.length > 6) return
         const next = [...columns]
         const column = Initial.column(next.length)
         next.push(column)
         setColumns(next)
     }
     function delColumn(index) {
-        if (index < 1 || columns.length < 3) return
+        if (index < 1 || columns.length < 2) return
         const next = [...columns]
         next.splice(index, 1)
         setColumns(next)
@@ -85,16 +83,10 @@ function Editor(props) {
                 {index + 1}
             </td>
             <td>
-                <Form.Control type="text" disabled={index == 0} {...columnProps(index, "name")} />
+                <Form.Control type="text" {...columnProps(index, "name")} />
             </td>
             <td>
-                <InputGroup>
-                    <Form.Control type="color" disabled={index == 0} {...columnProps(index, "color")} />
-                    <Form.Control type="text" disabled={index == 0} {...columnProps(index, "color")} />
-                </InputGroup>
-            </td>
-            <td>
-                <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 3}
+                <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 1}
                     onClick={() => delColumn(index)} title="Delete Column">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
@@ -120,6 +112,19 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={1}>
+                    <FloatingLabel label={Initial.labels.period}>
+                        <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
+                    <FloatingLabel label={Initial.labels.unit}>
+                        <Form.Select {...settsProps("unit")} >
+                            <option value="s">Second(s)</option>
+                            <option value="m">Minute(s)</option>
+                        </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2} className="d-flex align-items-center justify-content-start">
@@ -149,28 +154,6 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
             </Row>
-            <Row>
-                <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.ymin}>
-                        <Form.Control type="number" {...settsProps("ymin")} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.ymax}>
-                        <Form.Control type="number"  {...settsProps("ymax")} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.yformat}>
-                        <Form.Control type="text"  {...settsProps("yformat")} />
-                    </FloatingLabel>
-                </Col>
-                <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.lineWidth}>
-                        <Form.Control type="number"  {...settsProps("lineWidth")} min="1" step="1" />
-                    </FloatingLabel>
-                </Col>
-            </Row>
             <Table>
                 <thead>
                     <tr>
@@ -178,8 +161,7 @@ function Editor(props) {
                         <th>{Initial.labels.column.name}</th>
                         <th>{Initial.labels.column.color}</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addColumn}
-                                disabled={columns.length > 6} title="Add Column">
+                            <Button variant='outline-primary' size="sm" onClick={addColumn} title="Add Column">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>

@@ -12,6 +12,7 @@ export default defineConfig({
         views: resolve(__dirname, 'views.html'),
         screen: resolve(__dirname, 'screen.html'),
         editor: resolve(__dirname, 'editor.html'),
+        datafetch: resolve(__dirname, 'datafetch.html'),
         dataplot: resolve(__dirname, 'dataplot.html'),
         modbus: resolve(__dirname, 'modbus.html'),
         opto22: resolve(__dirname, 'opto22.html'),

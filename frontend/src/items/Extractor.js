@@ -31,6 +31,16 @@ const inputExtractor = {
             })
         })
     },
+    Datafetch: function (item, add) {
+        item.config.columns.forEach(column => {
+            if (column.name.trim().length > 0) {
+                add({
+                    point: { name: column.name },
+                    item: { id: item.id, name: item.name }
+                })
+            }
+        })
+    },
 }
 
 const outputExtractor = {

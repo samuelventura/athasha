@@ -29,12 +29,21 @@ using (var stdin = Console.OpenStandardInput())
                     var cmd = (char)data[0];
                     switch (cmd)
                     {
-                        case 'b': //database
+                        case 'l': //datalog
                             {
                                 var json = encoder.GetString(data, 1, data.Length - 1);
-                                var dto = JsonSerializer.Deserialize<DatabaseDto>(json);
-                                db.ExecDatabase(dto);
+                                var dto = JsonSerializer.Deserialize<DatalogDto>(json);
+                                db.ExecDatalog(dto);
                                 stdio.WriteString("ok");
+                                break;
+                            }
+                        case 'f': //datafetch
+                            {
+                                var json = encoder.GetString(data, 1, data.Length - 1);
+                                var dto = JsonSerializer.Deserialize<DatafetchDto>(json);
+                                var resp = db.ExecDatafetch(dto);
+                                stdio.WriteString("ok");
+                                stdio.WriteString(resp);
                                 break;
                             }
                         case 'p': //dataplot
@@ -61,10 +70,14 @@ public class DataplotDto
     public DateTime fromDate { get; set; }
     public DateTime toDate { get; set; }
 }
-public class DatabaseDto
+public class DatalogDto
 {
     public string command { get; set; }
     public ParamDto[] parameters { get; set; }
+}
+public class DatafetchDto
+{
+    public string command { get; set; }
 }
 public class ParamDto
 {
