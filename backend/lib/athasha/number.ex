@@ -1,4 +1,6 @@
 defmodule Athasha.Number do
+  # default is big-unsigned-integer-8
+
   def parse_float!(str) do
     {value, ""} = Float.parse(str)
     value
@@ -21,15 +23,6 @@ defmodule Athasha.Number do
 
   def calibrate(value, 1.0, 0.0), do: value
   def calibrate(value, factor, offset), do: value * factor + offset
-
-  def trimmer(decimals) do
-    fn value -> trim(value, decimals) end
-  end
-
-  # the goal of trim is to ensure visual stability and value change throttling
-  # Float.round may return 1.2 which may display 1.199...
-  def trim(value, _decimals) when is_integer(value), do: value
-  def trim(value, decimals) when is_float(value), do: Float.round(value, decimals)
 
   def to_uint16(value) when value > 65535, do: 65535
   def to_uint16(value) when value < 0, do: 0

@@ -8,10 +8,11 @@ defmodule Athasha.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Ecto repository
       Athasha.Bus,
+      # Start the Ecto repository
       Athasha.Repo,
       Athasha.Store,
+      Athasha.Slave,
       Athasha.Server,
       Athasha.Runner,
       Athasha.Globals,

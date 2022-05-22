@@ -5,7 +5,6 @@ defmodule Athasha.Develop do
   alias Athasha.Environ
   alias Athasha.Crypto
   alias Athasha.Repo
-  alias Modbus.Tcp.Slave
 
   def insert_license(quantity) do
     lic = generate_license(quantity)
@@ -56,20 +55,4 @@ defmodule Athasha.Develop do
 
     {res.status_code, res.body}
   end
-
-  def slave(port \\ 2999) do
-    model = %{
-      1 => %{
-        {:c, 0} => 0,
-        {:i, 0} => 0,
-        {:hr, 0} => 0,
-        {:ir, 0} => 0
-      }
-    }
-
-    {:ok, slave} = Slave.start_link(model: model, port: port)
-    {slave, Slave.port(slave)}
-  end
-
-  def model(slave), do: Slave.model(slave)
 end

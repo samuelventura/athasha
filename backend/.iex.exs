@@ -17,4 +17,5 @@ alias Athasha.Environ
 alias Athasha.License
 alias Athasha.Globals
 alias Athasha.Develop
+alias Athasha.Slave
 alias Modbus.Master

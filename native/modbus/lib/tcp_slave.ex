@@ -11,7 +11,12 @@ defmodule Modbus.Tcp.Slave do
     trans = Modbus.Tcp.Transport
     proto = Keyword.get(opts, :proto, Modbus.Tcp.Protocol)
     init = %{trans: trans, proto: proto, model: model, port: port, ip: ip}
-    GenServer.start_link(__MODULE__, init)
+    name = Keyword.get(opts, :name, nil)
+
+    case name do
+      nil -> GenServer.start_link(__MODULE__, init)
+      _ -> GenServer.start_link(__MODULE__, init, name: name)
+    end
   end
 
   def init(init) do
@@ -55,12 +60,20 @@ defmodule Modbus.Tcp.Slave do
     GenServer.call(pid, :model)
   end
 
+  def exec(pid, cmd) do
+    GenServer.call(pid, {:exec, cmd})
+  end
+
   def handle_call(:port, _from, state) do
     {:reply, state.port, state}
   end
 
   def handle_call(:model, _from, state) do
     {:reply, Shared.state(state.shared), state}
+  end
+
+  def handle_call({:exec, cmd}, _from, state) do
+    {:reply, Shared.apply(state.shared, cmd), state}
   end
 
   defp accept(%{shared: shared, proto: proto} = state) do

@@ -1,5 +1,6 @@
 defmodule Athasha.Runner.Opto22 do
   alias Modbus.Master
+  alias Athasha.Slave
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Number
@@ -23,14 +24,12 @@ defmodule Athasha.Runner.Opto22 do
         module = String.to_integer(input["module"])
         number = String.to_integer(input["number"])
         name = input["name"]
-        decimals = String.to_integer(input["decimals"])
         address = address(type, code, module, number)
 
         %{
           id: "#{id} #{name}",
           name: name,
-          getter: fn master -> getter(master, code, slave, address) end,
-          trimmer: Number.trimmer(decimals)
+          getter: fn master -> getter(master, code, slave, address) end
         }
       end)
 
@@ -134,7 +133,6 @@ defmodule Athasha.Runner.Opto22 do
     Enum.each(config.inputs, fn input ->
       case input.getter.(master) do
         {:ok, value} ->
-          value = input.trimmer.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
@@ -206,10 +204,11 @@ defmodule Athasha.Runner.Opto22 do
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport
     proto = Modbus.Tcp.Protocol
+    port = Slave.fix_port(config.port)
 
     case :inet.getaddr(String.to_charlist(config.host), :inet) do
       {:ok, ip} ->
-        Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
+        Master.start_link(trans: trans, proto: proto, ip: ip, port: port)
 
       any ->
         any

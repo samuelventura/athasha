@@ -2,8 +2,11 @@ defmodule Modbus.Shared do
   @moduledoc false
   alias Modbus.Model
 
-  def start_link(model) do
-    Agent.start_link(fn -> model end)
+  def start_link(model, name \\ nil) do
+    case name do
+      nil -> Agent.start_link(fn -> model end)
+      _ -> Agent.start_link(fn -> model end, name: name)
+    end
   end
 
   def stop(pid) do

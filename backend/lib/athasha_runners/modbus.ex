@@ -1,5 +1,6 @@
 defmodule Athasha.Runner.Modbus do
   alias Modbus.Master
+  alias Athasha.Slave
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Number
@@ -28,13 +29,11 @@ defmodule Athasha.Runner.Modbus do
         name = input["name"]
         factor = Number.parse_float!(input["factor"])
         offset = Number.parse_float!(input["offset"])
-        decimals = String.to_integer(input["decimals"])
 
         %{
           id: "#{id} #{name}",
           name: name,
           getter: getter(code, slave, address),
-          trim: Number.trimmer(decimals),
           calib: Number.calibrator(factor, offset)
         }
       end)
@@ -144,7 +143,6 @@ defmodule Athasha.Runner.Modbus do
       case input.getter.(master) do
         {:ok, value} ->
           value = input.calib.(value)
-          value = input.trim.(value)
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
@@ -238,42 +236,42 @@ defmodule Athasha.Runner.Modbus do
 
       "06 U16BE" ->
         fn master, value ->
-          write_register(master, :phr, slave, address, Number.w_u16be(value))
+          write_register(master, :phr, slave, address, value, &Number.w_u16be/1)
         end
 
       "06 S16BE" ->
         fn master, value ->
-          write_register(master, :phr, slave, address, Number.w_s16be(value))
+          write_register(master, :phr, slave, address, value, &Number.w_s16be/1)
         end
 
       "06 U16LE" ->
         fn master, value ->
-          write_register(master, :phr, slave, address, Number.w_u16le(value))
+          write_register(master, :phr, slave, address, value, &Number.w_u16le/1)
         end
 
       "06 S16LE" ->
         fn master, value ->
-          write_register(master, :phr, slave, address, Number.w_s16le(value))
+          write_register(master, :phr, slave, address, value, &Number.w_s16le/1)
         end
 
       "16 F32BED" ->
         fn master, value ->
-          write_register2(master, :phr, slave, address, Number.w_f32bed(value))
+          write_register2(master, :phr, slave, address, value, &Number.w_f32bed/1)
         end
 
       "16 F32LED" ->
         fn master, value ->
-          write_register2(master, :phr, slave, address, Number.w_f32led(value))
+          write_register2(master, :phr, slave, address, value, &Number.w_f32led/1)
         end
 
       "16 F32BER" ->
         fn master, value ->
-          write_register2(master, :phr, slave, address, Number.w_f32ber(value))
+          write_register2(master, :phr, slave, address, value, &Number.w_f32ber/1)
         end
 
       "16 F32LER" ->
         fn master, value ->
-          write_register2(master, :phr, slave, address, Number.w_f32ler(value))
+          write_register2(master, :phr, slave, address, value, &Number.w_f32ler/1)
         end
     end
   end
@@ -308,15 +306,17 @@ defmodule Athasha.Runner.Modbus do
     end
   end
 
-  defp write_register(master, code, slave, address, value) do
+  defp write_register(master, code, slave, address, value, transform) do
+    value = transform.(value)
+
     case Master.exec(master, {code, slave, address, value}) do
       :ok -> {:ok, value}
       any -> any
     end
   end
 
-  defp write_register2(master, code, slave, address, value) do
-    case Master.exec(master, {code, slave, address, value}) do
+  defp write_register2(master, code, slave, address, value, transform) do
+    case Master.exec(master, {code, slave, address, transform.(value)}) do
       :ok -> {:ok, value}
       any -> any
     end
@@ -331,10 +331,11 @@ defmodule Athasha.Runner.Modbus do
     case config.trans do
       "Socket" ->
         trans = Modbus.Tcp.Transport
+        port = Slave.fix_port(config.port)
 
         case :inet.getaddr(String.to_charlist(config.host), :inet) do
           {:ok, ip} ->
-            Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
+            Master.start_link(trans: trans, proto: proto, ip: ip, port: port)
 
           any ->
             any

@@ -40,8 +40,9 @@ function View() {
         const point = pointId(name)
         const ovalue = app.state.ovalues[name]
         const value = app.state.values[name]
-        const disabled = !(typeof value === 'string' && value.trim().length > 0)
+        const disabled = !(typeof value === 'string' && value.trim().length > 0 && isFinite(value))
         function onSend(value) {
+            value = Number(value) //support 0xFF
             app.send({ name: "output", args: { name, value } })
         }
         function setValue(value) {
@@ -54,7 +55,7 @@ function View() {
                 <Row>
                     <Col>
                         <InputGroup>
-                            <Form.Control type="number" value={value} onChange={(e) => setValue(e.target.value)}></Form.Control>
+                            <Form.Control type="text" value={value} onChange={(e) => setValue(e.target.value)}></Form.Control>
                             <Button onClick={() => onSend(value)} disabled={disabled}>Send</Button>
                         </InputGroup>
                     </Col>

@@ -12,9 +12,10 @@ defmodule Modbus.FloatTest do
     assert -32768 == Number.to_sint16(-32768)
     assert -32768 == Number.to_sint16(-32768 - 1)
     assert 0 == Number.to_bit(-0.0)
-    assert 0x8765 == Number.w_u16be(0x8765)
-    assert w_s16be_r() == Number.w_s16be(0x8765)
-  end
 
-  def w_s16be_r(), do: 0 - 0x7FFF - 1
+    assert 0 == Number.w_u16be(0)
+    assert 0 == Number.w_u16be(0 - 1)
+    assert 65535 == Number.w_u16be(65535)
+    assert 65535 == Number.w_u16be(65535 + 1)
+  end
 end

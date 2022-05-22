@@ -63,7 +63,6 @@ function input(index) {
         name: `Input ${1 + (index || 0)}`,
         factor: "1",
         offset: "0",
-        decimals: "0",
     }
 }
 
@@ -94,7 +93,6 @@ const labels = {
         name: "Input Name",
         factor: "Value Factor",
         offset: "Value Offset",
-        decimals: "Number of Decimals",
     },
     output: {
         slave: "Slave Address",
@@ -111,7 +109,6 @@ const labels = {
         name: (i) => `Input ${i + 1} Name`,
         factor: (i) => `Input ${i + 1} Factor`,
         offset: (i) => `Input ${i + 1} Offset`,
-        decimals: (i) => `Input ${i + 1} Number of Decimals`,
     },
     outputs: {
         slave: (i) => `Output ${i + 1} Slave Address`,
@@ -153,7 +150,6 @@ const hints = {
         name: (i) => "Non empty input name",
         factor: (i) => "Non empty number m in f(x)=m*x+b",
         offset: (i) => "Non empty number b in f(x)=m*x+b",
-        decimals: (i) => "Non empty integer [0, 15]",
     },
     outputs: {
         slave: (i) => "Non empty integer [0, 255]",
@@ -249,13 +245,6 @@ const checks = {
             Check.notEmpty(value, labels.inputs.offset(index))
             Check.isNumber(value, labels.inputs.offset(index))
         },
-        decimals: function (index, value) {
-            Check.isString(value, labels.decimals)
-            Check.notEmpty(value, labels.decimals)
-            Check.isInteger(value, labels.decimals)
-            Check.isGE(value, labels.decimals, 0)
-            Check.isLE(value, labels.decimals, 15)
-        },
     },
     outputs: {
         slave: function (index, value) {
@@ -323,8 +312,6 @@ function validator({ setts, inputs, outputs }) {
         checks.inputs.factor(index, input.factor)
         Check.hasProp(input, labels.inputs.offset(index), "offset")
         checks.inputs.offset(index, input.offset)
-        Check.hasProp(input, labels.inputs.decimals(index), "decimals")
-        checks.inputs.decimals(index, input.decimals)
     })
     Check.isArray(outputs, "Output")
     Check.nonZeroLength(outputs, "Output")

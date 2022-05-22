@@ -1,5 +1,6 @@
 defmodule Athasha.Runner.Laurel do
   alias Modbus.Master
+  alias Athasha.Slave
   alias Athasha.Raise
   alias Athasha.PubSub
   @status 1000
@@ -208,10 +209,11 @@ defmodule Athasha.Runner.Laurel do
     case config.trans do
       "Socket" ->
         trans = Modbus.Tcp.Transport
+        port = Slave.fix_port(config.port)
 
         case :inet.getaddr(String.to_charlist(config.host), :inet) do
           {:ok, ip} ->
-            Master.start_link(trans: trans, proto: proto, ip: ip, port: config.port)
+            Master.start_link(trans: trans, proto: proto, ip: ip, port: port)
 
           any ->
             any
