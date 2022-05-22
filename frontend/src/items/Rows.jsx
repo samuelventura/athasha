@@ -7,6 +7,7 @@ import Files from "../tools/Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
+import { DeleteAllItems } from "./Dialogs"
 import Clipboard from "../tools/Clipboard"
 import EditItem from "./Editor"
 import Types from "./Types"
@@ -132,6 +133,7 @@ function Rows(props) {
             <EditItem />
             <DeleteItem />
             <RenameItem />
+            <DeleteAllItems />
             {rows}
         </ tbody>
     )

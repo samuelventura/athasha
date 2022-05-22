@@ -7,6 +7,10 @@ defmodule Athasha.Tools do
   alias AthashaWeb.Router
   alias AthashaWeb.Endpoint
 
+  def delete_licenses do
+    Repo.delete_all(License)
+  end
+
   def load_licenses() do
     Repo.all(License)
     |> Enum.map(fn lic ->

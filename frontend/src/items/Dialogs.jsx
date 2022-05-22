@@ -9,11 +9,46 @@ import { faGear } from '@fortawesome/free-solid-svg-icons'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import Clipboard from "../tools/Clipboard"
+import Log from "../tools/Log"
 import Router from '../tools/Router'
 import Files from '../tools/Files'
 import Initials from "./Initials"
 import Types from "./Types"
 import { useApp } from '../App'
+
+function DeleteAllItems() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    function isActive() { return action === "delete-all" }
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        Object.values(app.state.items).forEach((item) => {
+            app.send({ name: "delete", args: { id: item.id } })
+        })
+        app.dispatch({ name: "target", args: {} })
+    }
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Danger</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Delete All Items?
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="danger" onClick={onAccept}>
+                    Delete
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
 
 function DeleteItem() {
     const app = useApp()
@@ -187,55 +222,49 @@ function NewItem() {
 
 function ToolsButton() {
     const app = useApp()
-    function buyLicense() {
-        const id = app.state.identity
-        window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
-    }
-    function viewList() {
-        window.open("views.html", '_blank').focus();
-    }
-    function copyIdentity() {
-        Clipboard.copyText(app.state.identity)
-    }
-    function backupItems() {
-        const items = Object.values(app.state.items).map(item => {
-            return {
-                id: item.id,
-                name: item.name,
-                type: item.type,
-                enabled: item.enabled,
-                config: item.config,
+    function onAction(action) {
+        switch (action) {
+            case "buy-license": {
+                const id = app.state.identity
+                window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
+                break
             }
-        })
-        Files.downloadJson(items, app.state.hostname, Files.backupExtension)
-    }
-    function restoreItems() {
-        Files.uploadJson(Files.backupExtension, function (data) {
-            app.send({ name: "restore", args: data })
-        })
-    }
-    function backupLicenses() {
-        fetch("api/licenses")
-            .then(r => r.json())
-            .then(list => {
-                Files.downloadJson(list, app.state.hostname, Files.licenseExtension)
-            })
-    }
-    function installLicense() {
-        Files.uploadJson(Files.licenseExtension, function (data) {
-            Clipboard.copyText(data)
-            fetch("api/licenses", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: { 'Content-Type': 'application/json' }
-            }).then(() => { updateAndReload() })
-        })
-    }
-    function checkLicenses() {
-        fetch("api/check")
-    }
-    function updateAndReload() {
-        fetch("api/update").then(() => window.location.reload())
+            case "copy-identity": {
+                Clipboard.copyText(app.state.identity)
+                break
+            }
+            case "backup-licenses": {
+                fetch("api/licenses")
+                    .then(r => r.json())
+                    .then(list => {
+                        Files.downloadJson(list, app.state.hostname, Files.licenseExtension)
+                    })
+                break
+            }
+            case "install-licenses": {
+                Files.uploadJson(Files.licenseExtension, function (data) {
+                    Clipboard.copyText(data)
+                    fetch("api/licenses", {
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(() => {
+                        fetch("api/update").then(() => window.location.reload())
+                    })
+                })
+                break
+            }
+            case "check-licenses": {
+                fetch("api/check")
+                break
+            }
+            case "refresh-info": {
+                fetch("api/update").then(() => window.location.reload())
+                break
+            }
+            default:
+                Log.log("Unknown action", action)
+        }
     }
     return app.logged ? (
         <Dropdown className="d-inline">
@@ -243,15 +272,12 @@ function ToolsButton() {
                 <FontAwesomeIcon icon={faGear} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-                <Dropdown.Item onClick={viewList}>View List</Dropdown.Item>
-                <Dropdown.Item onClick={buyLicense}>Buy License</Dropdown.Item>
-                <Dropdown.Item onClick={copyIdentity}>Copy Identity</Dropdown.Item>
-                <Dropdown.Item onClick={backupItems}>Backup Items</Dropdown.Item>
-                <Dropdown.Item onClick={restoreItems}>Restore Items</Dropdown.Item>
-                <Dropdown.Item onClick={backupLicenses}>Backup Licenses</Dropdown.Item>
-                <Dropdown.Item onClick={installLicense}>Install License</Dropdown.Item>
-                <Dropdown.Item onClick={checkLicenses}>Check Licenses</Dropdown.Item>
-                <Dropdown.Item onClick={updateAndReload}>Refresh Info</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("buy-license")}>Buy License</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("copy-identity")}>Copy Identity</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("backup-licenses")}>Backup Licenses</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("install-licenses")}>Install Licenses</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("check-licenses")}>Check Licenses</Dropdown.Item>
+                <Dropdown.Item onClick={() => onAction("refresh-info")}>Refresh Info</Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
     ) : null
@@ -293,4 +319,4 @@ function InfoButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, RenameItem, InfoButton, HostButton, ToolsButton }
+export { NewItem, DeleteItem, DeleteAllItems, RenameItem, InfoButton, HostButton, ToolsButton }

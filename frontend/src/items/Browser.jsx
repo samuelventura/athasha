@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Filter from '../tools/Filter'
+import Log from "../tools/Log"
+import Files from '../tools/Files'
 import Search from "./Search"
 import Header from "./Header"
 import Rows from "./Rows"
@@ -27,12 +29,46 @@ function Browser() {
         return Filter.apply(app.state.items, filter, sort)
     }
 
-    function onDisable() {
-        Object.values(app.state.items).forEach((item) => {
-            if (item.enabled) {
-                app.send({ name: "enable", args: { id: item.id, enabled: false } })
+    function onAction(action) {
+        switch (action) {
+            case "open-views": {
+                window.open("views.html", '_blank').focus();
+                break
             }
-        })
+            case "disable-all": {
+                Object.values(app.state.items).forEach((item) => {
+                    if (item.enabled) {
+                        app.send({ name: "enable", args: { id: item.id, enabled: false } })
+                    }
+                })
+                break
+            }
+            case "delete-all": {
+                app.dispatch({ name: "target", args: { action } })
+                break
+            }
+            case "backup-all": {
+                const items = Object.values(app.state.items).map(item => {
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        type: item.type,
+                        enabled: item.enabled,
+                        config: item.config,
+                    }
+                })
+                Files.downloadJson(items, app.state.hostname, Files.backupExtension)
+                break
+            }
+            case "restore": {
+                Files.uploadJson(Files.backupExtension, function (data) {
+                    app.send({ name: "restore", args: data })
+                })
+                break
+            }
+            default:
+                Log.log("Unknown action", action)
+        }
     }
 
     return (
@@ -66,14 +102,18 @@ function Browser() {
                                 </Button>
                                 <Dropdown.Toggle split variant="link" />
                                 <Dropdown.Menu>
-                                    <Dropdown.Item onClick={onDisable}>Disable All</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("open-views")}>Open Views</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("disable-all")}>Disable All</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("delete-all")}>Delete All</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("backup-all")}>Backup All</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("restore")}>Restore Backup</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                         </th>
                     </tr>
                 </thead>
                 <Rows items={viewItems()} />
-            </Table>
+            </Table >
         </>
     )
 }
