@@ -41,7 +41,7 @@ defmodule AthashaWeb.Socket.Dataplot do
     end
   end
 
-  def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
+  def handle_info({{:status, _id}, nil, status}, state) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end

@@ -55,7 +55,7 @@ defmodule Athasha.PubSub.Input do
     end
   end
 
-  def get_inputs(id) do
+  def get_values(id) do
     match = {{@key, id, :"$1"}, :_, :"$2"}
     select = {{:"$1", :"$2"}}
     query = [{match, [], [select]}]

@@ -41,13 +41,13 @@ defmodule AthashaWeb.Socket.Screen do
     end
   end
 
-  def handle_info({{:screen, id}, nil, {input, value}}, state = %{id: id}) do
+  def handle_info({{:screen, _id}, nil, {input, value}}, state) do
     args = %{id: input, value: value}
     resp = %{name: "input", args: args}
     reply_text(resp, state)
   end
 
-  def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
+  def handle_info({{:status, _id}, nil, status}, state) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end

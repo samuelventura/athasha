@@ -76,6 +76,7 @@ defmodule Athasha.Runner.Laurel do
 
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
+        PubSub.Output.reg_names!(id, [])
         PubSub.Password.register!(item, password)
 
         Process.send_after(self(), :status, @status)

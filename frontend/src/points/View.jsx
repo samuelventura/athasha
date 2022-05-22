@@ -16,17 +16,28 @@ function View() {
         window.open(`api/point?id=${id}`, '_blank').focus();
     }
     function formatFloat(value) {
+        if (value == null) return null; //for outputs
         //ignore any digit beyond 8th decimal position
         //remove trailing zeros and decimal dot it present
         return numeral(value).format("#.########").replace(/(\.?0*$)/, '')
     }
-    const rows = app.state.names.map((name, index) => {
+    const inputRows = app.state.inames.map((name, index) => {
         const point = pointId(name)
         return <tr key={index} className="align-middle">
             <td title={point}>{name}</td>
-            <td>{formatFloat(app.state.values[name])}</td>
+            <td>{formatFloat(app.state.ivalues[name])}</td>
             <td>
                 <Button variant="link" onClick={() => onGet(point)}>GET</Button>
+                <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
+            </td>
+        </tr>
+    })
+    const outputRows = app.state.onames.map((name, index) => {
+        const point = pointId(name)
+        return <tr key={index} className="align-middle">
+            <td title={point}>{name}</td>
+            <td>{formatFloat(app.state.ovalues[name])}</td>
+            <td>
                 <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
             </td>
         </tr>
@@ -39,7 +50,7 @@ function View() {
                 <th className="col-4">Actions</th>
             </tr>
         </thead>
-        <tbody>{rows}</tbody>
+        <tbody>{inputRows}{outputRows}</tbody>
     </Table>
 }
 

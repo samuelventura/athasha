@@ -40,13 +40,19 @@ defmodule AthashaWeb.Socket.Points do
     end
   end
 
-  def handle_info({{:input, id}, nil, {name, value}}, state = %{id: id}) do
+  def handle_info({{:input, _id}, nil, {name, value}}, state) do
     args = %{name: name, value: value}
-    resp = %{name: "point", args: args}
+    resp = %{name: "input", args: args}
     reply_text(resp, state)
   end
 
-  def handle_info({{:status, id}, nil, status}, state = %{id: id}) do
+  def handle_info({{:output, _id}, nil, {name, value}}, state) do
+    args = %{name: name, value: value}
+    resp = %{name: "output", args: args}
+    reply_text(resp, state)
+  end
+
+  def handle_info({{:status, _id}, nil, status}, state) do
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end
@@ -55,15 +61,20 @@ defmodule AthashaWeb.Socket.Points do
     Bus.register!({:error, id})
     Bus.register!({:status, id})
     Bus.register!({:input, id})
+    Bus.register!({:output, id})
     Bus.register!({:items, id})
 
     args = %{
       id: id,
       type: item.type,
       name: item.name,
-      initial: PubSub.Input.get_inputs(id) |> Enum.map(&initial_point/1),
-      names: PubSub.Input.get_names(id)
+      ivalues: PubSub.Input.get_values(id) |> Enum.map(&initial_point/1),
+      inames: PubSub.Input.get_names(id),
+      ovalues: PubSub.Output.get_values(id) |> Enum.map(&initial_point/1),
+      onames: PubSub.Output.get_names(id),
     }
+
+    IO.inspect {id, args.onames}
 
     resp = %{name: "view", args: args}
     state = Map.put(state, :type, item.type)

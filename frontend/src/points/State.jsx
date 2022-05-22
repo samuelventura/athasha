@@ -6,8 +6,10 @@ function initial() {
     name: "",
     type: "",
     status: {},
-    names: [],
-    values: {},
+    inames: [],
+    ivalues: {},
+    onames: [],
+    ovalues: {},
   }
 }
 
@@ -23,10 +25,15 @@ function reducer(state, { name, args, self }) {
       next.name = args.name
       next.type = args.type
       next.status = {}
-      next.names = args.names
-      next.values = {}
-      args.initial.forEach(point => {
-        next.values[point.name] = point.value
+      next.inames = args.inames
+      next.onames = args.onames
+      next.ivalues = {}
+      next.ovalues = {}
+      args.ivalues.forEach(point => {
+        next.ivalues[point.name] = point.value
+      })
+      args.ovalues.forEach(point => {
+        next.ovalues[point.name] = point.value
       })
       return next
     }
@@ -35,9 +42,14 @@ function reducer(state, { name, args, self }) {
       next.status = args
       return next
     }
-    case "point": {
+    case "input": {
       const next = clone_object(state)
-      next.values[args.name] = args.value
+      next.ivalues[args.name] = args.value
+      return next
+    }
+    case "output": {
+      const next = clone_object(state)
+      next.ovalues[args.name] = args.value
       return next
     }
     case "close": {
