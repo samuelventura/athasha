@@ -11,6 +11,10 @@ defmodule Athasha.Number do
     end
   end
 
+  def to_number!(value) when is_integer(value), do: value
+  def to_number!(value) when is_float(value), do: value
+  def to_number!(value) when is_binary(value), do: parse_number!(value)
+
   def calibrator(factor, offset) do
     fn value -> calibrate(value, factor, offset) end
   end

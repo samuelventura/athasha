@@ -51,8 +51,16 @@ defmodule Modbus.Tcp.Slave do
     GenServer.call(pid, :port)
   end
 
+  def model(pid) do
+    GenServer.call(pid, :model)
+  end
+
   def handle_call(:port, _from, state) do
     {:reply, state.port, state}
+  end
+
+  def handle_call(:model, _from, state) do
+    {:reply, Shared.state(state.shared), state}
   end
 
   defp accept(%{shared: shared, proto: proto} = state) do

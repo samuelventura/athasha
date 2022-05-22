@@ -93,7 +93,7 @@ defmodule Athasha.Runner.Opto22 do
         PubSub.Password.register!(item, password)
         names = Enum.map(outputs, & &1.name)
         PubSub.Output.reg_names!(id, names)
-        Enum.each(outputs, fn output -> Bus.register!({:output, output.id}) end)
+        Enum.each(outputs, fn output -> Bus.register!({:write, output.id}) end)
 
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)
@@ -122,7 +122,7 @@ defmodule Athasha.Runner.Opto22 do
         Process.send_after(self(), :once, config.period)
         %{}
 
-      {{:output, id}, _, value} ->
+      {{:write, id}, _, value} ->
         Map.put(values, id, value)
 
       other ->
@@ -149,13 +149,13 @@ defmodule Athasha.Runner.Opto22 do
 
       if value != nil do
         case output.setter.(master, value) do
-          :ok ->
+          {:ok, value} ->
             PubSub.Output.update!(id, output.id, output.name, value)
 
           {:error, reason} ->
             PubSub.Output.update!(id, output.id, output.name, nil)
             PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
-            Raise.error({:exec_output, output, reason})
+            Raise.error({:exec_output, output, value, reason})
         end
       end
     end)
@@ -182,13 +182,22 @@ defmodule Athasha.Runner.Opto22 do
   end
 
   defp setter(master, "4chd", slave, address, value) do
-    Master.exec(master, {:fc, slave, address, value})
+    value = Number.to_bit(value)
+
+    case Master.exec(master, {:fc, slave, address, value}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
   end
 
   defp setter(master, "4cha", slave, address, value) do
     value = :erlang.float(value)
     <<w0::16, w1::16>> = <<value::float-big-32>>
-    Master.exec(master, {:phr, slave, address, [w0, w1]})
+
+    case Master.exec(master, {:phr, slave, address, [w0, w1]}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
   end
 
   defp address("Snap", "4chd", module, number), do: module * 4 + (number - 1)

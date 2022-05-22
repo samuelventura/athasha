@@ -1,9 +1,11 @@
 defmodule AthashaWeb.ToolsController do
   use AthashaWeb, :controller
-  alias Athasha.Tools
+  alias Athasha.Number
   alias Athasha.Server
   alias Athasha.Globals
   alias Athasha.PubSub
+  alias Athasha.Tools
+  alias Athasha.Bus
 
   def get_serials(conn, _params) do
     json(conn, Modbus.Serial.Enum.list())
@@ -53,7 +55,7 @@ defmodule AthashaWeb.ToolsController do
     json(conn, Tools.test_connstr(params))
   end
 
-  def get_point(conn, params) do
+  def get_input(conn, params) do
     point = params["id"] |> Base.decode64!()
     [id, _name] = String.split(point, " ", parts: 2)
     {password, hash} = PubSub.Password.find(id)
@@ -67,6 +69,33 @@ defmodule AthashaWeb.ToolsController do
 
       [^hash] ->
         text(conn, PubSub.Input.get_value(point))
+
+      _ ->
+        resp(conn, 404, "Not found")
+    end
+  end
+
+  def post_output(conn, params) do
+    point = params["id"] |> Base.decode64!()
+    [id, _name] = String.split(point, " ", parts: 2)
+    {password, hash} = PubSub.Password.find(id)
+    {:ok, value, conn} = read_body(conn)
+    value = Number.to_number!(value)
+
+    case get_req_header(conn, "access-password") do
+      [] ->
+        case password == "" do
+          true ->
+            Bus.dispatch!({:write, point}, value)
+            text(conn, "ok")
+
+          false ->
+            resp(conn, 404, "Not found")
+        end
+
+      [^hash] ->
+        Bus.dispatch!({:write, point}, value)
+        text(conn, "ok")
 
       _ ->
         resp(conn, 404, "Not found")

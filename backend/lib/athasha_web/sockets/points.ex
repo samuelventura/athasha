@@ -120,8 +120,8 @@ defmodule AthashaWeb.Socket.Points do
   defp handle_event(event = %{"name" => "output"}, state = %{id: id, logged: true}) do
     args = event["args"]
     name = args["name"]
-    value = Number.parse_number!(args["value"])
-    Bus.dispatch!({:output, "#{id} #{name}"}, value)
+    value = Number.to_number!(args["value"])
+    Bus.dispatch!({:write, "#{id} #{name}"}, value)
     {:ok, state}
   end
 

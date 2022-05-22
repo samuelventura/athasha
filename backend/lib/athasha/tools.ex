@@ -4,8 +4,6 @@ defmodule Athasha.Tools do
   alias Athasha.Crypto
   alias Athasha.License
   alias Athasha.Environ
-  alias AthashaWeb.Router
-  alias AthashaWeb.Endpoint
 
   def delete_licenses do
     Repo.delete_all(License)
@@ -65,22 +63,5 @@ defmodule Athasha.Tools do
         # ** (ArgumentError) argument error :erlang.port_close(#Port<0.17>)
         %{result: :er, error: "Unexpected port exit #{status}"}
     end
-  end
-
-  def test_point(point, password \\ "") do
-    [id, _name] = String.split(point, " ", parts: 2)
-    env = Application.get_env(:athasha, Endpoint)
-    http = Keyword.get(env, :http)
-    port = Keyword.get(http, :port)
-    path = Router.Helpers.tools_path(Endpoint, :get_point)
-    url = "http://localhost:#{port}#{path}?id=#{Base.encode64(point)}"
-
-    res =
-      case password do
-        "" -> HTTPoison.get!(url)
-        _ -> HTTPoison.get!(url, "access-password": Crypto.sha1("#{id}:#{password}"))
-      end
-
-    {res.status_code, res.body}
   end
 end

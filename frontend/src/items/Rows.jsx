@@ -34,7 +34,7 @@ function Rows(props) {
             "fw-normal" : "fst-italic"
     }
 
-    function handleClick(e, action, item, args) {
+    function onAction(action, item, args) {
         app.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
@@ -83,13 +83,13 @@ function Rows(props) {
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
-            <Button variant="link" onClick={(e) => handleClick(e, 'view', item)}
+            <Button variant="link" onClick={(e) => onAction('view', item)}
                 onDoubleClick={(e) => onDoubleClick(e)}
                 disabled={!Types.withView.includes(item.type)}>View</Button>
         )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
-            onDoubleClick={(e) => handleClick(e, "edit", item)}
+            onDoubleClick={(e) => onAction("edit", item)}
             className={selectedClass(item) + ' align-middle'}>
             <td className={enabledClass(item)} title={item.id}>
                 <img src={Types.icon(item.type)} width="20"
@@ -100,18 +100,18 @@ function Rows(props) {
             <td>
                 {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
-                    <Button variant="link" onClick={(e) => handleClick(e, 'edit', item)}>
+                    <Button variant="link" onClick={(e) => onAction('edit', item)}>
                         Edit
                     </Button>
                     <Dropdown.Toggle split variant="link" />
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'rename', item)}>Rename</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, true)}>Enable</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'enable', item, false)}>Disable</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'delete', item)}>Delete</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'clone', item)}>Clone</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'backup', item)}>Backup</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => handleClick(e, 'copy-id', item)}>Copy ID</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('rename', item)}>Rename</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('enable', item, true)}>Enable</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('enable', item, false)}>Disable</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('delete', item)}>Delete</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('clone', item)}>Clone</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('backup', item)}>Backup</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => onAction('copy-id', item)}>Copy ID</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>
@@ -126,7 +126,14 @@ function Rows(props) {
                 el.scrollIntoViewIfNeeded() :
                 el.scrollIntoView()
         }
-    }, [app.state.selected])
+    }, [app.state.selected.id])
+
+    useEffect(() => {
+        const created = app.state.created
+        if (created.id) {
+            onAction("edit", created)
+        }
+    }, [app.state.created.id])
 
     return (
         <tbody>

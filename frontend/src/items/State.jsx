@@ -8,6 +8,7 @@ function initial() {
     items: {},
     status: {},
     selected: {},
+    created: {},
     targeted: {},
     inputs: [],
     outputs: [],
@@ -86,6 +87,7 @@ function reducer(state, { name, args, self }) {
       next.status[args.id] = {}
       if (self) {
         next.selected = item
+        next.created = item
       }
       update_points(next)
       return version_state(next)

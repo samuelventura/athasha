@@ -103,8 +103,7 @@ defmodule Athasha.Runner.Modbus do
         PubSub.Password.register!(item, password)
         names = Enum.map(outputs, & &1.name)
         PubSub.Output.reg_names!(id, names)
-        Enum.each(outputs, fn output -> Bus.register!({:output, output.id}) end)
-
+        Enum.each(outputs, fn output -> Bus.register!({:write, output.id}) end)
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, 0)
         run_loop(item, config, master, %{})
@@ -132,7 +131,7 @@ defmodule Athasha.Runner.Modbus do
         Process.send_after(self(), :once, config.period)
         %{}
 
-      {{:output, id}, _, value} ->
+      {{:write, id}, _, value} ->
         Map.put(values, id, value)
 
       other ->
@@ -162,13 +161,13 @@ defmodule Athasha.Runner.Modbus do
         value = output.calib.(value)
 
         case output.setter.(master, value) do
-          :ok ->
+          {:ok, value} ->
             PubSub.Output.update!(id, output.id, output.name, value)
 
           {:error, reason} ->
             PubSub.Output.update!(id, output.id, output.name, nil)
             PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
-            Raise.error({:exec_output, output, reason})
+            Raise.error({:exec_output, output, value, reason})
         end
       end
     end)
@@ -302,15 +301,25 @@ defmodule Athasha.Runner.Modbus do
 
   defp write_bit(master, code, slave, address, value) do
     value = Number.to_bit(value)
-    Master.exec(master, {code, slave, address, value})
+
+    case Master.exec(master, {code, slave, address, value}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
   end
 
   defp write_register(master, code, slave, address, value) do
-    Master.exec(master, {code, slave, address, value})
+    case Master.exec(master, {code, slave, address, value}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
   end
 
   defp write_register2(master, code, slave, address, value) do
-    Master.exec(master, {code, slave, address, value})
+    case Master.exec(master, {code, slave, address, value}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
   end
 
   defp modbus_proto(%{proto: "TCP"}), do: Modbus.Tcp.Protocol
