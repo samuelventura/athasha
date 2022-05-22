@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
+import InputGroup from 'react-bootstrap/InputGroup'
 import { useEffect, useState } from 'react'
 import numeral from 'numeral'
 import Jumbo from '../components/jumbo'
@@ -12,9 +13,9 @@ export default function Home() {
   const router = useRouter()
   const cost = "58"
   const [id, setId] = useState("")
-  const [qty, setQty] = useState("1")
+  const [qty, setQty] = useState("0")
   const [ro, setRo] = useState(false)
-  const disabled = id.trim().length == 0
+  const disabled = qty <= 0 || id.trim().length == 0
   function total() {
     return numeral(cost * qty).format('0,0.00')
   }
@@ -40,12 +41,14 @@ export default function Home() {
   }, [router.query])
   function fixQty(value) {
     value = Number(value)
-    if (Number.isInteger(value) && value > 0 && value <= 100) {
+    if (Number.isInteger(value) && value >= 0 && value <= 100) {
       setQty(`${value}`)
     } else {
       setQty(qty)
     }
   }
+  function onIncrease(q) { setQty(qty - (-q)) } //autoconvert from string
+  function onReset() { setQty(0) }
   return (
     <>
       <Jumbo title="Transparent Princing">
@@ -58,22 +61,29 @@ export default function Home() {
       </Jumbo>
 
       <div className="row align-items-md-stretch">
-        <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+        <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="1">
             Identity
           </Form.Label>
           <Col sm="7">
-            <Form.Control type="text" placeholder="Type or Paste your Identity Key Here"
-              value={id} onChange={(e) => setId(e.target.value)} disabled={ro} />
+            <Form.Control type="text" placeholder="Type or Paste your Identity Here"
+              value={id} onChange={(e) => setId(e.target.value)} disabled={ro} required />
           </Col>
         </Form.Group>
-        <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+        <Form.Group as={Row} className="mb-3">
           <Form.Label column sm="1">
             Quantity
           </Form.Label>
           <Col sm="7">
-            <Form.Control type="number"
-              value={qty} onChange={(e) => fixQty(e.target.value)} />
+            <InputGroup className="mb-3">
+              {/* min=1 left for useful HTML validation tooltip */}
+              <Form.Control type="number" min="1" step="1"
+                value={qty} onChange={(e) => fixQty(e.target.value)} />
+              <Button variant="primary" onClick={() => onIncrease(1)}>+1</Button>
+              <Button variant="primary" onClick={() => onIncrease(5)}>+5</Button>
+              <Button variant="primary" onClick={() => onIncrease(10)}>+10</Button>
+              <Button variant="secondary" onClick={onReset}>Reset</Button>
+            </InputGroup>
           </Col>
         </Form.Group>
         <Row>

@@ -119,7 +119,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={1}>
                     <FloatingLabel label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} min="1" />
+                        <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>

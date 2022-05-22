@@ -82,16 +82,16 @@ export default function Home() {
   return (
     <>
       <Jumbo title="License Recovery">
-        <p className="col-md-8 fs-4">Search by Email or by Identity Key</p>
+        <p className="col-md-8 fs-4">Search by Email or by Identity</p>
       </Jumbo>
 
       <div className="row align-items-md-stretch">
         <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
           <Form.Label column sm="3">
-            Email or Identity Key
+            Email or Identity
           </Form.Label>
           <Col sm="7">
-            <Form.Control type="text" placeholder="Type or Paste your Email or Identity Key Here"
+            <Form.Control type="text" placeholder="Type or Paste your Email or Identity Here"
               value={query} onChange={(e) => setQuery(e.target.value)} />
           </Col>
           <Col sm="2" className="d-flex justify-content-start">

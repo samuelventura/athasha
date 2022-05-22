@@ -123,16 +123,16 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "module")} min="0" max="15" />
+                <Form.Control type="number" {...inputProps(index, "module")} min="0" max="15" step="1" />
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "number")} min="1" max="4" />
+                <Form.Control type="number" {...inputProps(index, "number")} min="1" max="4" step="1" />
             </td>
             <td>
                 <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" />
+                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" step="1" />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
@@ -152,10 +152,10 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...outputProps(index, "module")} min="0" max="15" />
+                <Form.Control type="number" {...outputProps(index, "module")} min="0" max="15" step="1" />
             </td>
             <td>
-                <Form.Control type="number" {...outputProps(index, "number")} min="1" max="4" />
+                <Form.Control type="number" {...outputProps(index, "number")} min="1" max="4" step="1" />
             </td>
             <td>
                 <Form.Control type="text" {...outputProps(index, "name")} />
@@ -179,12 +179,12 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.port}>
-                        <Form.Control type="number" {...settsProps("port")} min="0" max="65535" />
+                        <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} min="1" />
+                        <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
@@ -204,7 +204,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.slave}>
-                        <Form.Control type="number" {...settsProps("slave")} min="0" max="255" />
+                        <Form.Control type="number" {...settsProps("slave")} min="0" max="255" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>

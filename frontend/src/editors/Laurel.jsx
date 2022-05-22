@@ -154,7 +154,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} min="1" />
+                        <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
@@ -176,7 +176,7 @@ function Editor(props) {
             </Col>
             <Col xs={2}>
                 <FloatingLabel label={Initial.labels.port}>
-                    <Form.Control type="number" {...settsProps("port")} min="0" max="65535" />
+                    <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                 </FloatingLabel>
             </Col>
         </Row>)
@@ -197,7 +197,7 @@ function Editor(props) {
             </Col>
             <Col xs={2}>
                 <FloatingLabel label={Initial.labels.speed}>
-                    <Form.Control type="number" {...settsProps("speed")} min="1" />
+                    <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
@@ -251,12 +251,12 @@ function Editor(props) {
                 <Row>
                     <Col xs={2}>
                         <FloatingLabel label={Initial.labels.slave.address}>
-                            <Form.Control type="number" {...slaveProps(sindex, "address")} min="0" max="255" />
+                            <Form.Control type="number" {...slaveProps(sindex, "address")} min="0" max="255" step="1" />
                         </FloatingLabel>
                     </Col>
                     <Col xs={2}>
                         <FloatingLabel label={Initial.labels.slave.decimals}>
-                            <Form.Control type="number"  {...slaveProps(sindex, "decimals")} min="0" max="6" />
+                            <Form.Control type="number"  {...slaveProps(sindex, "decimals")} min="0" max="6" step="1" />
                         </FloatingLabel>
                     </Col>
                     <Col></Col>

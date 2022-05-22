@@ -132,7 +132,7 @@ function Editor(props) {
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td >
-                <Form.Control type="number" {...inputProps(index, "slave")} min="0" max="255" />
+                <Form.Control type="number" {...inputProps(index, "slave")} min="0" max="255" step="1" />
             </td>
             <td className='w-auto'>
                 <Form.Select {...inputProps(index, "code")} >
@@ -140,7 +140,7 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "address")} min="1" max="65536" />
+                <Form.Control type="number" {...inputProps(index, "address")} min="1" max="65536" step="1" />
             </td>
             <td>
                 <Form.Control type="text" {...inputProps(index, "name")} />
@@ -152,7 +152,7 @@ function Editor(props) {
                 <Form.Control type="number" {...inputProps(index, "offset")} />
             </td>
             <td>
-                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" />
+                <Form.Control type="number" {...inputProps(index, "decimals")} min="0" step="1" />
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
@@ -167,7 +167,7 @@ function Editor(props) {
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
             <td >
-                <Form.Control type="number" {...outputProps(index, "slave")} min="0" max="255" />
+                <Form.Control type="number" {...outputProps(index, "slave")} min="0" max="255" step="1" />
             </td>
             <td className='w-auto'>
                 <Form.Select {...outputProps(index, "code")} >
@@ -175,7 +175,7 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
-                <Form.Control type="number" {...outputProps(index, "address")} min="1" max="65536" />
+                <Form.Control type="number" {...outputProps(index, "address")} min="1" max="65536" step="1" />
             </td>
             <td>
                 <Form.Control type="text" {...outputProps(index, "name")} />
@@ -203,7 +203,7 @@ function Editor(props) {
         </Col>
         <Col xs={2}>
             <FloatingLabel label={Initial.labels.port}>
-                <Form.Control type="number" {...settsProps("port")} min="0" max="65535" />
+                <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
             </FloatingLabel>
         </Col>
     </Row>)
@@ -222,7 +222,7 @@ function Editor(props) {
         </Col>
         <Col xs={2}>
             <FloatingLabel label={Initial.labels.speed}>
-                <Form.Control type="number" {...settsProps("speed")} min="1" />
+                <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
@@ -258,7 +258,7 @@ function Editor(props) {
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.period}>
-                        <Form.Control type="number" {...settsProps("period")} min="1" />
+                        <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>

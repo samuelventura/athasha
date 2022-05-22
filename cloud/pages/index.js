@@ -21,7 +21,7 @@ export default function Home() {
             Identity
           </Form.Label>
           <Col sm="7">
-            <Form.Control type="text" placeholder="Type or Paste your Identity Key Here"
+            <Form.Control type="text" placeholder="Type or Paste your Identity Here"
               value={id} onChange={(e) => setId(e.target.value)} />
           </Col>
           <Col sm="4">

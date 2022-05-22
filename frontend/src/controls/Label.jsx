@@ -134,7 +134,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.ftSize}>
-                        <Form.Control type="number" {...fieldProps("ftSize")} min="1" />
+                        <Form.Control type="number" {...fieldProps("ftSize")} min="1" step="1" />
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.ftFamily}>
                         <Form.Select {...fieldProps("ftFamily")}>
@@ -173,7 +173,7 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brWidth}>
-                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" />
+                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" step="1" />
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brColor}>
                         <InputGroup>
@@ -310,4 +310,6 @@ function InputExtractor(data, add) {
 const Type = "Label"
 const Init = Initial.data
 
-export default { Type, Init, Editor, Renderer, Validator, InputExtractor }
+const Label = { Type, Init, Editor, Renderer, Validator, InputExtractor }
+
+export default Label
