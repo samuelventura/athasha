@@ -49,7 +49,7 @@ function csetts() {
         output: "",
         click: "Fixed Value",
         value: "0",
-        prompt: "",
+        prompt: "Enter Value",
     }
 }
 
@@ -142,6 +142,7 @@ const cchecks = {
     },
     prompt: function (value) {
         Check.isString(value, labels.prompt)
+        Check.notEmpty(value, labels.prompt)
     },
 }
 

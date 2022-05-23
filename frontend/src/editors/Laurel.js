@@ -42,7 +42,7 @@ function slave(index) {
 }
 
 function input(index) {
-    return { code: "01", name: `Input ${1 + (index || 0)}` }
+    return { code: "Item 1", name: `Input ${1 + (index || 0)}` }
 }
 
 const labels = {

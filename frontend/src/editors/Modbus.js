@@ -4,7 +4,7 @@ function config() {
     return {
         setts: setts(),
         inputs: [input()],
-        outputs: [output()],
+        outputs: [], //only 1 input in visible tab
     }
 }
 

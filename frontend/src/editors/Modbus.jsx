@@ -50,7 +50,6 @@ function Editor(props) {
         setInputs(next)
     }
     function delInput(index) {
-        if (inputs.length < 2) return
         const next = [...inputs]
         next.splice(index, 1)
         setInputs(next)
@@ -74,7 +73,6 @@ function Editor(props) {
         setOutputs(next)
     }
     function delOutput(index) {
-        if (outputs.length < 2) return
         const next = [...outputs]
         next.splice(index, 1)
         setOutputs(next)
@@ -169,7 +167,7 @@ function Editor(props) {
             </td>
             <td className='col-1'>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
-                    title="Delete Row" disabled={inputs.length < 2}>
+                    title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
                 &nbsp;
@@ -210,7 +208,7 @@ function Editor(props) {
             </td>
             <td className='col-1'>
                 <Button variant='outline-danger' size="sm" onClick={() => delOutput(index)}
-                    title="Delete Row" disabled={outputs.length < 2}>
+                    title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>
                 &nbsp;
