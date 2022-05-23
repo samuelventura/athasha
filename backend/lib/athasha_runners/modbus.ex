@@ -52,7 +52,8 @@ defmodule Athasha.Runner.Modbus do
           id: "#{id} #{name}",
           name: name,
           setter: setter(code, slave, address),
-          calib: Number.calibrator(factor, offset)
+          calib: Number.calibrator(factor, offset),
+          reverse: Number.reversed(factor, offset)
         }
       end)
 
@@ -161,7 +162,8 @@ defmodule Athasha.Runner.Modbus do
 
         case output.setter.(master, value) do
           {:ok, value} ->
-            PubSub.Output.update!(id, output.id, output.name, value)
+            reversed = output.reverse.(value)
+            PubSub.Output.update!(id, output.id, output.name, reversed)
 
           {:error, reason} ->
             PubSub.Output.update!(id, output.id, output.name, nil)

@@ -68,6 +68,13 @@ function isLE(value, label, limit) {
     }
 }
 
+function notZero(value, label, limit) {
+    const num = Number(value)
+    if (num === 0) {
+        throw `${label} is cannot be 0`
+    }
+}
+
 function isColor(value, label) {
     const re = /^#[0-9a-f]{6}/i
     if (!re.test(value)) {
@@ -166,6 +173,7 @@ export default {
     inList,
     nonZeroLength,
     hasProp,
+    notZero,
     isInteger,
     isNumber,
     isColor,

@@ -26,16 +26,17 @@ defmodule Athasha.Number do
 
   def calibrate(value, 1.0, 0.0), do: value
   def calibrate(value, factor, offset), do: value * factor + offset
+  def reversed(factor, offset), do: calibrator(1 / factor, -offset / factor)
 
   def to_uint16(value) when value > 65535, do: 65535
   def to_uint16(value) when value < 0, do: 0
   def to_uint16(value) when is_integer(value), do: value
-  def to_uint16(value) when is_float(value), do: Float.round(value)
+  def to_uint16(value) when is_float(value), do: round(value) |> trunc
 
   def to_sint16(value) when value > 32767, do: 32767
   def to_sint16(value) when value < -32768, do: -32768
   def to_sint16(value) when is_integer(value), do: value
-  def to_sint16(value) when is_float(value), do: Float.round(value)
+  def to_sint16(value) when is_float(value), do: round(value) |> trunc
 
   def to_bit(0), do: 0
   def to_bit(0.0), do: 0

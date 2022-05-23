@@ -148,7 +148,7 @@ const hints = {
             + "\nD/R Direct/Reversed",
         address: (i) => "Non empty integer [1, 65536]",
         name: (i) => "Non empty input name",
-        factor: (i) => "Non empty number m in f(x)=m*x+b",
+        factor: (i) => "Non zero number m in f(x)=m*x+b",
         offset: (i) => "Non empty number b in f(x)=m*x+b",
     },
     outputs: {
@@ -166,7 +166,7 @@ const hints = {
             + "\nD/R Direct/Reversed",
         address: (i) => "Non empty integer [1, 65536]",
         name: (i) => "Non empty input name",
-        factor: (i) => "Non empty number m in f(x)=m*x+b",
+        factor: (i) => "Non zero number m in f(x)=m*x+b",
         offset: (i) => "Non empty number b in f(x)=m*x+b",
     },
 }
@@ -239,6 +239,7 @@ const checks = {
             Check.isString(value, labels.inputs.factor(index))
             Check.notEmpty(value, labels.inputs.factor(index))
             Check.isNumber(value, labels.inputs.factor(index))
+            Check.notZero(value, labels.outputs.factor(index))
         },
         offset: function (index, value) {
             Check.isString(value, labels.inputs.offset(index))
@@ -271,6 +272,7 @@ const checks = {
             Check.isString(value, labels.outputs.factor(index))
             Check.notEmpty(value, labels.outputs.factor(index))
             Check.isNumber(value, labels.outputs.factor(index))
+            Check.notZero(value, labels.outputs.factor(index))
         },
         offset: function (index, value) {
             Check.isString(value, labels.outputs.offset(index))
