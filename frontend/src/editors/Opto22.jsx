@@ -113,7 +113,7 @@ function Editor(props) {
         args.defval = Initial.output()[prop]
         return Check.props(args)
     }
-    const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
+    const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{Initial.inputLabels[index]}</option>)
     const inputRows = inputs.map((input, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
@@ -139,7 +139,7 @@ function Editor(props) {
             </td>
         </tr >
     )
-    const outputOptions = Initial.outputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
+    const outputOptions = Initial.outputCodes.map((code, index) => <option key={index} value={code}>{Initial.outputLabels[index]}</option>)
     const outputRows = outputs.map((output, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>

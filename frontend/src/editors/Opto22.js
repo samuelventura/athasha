@@ -3,6 +3,8 @@ import Check from './Check'
 
 const inputCodes = ["4chd", "4cha"]
 const outputCodes = ["4chd", "4cha"]
+const inputLabels = ["4ch Digital", "4ch Analog"]
+const outputLabels = ["4ch Digital", "4ch Analog"]
 
 function config() {
     return {
@@ -213,6 +215,8 @@ function validator({ setts, inputs, outputs }) {
 export default {
     inputCodes,
     outputCodes,
+    inputLabels,
+    outputLabels,
     config,
     setts,
     input,

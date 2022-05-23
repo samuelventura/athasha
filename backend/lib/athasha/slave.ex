@@ -7,7 +7,8 @@ defmodule Athasha.Slave do
 
   def start_link() do
     model = %{
-      1 => %{
+      # modbus
+      0 => %{
         {:c, 0} => 0,
         {:i, 0} => 0,
         {:hr, 0} => 0,
@@ -29,10 +30,51 @@ defmodule Athasha.Slave do
         {:ir, 7} => 0,
         {:hr, 8} => 0,
         {:ir, 8} => 0
+      },
+
+      # laurel
+      1 => %{
+        # alarms
+        {:ir, 1} => 0,
+        {:ir, 2} => 0,
+        # item1
+        {:ir, 3} => 0,
+        {:ir, 4} => 0,
+        # peak
+        {:ir, 5} => 0,
+        {:ir, 6} => 0,
+        # valley
+        {:ir, 7} => 0,
+        {:ir, 8} => 0,
+        # item2
+        {:ir, 9} => 0,
+        {:ir, 10} => 0,
+        # item3
+        {:ir, 11} => 0,
+        {:ir, 12} => 0
+      },
+
+      # opto22, not possible to link input-output
+      2 => %{
+        # digitals
+        {:i, 0} => 0,
+        {:i, 8} => 0,
+        {:c, 8} => 0,
+        # analogs
+        {:ir, 8} => 0,
+        {:ir, 9} => 0,
+        {:ir, 24} => 0,
+        {:ir, 25} => 0,
+        {:hr, 24} => 0,
+        {:hr, 25} => 0
       }
     }
 
     Modbus.Tcp.Slave.start_link(model: model, name: __MODULE__)
+  end
+
+  def stop() do
+    Modbus.Tcp.Slave.stop(__MODULE__)
   end
 
   def port() do
