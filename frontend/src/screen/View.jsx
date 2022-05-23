@@ -1,5 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
+import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
+import Form from 'react-bootstrap/Form'
 import Controls from '../editors/Controls'
 import { useApp } from '../App'
 
@@ -50,7 +53,65 @@ function calcGeom(parent, setts) {
     return { gx, gy, sx, sy, W, H, vb, vp }
 }
 
-function SvgWindow({ setts, controls, inputs, send }) {
+function PromptValue() {
+    const app = useApp()
+    const prompt = app.state.prompt
+    const focus = useRef(null)
+    const [value, setValue] = useState("")
+    function isActive() { return prompt.output }
+    function isValid() { return typeof value === 'string' && value.trim().length > 0 && isFinite(value) }
+    function onKeyPress(e) {
+        if (e.key === 'Enter') {
+            onAccept()
+        }
+    }
+    function onCancel() {
+        app.dispatch({ name: "prompt", args: {} })
+    }
+    function onAccept() {
+        if (isValid()) {
+            const name = prompt.output
+            const fixed = Number(value) //support 0xFF
+            app.send({ name: "write", args: { name, value: fixed } })
+            app.dispatch({ name: "prompt", args: {} })
+        }
+    }
+    useEffect(() => {
+        if (isActive()) {
+            setValue("")
+            //autoFocus fails with inputs but works with select above
+            setTimeout(() => {
+                const el = focus.current
+                if (el) {
+                    el.focus()
+                    el.select()
+                }
+            }, 0)
+        }
+    }, [prompt.output])
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>{prompt.title}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Control autoFocus ref={focus} type="text" placeholder="Type Value"
+                    onKeyPress={onKeyPress}
+                    value={value} onChange={e => setValue(e.target.value)} />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+                    Send
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
+function SvgWindow({ setts, controls, inputs, send, dispatch }) {
     const [hover, setHover] = useState(null)
     const [pressed, setPressed] = useState(null)
     const { ref, width, height } = useResizeDetector()
@@ -87,9 +148,19 @@ function SvgWindow({ setts, controls, inputs, send }) {
                 }
                 case "up": {
                     if (isPressed) {
-                        const name = output
-                        const value = control.setts.value
-                        send({ name: "write", args: { name, value } })
+                        switch (csetts.click) {
+                            case "Fixed Value": {
+                                const name = output
+                                const value = control.setts.value
+                                send({ name: "write", args: { name, value } })
+                                break
+                            }
+                            case "Value Prompt": {
+                                const title = control.setts.prompt
+                                dispatch({ name: "prompt", args: { output, title } })
+                                break
+                            }
+                        }
                     }
                     setPressed(null)
                     break
@@ -119,11 +190,15 @@ function SvgWindow({ setts, controls, inputs, send }) {
 function View() {
     const app = useApp()
     const send = app.send
+    const dispatch = app.dispatch
     const setts = app.state.setts
     const controls = app.state.controls
     const inputs = app.state.inputs
-    const props = { setts, controls, inputs, send }
-    return <SvgWindow {...props} />
+    const props = { setts, controls, inputs, send, dispatch }
+    return <>
+        <PromptValue />
+        <SvgWindow {...props} />
+    </>
 }
 
 export default View

@@ -9,7 +9,6 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Label.js"
 import Check from '../editors/Check'
-import styles from "./Label.css"
 
 function CondEditor({ cond, setProp, captured, setCaptured }) {
     function fieldProps(prop) {

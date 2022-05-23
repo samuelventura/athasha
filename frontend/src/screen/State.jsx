@@ -8,6 +8,7 @@ function initial() {
     setts: {},
     controls: [],
     inputs: {},
+    prompt: {},
   }
 }
 
@@ -38,6 +39,11 @@ function reducer(state, { name, args, self }) {
     case "input": {
       const next = clone_object(state)
       next.inputs[args.id] = args.value
+      return next
+    }
+    case "prompt": {
+      const next = clone_object(state)
+      next.prompt = args
       return next
     }
     case "close": {
