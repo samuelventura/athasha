@@ -298,7 +298,7 @@ function validator({ setts, inputs, outputs }) {
     checks.speed(setts.speed)
     checks.dbpsb(setts.dbpsb)
     Check.isArray(inputs, "Inputs")
-    Check.nonZeroLength(inputs, "Inputs")
+    // Check.nonZeroLength(inputs, "Inputs")
     inputs.forEach((input, index) => {
         Check.hasProp(input, labels.inputs.slave(index), "slave")
         checks.inputs.slave(index, input.slave)
@@ -314,7 +314,7 @@ function validator({ setts, inputs, outputs }) {
         checks.inputs.offset(index, input.offset)
     })
     Check.isArray(outputs, "Output")
-    Check.nonZeroLength(outputs, "Output")
+    // Check.nonZeroLength(outputs, "Output")
     outputs.forEach((output, index) => {
         Check.hasProp(output, labels.outputs.slave(index), "slave")
         checks.outputs.slave(index, output.slave)

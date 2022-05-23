@@ -187,7 +187,7 @@ function validator({ setts, inputs, outputs }) {
     checks.period(setts.period)
     checks.slave(setts.slave)
     Check.isArray(inputs, "Inputs")
-    Check.nonZeroLength(inputs, "Inputs")
+    //Check.nonZeroLength(inputs, "Inputs")
     inputs.forEach((input, index) => {
         Check.hasProp(input, labels.inputs.code(index), "code")
         checks.inputs.code(index, input.code)
@@ -199,7 +199,7 @@ function validator({ setts, inputs, outputs }) {
         checks.inputs.name(index, input.name)
     })
     Check.isArray(outputs, "Outputs")
-    Check.nonZeroLength(outputs, "Outputs")
+    //Check.nonZeroLength(outputs, "Outputs")
     outputs.forEach((output, index) => {
         Check.hasProp(output, labels.outputs.code(index), "code")
         checks.outputs.code(index, output.code)
