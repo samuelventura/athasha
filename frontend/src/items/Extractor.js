@@ -32,10 +32,10 @@ const inputExtractor = {
         })
     },
     Datafetch: function (item, add) {
-        item.config.columns.forEach(column => {
-            if (column.name.trim().length > 0) {
+        item.config.inputs.forEach(input => {
+            if (input.name.trim().length > 0) {
                 add({
-                    point: { name: column.name },
+                    point: { name: input.name },
                     item: { id: item.id, name: item.name }
                 })
             }
