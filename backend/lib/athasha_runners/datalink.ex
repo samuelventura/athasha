@@ -22,14 +22,6 @@ defmodule Athasha.Runner.Datalink do
       links: links
     }
 
-    links =
-      Enum.map(links, fn link ->
-        output = link.output
-        value = PubSub.Input.get_value(link.input)
-        Bus.dispatch!({:write, output}, value)
-        Map.put(link, :value, value)
-      end)
-
     PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, 0)
@@ -61,9 +53,14 @@ defmodule Athasha.Runner.Datalink do
   defp run_once(_item, _config, links) do
     Enum.map(links, fn link ->
       output = link.output
-      value = PubSub.Input.get_value(link.input)
+      input = link.input
+      value = PubSub.Input.get_value(input)
 
-      if value != link.value do
+      if value == nil do
+        Raise.error({:missing, input})
+      end
+
+      if value != Map.get(link, :value, nil) do
         Bus.dispatch!({:write, output}, value)
       end
 
