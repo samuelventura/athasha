@@ -13,8 +13,12 @@ defmodule Modbus.Shared do
     Agent.stop(pid)
   end
 
-  def state(pid) do
+  def get(pid) do
     Agent.get(pid, fn model -> model end)
+  end
+
+  def set(pid, model) do
+    Agent.get_and_update(pid, fn current -> {current, model} end)
   end
 
   def apply(pid, cmd) do

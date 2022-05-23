@@ -37,6 +37,15 @@ defmodule Modbus.Model do
     writes(state, {slave, :hr, address, values})
   end
 
+  def apply(state, {:pir, slave, address, value})
+      when is_integer(address) and not is_list(value) do
+    write(state, {slave, :ir, address, value})
+  end
+
+  def apply(state, {:pir, slave, address, values}) when is_integer(address) and is_list(values) do
+    writes(state, {slave, :ir, address, values})
+  end
+
   defp reads(state, {slave, type, address, count}) do
     case check_request(state, {slave, type, address, count}) do
       true ->

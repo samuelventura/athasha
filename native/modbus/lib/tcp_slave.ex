@@ -20,12 +20,12 @@ defmodule Modbus.Tcp.Slave do
   end
 
   def init(init) do
-    {:ok, shared} = Shared.start_link(init.model)
     opts = [:binary, ip: init.ip, packet: :raw, active: false, reuseaddr: true]
 
     case :gen_tcp.listen(init.port, opts) do
       {:ok, listener} ->
         {:ok, {ip, port}} = :inet.sockname(listener)
+        {:ok, shared} = Shared.start_link(init.model)
 
         init = Map.put(init, :ip, ip)
         init = Map.put(init, :port, port)
@@ -36,13 +36,16 @@ defmodule Modbus.Tcp.Slave do
 
         {:ok, init}
 
+      # in this case terminate is not called
       {:error, reason} ->
         {:stop, reason}
     end
   end
 
-  def terminate(reason, %{shared: shared}) do
+  def terminate(reason, %{shared: shared, listener: listener}) do
+    # Genserver.stop calls this
     Agent.stop(shared, reason)
+    :inet.close(listener)
   end
 
   def stop(pid) do
@@ -56,8 +59,16 @@ defmodule Modbus.Tcp.Slave do
     GenServer.call(pid, :port)
   end
 
-  def model(pid) do
-    GenServer.call(pid, :model)
+  def get(pid) do
+    GenServer.call(pid, :get)
+  end
+
+  def set(pid, model) do
+    GenServer.call(pid, {:set, model})
+  end
+
+  def reset(pid) do
+    GenServer.call(pid, :reset)
   end
 
   def exec(pid, cmd) do
@@ -68,8 +79,16 @@ defmodule Modbus.Tcp.Slave do
     {:reply, state.port, state}
   end
 
-  def handle_call(:model, _from, state) do
-    {:reply, Shared.state(state.shared), state}
+  def handle_call(:get, _from, state) do
+    {:reply, Shared.get(state.shared), state}
+  end
+
+  def handle_call({:set, model}, _from, state) do
+    {:reply, Shared.set(state.shared, model), state}
+  end
+
+  def handle_call(:reset, _from, state = %{model: model}) do
+    {:reply, Shared.set(state.shared, model), state}
   end
 
   def handle_call({:exec, cmd}, _from, state) do
@@ -80,10 +99,11 @@ defmodule Modbus.Tcp.Slave do
     case :gen_tcp.accept(state.listener) do
       {:ok, socket} ->
         trans = {state.trans, socket}
-        spawn(fn -> Slave.client(shared, trans, proto) end)
+        spawn_link(fn -> Slave.client(shared, trans, proto) end)
         accept(state)
 
       {:error, reason} ->
+        # exit abnormally to ensure all clients are killed
         Process.exit(self(), reason)
     end
   end

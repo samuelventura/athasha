@@ -4,7 +4,7 @@ defmodule Modbus.Slave do
   alias Modbus.Protocol
   alias Modbus.Shared
 
-  def client(shared, trans, proto) do
+  def client(shared, trans, proto, quiet \\ true) do
     case Transport.slave_waitreq(trans) do
       {:ok, data} ->
         {cmd, tid} = Protocol.parse_req(proto, data)
@@ -24,8 +24,13 @@ defmodule Modbus.Slave do
 
         client(shared, trans, proto)
 
+      # listener process is linked to this
+      # process, do not exit abnormally
       {:error, reason} ->
-        Process.exit(self(), reason)
+        case quiet do
+          true -> :exit
+          _ -> Process.exit(self(), reason)
+        end
     end
   end
 end

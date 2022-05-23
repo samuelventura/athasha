@@ -13,7 +13,6 @@ defmodule Athasha.Slave do
         {:hr, 0} => 0,
         {:ir, 0} => 0,
         # bad idea to mix floats with integer
-        # no match of right size value: <<255, 254, 0, 0>>
         {:hr, 1} => 0,
         {:ir, 1} => 0,
         {:hr, 2} => 0,
@@ -40,8 +39,16 @@ defmodule Athasha.Slave do
     Modbus.Tcp.Slave.port(__MODULE__)
   end
 
-  def model() do
-    Modbus.Tcp.Slave.model(__MODULE__)
+  def get() do
+    Modbus.Tcp.Slave.get(__MODULE__)
+  end
+
+  def set(model) do
+    Modbus.Tcp.Slave.set(__MODULE__, model)
+  end
+
+  def reset() do
+    Modbus.Tcp.Slave.reset(__MODULE__)
   end
 
   def exec(cmd) do

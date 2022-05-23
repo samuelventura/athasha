@@ -49,7 +49,7 @@ defmodule Athasha.Develop do
 
     res =
       case password do
-        "" -> HTTPoison.post!(url, value)
+        "" -> HTTPoison.post!(url, "#{value}")
         _ -> HTTPoison.post!(url, value, "access-password": Crypto.sha1("#{id}:#{password}"))
       end
 
