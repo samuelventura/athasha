@@ -10,6 +10,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Laurel.js'
 import Serial from "./Serial"
 import Check from './Check'
@@ -71,6 +73,14 @@ function Editor(props) {
         if (slave.inputs.length < 2) return
         const next = [...slave.inputs]
         next.splice(pindex, 1)
+        setSlaveProp(sindex, "inputs", next)
+    }
+    function moveInput(sindex, pindex, inc) {
+        const slave = slaves[sindex]
+        const index = pindex + inc
+        if (index < 0 || index >= slave.inputs.length) return
+        const next = [...slave.inputs]
+        next.splice(index, 0, next.splice(pindex, 1)[0])
         setSlaveProp(sindex, "inputs", next)
     }
     function setInputProp(sindex, pindex, name, value, e) {
@@ -240,8 +250,17 @@ function Editor(props) {
                 </td>
                 <td>
                     <Button variant='outline-danger' size="sm" onClick={() => delInput(sindex, pindex)}
-                        title="Delete Input" disabled={slave.inputs.length < 2}>
+                        title="Delete Row" disabled={slave.inputs.length < 2}>
                         <FontAwesomeIcon icon={faTimes} />
+                    </Button>
+                    &nbsp;
+                    <Button variant='outline-secondary' size="sm" onClick={() => moveInput(sindex, pindex, +1)}
+                        title="Move Row Down" disabled={pindex >= slave.inputs.length - 1}>
+                        <FontAwesomeIcon icon={faArrowDown} />
+                    </Button>
+                    <Button variant='outline-secondary' size="sm" onClick={() => moveInput(sindex, pindex, -1)}
+                        title="Move Row Up" disabled={pindex < 1}>
+                        <FontAwesomeIcon icon={faArrowUp} />
                     </Button>
                 </td>
             </tr>

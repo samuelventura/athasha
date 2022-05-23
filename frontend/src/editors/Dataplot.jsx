@@ -9,6 +9,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Dataplot.js'
 import Check from './Check'
 import Tools from '../items/Tools'
@@ -43,6 +45,13 @@ function Editor(props) {
         if (index < 1 || columns.length < 3) return
         const next = [...columns]
         next.splice(index, 1)
+        setColumns(next)
+    }
+    function moveColumn(index, inc) {
+        const nindex = index + inc
+        if (index < 1 || nindex < 1 || nindex >= columns.length) return
+        const next = [...columns]
+        next.splice(nindex, 0, next.splice(index, 1)[0])
         setColumns(next)
     }
     function settsProps(prop) {
@@ -95,8 +104,17 @@ function Editor(props) {
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 3}
-                    onClick={() => delColumn(index)} title="Delete Column">
+                    onClick={() => delColumn(index)} title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
+                </Button>
+                &nbsp;
+                <Button variant='outline-secondary' size="sm" onClick={() => moveColumn(index, +1)}
+                    title="Move Row Down" disabled={index < 1 || index >= columns.length - 1}>
+                    <FontAwesomeIcon icon={faArrowDown} />
+                </Button>
+                <Button variant='outline-secondary' size="sm" onClick={() => moveColumn(index, -1)}
+                    title="Move Row Up" disabled={index < 2}>
+                    <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
             </td>
         </tr>

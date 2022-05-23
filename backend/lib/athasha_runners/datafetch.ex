@@ -24,8 +24,8 @@ defmodule Athasha.Runner.Datafetch do
       end
 
     inputs =
-      Enum.map(config["columns"], fn column ->
-        name = column["name"]
+      Enum.map(config["inputs"], fn input ->
+        name = input["name"]
 
         %{
           id: "#{id} #{name}",

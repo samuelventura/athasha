@@ -8,6 +8,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../items/Points'
 import Initial from './Datalog.js'
 import Check from './Check'
@@ -41,6 +43,13 @@ function Editor(props) {
     function delInput(index) {
         const next = [...inputs]
         next.splice(index, 1)
+        setInputs(next)
+    }
+    function moveInput(index, inc) {
+        const nindex = index + inc
+        if (nindex < 0 || nindex >= inputs.length) return
+        const next = [...inputs]
+        next.splice(nindex, 0, next.splice(index, 1)[0])
         setInputs(next)
     }
     function settsProps(prop) {
@@ -90,8 +99,17 @@ function Editor(props) {
             </td>
             <td>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
-                    title="Delete Input">
+                    title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
+                </Button>
+                &nbsp;
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, +1)}
+                    title="Move Row Down" disabled={index >= inputs.length - 1}>
+                    <FontAwesomeIcon icon={faArrowDown} />
+                </Button>
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, -1)}
+                    title="Move Row Up" disabled={index < 1}>
+                    <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
             </td>
         </tr>

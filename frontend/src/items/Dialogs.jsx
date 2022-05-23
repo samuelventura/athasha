@@ -306,8 +306,9 @@ function InfoButton() {
     const identity = app.state.identity
     const licenses = app.state.licenses
     const hostname = app.state.hostname
+    const items = Object.values(app.state.items).length
     const addresses = app.state.addresses.join(" ")
-    const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}`
+    const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}\nItems: ${items}`
     const handleOnClick = () => {
         Clipboard.copyText(tooltip)
     }

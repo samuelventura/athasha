@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }) {
     useEffect(() => {
       setPrivacyPolicyOk(localStorage.getItem(privacyPolicyItem) || "")
     }, [])
-    return <ToastContainer className="p-3" position="bottom-start">
+    return <ToastContainer className="position-fixed p-3" position="bottom-start">
       <Toast show={!isValid()}>
         <Toast.Header closeButton={false}>Privacy Policy Consent Required</Toast.Header>
         <Toast.Body>Usage of this site requires you to consent to our&nbsp;
@@ -99,9 +99,9 @@ function MyApp({ Component, pageProps }) {
           </Button>
         </Modal.Footer>
       </Modal>
-      <ToastContainer className="p-3 leaveMessage" position="bottom-end"
+      <ToastContainer className="position-fixed  bg-transparent p-3 leaveMessage" position="bottom-end"
         title="Leave Us a Message" onClick={onClick}>
-        <Toast show={true} className="shadow-none border-0">
+        <Toast show={true} className="shadow-none border-0 bg-transparent">
           <FontAwesomeIcon icon={faComment} className={pulse && !show ? "icon-up" : "icon-down"} />
         </Toast>
       </ToastContainer>

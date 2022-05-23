@@ -10,6 +10,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Modbus.js'
 import Serial from "./Serial"
 import Check from './Check'
@@ -53,6 +55,13 @@ function Editor(props) {
         next.splice(index, 1)
         setInputs(next)
     }
+    function moveInput(index, inc) {
+        const nindex = index + inc
+        if (nindex < 0 || nindex >= inputs.length) return
+        const next = [...inputs]
+        next.splice(nindex, 0, next.splice(index, 1)[0])
+        setInputs(next)
+    }
     function setInputProp(index, name, value) {
         const next = [...inputs]
         next[index][name] = value
@@ -68,6 +77,13 @@ function Editor(props) {
         if (outputs.length < 2) return
         const next = [...outputs]
         next.splice(index, 1)
+        setOutputs(next)
+    }
+    function moveOutput(index, inc) {
+        const nindex = index + inc
+        if (nindex < 0 || nindex >= outputs.length) return
+        const next = [...outputs]
+        next.splice(nindex, 0, next.splice(index, 1)[0])
         setOutputs(next)
     }
     function setOutputProp(index, name, value) {
@@ -134,7 +150,7 @@ function Editor(props) {
             <td >
                 <Form.Control type="number" {...inputProps(index, "slave")} min="0" max="255" step="1" />
             </td>
-            <td className='w-auto'>
+            <td className='col-2'>
                 <Form.Select {...inputProps(index, "code")} >
                     {inputOptions}
                 </Form.Select>
@@ -142,7 +158,7 @@ function Editor(props) {
             <td>
                 <Form.Control type="number" {...inputProps(index, "address")} min="1" max="65536" step="1" />
             </td>
-            <td>
+            <td className='col-2'>
                 <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
@@ -151,10 +167,19 @@ function Editor(props) {
             <td>
                 <Form.Control type="number" {...inputProps(index, "offset")} />
             </td>
-            <td>
+            <td className='col-1'>
                 <Button variant='outline-danger' size="sm" onClick={() => delInput(index)}
-                    title="Delete Input" disabled={inputs.length < 2}>
+                    title="Delete Row" disabled={inputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
+                </Button>
+                &nbsp;
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, +1)}
+                    title="Move Row Down" disabled={index >= inputs.length - 1}>
+                    <FontAwesomeIcon icon={faArrowDown} />
+                </Button>
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, -1)}
+                    title="Move Row Up" disabled={index < 1}>
+                    <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
             </td>
         </tr>
@@ -166,7 +191,7 @@ function Editor(props) {
             <td >
                 <Form.Control type="number" {...outputProps(index, "slave")} min="0" max="255" step="1" />
             </td>
-            <td className='w-auto'>
+            <td className='col-2'>
                 <Form.Select {...outputProps(index, "code")} >
                     {outputOptions}
                 </Form.Select>
@@ -174,7 +199,7 @@ function Editor(props) {
             <td>
                 <Form.Control type="number" {...outputProps(index, "address")} min="1" max="65536" step="1" />
             </td>
-            <td>
+            <td className='col-2'>
                 <Form.Control type="text" {...outputProps(index, "name")} />
             </td>
             <td>
@@ -183,10 +208,19 @@ function Editor(props) {
             <td>
                 <Form.Control type="number" {...outputProps(index, "offset")} />
             </td>
-            <td>
+            <td className='col-1'>
                 <Button variant='outline-danger' size="sm" onClick={() => delOutput(index)}
-                    title="Delete Output" disabled={outputs.length < 2}>
+                    title="Delete Row" disabled={outputs.length < 2}>
                     <FontAwesomeIcon icon={faTimes} />
+                </Button>
+                &nbsp;
+                <Button variant='outline-secondary' size="sm" onClick={() => moveOutput(index, +1)}
+                    title="Move Row Down" disabled={index >= outputs.length - 1}>
+                    <FontAwesomeIcon icon={faArrowDown} />
+                </Button>
+                <Button variant='outline-secondary' size="sm" onClick={() => moveOutput(index, -1)}
+                    title="Move Row Up" disabled={index < 1}>
+                    <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
             </td>
         </tr>

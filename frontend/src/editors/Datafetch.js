@@ -3,7 +3,7 @@ import Check from './Check'
 function config() {
     return {
         setts: setts(),
-        columns: [column(0)],
+        inputs: [input(0)],
     }
 }
 
@@ -19,7 +19,7 @@ function setts() {
     }
 }
 
-function column(index) {
+function input(index) {
     index = index || 0
     const name = `Input ${index + 1}`
     return {
@@ -35,10 +35,10 @@ const labels = {
     password: "Access Password",
     connstr: "Connection String",
     command: "SQL Command",
-    column: {
+    input: {
         name: "Input Name",
     },
-    columns: {
+    inputs: {
         name: (i) => `Input ${i + 1} Name`,
     }
 }
@@ -56,8 +56,8 @@ const hints = {
     command: "An SQL select command, function or store procedure call"
         + "\nQuery must return equal number of columns as added inputs"
         + "\nConsult your IT specialist",
-    columns: {
-        name: (i) => "Non empty column name",
+    inputs: {
+        name: (i) => "Non empty input name",
     }
 }
 
@@ -92,15 +92,15 @@ const checks = {
         Check.isString(value, labels.command)
         Check.notEmpty(value, labels.command)
     },
-    columns: {
+    inputs: {
         name: function (index, value) {
-            Check.isString(value, labels.columns.name(index))
-            Check.notEmpty(value, labels.columns.name(index))
+            Check.isString(value, labels.inputs.name(index))
+            Check.notEmpty(value, labels.inputs.name(index))
         },
     }
 }
 
-function validator({ setts, columns }) {
+function validator({ setts, inputs }) {
     Check.hasProp(setts, "Setts", "database")
     Check.hasProp(setts, "Setts", "dbpass")
     Check.hasProp(setts, "Setts", "connstr")
@@ -111,18 +111,18 @@ function validator({ setts, columns }) {
     checks.unit(setts.unit)
     checks.connstr(setts.connstr)
     checks.command(setts.command)
-    Check.isArray(columns, "Columns")
-    Check.nonZeroLength(columns, "Columns")
-    columns.forEach((column, index) => {
-        Check.hasProp(column, labels.columns.name(index), "name")
-        checks.columns.name(index, column.name)
+    Check.isArray(inputs, "Inputs")
+    Check.nonZeroLength(inputs, "Inputs")
+    inputs.forEach((input, index) => {
+        Check.hasProp(input, labels.inputs.name(index), "name")
+        checks.inputs.name(index, input.name)
     })
 }
 
 export default {
     config,
     setts,
-    column,
+    input,
     labels,
     hints,
     checks,

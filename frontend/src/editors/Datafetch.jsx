@@ -8,6 +8,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Datafetch.js'
 import Check from './Check'
 import Tools from '../items/Tools'
@@ -16,32 +18,39 @@ import { useApp } from '../App'
 function Editor(props) {
     const app = useApp()
     const [setts, setSetts] = useState(Initial.config().setts)
-    const [columns, setColumns] = useState(Initial.config().columns)
+    const [inputs, setInputs] = useState(Initial.config().inputs)
     const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
         setSetts(config.setts || init.setts)
-        setColumns(config.columns || init.columns)
+        setInputs(config.inputs || init.inputs)
     }, [props.id]) //primitive type required
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
-            const config = { setts, columns }
+            const config = { setts, inputs }
             const valid = Check.run(() => Initial.validator(config))
             props.setter({ config, valid })
         }
-    }, [setts, columns])
-    function addColumn() {
-        const next = [...columns]
-        const column = Initial.column(next.length)
-        next.push(column)
-        setColumns(next)
+    }, [setts, inputs])
+    function addInput() {
+        const next = [...inputs]
+        const input = Initial.input(next.length)
+        next.push(input)
+        setInputs(next)
     }
-    function delColumn(index) {
-        if (index < 1 || columns.length < 2) return
-        const next = [...columns]
+    function delInput(index) {
+        if (index < 1 || inputs.length < 2) return
+        const next = [...inputs]
         next.splice(index, 1)
-        setColumns(next)
+        setInputs(next)
+    }
+    function moveInput(index, inc) {
+        const nindex = index + inc
+        if (nindex < 0 || nindex >= inputs.length) return
+        const next = [...inputs]
+        next.splice(nindex, 0, next.splice(index, 1)[0])
+        setInputs(next)
     }
     function settsProps(prop) {
         function setter(name) {
@@ -60,35 +69,44 @@ function Editor(props) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
-    function columnProps(index, prop) {
+    function inputProps(index, prop) {
         function setter(name) {
             return function (value) {
-                const next = [...columns]
+                const next = [...inputs]
                 next[index][name] = value
-                setColumns(next)
+                setInputs(next)
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.columns[prop](index)
-        args.hint = Initial.hints.columns[prop](index)
-        args.value = columns[index][prop]
+        args.label = Initial.labels.inputs[prop](index)
+        args.hint = Initial.hints.inputs[prop](index)
+        args.value = inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.columns[prop](index, value)
-        args.defval = Initial.column()[prop]
+        args.check = (value) => Initial.checks.inputs[prop](index, value)
+        args.defval = Initial.input()[prop]
         return Check.props(args)
     }
-    const rows = columns.map((column, index) =>
+    const rows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td>
                 {index + 1}
             </td>
             <td>
-                <Form.Control type="text" {...columnProps(index, "name")} />
+                <Form.Control type="text" {...inputProps(index, "name")} />
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 1}
-                    onClick={() => delColumn(index)} title="Delete Column">
+                <Button variant='outline-danger' size="sm" disabled={index < 1 || inputs.length < 1}
+                    onClick={() => delInput(index)} title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
+                </Button>
+                &nbsp;
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, +1)}
+                    title="Move Row Down" disabled={index >= inputs.length - 1}>
+                    <FontAwesomeIcon icon={faArrowDown} />
+                </Button>
+                <Button variant='outline-secondary' size="sm" onClick={() => moveInput(index, -1)}
+                    title="Move Row Up" disabled={index < 1}>
+                    <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
             </td>
         </tr>
@@ -158,10 +176,10 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{Initial.labels.column.name}</th>
-                        <th>{Initial.labels.column.color}</th>
+                        <th>{Initial.labels.input.name}</th>
+                        <th>{Initial.labels.input.color}</th>
                         <th>
-                            <Button variant='outline-primary' size="sm" onClick={addColumn} title="Add Column">
+                            <Button variant='outline-primary' size="sm" onClick={addInput} title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />
                             </Button>
                         </th>
