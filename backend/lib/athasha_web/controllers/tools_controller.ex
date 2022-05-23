@@ -75,6 +75,26 @@ defmodule AthashaWeb.ToolsController do
     end
   end
 
+  def get_output(conn, params) do
+    point = params["id"] |> Base.decode64!()
+    [id, _name] = String.split(point, " ", parts: 2)
+    {password, hash} = PubSub.Password.find(id)
+
+    case get_req_header(conn, "access-password") do
+      [] ->
+        case password == "" do
+          true -> text(conn, PubSub.Output.get_value(point))
+          false -> resp(conn, 404, "Not found")
+        end
+
+      [^hash] ->
+        text(conn, PubSub.Output.get_value(point))
+
+      _ ->
+        resp(conn, 404, "Not found")
+    end
+  end
+
   def post_output(conn, params) do
     point = params["id"] |> Base.decode64!()
     [id, _name] = String.split(point, " ", parts: 2)

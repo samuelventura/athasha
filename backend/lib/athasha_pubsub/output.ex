@@ -44,6 +44,17 @@ defmodule Athasha.PubSub.Output do
     Bus.dispatch!({@key, id}, {name, value})
   end
 
+  def get_value(iid) do
+    match = {{@key, iid}, :_, :"$1"}
+    select = {{:"$1"}}
+    query = [{match, [], [select]}]
+
+    case Store.select(query) do
+      [{value}] -> value
+      [] -> nil
+    end
+  end
+
   def get_values(id) do
     match = {{@key, id, :"$1"}, :_, :"$2"}
     select = {{:"$1", :"$2"}}

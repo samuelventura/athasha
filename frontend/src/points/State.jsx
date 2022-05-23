@@ -35,7 +35,9 @@ function reducer(state, { name, args, self }) {
       })
       args.ovalues.forEach(point => {
         next.ovalues[point.name] = point.value
-        next.values[point.name] = "0"
+        //explicit initialization to avoid
+        //mobile unsolicited writes
+        next.values[point.name] = ""
       })
       return next
     }

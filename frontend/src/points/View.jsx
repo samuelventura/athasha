@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Dropdown from 'react-bootstrap/Dropdown'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Clipboard from '../tools/Clipboard'
 import numeral from 'numeral'
@@ -15,9 +17,13 @@ function View() {
     function onCopyId(point) {
         Clipboard.copyText(point)
     }
-    function onGet(point) {
+    function onGetInput(point) {
         const id = btoa(point)
-        window.open(`api/point?id=${id}`, '_blank').focus();
+        window.open(`api/input?id=${id}`, '_blank').focus();
+    }
+    function onGetOutput(point) {
+        const id = btoa(point)
+        window.open(`api/output?id=${id}`, '_blank').focus();
     }
     function formatFloat(value) {
         if (value == null) return null; //for outputs
@@ -31,8 +37,15 @@ function View() {
             <td title={point}>{name}</td>
             <td>{formatFloat(app.state.ivalues[name])}</td>
             <td>
-                <Button variant="link" onClick={() => onGet(point)}>GET</Button>
-                <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
+                <Dropdown as={ButtonGroup}>
+                    <Button variant="link" onClick={() => onGetInput(point)}>
+                        GET
+                    </Button>
+                    <Dropdown.Toggle split variant="link" />
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => onCopyId(point)}>Copy ID</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </td>
         </tr>
     })
@@ -53,14 +66,22 @@ function View() {
             <td>{formatFloat(ovalue)}</td>
             <td>
                 <Row>
-                    <Col>
+                    <Col className='col-8'>
                         <InputGroup>
                             <Form.Control type="text" value={value} onChange={(e) => setValue(e.target.value)}></Form.Control>
                             <Button onClick={() => onSend(value)} disabled={disabled}>Send</Button>
                         </InputGroup>
                     </Col>
                     <Col>
-                        <Button variant="link" onClick={() => onCopyId(point)}>Copy ID</Button>
+                        <Dropdown as={ButtonGroup}>
+                            <Button variant="link" onClick={() => onGetOutput(point)}>
+                                GET
+                            </Button>
+                            <Dropdown.Toggle split variant="link" />
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={() => onCopyId(point)}>Copy ID</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </Col>
                 </Row>
             </td>

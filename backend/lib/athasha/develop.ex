@@ -39,6 +39,23 @@ defmodule Athasha.Develop do
     {res.status_code, res.body}
   end
 
+  def get_output(point, password \\ "") do
+    [id, _name] = String.split(point, " ", parts: 2)
+    env = Application.get_env(:athasha, Endpoint)
+    http = Keyword.get(env, :http)
+    port = Keyword.get(http, :port)
+    path = Router.Helpers.tools_path(Endpoint, :get_output)
+    url = "http://localhost:#{port}#{path}?id=#{Base.encode64(point)}"
+
+    res =
+      case password do
+        "" -> HTTPoison.get!(url)
+        _ -> HTTPoison.get!(url, "access-password": Crypto.sha1("#{id}:#{password}"))
+      end
+
+    {res.status_code, res.body}
+  end
+
   def post_output(point, value, password \\ "") do
     [id, _name] = String.split(point, " ", parts: 2)
     env = Application.get_env(:athasha, Endpoint)
