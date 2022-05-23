@@ -56,7 +56,7 @@ function View() {
         const disabled = !(typeof value === 'string' && value.trim().length > 0 && isFinite(value))
         function onSend(value) {
             value = Number(value) //support 0xFF
-            app.send({ name: "output", args: { name, value } })
+            app.send({ name: "write", args: { name, value } })
         }
         function setValue(value) {
             app.dispatch({ name: "value", args: { name, value } })

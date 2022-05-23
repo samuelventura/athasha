@@ -47,6 +47,9 @@ function csetts() {
         height: '1',
         input: "",
         output: "",
+        click: "Fixed Value",
+        value: "0",
+        prompt: "",
     }
 }
 
@@ -83,6 +86,9 @@ const clabels = {
     height: "Height",
     input: "Input",
     output: "Output",
+    click: "On Click",
+    value: "Fixed Value",
+    prompt: "Value Prompt",
 }
 
 const chints = {
@@ -92,6 +98,9 @@ const chints = {
     height: "Non empty integer > 0",
     input: "Select optional input from list",
     output: "Select optional output from list",
+    click: "Select on click action",
+    value: "Non empty fixed value number",
+    prompt: "Optional value prompt",
 }
 
 const cchecks = {
@@ -122,6 +131,17 @@ const cchecks = {
     },
     output: function (value) {
         Check.isString(value, labels.output)
+    },
+    click: function (value) {
+        Check.isString(value, labels.click)
+        Check.notEmpty(value, labels.click)
+    },
+    value: function (value) {
+        Check.isString(value, labels.value)
+        Check.notEmpty(value, labels.value)
+    },
+    prompt: function (value) {
+        Check.isString(value, labels.prompt)
     },
 }
 
@@ -246,6 +266,12 @@ function validator({ setts, controls }) {
         cchecks.input(control.setts.input)
         Check.hasProp(control.setts, clabel, "output")
         cchecks.output(control.setts.output)
+        Check.hasProp(control.setts, clabel, "click")
+        cchecks.click(control.setts.click)
+        Check.hasProp(control.setts, clabel, "value")
+        cchecks.value(control.setts.value)
+        Check.hasProp(control.setts, clabel, "prompt")
+        cchecks.prompt(control.setts.prompt)
         const controller = Controls.getController(control.type)
         const validator = controller.Validator
         if (validator) validator(control)

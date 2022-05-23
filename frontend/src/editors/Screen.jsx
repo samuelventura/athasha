@@ -470,6 +470,18 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                                 {Points.options(globals.outputs)}
                             </Form.Select>
                         </FormEntry>
+                        <FormEntry label={Initial.clabels.click}>
+                            <Form.Select {...settsProps("click")} >
+                                <option value="Fixed Value">Fixed Value</option>
+                                <option value="Value Prompt">Value Prompt</option>
+                            </Form.Select>
+                        </FormEntry>
+                        <FormEntry label={Initial.clabels.value}>
+                            <Form.Control type="number" {...settsProps("value")} />
+                        </FormEntry>
+                        <FormEntry label={Initial.clabels.prompt}>
+                            <Form.Control type="text" {...settsProps("prompt")} />
+                        </FormEntry>
                     </ListGroup.Item>
                 </ListGroup>
             </Card>

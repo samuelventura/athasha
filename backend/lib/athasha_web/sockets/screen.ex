@@ -4,6 +4,7 @@ defmodule AthashaWeb.Socket.Screen do
   @item "Screen"
   alias Athasha.Bus
   alias Athasha.Auth
+  alias Athasha.Number
   alias Athasha.PubSub
 
   def child_spec(_opts) do
@@ -91,6 +92,14 @@ defmodule AthashaWeb.Socket.Screen do
         resp = %{name: "login", args: args["active"]}
         reply_text(resp, state)
     end
+  end
+
+  defp handle_event(event = %{"name" => "write"}, state = %{logged: true}) do
+    args = event["args"]
+    name = args["name"]
+    value = Number.to_number!(args["value"])
+    Bus.dispatch!({:write, name}, value)
+    {:ok, state}
   end
 
   defp reply_text(resp, state) do

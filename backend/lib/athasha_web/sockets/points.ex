@@ -117,7 +117,7 @@ defmodule AthashaWeb.Socket.Points do
     end
   end
 
-  defp handle_event(event = %{"name" => "output"}, state = %{id: id, logged: true}) do
+  defp handle_event(event = %{"name" => "write"}, state = %{id: id, logged: true}) do
     args = event["args"]
     name = args["name"]
     value = Number.to_number!(args["value"])

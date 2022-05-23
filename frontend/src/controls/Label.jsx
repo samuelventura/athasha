@@ -9,6 +9,7 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Label.js"
 import Check from '../editors/Check'
+import styles from "./Label.css"
 
 function CondEditor({ cond, setProp, captured, setCaptured }) {
     function fieldProps(prop) {
@@ -194,7 +195,7 @@ function Editor({ control, setProp, captured, setCaptured }) {
     )
 }
 
-function Renderer({ control, size, inputs }) {
+function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -211,7 +212,7 @@ function Renderer({ control, size, inputs }) {
         }
     }
     const radious = `${data.brRadius * 100}%`
-    const halfBorder = Math.ceil(data.brWidth / 2)
+    const halfBorder = Math.ceil(data.brWidth / 2) + 2
     const fullBorder = 2 * halfBorder
 
     let text = data.text
@@ -282,8 +283,16 @@ function Renderer({ control, size, inputs }) {
         }
     }
 
+    const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     return (
-        <svg>
+        <svg filter={filter}>
+            <filter id='hover' colorInterpolationFilters="sRGB">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.5" floodColor={hoverColor} />
+            </filter>
+            <filter id='pressed' colorInterpolationFilters="sRGB">
+                <feOffset in="SourceGraphic" dx="2" dy="2" />
+                <feDropShadow dx="1" dy="1" stdDeviation="3" floodOpacity="0.5" floodColor={hoverColor} />
+            </filter>
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                 fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
             <text x={x} y="50%" dominantBaseline="central" fill={fgColor}

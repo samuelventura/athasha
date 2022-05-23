@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 import Controls from '../editors/Controls'
 import { useApp } from '../App'
@@ -50,22 +50,60 @@ function calcGeom(parent, setts) {
     return { gx, gy, sx, sy, W, H, vb, vp }
 }
 
-function SvgWindow({ setts, controls, inputs }) {
+function SvgWindow({ setts, controls, inputs, send }) {
+    const [hover, setHover] = useState(null)
+    const [pressed, setPressed] = useState(null)
     const { ref, width, height } = useResizeDetector()
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
     const { H, W, vb, sx, sy } = calcGeom(parent, setts)
     const controlList = controls.map((control, index) => {
-        const setts = control.setts
-        const x = setts.posX * sx
-        const y = setts.posY * sy
-        const w = setts.width * sx
-        const h = setts.height * sy
+        const csetts = control.setts
+        const x = csetts.posX * sx
+        const y = csetts.posY * sy
+        const w = csetts.width * sx
+        const h = csetts.height * sy
         const size = { width: w, height: h }
+        const output = control.setts.output
+        const hasHover = output && hover === index
+        const hoverColor = setts.hvColor
+        const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
-        const controlInstance = controller.Renderer({ control, size, inputs })
+        const controlInstance = controller.Renderer({ control, size, inputs, isPressed, hasHover, hoverColor })
+        function onMouseAction(action) {
+            switch (action) {
+                case "enter": {
+                    setHover(index)
+                    break
+                }
+                case "leave": {
+                    setHover(null)
+                    setPressed(null)
+                    break
+                }
+                case "down": {
+                    setPressed(index)
+                    break
+                }
+                case "up": {
+                    if (isPressed) {
+                        const name = output
+                        const value = control.setts.value
+                        send({ name: "write", args: { name, value } })
+                    }
+                    setPressed(null)
+                    break
+                }
+            }
+        }
+        const hoverStyle = hasHover ? { cursor: "pointer" } : {}
         return (
-            <svg key={index} x={x} y={y} width={w} height={h}>
+            <svg version="1.1" key={index} x={x} y={y} width={w} height={h}
+                onMouseEnter={() => onMouseAction("enter")}
+                onMouseLeave={() => onMouseAction("leave")}
+                onMouseDown={() => onMouseAction("down")}
+                onMouseUp={() => onMouseAction("up")}
+                style={hoverStyle}>
                 {controlInstance}
             </svg>
         )
@@ -80,10 +118,12 @@ function SvgWindow({ setts, controls, inputs }) {
 
 function View() {
     const app = useApp()
+    const send = app.send
     const setts = app.state.setts
     const controls = app.state.controls
     const inputs = app.state.inputs
-    return <SvgWindow setts={setts} controls={controls} inputs={inputs} />
+    const props = { setts, controls, inputs, send }
+    return <SvgWindow {...props} />
 }
 
 export default View
