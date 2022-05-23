@@ -4,6 +4,7 @@ defmodule Athasha.Runner.Modbus do
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Number
+  alias Athasha.Item
   alias Athasha.Bus
   @status 1000
 
@@ -56,7 +57,7 @@ defmodule Athasha.Runner.Modbus do
       end)
 
     config = %{
-      item: Map.take(item, [:id, :name, :type]),
+      item: Item.head(item),
       trans: trans,
       proto: proto,
       host: host,

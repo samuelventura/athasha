@@ -3,6 +3,7 @@ defmodule Athasha.Runner.Laurel do
   alias Athasha.Slave
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Item
   @status 1000
 
   def run(item) do
@@ -37,7 +38,7 @@ defmodule Athasha.Runner.Laurel do
       end)
 
     config = %{
-      item: Map.take(item, [:id, :name, :type]),
+      item: Item.head(item),
       trans: trans,
       proto: proto,
       host: host,

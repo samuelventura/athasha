@@ -1,7 +1,9 @@
 defmodule Athasha.Runner.Datalog do
   alias Athasha.Raise
   alias Athasha.Ports
+  alias Athasha.Number
   alias Athasha.PubSub
+  alias Athasha.Item
   @status 1000
 
   def run(item) do
@@ -28,7 +30,7 @@ defmodule Athasha.Runner.Datalog do
       end)
 
     config = %{
-      item: Map.take(item, [:id, :name, :type]),
+      item: Item.head(item),
       period: period,
       inputs: inputs,
       database: database,
@@ -89,7 +91,7 @@ defmodule Athasha.Runner.Datalog do
           Raise.error({:missing, id})
         end
 
-        %{value: value, type: type_of(value)}
+        %{value: value, type: Number.type_of(value)}
       end)
 
     dto = %{command: config.command, parameters: parameters}
@@ -101,7 +103,4 @@ defmodule Athasha.Runner.Datalog do
     args = [config.database]
     Ports.open4("database", args)
   end
-
-  defp type_of(value) when is_float(value), do: "float"
-  defp type_of(value) when is_integer(value), do: "integer"
 end

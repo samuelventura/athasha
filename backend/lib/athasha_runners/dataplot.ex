@@ -3,6 +3,7 @@ defmodule Athasha.Runner.Dataplot do
   alias Athasha.Ports
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Item
   @status 1000
 
   def run(item) do
@@ -16,7 +17,7 @@ defmodule Athasha.Runner.Dataplot do
     connstr = String.replace(connstr, "${PASSWORD}", dbpass)
 
     config = %{
-      item: Map.take(item, [:id, :name, :type]),
+      item: Item.head(item),
       password: password,
       database: database,
       connstr: connstr,

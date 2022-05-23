@@ -84,8 +84,9 @@ function EditItem() {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {itemEditor("Datalog")}
                 {itemEditor("Datafetch")}
+                {itemEditor("Datalink")}
+                {itemEditor("Datalog")}
                 {itemEditor("Dataplot")}
                 {itemEditor("Laurel")}
                 {itemEditor("Modbus")}
