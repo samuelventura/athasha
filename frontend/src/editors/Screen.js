@@ -12,7 +12,7 @@ function config() {
 function setts() {
     return {
         password: "",
-        period: "100",
+        period: "25",
         scale: 'fit',
         align: 'center',
         width: '640',
@@ -20,6 +20,7 @@ function setts() {
         gridX: '10',
         gridY: '10',
         bgColor: "#ffffff",
+        hvColor: "#808080",
     }
 }
 
@@ -44,6 +45,8 @@ function csetts() {
         posY: '0',
         width: '1',
         height: '1',
+        input: "",
+        output: "",
     }
 }
 
@@ -57,6 +60,7 @@ const labels = {
     gridX: "Grid X",
     gridY: "Grid Y",
     bgColor: "Background",
+    hvColor: "Hover",
 }
 
 const hints = {
@@ -69,6 +73,7 @@ const hints = {
     gridX: "Non empty integer > 0",
     gridY: "Non empty integer > 0",
     bgColor: "Non empty backgroung color #RRGGBB",
+    hvColor: "Non empty hover color #RRGGBB",
 }
 
 const clabels = {
@@ -76,6 +81,8 @@ const clabels = {
     posY: "Position Y",
     width: "Width",
     height: "Height",
+    input: "Input",
+    output: "Output",
 }
 
 const chints = {
@@ -83,6 +90,8 @@ const chints = {
     posY: "Non empty integer >= 0",
     width: "Non empty integer > 0",
     height: "Non empty integer > 0",
+    input: "Select optional input from list",
+    output: "Select optional output from list",
 }
 
 const cchecks = {
@@ -107,6 +116,12 @@ const cchecks = {
         Check.notEmpty(value, labels.height)
         Check.isInteger(value, labels.height)
         Check.isGE(value, labels.height, 1)
+    },
+    input: function (value) {
+        Check.isString(value, labels.input)
+    },
+    output: function (value) {
+        Check.isString(value, labels.output)
     },
 }
 
@@ -188,6 +203,11 @@ const checks = {
         Check.notEmpty(value, labels.bgColor)
         Check.isColor(value, labels.bgColor)
     },
+    hvColor: function (value) {
+        Check.isString(value, labels.hvColor)
+        Check.notEmpty(value, labels.hvColor)
+        Check.isColor(value, labels.hvColor)
+    },
 }
 
 function validator({ setts, controls }) {
@@ -200,6 +220,7 @@ function validator({ setts, controls }) {
     Check.hasProp(setts, "Setts", "gridX")
     Check.hasProp(setts, "Setts", "gridY")
     Check.hasProp(setts, "Setts", "bgColor")
+    Check.hasProp(setts, "Setts", "hvColor")
     checks.password(setts.password)
     checks.period(setts.period)
     checks.scale(setts.scale)
@@ -209,6 +230,7 @@ function validator({ setts, controls }) {
     checks.gridX(setts.gridX)
     checks.gridY(setts.gridY)
     checks.bgColor(setts.bgColor)
+    checks.bgColor(setts.hvColor)
     Check.isArray(controls, "Controls")
     controls.forEach((control, index) => {
         const clabel = `Control ${index + 1} type ${control.type}`
@@ -220,6 +242,10 @@ function validator({ setts, controls }) {
         cchecks.width(control.setts.width)
         Check.hasProp(control.setts, clabel, "height")
         cchecks.height(control.setts.height)
+        Check.hasProp(control.setts, clabel, "input")
+        cchecks.input(control.setts.input)
+        Check.hasProp(control.setts, clabel, "output")
+        cchecks.output(control.setts.output)
         const controller = Controls.getController(control.type)
         const validator = controller.Validator
         if (validator) validator(control)

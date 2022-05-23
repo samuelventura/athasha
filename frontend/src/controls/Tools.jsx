@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form'
 function FormEntry({ label, children }) {
     return (<Form.Group as={Row}>
         <Form.Label column >{label}</Form.Label>
-        <Col style={{ flex: "0 0 16em" }}>
+        <Col style={{ flex: "0 0 20em" }}>
             {children}
         </Col>
     </Form.Group>)

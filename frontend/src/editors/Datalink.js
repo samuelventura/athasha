@@ -9,7 +9,7 @@ function config() {
 
 function setts() {
     return {
-        period: "100",
+        period: "25",
     }
 }
 

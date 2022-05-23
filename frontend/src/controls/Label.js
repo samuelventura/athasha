@@ -17,7 +17,6 @@ function cond() {
 
 function data() {
     return {
-        input: "",
         text: "Label",
         align: "Center",
         fgColor: "#000000",
@@ -35,7 +34,6 @@ function data() {
 }
 
 const dlabels = {
-    input: "Input",
     text: "Text",
     align: "Align",
     fgColor: "Text Color",
@@ -49,7 +47,6 @@ const dlabels = {
 }
 
 const dhints = {
-    input: "Select optional data input from list",
     text: "Default text to show on label",
     align: "Label text alignment",
     fgColor: "Non empty text color #RRGGBB",
@@ -63,9 +60,6 @@ const dhints = {
 }
 
 const dchecks = {
-    input: function (value) {
-        Check.isString(value, dlabels.input)
-    },
     text: function (value) {
         Check.isString(value, dlabels.text)
     },

@@ -8,7 +8,6 @@ import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Label.js"
-import Points from '../items/Points'
 import Check from '../editors/Check'
 
 function CondEditor({ cond, setProp, captured, setCaptured }) {
@@ -85,7 +84,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         </>)
 }
 
-function Editor({ control, setProp, captured, setCaptured, globals }) {
+function Editor({ control, setProp, captured, setCaptured }) {
     const data = control.data
     function setCondProp(cond) {
         return function (name, value) {
@@ -111,10 +110,6 @@ function Editor({ control, setProp, captured, setCaptured, globals }) {
     }
     return (
         <>
-            <Form.Select {...fieldProps("input")} >
-                <option value=""></option>
-                {Points.options(globals.inputs)}
-            </Form.Select>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
                     <FormEntry label={Initial.dlabels.text}>
@@ -265,7 +260,7 @@ function Renderer({ control, size, inputs }) {
     //null while editing
     if (inputs) {
         //decimals received as strings
-        const iid = data.input
+        const iid = control.setts.input
         if (iid) {
             //Number(null) -> 0
             //Number(undefined) -> NaN
@@ -303,13 +298,9 @@ function Validator(control) {
     Initial.validate(control)
 }
 
-function InputExtractor(data, add) {
-    if (data.input) add(data.input)
-}
-
 const Type = "Label"
 const Init = Initial.data
 
-const Label = { Type, Init, Editor, Renderer, Validator, InputExtractor }
+const Label = { Type, Init, Editor, Renderer, Validator }
 
 export default Label

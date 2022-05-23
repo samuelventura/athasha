@@ -15,6 +15,7 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
+import Points from '../items/Points'
 import Controls from './Controls'
 import Initial from './Screen.js'
 import Check from './Check'
@@ -371,6 +372,12 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
                             <Form.Control type="text" {...settsProps("bgColor")} />
                         </InputGroup>
                     </FormEntry>
+                    <FormEntry label={Initial.labels.hvColor}>
+                        <InputGroup>
+                            <Form.Control type="color" {...settsProps("hvColor")} />
+                            <Form.Control type="text" {...settsProps("hvColor")} />
+                        </InputGroup>
+                    </FormEntry>
                 </ListGroup.Item>
             </ListGroup>
         </Card>)
@@ -451,6 +458,18 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                         <FormEntry label={Initial.clabels.height}>
                             <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
                         </FormEntry>
+                        <FormEntry label={Initial.clabels.input}>
+                            <Form.Select {...settsProps("input")} >
+                                <option value=""></option>
+                                {Points.options(globals.inputs)}
+                            </Form.Select>
+                        </FormEntry>
+                        <FormEntry label={Initial.clabels.output}>
+                            <Form.Select {...settsProps("output")} >
+                                <option value=""></option>
+                                {Points.options(globals.outputs)}
+                            </Form.Select>
+                        </FormEntry>
                     </ListGroup.Item>
                 </ListGroup>
             </Card>
@@ -520,13 +539,9 @@ function Editor(props) {
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const inputs = controls.reduce((inputs, control) => {
-                const inputExtractor = Controls.getController(control.type).InputExtractor
-                if (inputExtractor) {
-                    inputExtractor(control.data, (id) => {
-                        if (inputs.indexOf(id) < 0) {
-                            inputs.push(id)
-                        }
-                    })
+                const input = control.setts.input
+                if (input.trim().length > 0) {
+                    inputs.push(input)
                 }
                 return inputs
             }, [])
@@ -605,7 +620,7 @@ function Editor(props) {
             }
         }
     }
-    const rightStyle = right ? { flex: "0 0 28em", overflowY: "auto" } : {}
+    const rightStyle = right ? { flex: "0 0 32em", overflowY: "auto" } : {}
     const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}
     const previewControl = <PreviewControl
         preview={preview}
