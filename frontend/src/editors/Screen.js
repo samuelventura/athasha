@@ -45,6 +45,7 @@ function csetts() {
         posY: '0',
         width: '1',
         height: '1',
+        title: "",
         input: "",
         output: "",
         click: "Fixed Value",
@@ -84,6 +85,7 @@ const clabels = {
     posY: "Position Y",
     width: "Width",
     height: "Height",
+    title: "Tooltip",
     input: "Input",
     output: "Output",
     click: "On Click",
@@ -96,11 +98,12 @@ const chints = {
     posY: "Non empty integer >= 0",
     width: "Non empty integer > 0",
     height: "Non empty integer > 0",
+    title: "Optional tooltip",
     input: "Select optional input from list",
     output: "Select optional output from list",
     click: "Select on click action",
     value: "Non empty fixed value number",
-    prompt: "Optional value prompt",
+    prompt: "Non empty value prompt",
 }
 
 const cchecks = {
@@ -125,6 +128,9 @@ const cchecks = {
         Check.notEmpty(value, labels.height)
         Check.isInteger(value, labels.height)
         Check.isGE(value, labels.height, 1)
+    },
+    title: function (value) {
+        Check.isString(value, labels.title)
     },
     input: function (value) {
         Check.isString(value, labels.input)
@@ -263,6 +269,8 @@ function validator({ setts, controls }) {
         cchecks.width(control.setts.width)
         Check.hasProp(control.setts, clabel, "height")
         cchecks.height(control.setts.height)
+        Check.hasProp(control.setts, clabel, "title")
+        cchecks.title(control.setts.title)
         Check.hasProp(control.setts, clabel, "input")
         cchecks.input(control.setts.input)
         Check.hasProp(control.setts, clabel, "output")

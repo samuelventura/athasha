@@ -458,6 +458,9 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                         <FormEntry label={Initial.clabels.height}>
                             <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
                         </FormEntry>
+                        <FormEntry label={Initial.clabels.title}>
+                            <Form.Control type="text" {...settsProps("title")} />
+                        </FormEntry>
                         <FormEntry label={Initial.clabels.input}>
                             <Form.Select {...settsProps("input")} >
                                 <option value=""></option>

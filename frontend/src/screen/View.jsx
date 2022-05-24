@@ -118,6 +118,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
     const { H, W, vb, sx, sy } = calcGeom(parent, setts)
+    const background = setts.bgColor
     const controlList = controls.map((control, index) => {
         const csetts = control.setts
         const x = csetts.posX * sx
@@ -130,7 +131,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const hoverColor = setts.hvColor
         const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
-        const controlInstance = controller.Renderer({ control, size, inputs, isPressed, hasHover, hoverColor })
+        const controlInstance = controller.Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
             switch (action) {
                 case "enter": {
@@ -180,7 +181,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         )
     })
     return (<svg ref={ref} width="100%" height="100%">
-        <rect width="100%" height="100%" fill={setts.bgColor} />
+        <rect width="100%" height="100%" fill={background} />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
             {controlList}
         </svg>

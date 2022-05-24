@@ -2,6 +2,8 @@ import React from 'react'
 import numeral from 'numeral'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
@@ -194,7 +196,7 @@ function Editor({ control, setProp, captured, setCaptured }) {
     )
 }
 
-function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor }) {
+function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, background }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -217,6 +219,10 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor }) {
     let text = data.text
     let brColor = data.brColor
     let fgColor = data.fgColor
+    //passing background as default instead of none
+    //puts am ugly shadow rectangle in non rounded labels
+    //non passing a default background restricts the 
+    //mouse action to the drawn paths instead of the whole area
     let bgColor = data.bgEnabled ? data.bgColor : "none"
 
     function evalCondition(cond, value) {
@@ -283,22 +289,29 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor }) {
     }
 
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
+    const overlay = <Tooltip>{control.setts.title}</Tooltip>
+    const trigger = control.setts.title ? ['hover', 'focus'] : []
     return (
-        <svg filter={filter}>
-            <filter id='hover' colorInterpolationFilters="sRGB">
-                <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.5" floodColor={hoverColor} />
-            </filter>
-            <filter id='pressed' colorInterpolationFilters="sRGB">
-                <feOffset in="SourceGraphic" dx="2" dy="2" />
-                <feDropShadow dx="1" dy="1" stdDeviation="3" floodOpacity="0.5" floodColor={hoverColor} />
-            </filter>
-            <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
-            <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
-                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
-                {text}
-            </text>
-        </svg>
+        <OverlayTrigger
+            placement="bottom"
+            overlay={overlay}
+            trigger={trigger}
+        >
+            <svg filter={filter} title={control.setts.title}>
+                <filter id='hover' colorInterpolationFilters="sRGB">
+                    <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.5" floodColor={hoverColor} />
+                </filter>
+                <filter id='pressed' colorInterpolationFilters="sRGB">
+                    <feOffset in="SourceGraphic" dx="1" dy="1" />
+                </filter>
+                <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
+                    fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
+                <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
+                    textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
+                    {text}
+                </text>
+            </svg>
+        </OverlayTrigger >
     )
 }
 
