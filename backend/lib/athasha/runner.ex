@@ -17,7 +17,7 @@ defmodule Athasha.Runner do
   end
 
   def init(_initial) do
-    Bus.register!(:items)
+    Bus.register!(:version)
     {:ok, _} = Runners.start_link()
     all = Server.all()
     items = all.items |> Enum.into(%{}, &{&1.id, &1})
@@ -27,11 +27,11 @@ defmodule Athasha.Runner do
     {:ok, state}
   end
 
-  def handle_info({:items, nil, {:init, _items}}, state) do
+  def handle_info({:version, nil, :init}, state) do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {_from, version, muta, item}}, state) do
+  def handle_info({:version, nil, {_from, version, muta, item}}, state) do
     state =
       case state.version + 1 do
         ^version -> apply_muta(version, muta, item, state)

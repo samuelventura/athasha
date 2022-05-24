@@ -18,11 +18,11 @@ function clone_object(object) {
 
 function reducer(state, { name, args, self }) {
   switch (name) {
-    case "view": {
+    case "init": {
       const next = clone_object(state)
       next.id = args.id
       next.name = args.name
-      next.status = {}
+      next.status = args.status
       next.setts = args.config.setts
       next.controls = args.config.controls
       next.inputs = {}

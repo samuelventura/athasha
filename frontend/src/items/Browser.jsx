@@ -97,7 +97,7 @@ function Browser() {
                         </th>
                         <th>
                             <Dropdown as={ButtonGroup}>
-                                <Button variant="none" disabled>
+                                <Button variant="none" className="pe-none">
                                     <span className="fw-bold">Actions</span>
                                 </Button>
                                 <Dropdown.Toggle split variant="link" />

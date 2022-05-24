@@ -3,10 +3,12 @@ defmodule Athasha.PubSub.Password do
   alias Athasha.Crypto
 
   @key :password
-  @list [{{{@key, :"$1", :"$2"}, :"$3", :"$4"}, [], [{{:"$1", :"$2", :"$3", :"$4"}}]}]
 
   def list() do
-    Store.select(@list)
+    match = {{@key, :"$1"}, :"$2", {:"$3", :_}}
+    select = {{:"$1", :"$2", :"$3"}}
+    query = [{match, [], [select]}]
+    Store.select(query)
   end
 
   def register!(item, password) do

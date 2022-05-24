@@ -20,10 +20,10 @@ defmodule Athasha.Server do
 
   def init(_initial) do
     items = Repo.all(Item)
-    items |> Enum.each(fn item -> PubSub.Item.register!(Item.strip(item)) end)
+    items |> Enum.each(fn item -> PubSub.Item.register!(item) end)
     items = items |> Enum.into(%{}, &{&1.id, &1})
     state = %{version: 0, items: items}
-    PubSub.Items.register!(strip_map(items))
+    PubSub.Version.register!()
     check = Process.send_after(self(), :check, 0)
     state = Map.put(state, :check, check)
     {:ok, state}
@@ -164,23 +164,22 @@ defmodule Athasha.Server do
     items =
       case action do
         :set ->
-          PubSub.Item.register!(Item.strip(item))
+          PubSub.Item.register!(item)
           Map.put(items, id, item)
 
         :put ->
-          PubSub.Item.update!(Item.strip(item))
+          PubSub.Item.update!(item)
           Map.put(items, id, item)
 
         :del ->
-          PubSub.Item.unregister!(Item.strip(item))
+          PubSub.Item.unregister!(item)
           Map.delete(items, id)
       end
 
     version = state.version + 1
     state = Map.put(state, :items, items)
     item = Item.strip(item)
-    items = strip_map(items)
-    PubSub.Items.update!(items, version, item, from, muta)
+    PubSub.Version.update!(version, item, from, muta)
     Map.put(state, :version, version)
   end
 

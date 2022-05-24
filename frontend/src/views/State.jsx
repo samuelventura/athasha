@@ -9,7 +9,7 @@ function initial() {
   }
 }
 
-function status(type, msg) {
+function build_status(type, msg) {
   return { msg, type }
 }
 
@@ -27,7 +27,7 @@ function version_state(next) {
 
 function reducer(state, { name, args, self }) {
   switch (name) {
-    case "all": {
+    case "init": {
       const next = clone_object(state)
       next.items = {}
       next.status = {}
@@ -35,6 +35,9 @@ function reducer(state, { name, args, self }) {
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
+      })
+      args.status.forEach(status => {
+        next.status[status.id] = build_status(status.type, status.msg)
       })
       return version_state(next)
     }
@@ -59,7 +62,7 @@ function reducer(state, { name, args, self }) {
     case "status": {
       const next = clone_object(state)
       if (next.items[args.id]) {
-        next.status[args.id] = status(args.type, args.msg)
+        next.status[args.id] = build_status(args.type, args.msg)
       }
       return version_state(next)
     }

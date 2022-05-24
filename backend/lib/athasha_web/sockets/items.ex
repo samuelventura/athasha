@@ -4,6 +4,7 @@ defmodule AthashaWeb.Socket.Items do
   alias Athasha.Bus
   alias Athasha.Auth
   alias Athasha.Server
+  alias Athasha.PubSub
   alias Athasha.Globals
   alias Athasha.Environ
 
@@ -41,18 +42,25 @@ defmodule AthashaWeb.Socket.Items do
   end
 
   def handle_info(:logged, state) do
-    case state.id do
-      nil -> Bus.register!(:status)
-      id -> Bus.register!({:status, id})
-    end
+    status =
+      case state.id do
+        nil ->
+          Bus.register!(:status)
+          PubSub.Status.get_all()
 
-    Bus.register!(:items)
+        id ->
+          Bus.register!({:status, id})
+          [PubSub.Status.get_one(id)]
+      end
+
+    Bus.register!(:version)
     Bus.register!(:logout)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = Globals.find_all()
     args = Map.put(args, :items, all.items)
-    resp = %{name: "all", args: args}
+    args = Map.put(args, :status, status)
+    resp = %{name: "init", args: args}
     reply_text(resp, state)
   end
 
@@ -60,11 +68,11 @@ defmodule AthashaWeb.Socket.Items do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {:init, _items}}, state) do
+  def handle_info({:version, nil, :init}, state) do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {from, version, muta, _item}}, state) do
+  def handle_info({:version, nil, {from, version, muta, _item}}, state) do
     case state.version + 1 do
       ^version ->
         args = muta.args

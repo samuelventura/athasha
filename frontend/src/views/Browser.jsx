@@ -46,7 +46,7 @@ function Browser() {
                                 onSortChange={handleSortChange} />
                         </th>
                         <th>
-                            <Button variant="none" disabled>
+                            <Button variant="none" className="pe-none">
                                 <span className="fw-bold">Actions</span>
                             </Button>
                         </th>

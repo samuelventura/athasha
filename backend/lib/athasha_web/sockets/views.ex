@@ -4,6 +4,7 @@ defmodule AthashaWeb.Socket.Views do
   alias Athasha.Bus
   alias Athasha.Item
   alias Athasha.Server
+  alias Athasha.PubSub
   alias Athasha.Globals
 
   def child_spec(_opts) do
@@ -34,22 +35,24 @@ defmodule AthashaWeb.Socket.Views do
   end
 
   def handle_info(:logged, state) do
+    status = PubSub.Status.get_all()
     Bus.register!(:status)
-    Bus.register!(:items)
+    Bus.register!(:version)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = %{addresses: Globals.find_addresses()}
     items = Enum.map(all.items, &Item.head(&1))
     args = Map.put(args, :items, items)
-    resp = %{name: "all", args: args}
+    args = Map.put(args, :status, status)
+    resp = %{name: "init", args: args}
     reply_text(resp, state)
   end
 
-  def handle_info({:items, nil, {:init, _items}}, state) do
+  def handle_info({:version, nil, :init}, state) do
     {:stop, :init, state}
   end
 
-  def handle_info({:items, nil, {_from, version, muta, item}}, state) do
+  def handle_info({:version, nil, {_from, version, muta, item}}, state) do
     # do not handle "edit" in separated method without updateing state version
     case state.version + 1 do
       ^version ->

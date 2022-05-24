@@ -20,7 +20,7 @@ function initial() {
   }
 }
 
-function status(type, msg) {
+function build_status(type, msg) {
   return { msg, type }
 }
 
@@ -64,7 +64,7 @@ function setup_editor(next) {
 
 function reducer(state, { name, args, self, restore }) {
   switch (name) {
-    case "all": {
+    case "init": {
       const next = clone_object(state)
       next.items = {}
       next.status = {}
@@ -75,6 +75,9 @@ function reducer(state, { name, args, self, restore }) {
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
+      })
+      args.status.forEach(status => {
+        next.status[status.id] = build_status(status.type, status.msg)
       })
       setup_editor(next)
       update_points(next)
@@ -109,7 +112,7 @@ function reducer(state, { name, args, self, restore }) {
     case "enable": {
       const next = clone_object(state)
       next.items[args.id].enabled = args.enabled
-      next.status[args.id] = status("info", args.enabled ? "Enabled" : "Disabled")
+      next.status[args.id] = build_status("info", args.enabled ? "Enabled" : "Disabled")
       return version_state(next)
     }
     case "edit": {
@@ -125,7 +128,7 @@ function reducer(state, { name, args, self, restore }) {
     case "status": {
       const next = clone_object(state)
       if (next.items[args.id]) {
-        next.status[args.id] = status(args.type, args.msg)
+        next.status[args.id] = build_status(args.type, args.msg)
       }
       return version_state(next)
     }

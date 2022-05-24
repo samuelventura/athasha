@@ -33,7 +33,7 @@ defmodule AthashaWeb.Socket.Points do
   end
 
   # disconnect on any item enable|delete event
-  def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
+  def handle_info({{:version, _id}, nil, {_from, _version, muta, _item}}, state) do
     case muta.name do
       "enable" -> {:stop, :update, state}
       "delete" -> {:stop, :update, state}
@@ -59,14 +59,16 @@ defmodule AthashaWeb.Socket.Points do
   end
 
   def handle_info(:logged, state = %{id: id, item: item}) do
+    status = PubSub.Status.get_one(id)
     Bus.register!({:error, id})
     Bus.register!({:status, id})
     Bus.register!({:input, id})
     Bus.register!({:output, id})
-    Bus.register!({:items, id})
+    Bus.register!({:version, id})
 
     args = %{
       id: id,
+      status: status,
       type: item.type,
       name: item.name,
       ivalues: PubSub.Input.get_values(id) |> Enum.map(&initial_point/1),
@@ -75,7 +77,7 @@ defmodule AthashaWeb.Socket.Points do
       onames: PubSub.Output.get_names(id)
     }
 
-    resp = %{name: "view", args: args}
+    resp = %{name: "init", args: args}
     state = Map.put(state, :type, item.type)
     reply_text(resp, state)
   end

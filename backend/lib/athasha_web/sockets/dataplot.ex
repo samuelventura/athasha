@@ -33,7 +33,7 @@ defmodule AthashaWeb.Socket.Dataplot do
   end
 
   # disconnect on any item enable|delete event
-  def handle_info({{:items, _id}, nil, {_from, _version, muta, _item}}, state) do
+  def handle_info({{:version, _id}, nil, {_from, _version, muta, _item}}, state) do
     case muta.name do
       "enable" -> {:stop, :update, state}
       "delete" -> {:stop, :update, state}
@@ -53,13 +53,14 @@ defmodule AthashaWeb.Socket.Dataplot do
 
   def handle_info(:logged, state = %{id: id}) do
     item = PubSub.Runner.find(id)
+    status = PubSub.Status.get_one(id)
     Bus.register!({:error, id})
     Bus.register!({:status, id})
-    Bus.register!({:items, id})
+    Bus.register!({:version, id})
     Bus.register!({:dataplot, self()})
     config = item.config
-    args = %{id: id, type: item.type, name: item.name, config: config}
-    resp = %{name: "view", args: args}
+    args = %{id: id, type: item.type, name: item.name, config: config, status: status}
+    resp = %{name: "init", args: args}
     reply_text(resp, state)
   end
 

@@ -15,7 +15,7 @@ function Header(props) {
     return (
         <div>
             {/* button just to match actions style */}
-            <Button variant="none" disabled>
+            <Button variant="none" className="pe-none">
                 <span className="fw-bold">Name</span>
             </Button>
             <span>
