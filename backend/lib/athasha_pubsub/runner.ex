@@ -14,17 +14,24 @@ defmodule Athasha.PubSub.Runner do
 
   def register!(item) do
     Store.register!({@key, item.id}, Item.head(item))
-    Store.register!({@keyc, item.id}, Item.strip(item))
+    Store.register!({@keyc, item.id}, item.config)
   end
 
-  def find(id) do
-    case Store.lookup({@keyc, id}) do
+  def get_head(id) do
+    case Store.lookup({@key, id}) do
       [{_, item}] -> item
       [] -> nil
     end
   end
 
-  def pid(id) do
+  def get_config(id) do
+    case Store.lookup({@keyc, id}) do
+      [{_, config}] -> config
+      [] -> nil
+    end
+  end
+
+  def get_pid(id) do
     q = [{{{@key, id}, :"$1", :_}, [], [{{:"$1"}}]}]
 
     case Store.select(q) do

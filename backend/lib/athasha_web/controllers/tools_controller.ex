@@ -58,7 +58,7 @@ defmodule AthashaWeb.ToolsController do
   def get_input(conn, params) do
     point = params["id"] |> Base.decode64!()
     [id, _name] = String.split(point, " ", parts: 2)
-    {password, hash} = PubSub.Password.find(id)
+    {password, hash} = PubSub.Password.get_pair(id)
 
     case get_req_header(conn, "access-password") do
       [] ->
@@ -78,7 +78,7 @@ defmodule AthashaWeb.ToolsController do
   def get_output(conn, params) do
     point = params["id"] |> Base.decode64!()
     [id, _name] = String.split(point, " ", parts: 2)
-    {password, hash} = PubSub.Password.find(id)
+    {password, hash} = PubSub.Password.get_pair(id)
 
     case get_req_header(conn, "access-password") do
       [] ->
@@ -98,7 +98,7 @@ defmodule AthashaWeb.ToolsController do
   def post_output(conn, params) do
     point = params["id"] |> Base.decode64!()
     [id, _name] = String.split(point, " ", parts: 2)
-    {password, hash} = PubSub.Password.find(id)
+    {password, hash} = PubSub.Password.get_pair(id)
     {:ok, value, conn} = read_body(conn)
     value = Number.to_number!(value)
 

@@ -147,7 +147,7 @@ defmodule Athasha.Runner do
   end
 
   defp join_runner(id) do
-    case PubSub.Runner.pid(id) do
+    case PubSub.Runner.get_pid(id) do
       nil ->
         :ok
 

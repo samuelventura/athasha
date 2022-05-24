@@ -95,7 +95,8 @@ defmodule AthashaWeb.Socket.Points do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    item = PubSub.Runner.find(id)
+    item = PubSub.Runner.get_head(id)
+    config = PubSub.Runner.get_config(id)
 
     type =
       case item do
@@ -103,7 +104,8 @@ defmodule AthashaWeb.Socket.Points do
         _ -> item.type
       end
 
-    password = PubSub.Password.find_typed(id, type)
+    item = Map.put(item, :config, config)
+    password = PubSub.Password.get_typed(id, type)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

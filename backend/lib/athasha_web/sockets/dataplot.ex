@@ -52,13 +52,13 @@ defmodule AthashaWeb.Socket.Dataplot do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = PubSub.Runner.find(id)
+    item = PubSub.Runner.get_head(id)
+    config = PubSub.Runner.get_config(id)
     status = PubSub.Status.get_one(id)
     Bus.register!({:error, id})
     Bus.register!({:status, id})
     Bus.register!({:version, id})
     Bus.register!({:dataplot, self()})
-    config = item.config
     args = %{id: id, type: item.type, name: item.name, config: config, status: status}
     resp = %{name: "init", args: args}
     reply_text(resp, state)
@@ -77,7 +77,7 @@ defmodule AthashaWeb.Socket.Dataplot do
   defp handle_event(event = %{"name" => "login"}, state = %{id: id, logged: false}) do
     args = event["args"]
     session = args["session"]
-    password = PubSub.Password.find_typed(id, @item)
+    password = PubSub.Password.get_typed(id, @item)
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

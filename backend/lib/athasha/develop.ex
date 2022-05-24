@@ -72,4 +72,9 @@ defmodule Athasha.Develop do
 
     {res.status_code, res.body}
   end
+
+  def kill_name(name, reason \\ :kill) do
+    pid = Process.whereis(name)
+    Process.exit(pid, reason)
+  end
 end

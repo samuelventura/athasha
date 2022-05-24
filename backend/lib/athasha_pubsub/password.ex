@@ -16,14 +16,14 @@ defmodule Athasha.PubSub.Password do
     Store.register!({@key, item.id}, {password, Crypto.sha1("#{item.id}:#{password}")})
   end
 
-  def find_typed(id, type) do
+  def get_typed(id, type) do
     case Store.lookup({@key, id, type}) do
       [{_, password}] -> password
       [] -> nil
     end
   end
 
-  def find(id) do
+  def get_pair(id) do
     case Store.lookup({@key, id}) do
       [{_, {password, hash}}] -> {password, hash}
       [] -> {nil, nil}
