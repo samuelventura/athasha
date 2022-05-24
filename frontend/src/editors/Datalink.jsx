@@ -97,6 +97,12 @@ function Editor(props) {
                 </Form.Select>
             </td>
             <td>
+                <Form.Control type="number" {...linkProps(index, "factor")} />
+            </td>
+            <td>
+                <Form.Control type="number" {...linkProps(index, "offset")} />
+            </td>
+            <td>
                 <Form.Select {...linkProps(index, "output")}>
                     <option value=""></option>
                     {Points.options(props.globals.outputs)}
@@ -134,6 +140,8 @@ function Editor(props) {
                     <tr>
                         <th>#</th>
                         <th>{Initial.labels.link.input}</th>
+                        <th>{Initial.labels.link.factor}</th>
+                        <th>{Initial.labels.link.offset}</th>
                         <th>{Initial.labels.link.output}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addLink}

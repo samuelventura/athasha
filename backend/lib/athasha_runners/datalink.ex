@@ -1,6 +1,7 @@
 defmodule Athasha.Runner.Datalink do
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Number
   alias Athasha.Item
   alias Athasha.Bus
   @status 1000
@@ -13,7 +14,12 @@ defmodule Athasha.Runner.Datalink do
     links =
       Enum.with_index(config["links"])
       |> Enum.map(fn {link, index} ->
-        %{index: index, input: link["input"], output: link["output"]}
+        input = link["input"]
+        output = link["output"]
+        factor = Number.parse_float!(link["factor"])
+        offset = Number.parse_float!(link["offset"])
+        calib = Number.calibrator(factor, offset)
+        %{index: index, input: input, output: output, calib: calib}
       end)
 
     config = %{
@@ -29,7 +35,7 @@ defmodule Athasha.Runner.Datalink do
   end
 
   defp run_loop(item, config, links) do
-    links = wait_once(item, config, links)
+    wait_once(item, config, links)
     run_loop(item, config, links)
   end
 
@@ -38,12 +44,10 @@ defmodule Athasha.Runner.Datalink do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
-        links
 
       :once ->
-        links = run_once(item, config, links)
+        run_once(item, config, links)
         Process.send_after(self(), :once, config.period)
-        links
 
       other ->
         Raise.error({:receive, other})
@@ -51,7 +55,7 @@ defmodule Athasha.Runner.Datalink do
   end
 
   defp run_once(_item, _config, links) do
-    Enum.map(links, fn link ->
+    Enum.each(links, fn link ->
       output = link.output
       input = link.input
       value = PubSub.Input.get_value(input)
@@ -60,11 +64,12 @@ defmodule Athasha.Runner.Datalink do
         Raise.error({:missing, input})
       end
 
-      if value != Map.get(link, :value, nil) do
+      value = link.calib.(value)
+      current = PubSub.Output.get_value(output)
+
+      if value != current do
         Bus.dispatch!({:write, output}, value)
       end
-
-      Map.put(link, :value, value)
     end)
   end
 end

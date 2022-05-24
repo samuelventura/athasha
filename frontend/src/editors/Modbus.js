@@ -239,7 +239,7 @@ const checks = {
             Check.isString(value, labels.inputs.factor(index))
             Check.notEmpty(value, labels.inputs.factor(index))
             Check.isNumber(value, labels.inputs.factor(index))
-            Check.notZero(value, labels.outputs.factor(index))
+            Check.notZero(value, labels.inputs.factor(index))
         },
         offset: function (index, value) {
             Check.isString(value, labels.inputs.offset(index))

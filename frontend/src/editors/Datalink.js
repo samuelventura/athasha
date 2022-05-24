@@ -17,6 +17,8 @@ function link() {
     return {
         input: "",
         output: "",
+        factor: "1",
+        offset: "0",
     }
 }
 
@@ -25,10 +27,14 @@ const labels = {
     link: {
         input: "Input Name",
         output: "Output Name",
+        factor: "Value Factor",
+        offset: "Value Offset",
     },
     links: {
         input: (i) => `Input ${i + 1}`,
         output: (i) => `Output ${i + 1}`,
+        factor: (i) => `Link ${i + 1} Factor`,
+        offset: (i) => `Link ${i + 1} Offset`,
     }
 }
 
@@ -37,6 +43,8 @@ const hints = {
     links: {
         input: (i) => "Select the input name from the list",
         output: (i) => "Select the output name from the list",
+        factor: (i) => "Non zero number m in f(x)=m*x+b",
+        offset: (i) => "Non empty number b in f(x)=m*x+b",
     }
 }
 
@@ -56,6 +64,17 @@ const checks = {
             Check.isString(value, labels.links.output(index))
             Check.notEmpty(value, labels.links.output(index))
         },
+        factor: function (index, value) {
+            Check.isString(value, labels.links.factor(index))
+            Check.notEmpty(value, labels.links.factor(index))
+            Check.isNumber(value, labels.links.factor(index))
+            Check.notZero(value, labels.links.factor(index))
+        },
+        offset: function (index, value) {
+            Check.isString(value, labels.links.offset(index))
+            Check.notEmpty(value, labels.links.offset(index))
+            Check.isNumber(value, labels.links.offset(index))
+        },
     }
 }
 
@@ -67,6 +86,10 @@ function validator({ setts, links }) {
     links.forEach((link, index) => {
         Check.hasProp(link, labels.links.input(index), "input")
         checks.links.input(index, link.input)
+        Check.hasProp(link, labels.links.factor(index), "factor")
+        checks.links.factor(index, link.factor)
+        Check.hasProp(link, labels.links.offset(index), "offset")
+        checks.links.offset(index, link.offset)
         Check.hasProp(link, labels.links.output(index), "output")
         checks.links.output(index, link.output)
     })

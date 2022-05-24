@@ -17,7 +17,10 @@ defmodule Athasha.PubSub.Screen do
   end
 
   def update!(id, input, value) do
-    Store.update!({@key, id, input}, fn _ -> value end)
-    Bus.dispatch!({@key, id}, {input, value})
+    {new, old} = Store.update!({@key, id, input}, fn _ -> value end)
+
+    if new != old do
+      Bus.dispatch!({@key, id}, {input, value})
+    end
   end
 end
