@@ -4,7 +4,7 @@
 
 #define MyAppId "Athasha" 
 #define MyAppName "Athasha"
-#define MyAppVersion "0.1.9"
+#define MyAppVersion "0.2.1"
 #define MyAppPublisher "athasha.io"
 #define MyAppURL "https://athasha.io"
 
