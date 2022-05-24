@@ -28,7 +28,10 @@ defmodule Athasha.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Athasha.Supervisor]
+    # :one_for_one is not reliable
+    # killing store or runner will take down the application
+    # :one_for_all solves that problem
+    opts = [strategy: :one_for_all, name: Athasha.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
