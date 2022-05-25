@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -51,6 +52,9 @@ export default function Buy() {
   function onReset() { setQty(0) }
   return (
     <>
+      <Head>
+        <title>Athasha.IO - Buy</title>
+      </Head>
       <Jumbo title="Transparent Princing">
         <p className="col-md-8 fs-4">{`Flat USD $${cost} per item license.`}</p>
         <ul>

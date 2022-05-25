@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Head from 'next/head'
 import Image from 'next/image'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
@@ -12,6 +13,9 @@ export default function Home() {
   const disabled = id.trim().length == 0
   return (
     <>
+      <Head>
+        <title>Athasha.IO - Home</title>
+      </Head>
       <Jumbo title="Automation Now">
         <p className="col-md-8 fs-4 cursor-pointer">Link plant floor devices to IT services in minutes, not months.</p>
         <ul>

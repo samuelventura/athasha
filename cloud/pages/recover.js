@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import Link from 'next/link'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
@@ -81,6 +82,9 @@ export default function Recover() {
   }
   return (
     <>
+      <Head>
+        <title>Athasha.IO - Recover</title>
+      </Head>
       <Jumbo title="License Recovery">
         <p className="col-md-8 fs-4">Search by Email or by Identity</p>
       </Jumbo>

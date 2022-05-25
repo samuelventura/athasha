@@ -1,10 +1,14 @@
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 
 export default function Privacy() {
   const router = useRouter()
   const { id } = router.query
   return (
     <div>
+      <Head>
+        <title>Athasha.IO - Privacy</title>
+      </Head>
       <h1>Privacy Policy</h1>
 
       <p>

@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 import Table from 'react-bootstrap/Table'
 import { useEffect, useState } from 'react'
 import Jumbo from '../components/jumbo'
@@ -54,6 +55,9 @@ export default function Download() {
   }
   return (
     <>
+      <Head>
+        <title>Athasha.IO - Download</title>
+      </Head>
       <Jumbo title="Download Area">
         <p className="col-md-8 fs-4">Evaluate at your own pace.</p>
       </Jumbo>
