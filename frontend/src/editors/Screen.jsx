@@ -260,7 +260,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
     function onClickScreen() {
         setSelected(Initial.selected())
     }
-    const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" />) : null
+    const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.25" />) : null
     const dragFrame = dragged.index >= 0 ? controlRender(dragged.frame, -1) : null
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
