@@ -131,7 +131,10 @@ function Rows(props) {
     useEffect(() => {
         const created = app.state.created
         if (created.id) {
-            onAction("edit", created)
+            //open a new tab stop the modal hiding transition a long
+            //delay is required to really launch when modal is closed
+            app.dispatch({ name: "created", args: {} })
+            setTimeout(() => { onAction("edit", created) }, 200)
         }
     }, [app.state.created.id])
 

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -13,6 +14,7 @@ export default function Home() {
     <>
       <Jumbo title="Automation Now">
         <p className="col-md-8 fs-4">Link plant floor devices to IT services in minutes, not months.</p>
+        <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
       </Jumbo>
 
       <div className="row align-items-md-stretch">

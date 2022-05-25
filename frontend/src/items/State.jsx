@@ -97,6 +97,11 @@ function reducer(state, { name, args, self, restore }) {
       update_points(next)
       return version_state(next)
     }
+    case "created": {
+      const next = clone_object(state)
+      next.created = args
+      return version_state(next)
+    }
     case "delete": {
       const next = clone_object(state)
       delete next.status[args.id]

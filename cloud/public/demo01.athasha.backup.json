@@ -1,0 +1,1009 @@
+[
+  {
+    "id": "2ee9b068-ff54-42e5-b0bc-a911f595a3e2",
+    "name": "AllenBradley Micro850",
+    "type": "Screen",
+    "enabled": true,
+    "config": {
+      "controls": [
+        {
+          "data": {
+            "align": "Right",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#000000",
+            "brRadius": "0",
+            "brWidth": "0",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "80",
+            "text": "AI0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "2",
+            "input": "",
+            "output": "",
+            "posX": "1",
+            "posY": "1",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "5"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Left",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#000000",
+            "brRadius": "0",
+            "brWidth": "0",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "0.000",
+              "txType": "Format",
+              "type": "Enabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "80",
+            "text": "0.000"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "2",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 AI1",
+            "output": "",
+            "posX": "7",
+            "posY": "1",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "5"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Right",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#000000",
+            "brRadius": "0",
+            "brWidth": "0",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "80",
+            "text": "AO0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "2",
+            "input": "",
+            "output": "",
+            "posX": "1",
+            "posY": "3",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "5"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Left",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#000000",
+            "brRadius": "0",
+            "brWidth": "0",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "0.000",
+              "txType": "Format",
+              "type": "Enabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "80",
+            "text": "0.000"
+          },
+          "setts": {
+            "click": "Value Prompt",
+            "height": "2",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
+            "posX": "7",
+            "posY": "3",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "0",
+            "width": "5"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.2",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "0.000",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "26",
+            "text": "0.0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
+            "posX": "7",
+            "posY": "5",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "0.0",
+            "width": "2"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.2",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "0.000",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "26",
+            "text": "12.0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
+            "posX": "9",
+            "posY": "5",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "12.0",
+            "width": "2"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "16",
+            "text": "OFF"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO1",
+            "posX": "8",
+            "posY": "8",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "0",
+            "width": "1"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "16",
+            "text": "ON"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO1",
+            "posX": "7",
+            "posY": "8",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "1",
+            "width": "1"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#bcb3b3",
+            "bgEnabled": true,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#4f73de",
+              "bgEnabled": true,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Greater"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#ffffff",
+            "ftFamily": "RobotoRegular",
+            "ftSize": "16",
+            "text": "DI0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "2",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DI1",
+            "output": "",
+            "posX": "2",
+            "posY": "7",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "2"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "16",
+            "text": "ON"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO2",
+            "posX": "9",
+            "posY": "8",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "1",
+            "width": "1"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#ffffff",
+            "bgEnabled": false,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#bcb3b3",
+            "ftFamily": "RobotoThin",
+            "ftSize": "16",
+            "text": "OFF"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "",
+            "output": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO2",
+            "posX": "10",
+            "posY": "8",
+            "prompt": "Enter Value",
+            "title": "Click to Set Value",
+            "value": "0",
+            "width": "1"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#bcb3b3",
+            "bgEnabled": true,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#4f73de",
+              "bgEnabled": true,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Greater"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#ffffff",
+            "ftFamily": "RobotoRegular",
+            "ftSize": "16",
+            "text": "DI1"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "2",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DI2",
+            "output": "",
+            "posX": "4",
+            "posY": "7",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "2"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#bcb3b3",
+            "bgEnabled": true,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#4f73de",
+              "bgEnabled": true,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Greater"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#ffffff",
+            "ftFamily": "RobotoRegular",
+            "ftSize": "16",
+            "text": "DO0"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO1",
+            "output": "",
+            "posX": "7",
+            "posY": "7",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "2"
+          },
+          "type": "Label"
+        },
+        {
+          "data": {
+            "align": "Center",
+            "bgColor": "#bcb3b3",
+            "bgEnabled": true,
+            "brColor": "#bcb3b3",
+            "brRadius": "0.4",
+            "brWidth": "1",
+            "cond1": {
+              "bgColor": "#4f73de",
+              "bgEnabled": true,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Greater"
+            },
+            "cond2": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "cond3": {
+              "bgColor": "#ffffff",
+              "bgEnabled": false,
+              "brColor": "#ffffff",
+              "brEnabled": false,
+              "fgColor": "#ffffff",
+              "fgEnabled": false,
+              "param": "0",
+              "txText": "",
+              "txType": "Disabled",
+              "type": "Disabled"
+            },
+            "fgColor": "#ffffff",
+            "ftFamily": "RobotoRegular",
+            "ftSize": "16",
+            "text": "DO1"
+          },
+          "setts": {
+            "click": "Fixed Value",
+            "height": "1",
+            "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO2",
+            "output": "",
+            "posX": "9",
+            "posY": "7",
+            "prompt": "Enter Value",
+            "title": "",
+            "value": "0",
+            "width": "2"
+          },
+          "type": "Label"
+        }
+      ],
+      "inputs": [
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 AI1",
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 DI1",
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 DI2",
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 DO1",
+        "e30b76a5-bdb3-4e66-894f-077053c06f64 DO2"
+      ],
+      "setts": {
+        "align": "center",
+        "bgColor": "#ffffff",
+        "gridX": "13",
+        "gridY": "11",
+        "height": "480",
+        "hvColor": "#808080",
+        "password": "",
+        "period": "25",
+        "scale": "fit",
+        "width": "640"
+      }
+    }
+  },
+  {
+    "id": "e30b76a5-bdb3-4e66-894f-077053c06f64",
+    "name": "AllenBradley Micro850",
+    "type": "Modbus",
+    "enabled": true,
+    "config": {
+      "inputs": [
+        {
+          "address": "1",
+          "code": "02 Input",
+          "factor": "1",
+          "name": "DI1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "2",
+          "code": "02 Input",
+          "factor": "1",
+          "name": "DI2",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "1",
+          "code": "04 U16BE",
+          "factor": "0.0001525902",
+          "name": "AI1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "1",
+          "code": "03 U16BE",
+          "factor": "0.00030518043",
+          "name": "AO1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "1",
+          "code": "01 Coil",
+          "factor": "1",
+          "name": "DO1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "2",
+          "code": "01 Coil",
+          "factor": "1",
+          "name": "DO2",
+          "offset": "0",
+          "slave": "1"
+        }
+      ],
+      "outputs": [
+        {
+          "address": "1",
+          "code": "06 U16BE",
+          "factor": "3276.75",
+          "name": "AO1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "1",
+          "code": "05 Coil",
+          "factor": "1",
+          "name": "DO1",
+          "offset": "0",
+          "slave": "1"
+        },
+        {
+          "address": "2",
+          "code": "05 Coil",
+          "factor": "1",
+          "name": "DO2",
+          "offset": "0",
+          "slave": "1"
+        }
+      ],
+      "setts": {
+        "dbpsb": "8N1",
+        "host": "10.77.3.215",
+        "password": "",
+        "period": "10",
+        "port": "502",
+        "proto": "TCP",
+        "speed": "9600",
+        "trans": "Socket",
+        "tty": "COM1"
+      }
+    }
+  }
+]

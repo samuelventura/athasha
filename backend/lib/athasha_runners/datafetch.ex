@@ -45,11 +45,9 @@ defmodule Athasha.Runner.Datafetch do
       count: length(inputs)
     }
 
-    PubSub.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
-    PubSub.Status.update!(item, :success, "Connected")
 
     # avoid registering duplicates
     Enum.reduce(inputs, %{}, fn input, map ->
@@ -65,10 +63,12 @@ defmodule Athasha.Runner.Datafetch do
     names = Enum.map(inputs, & &1.name)
     PubSub.Input.reg_names!(id, names)
     PubSub.Output.reg_names!(id, [])
+    run_once(item, config, port)
+    PubSub.Status.update!(item, :success, "Running")
     PubSub.Password.register!(item, password)
     Process.send_after(self(), :status, @status)
-    Process.send_after(self(), :once, 0)
-    run_loop(item, config, port)
+    Process.send_after(self(), :once, period)
+    run_loop(item, config, port, period)
   end
 
   defp wait_ack(port, action) do
@@ -84,12 +84,12 @@ defmodule Athasha.Runner.Datafetch do
     end
   end
 
-  defp run_loop(item, config, port) do
-    wait_once(item, config, port)
-    run_loop(item, config, port)
+  defp run_loop(item, config, port, period) do
+    wait_once(item, config, port, period)
+    run_loop(item, config, port, period)
   end
 
-  defp wait_once(item, config, port) do
+  defp wait_once(item, config, port, period) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
@@ -97,7 +97,7 @@ defmodule Athasha.Runner.Datafetch do
 
       :once ->
         run_once(item, config, port)
-        Process.send_after(self(), :once, config.period)
+        Process.send_after(self(), :once, period)
 
       other ->
         Raise.error({:receive, other})

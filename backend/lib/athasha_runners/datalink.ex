@@ -28,18 +28,19 @@ defmodule Athasha.Runner.Datalink do
       links: links
     }
 
-    PubSub.Status.update!(item, :success, "Connected")
+    run_once(item, config, links)
+    PubSub.Status.update!(item, :success, "Running")
     Process.send_after(self(), :status, @status)
-    Process.send_after(self(), :once, 0)
-    run_loop(item, config, links)
+    Process.send_after(self(), :once, period)
+    run_loop(item, config, links, period)
   end
 
-  defp run_loop(item, config, links) do
-    wait_once(item, config, links)
-    run_loop(item, config, links)
+  defp run_loop(item, config, links, period) do
+    wait_once(item, config, links, period)
+    run_loop(item, config, links, period)
   end
 
-  defp wait_once(item, config, links) do
+  defp wait_once(item, config, links, period) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
@@ -47,7 +48,7 @@ defmodule Athasha.Runner.Datalink do
 
       :once ->
         run_once(item, config, links)
-        Process.send_after(self(), :once, config.period)
+        Process.send_after(self(), :once, period)
 
       other ->
         Raise.error({:receive, other})

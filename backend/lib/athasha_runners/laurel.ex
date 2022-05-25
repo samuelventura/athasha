@@ -50,11 +50,8 @@ defmodule Athasha.Runner.Laurel do
       slaves: slaves
     }
 
-    PubSub.Status.update!(item, :warn, "Connecting...")
-
     case connect_master(config) do
       {:ok, master} ->
-        PubSub.Status.update!(item, :success, "Connected")
         # avoid registering duplicates
         Enum.reduce(slaves, %{}, fn inputs, map ->
           Enum.reduce(inputs, map, fn input, map ->
@@ -79,11 +76,12 @@ defmodule Athasha.Runner.Laurel do
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
         PubSub.Output.reg_names!(id, [])
+        run_once(item, config, master)
+        PubSub.Status.update!(item, :success, "Connected")
         PubSub.Password.register!(item, password)
-
         Process.send_after(self(), :status, @status)
-        Process.send_after(self(), :once, 0)
-        run_loop(item, config, master)
+        Process.send_after(self(), :once, period)
+        run_loop(item, config, master, period)
 
       {:error, reason} ->
         PubSub.Status.update!(item, :error, "#{inspect(reason)}")
@@ -91,12 +89,12 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp run_loop(item, config, master) do
-    wait_once(item, config, master)
-    run_loop(item, config, master)
+  defp run_loop(item, config, master, period) do
+    wait_once(item, config, master, period)
+    run_loop(item, config, master, period)
   end
 
-  defp wait_once(item, config, master) do
+  defp wait_once(item, config, master, period) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
@@ -104,7 +102,7 @@ defmodule Athasha.Runner.Laurel do
 
       :once ->
         run_once(item, config, master)
-        Process.send_after(self(), :once, config.period)
+        Process.send_after(self(), :once, period)
 
       other ->
         Raise.error({:receive, other})

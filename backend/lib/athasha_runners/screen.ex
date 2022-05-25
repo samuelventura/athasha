@@ -21,10 +21,11 @@ defmodule Athasha.Runner.Screen do
       Map.put(map, input, input)
     end)
 
+    run_once(id, inputs)
+    PubSub.Status.update!(item, :success, "Running")
     PubSub.Password.register!(item, password)
-    PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
-    Process.send_after(self(), :once, 0)
+    Process.send_after(self(), :once, period)
     run_loop(id, item, inputs, period)
   end
 

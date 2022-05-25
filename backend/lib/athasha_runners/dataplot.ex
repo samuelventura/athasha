@@ -24,12 +24,11 @@ defmodule Athasha.Runner.Dataplot do
       command: command
     }
 
-    PubSub.Status.update!(item, :warn, "Connecting...")
     port = connect_port(config)
     true = Port.command(port, config.connstr)
     wait_ack(port, :connect)
+    PubSub.Status.update!(item, :success, "Running")
     PubSub.Password.register!(item, password)
-    PubSub.Status.update!(item, :success, "Connected")
     Process.send_after(self(), :status, @status)
     Bus.register!({:dataplot, item.id})
     run_loop(item, config, port)

@@ -170,8 +170,8 @@ function NewItem() {
         if (isValid()) {
             const config = Initials(type).config()
             const args = { name, type, config, enabled: false }
-            app.send({ name: "create", args })
             app.dispatch({ name: "target", args: {} })
+            app.send({ name: "create", args })
         }
     }
     useEffect(() => {

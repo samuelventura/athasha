@@ -13,7 +13,7 @@ function Main() {
         <Container>
           <Navbar.Brand title="athasha.io">
             <a href="https://athasha.io" target="_blank">
-              <img src={Logo} alt="Athasha" height="32"></img>
+              <img src={Logo} alt="Athasha" height="48"></img>
             </a>
           </Navbar.Brand>
           <Navbar.Toggle />

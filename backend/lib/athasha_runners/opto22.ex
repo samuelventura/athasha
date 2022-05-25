@@ -60,12 +60,8 @@ defmodule Athasha.Runner.Opto22 do
       outputs: outputs
     }
 
-    PubSub.Status.update!(item, :warn, "Connecting...")
-
     case connect_master(config) do
       {:ok, master} ->
-        PubSub.Status.update!(item, :success, "Connected")
-
         # avoid registering duplicates
         Enum.reduce(inputs, %{}, fn input, map ->
           iid = input.id
@@ -90,14 +86,15 @@ defmodule Athasha.Runner.Opto22 do
 
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
-        PubSub.Password.register!(item, password)
         names = Enum.map(outputs, & &1.name)
         PubSub.Output.reg_names!(id, names)
         Enum.each(outputs, fn output -> Bus.register!({:write, output.id}) end)
-
+        PubSub.Password.register!(item, password)
+        run_once(item, config, master, %{})
+        PubSub.Status.update!(item, :success, "Connected")
         Process.send_after(self(), :status, @status)
-        Process.send_after(self(), :once, 0)
-        run_loop(item, config, master, %{})
+        Process.send_after(self(), :once, period)
+        run_loop(item, config, master, %{}, period)
 
       {:error, reason} ->
         PubSub.Status.update!(item, :error, "#{inspect(reason)}")
@@ -105,12 +102,12 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp run_loop(item, config, master, values) do
-    values = wait_once(item, config, master, values)
-    run_loop(item, config, master, values)
+  defp run_loop(item, config, master, values, period) do
+    values = wait_once(item, config, master, values, period)
+    run_loop(item, config, master, values, period)
   end
 
-  defp wait_once(item, config, master, values) do
+  defp wait_once(item, config, master, values, period) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
@@ -119,7 +116,7 @@ defmodule Athasha.Runner.Opto22 do
 
       :once ->
         run_once(item, config, master, values)
-        Process.send_after(self(), :once, config.period)
+        Process.send_after(self(), :once, period)
         %{}
 
       {{:write, id}, _, value} ->
