@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import numeral from 'numeral'
 import Jumbo from '../components/jumbo'
 
-export default function Home() {
+export default function Buy() {
   const router = useRouter()
   const cost = "58"
   const [id, setId] = useState("")

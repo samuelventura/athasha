@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Jumbo from '../components/jumbo'
 import download from '../tools/download'
 
-export default function Home() {
+export default function Success() {
   const router = useRouter()
   const [license, setLicense] = useState(null)
   useEffect(() => {

@@ -13,8 +13,17 @@ export default function Home() {
   return (
     <>
       <Jumbo title="Automation Now">
-        <p className="col-md-8 fs-4">Link plant floor devices to IT services in minutes, not months.</p>
-        <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
+        <p className="col-md-8 fs-4 cursor-pointer">Link plant floor devices to IT services in minutes, not months.</p>
+        <ul>
+          <li>
+            <Link href="/demo01"><a>Allen-Bradley Micro850 Demo</a></Link>
+          </li>
+        </ul>
+        <Link href="/demo01">
+          <a className="slide" title="Click to access the Demo">
+            <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
+          </a>
+        </Link>
       </Jumbo>
 
       <div className="row align-items-md-stretch">

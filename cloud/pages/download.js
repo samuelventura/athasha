@@ -4,7 +4,7 @@ import Table from 'react-bootstrap/Table'
 import { useEffect, useState } from 'react'
 import Jumbo from '../components/jumbo'
 
-export default function Home() {
+export default function Download() {
   const router = useRouter()
   const [files, setFiles] = useState(null)
   function search() {

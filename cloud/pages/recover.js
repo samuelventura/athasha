@@ -10,7 +10,7 @@ import Jumbo from '../components/jumbo'
 import download from '../tools/download'
 import moment from 'moment'
 
-export default function Home() {
+export default function Recover() {
   const router = useRouter()
   const [rows, setRows] = useState(null)
   const [query, setQuery] = useState("")

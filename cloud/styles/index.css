@@ -1,3 +1,7 @@
+a {
+    text-decoration: none;
+}
+
 .leaveMessage {
     cursor: pointer;
     max-width: 5em;
@@ -15,3 +19,6 @@
     color: steelblue;
 }
 
+.slide {
+    cursor: pointer;
+}

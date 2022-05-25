@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 
-export default function Home() {
+export default function Privacy() {
   const router = useRouter()
   const { id } = router.query
   return (

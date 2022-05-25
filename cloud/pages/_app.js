@@ -132,7 +132,7 @@ function MyApp({ Component, pageProps }) {
     <main>
       <div className="container py-4">
         <header className="pb-3 mb-4 border-bottom">
-          <Link href="/"><a className="d-flex align-items-center text-dark text-decoration-none">
+          <Link href="/"><a className="d-flex align-items-center text-dark text-decoration-none" title="Home">
             <Image src="/logo.svg" alt="Athasha" height={48} width={48 * 4} />
           </a></Link>
         </header>
