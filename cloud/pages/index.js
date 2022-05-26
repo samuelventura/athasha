@@ -23,11 +23,7 @@ export default function Home() {
             <Link href="/demo01"><a>Allen-Bradley Micro850 Demo</a></Link>
           </li>
         </ul>
-        <Link href="/demo01">
-          <a className="slide" title="Click to access the Demo">
-            <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
-          </a>
-        </Link>
+        <Image src="/slides.gif" layout="responsive" width={1024} height={576} />
       </Jumbo>
 
       <div className="row align-items-md-stretch">
