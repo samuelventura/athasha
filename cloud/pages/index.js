@@ -4,9 +4,12 @@ import Image from 'next/image'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
 import Button from 'react-bootstrap/Button'
 import { useState } from 'react'
 import Jumbo from '../components/jumbo'
+import YoutubeEmbed from "../components/youtube";
 
 export default function Home() {
   const [id, setId] = useState("")
@@ -23,8 +26,15 @@ export default function Home() {
             <Link href="/demo01"><a>Allen-Bradley Micro850 Demo</a></Link>
           </li>
         </ul>
-        <Image src="/slides.gif" layout="responsive" width={1024} height={576} 
-          alt="Athasha Slides"/>
+        <Tabs defaultActiveKey="overview">
+          <Tab eventKey="overview" title="Overview">
+            <Image src="/slides.gif" layout="responsive" width={1024} height={576}
+              alt="Athasha Slides" />
+          </Tab>
+          <Tab eventKey="installation" title="Installation Video">
+            <YoutubeEmbed embedId="CyaJckPYIh4" />
+          </Tab>
+        </Tabs>
       </Jumbo>
 
       <div className="row align-items-md-stretch">
