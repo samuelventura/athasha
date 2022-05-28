@@ -10,26 +10,27 @@ export default function Demo01() {
   return (
     <>
       <Head>
-        <title>Athasha.IO - Demo01</title>
+        <title>Athasha.IO - Demo02</title>
       </Head>
-      <Jumbo title="Allen-Bradley Micro850 Demo">
+      <Jumbo title="Opto22 Learning Center Demo">
         <ul>
           <li>
-            <Link href="/demo01-quick.pdf"><a target="_blank">Quick Start</a></Link>
+            <Link href="/demo02-opto22.pdf"><a target="_blank">Introduction</a></Link>
           </li>
           <li>
-            <Link href="/demo01-guide.pdf"><a target="_blank">User Guide</a></Link>
+            <Link href="/demo02-pacman.otg"><a target="_blank">PacManager Backup</a></Link>
           </li>
           <li>
-            <Link href="/demo01.athasha.backup.json"><a target="_blank" download>Demo Backup</a></Link>
+            <Link href="/demo02.athasha.backup.json"><a target="_blank" download>Demo Backup</a></Link>
           </li>
         </ul>
         <Tabs defaultActiveKey="overview">
           <Tab eventKey="overview" title="Overview">
-            <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
+            <Image src="/demo02.png" alt="Opto22 Learning Center"
+              layout="responsive" width={960} height={540} />
           </Tab>
           <Tab eventKey="live-screen-testing" title="Live Screen Testing">
-            <YoutubeEmbed embedId="Qwzs0qlyGEI" />
+            <YoutubeEmbed embedId="D04rBPwaCxk" />
           </Tab>
         </Tabs>
       </Jumbo>

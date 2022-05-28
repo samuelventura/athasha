@@ -25,6 +25,9 @@ export default function Home() {
           <li>
             <Link href="/demo01"><a>Allen-Bradley Micro850 Demo</a></Link>
           </li>
+          <li>
+            <Link href="/demo02"><a>Opto22 Learning Center Demo</a></Link>
+          </li>
         </ul>
         <Tabs defaultActiveKey="overview">
           <Tab eventKey="overview" title="Overview">
