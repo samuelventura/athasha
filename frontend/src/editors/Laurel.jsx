@@ -89,6 +89,34 @@ function Editor(props) {
         next[pindex][name] = value
         setSlaveProp(sindex, "inputs", next)
     }
+    function addOutput(sindex) {
+        const slave = slaves[sindex]
+        const next = [...slave.outputs]
+        const output = Initial.output(next.length)
+        next.push(output)
+        setSlaveProp(sindex, "outputs", next)
+    }
+    function delOutput(sindex, pindex) {
+        const slave = slaves[sindex]
+        if (slave.outputs.length < 2) return
+        const next = [...slave.outputs]
+        next.splice(pindex, 1)
+        setSlaveProp(sindex, "outputs", next)
+    }
+    function moveOutput(sindex, pindex, inc) {
+        const slave = slaves[sindex]
+        const index = pindex + inc
+        if (index < 0 || index >= slave.outputs.length) return
+        const next = [...slave.outputs]
+        next.splice(index, 0, next.splice(pindex, 1)[0])
+        setSlaveProp(sindex, "outputs", next)
+    }
+    function setOutputProp(sindex, pindex, name, value, e) {
+        const slave = slaves[sindex]
+        const next = [...slave.outputs]
+        next[pindex][name] = value
+        setSlaveProp(sindex, "outputs", next)
+    }
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
@@ -135,6 +163,22 @@ function Editor(props) {
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.inputs[prop](pindex, value)
         args.defval = Initial.input()[prop]
+        return Check.props(args)
+    }
+    function outputProps(sindex, pindex, prop) {
+        function setter(name) {
+            return function (value) {
+                setOutputProp(sindex, pindex, name, value)
+            }
+        }
+        const slave = slaves[sindex]
+        const args = { captured, setCaptured }
+        args.label = Initial.labels.outputs[prop](pindex)
+        args.hint = Initial.hints.outputs[prop](pindex)
+        args.value = slave.outputs[pindex][prop]
+        args.setter = setter(prop)
+        args.check = (value) => Initial.checks.outputs[prop](pindex, value)
+        args.defval = Initial.output()[prop]
         return Check.props(args)
     }
 
@@ -236,8 +280,9 @@ function Editor(props) {
     }
 
     const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
+    const outputOptions = Initial.outputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
     function slaveEditor({ sindex, slave }) {
-        const listRows = slave.inputs.map((input, pindex) =>
+        const inputRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>
                 <td >{pindex + 1}</td>
                 <td>
@@ -265,6 +310,34 @@ function Editor(props) {
                 </td>
             </tr>
         )
+        const outputRows = slave.outputs.map((output, pindex) =>
+            <tr key={pindex} className='align-middle'>
+                <td >{pindex + 1}</td>
+                <td>
+                    <Form.Select {...outputProps(sindex, pindex, "code")}>
+                        {outputOptions}
+                    </Form.Select>
+                </td>
+                <td>
+                    <Form.Control type="text" {...outputProps(sindex, pindex, "name")} />
+                </td>
+                <td>
+                    <Button variant='outline-danger' size="sm" onClick={() => delOutput(sindex, pindex)}
+                        title="Delete Row" disabled={slave.outputs.length < 2}>
+                        <FontAwesomeIcon icon={faTimes} />
+                    </Button>
+                    &nbsp;
+                    <Button variant='outline-secondary' size="sm" onClick={() => moveOutput(sindex, pindex, +1)}
+                        title="Move Row Down" disabled={pindex >= slave.outputs.length - 1}>
+                        <FontAwesomeIcon icon={faArrowDown} />
+                    </Button>
+                    <Button variant='outline-secondary' size="sm" onClick={() => moveOutput(sindex, pindex, -1)}
+                        title="Move Row Up" disabled={pindex < 1}>
+                        <FontAwesomeIcon icon={faArrowUp} />
+                    </Button>
+                </td>
+            </tr>
+        )
         return (
             <Tab key={sindex} eventKey={"tab" + sindex} title={"Slave " + slave.address}>
                 <Row>
@@ -286,24 +359,48 @@ function Editor(props) {
                         </Button>
                     </Col>
                 </Row>
-                <Table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{Initial.labels.input.code}</th>
-                            <th>{Initial.labels.input.name}</th>
-                            <th>
-                                <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
-                                    title="Add Input">
-                                    <FontAwesomeIcon icon={faPlus} />
-                                </Button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {listRows}
-                    </tbody>
-                </Table>
+                <Tabs defaultActiveKey="inputs">
+                    <Tab eventKey="inputs" title="Inputs">
+                        <Table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>{Initial.labels.input.code}</th>
+                                    <th>{Initial.labels.input.name}</th>
+                                    <th>
+                                        <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
+                                            title="Add Input">
+                                            <FontAwesomeIcon icon={faPlus} />
+                                        </Button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {inputRows}
+                            </tbody>
+                        </Table>
+                    </Tab>
+                    <Tab eventKey="outputs" title="Outputs">
+                        <Table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>{Initial.labels.output.code}</th>
+                                    <th>{Initial.labels.output.name}</th>
+                                    <th>
+                                        <Button variant='outline-primary' size="sm" onClick={() => addOutput(sindex)}
+                                            title="Add Output">
+                                            <FontAwesomeIcon icon={faPlus} />
+                                        </Button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {outputRows}
+                            </tbody>
+                        </Table>
+                    </Tab>
+                </Tabs>
             </Tab>
         )
     }

@@ -2,14 +2,40 @@ import Check from './Check'
 
 const inputCodes = [
     "Item 1",
-    "Item 2",
-    "Item 3",
+    "Item 2", //timeout for meters
+    "Item 3", //timeout for meters
     "Peak",
     "Valley",
     "Alarm 1",
     "Alarm 2",
     "Alarm 3",
     "Alarm 4",
+]
+
+const outputCodes = [
+    "Device Reset",
+    "Function Reset",
+    "Latched Alarm Reset",
+    "Peak Reset",
+    "Valley Reset",
+    "Remote Display Reset",
+    "Display Item 1",
+    "Display Item 2", //timeout for meters
+    "Display Item 3", //timeout for meters
+    "Display Peak",
+    "Display Valley",
+    "Tare",
+    "Meter Hold",
+    "Blank Display",
+    "Activate External Input A", //responds with meters, not sure what it does
+    "Activate External Input B", //responds with meters, not sure what it does
+    // "Display Data",
+    // "Data to Item3",
+    // "Data to Both",
+    // "Force Alarm 1",
+    // "Force Alarm 2",
+    // "Force Alarm 3",
+    // "Force Alarm 4",
 ]
 
 function config() {
@@ -38,11 +64,16 @@ function slave(index) {
         address: `${1 + (index || 0)}`,
         decimals: "0",
         inputs: [input()],
+        outputs: [],
     }
 }
 
 function input(index) {
     return { code: "Item 1", name: `Input ${1 + (index || 0)}` }
+}
+
+function output(index) {
+    return { code: "Device Reset", name: `Output ${1 + (index || 0)}` }
 }
 
 const labels = {
@@ -63,6 +94,10 @@ const labels = {
         code: "Register Name",
         name: "Input Name",
     },
+    output: {
+        code: "Register Name",
+        name: "Output Name",
+    },
     slaves: {
         address: (i) => `Slave ${i + 1} Address`,
         decimals: (i) => `Slave ${i + 1} Decimal Digits`,
@@ -70,7 +105,11 @@ const labels = {
     inputs: {
         code: (i) => `Input ${i + 1} Register Name`,
         name: (i) => `Input ${i + 1} Name`,
-    }
+    },
+    outputs: {
+        code: (i) => `Output ${i + 1} Register Name`,
+        name: (i) => `Output ${i + 1} Name`,
+    },
 }
 
 const hints = {
@@ -92,7 +131,11 @@ const hints = {
     inputs: {
         code: (i) => `Select the register name from list`,
         name: (i) => `Non empty input name`,
-    }
+    },
+    outputs: {
+        code: (i) => `Select the register name from list`,
+        name: (i) => `Non empty output name`,
+    },
 }
 
 const checks = {
@@ -161,7 +204,17 @@ const checks = {
             Check.isString(value, labels.inputs.code(index))
             Check.notEmpty(value, labels.inputs.code(index))
         },
-    }
+    },
+    outputs: {
+        code: function (index, value) {
+            Check.isString(value, labels.outputs.code(index))
+            Check.notEmpty(value, labels.outputs.code(index))
+        },
+        name: function (index, value) {
+            Check.isString(value, labels.outputs.code(index))
+            Check.notEmpty(value, labels.outputs.code(index))
+        },
+    },
 }
 
 function validator({ setts, slaves }) {
@@ -190,22 +243,33 @@ function validator({ setts, slaves }) {
         checks.slaves.decimals(index, slave.decimals)
         Check.hasProp(slave, "Inputs", "inputs")
         Check.isArray(slave.inputs, "Input")
-        Check.nonZeroLength(slave.inputs, "Input")
+        // Check.nonZeroLength(slave.inputs, "Input")
         slave.inputs.forEach((input, index) => {
             Check.hasProp(input, labels.inputs.code(index), "code")
             checks.inputs.code(index, input.code)
             Check.hasProp(input, labels.inputs.name(index), "name")
             checks.inputs.name(index, input.name)
         })
+        Check.hasProp(slave, "Outputs", "outputs")
+        Check.isArray(slave.outputs, "Output")
+        // Check.nonZeroLength(slave.outputs, "Output")
+        slave.outputs.forEach((output, index) => {
+            Check.hasProp(output, labels.outputs.code(index), "code")
+            checks.outputs.code(index, output.code)
+            Check.hasProp(output, labels.outputs.name(index), "name")
+            checks.outputs.name(index, output.name)
+        })
     })
 }
 
 export default {
     inputCodes,
+    outputCodes,
     config,
     setts,
     slave,
     input,
+    output,
     labels,
     hints,
     checks,

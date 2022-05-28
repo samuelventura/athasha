@@ -53,4 +53,9 @@ defmodule Athasha.Store do
     selector = [{{:"$1", :"$2", :"$3"}}]
     select([{matcher, [], selector}])
   end
+
+  def unregister_all!() do
+    Registry.keys(__MODULE__, self())
+    |> Enum.each(&unregister!/1)
+  end
 end

@@ -153,7 +153,7 @@ defmodule Modbus.Master do
           {:ok, request, length} ->
             case Transport.master_reqres(trans, request, length, timeout) do
               {:ok, response} ->
-                values = Protocol.parse_res(proto, cmd, response, tid)
+                values = parse_res(proto, cmd, response, tid)
 
                 case values do
                   nil -> :ok
@@ -171,6 +171,16 @@ defmodule Modbus.Master do
       {:reply, result, state}
     end
 
+    defp parse_res(proto, cmd, response, tid) do
+      try do
+        Protocol.parse_res(proto, cmd, response, tid)
+      rescue
+        e ->
+          reraise "#{inspect(e)} for cmd:#{inspect(cmd)} response:#{inspect(response)} tid:#{tid}",
+                  __STACKTRACE__
+      end
+    end
+
     defp request(proto, cmd, tid) do
       try do
         request = Protocol.pack_req(proto, cmd, tid)
@@ -178,7 +188,7 @@ defmodule Modbus.Master do
         {:ok, request, length}
       rescue
         _ ->
-          {:error, {:invalid, cmd}}
+          {:error, {:invalid, cmd, tid}}
       end
     end
   end

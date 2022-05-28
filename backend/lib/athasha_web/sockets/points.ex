@@ -96,16 +96,18 @@ defmodule AthashaWeb.Socket.Points do
     args = event["args"]
     session = args["session"]
     item = PubSub.Runner.get_head(id)
-    config = PubSub.Runner.get_config(id)
 
-    type =
+    {item, password} =
       case item do
-        nil -> nil
-        _ -> item.type
-      end
+        nil ->
+          {nil, nil}
 
-    item = Map.put(item, :config, config)
-    password = PubSub.Password.get_typed(id, type)
+        _ ->
+          config = PubSub.Runner.get_config(id)
+          item = Map.put(item, :config, config)
+          password = PubSub.Password.get_typed(id, item.type)
+          {item, password}
+      end
 
     case Auth.login(session["token"], session["proof"], password) do
       true ->

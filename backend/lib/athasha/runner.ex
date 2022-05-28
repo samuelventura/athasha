@@ -4,6 +4,7 @@ defmodule Athasha.Runner do
   alias Athasha.Bus
   alias Athasha.Spec
   alias Athasha.Raise
+  alias Athasha.Store
   alias Athasha.Server
   alias Athasha.PubSub
   alias Athasha.Runners
@@ -89,6 +90,7 @@ defmodule Athasha.Runner do
             error = e.message
             Bus.dispatch!({:error, item.id}, error)
             PubSub.Status.update!(item, :error, error)
+            Store.unregister_all!()
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__
@@ -98,6 +100,7 @@ defmodule Athasha.Runner do
             error = "#{inspect(e)}"
             Bus.dispatch!({:error, item.id}, error)
             PubSub.Status.update!(item, :error, error)
+            Store.unregister_all!()
             :timer.sleep(2000)
             # nifs not closed on normal exit
             reraise e, __STACKTRACE__

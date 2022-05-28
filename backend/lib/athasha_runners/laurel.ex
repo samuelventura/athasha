@@ -3,7 +3,9 @@ defmodule Athasha.Runner.Laurel do
   alias Athasha.Slave
   alias Athasha.Raise
   alias Athasha.PubSub
+  alias Athasha.Number
   alias Athasha.Item
+  alias Athasha.Bus
   @status 1000
 
   def run(item) do
@@ -25,16 +27,52 @@ defmodule Athasha.Runner.Laurel do
         address = String.to_integer(slave["address"])
         decimals = String.to_integer(slave["decimals"])
 
-        Enum.map(slave["inputs"], fn input ->
-          code = input["code"]
-          name = input["name"]
+        inputs =
+          Enum.map(slave["inputs"], fn input ->
+            code = input["code"]
+            name = input["name"]
 
-          %{
-            id: "#{id} #{name}",
-            name: name,
-            getter: getter(code, address, decimals)
-          }
-        end)
+            %{
+              id: "#{id} #{name}",
+              name: name,
+              getter: getter(code, decimals)
+            }
+          end)
+
+        outputs =
+          Enum.map(slave["outputs"], fn output ->
+            code = output["code"]
+            name = output["name"]
+
+            %{
+              id: "#{id} #{name}",
+              name: name,
+              setter: setter(code, address)
+            }
+          end)
+
+        # meters read for these codes timeout
+        # only read them for counters
+        counter =
+          Enum.count(slave["inputs"], fn input ->
+            code = input["code"]
+
+            case code do
+              "Item 2" -> true
+              "Item 3" -> true
+              _ -> false
+            end
+          end)
+
+        length =
+          case counter do
+            0 -> 8
+            _ -> 12
+          end
+
+        slave = %{address: address, length: length}
+
+        {slave, inputs, outputs}
       end)
 
     config = %{
@@ -52,8 +90,12 @@ defmodule Athasha.Runner.Laurel do
 
     case connect_master(config) do
       {:ok, master} ->
+        # invalid response for commands sent to close to the connection
+        # after reconnection from a sudden connection loss
+        # 10ms works solidly, 1ms works 50% of the time
+        :timer.sleep(100)
         # avoid registering duplicates
-        Enum.reduce(slaves, %{}, fn inputs, map ->
+        Enum.reduce(slaves, %{}, fn {_, inputs, outputs}, map ->
           Enum.reduce(inputs, map, fn input, map ->
             iid = input.id
 
@@ -63,25 +105,47 @@ defmodule Athasha.Runner.Laurel do
 
             Map.put(map, iid, input)
           end)
+
+          Enum.reduce(outputs, map, fn output, map ->
+            oid = output.id
+
+            if !Map.has_key?(map, oid) do
+              PubSub.Output.register!(id, oid, output.name)
+            end
+
+            Map.put(map, oid, output)
+          end)
         end)
 
-        inputs =
-          Enum.reduce(slaves, [], fn inputs, list ->
-            Enum.reduce(inputs, list, fn input, list ->
-              [input | list]
-            end)
+        {inputs, outputs} =
+          Enum.reduce(slaves, {[], []}, fn {_, inputs, outputs}, {ilist, olist} ->
+            ilist =
+              Enum.reduce(inputs, ilist, fn input, list ->
+                [input | list]
+              end)
+
+            olist =
+              Enum.reduce(outputs, olist, fn output, list ->
+                [output | list]
+              end)
+
+            {ilist, olist}
           end)
-          |> Enum.reverse()
+
+        inputs = Enum.reverse(inputs)
+        outputs = Enum.reverse(outputs)
 
         names = Enum.map(inputs, & &1.name)
         PubSub.Input.reg_names!(id, names)
-        PubSub.Output.reg_names!(id, [])
-        run_once(item, config, master)
+        names = Enum.map(outputs, & &1.name)
+        PubSub.Output.reg_names!(id, names)
+        Enum.each(outputs, fn output -> Bus.register!({:write, output.id}) end)
+        run_once(item, config, master, %{})
         PubSub.Status.update!(item, :success, "Connected")
         PubSub.Password.register!(item, password)
         Process.send_after(self(), :status, @status)
         Process.send_after(self(), :once, period)
-        run_loop(item, config, master, period)
+        run_loop(item, config, master, %{}, period)
 
       {:error, reason} ->
         PubSub.Status.update!(item, :error, "#{inspect(reason)}")
@@ -89,105 +153,133 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp run_loop(item, config, master, period) do
-    wait_once(item, config, master, period)
-    run_loop(item, config, master, period)
+  defp run_loop(item, config, master, values, period) do
+    values = wait_once(item, config, master, values, period)
+    run_loop(item, config, master, values, period)
   end
 
-  defp wait_once(item, config, master, period) do
+  defp wait_once(item, config, master, values, period) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
         Process.send_after(self(), :status, @status)
+        values
 
       :once ->
-        run_once(item, config, master)
+        run_once(item, config, master, values)
         Process.send_after(self(), :once, period)
+        %{}
+
+      {{:write, id}, _, value} ->
+        Map.put(values, id, value)
 
       other ->
         Raise.error({:receive, other})
     end
   end
 
-  defp run_once(item = %{id: id}, config, master) do
-    Enum.each(config.slaves, fn inputs ->
-      Enum.reduce(inputs, nil, fn input, alarm ->
-        case input.getter.(master, alarm) do
-          {:ok, {alarm, index}} ->
-            value = laurel_bit(alarm, index)
-            PubSub.Input.update!(id, input.id, input.name, value)
-            alarm
+  defp run_once(item = %{id: id}, config, master, values) do
+    Enum.each(config.slaves, fn {slave, inputs, outputs} ->
+      case Master.exec(master, {:rir, slave.address, 1, slave.length}) do
+        {:ok, data} ->
+          data =
+            Enum.with_index(data)
+            |> Enum.map(fn {v, i} -> {i, v} end)
+            |> Enum.into(%{})
 
-          {:ok, value} ->
+          Enum.each(inputs, fn input ->
+            value = input.getter.(data)
             PubSub.Input.update!(id, input.id, input.name, value)
-            alarm
+          end)
 
-          {:error, reason} ->
-            PubSub.Input.update!(id, input.id, input.name, nil)
-            PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
-            Raise.error({:exec_input, input, reason})
+        {:error, reason} ->
+          PubSub.Status.update!(item, :error, "#{inspect(slave)} #{inspect(reason)}")
+          Raise.error({:exec_input, slave, reason})
+      end
+
+      Enum.each(outputs, fn output ->
+        value = values[output.id]
+
+        if value != nil do
+          case output.setter.(master, value) do
+            {:ok, value} ->
+              PubSub.Output.update!(id, output.id, output.name, value)
+
+            {:error, reason} ->
+              PubSub.Output.update!(id, output.id, output.name, nil)
+              PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
+              Raise.error({:exec_output, output, value, reason})
+          end
         end
       end)
     end)
   end
 
-  defp getter(code, slave, decimals) do
+  defp getter(code, decimals) do
     case code do
-      "Item 1" -> fn master, _alarm -> laurel_decimal(master, slave, 3, decimals) end
-      "Item 2" -> fn master, _alarm -> laurel_decimal(master, slave, 9, decimals) end
-      "Item 3" -> fn master, _alarm -> laurel_decimal(master, slave, 11, decimals) end
-      "Peak" -> fn master, _alarm -> laurel_decimal(master, slave, 5, decimals) end
-      "Valley" -> fn master, _alarm -> laurel_decimal(master, slave, 7, decimals) end
-      "Alarm 1" -> fn master, alarm -> laurel_alarm(master, slave, 1, alarm) end
-      "Alarm 2" -> fn master, alarm -> laurel_alarm(master, slave, 2, alarm) end
-      "Alarm 3" -> fn master, alarm -> laurel_alarm(master, slave, 3, alarm) end
-      "Alarm 4" -> fn master, alarm -> laurel_alarm(master, slave, 4, alarm) end
+      "Item 1" -> fn data -> read_decimal(data, 3, decimals) end
+      "Item 2" -> fn data -> read_decimal(data, 9, decimals) end
+      "Item 3" -> fn data -> read_decimal(data, 11, decimals) end
+      "Peak" -> fn data -> read_decimal(data, 5, decimals) end
+      "Valley" -> fn data -> read_decimal(data, 7, decimals) end
+      "Alarm 1" -> fn data -> read_alarm(data, 1) end
+      "Alarm 2" -> fn data -> read_alarm(data, 2) end
+      "Alarm 3" -> fn data -> read_alarm(data, 3) end
+      "Alarm 4" -> fn data -> read_alarm(data, 4) end
     end
   end
 
-  defp laurel_decimal(master, slave, address, decimals) do
-    # second slave is timing out randomly
-    # reading decimal digits causes resets
-    :timer.sleep(5)
-
-    case Master.exec(master, {:rir, slave, address, 2}) do
-      {:ok, [w0, w1]} ->
-        <<sign::1, reading::31>> = <<w0::16, w1::16>>
-
-        sign =
-          case sign do
-            1 -> -1
-            0 -> 1
-          end
-
-        value =
-          case decimals do
-            0 -> sign * reading
-            _ -> sign * reading * :math.pow(10, -decimals)
-          end
-
-        {:ok, value}
-
-      any ->
-        any
+  defp setter(code, slave) do
+    case code do
+      "Device Reset" -> fn master, value -> write_bool(master, slave, 1, value) end
+      "Function Reset" -> fn master, value -> write_bool(master, slave, 2, value) end
+      "Latched Alarm Reset" -> fn master, value -> write_bool(master, slave, 3, value) end
+      "Peak Reset" -> fn master, value -> write_bool(master, slave, 4, value) end
+      "Valley Reset" -> fn master, value -> write_bool(master, slave, 5, value) end
+      "Remote Display Reset" -> fn master, value -> write_bool(master, slave, 6, value) end
+      "Display Item 1" -> fn master, value -> write_bool(master, slave, 7, value) end
+      "Display Item 2" -> fn master, value -> write_bool(master, slave, 8, value) end
+      "Display Item 3" -> fn master, value -> write_bool(master, slave, 9, value) end
+      "Display Peak" -> fn master, value -> write_bool(master, slave, 10, value) end
+      "Display Valley" -> fn master, value -> write_bool(master, slave, 11, value) end
+      "Tare" -> fn master, value -> write_bool(master, slave, 12, value) end
+      "Meter Hold" -> fn master, value -> write_bool(master, slave, 13, value) end
+      "Blank Display" -> fn master, value -> write_bool(master, slave, 14, value) end
+      "Activate External Input A" -> fn master, value -> write_bool(master, slave, 15, value) end
+      "Activate External Input B" -> fn master, value -> write_bool(master, slave, 16, value) end
     end
   end
 
-  defp laurel_alarm(master, slave, index, nil) do
-    # second slave is timing out randomly
-    :timer.sleep(5)
+  defp write_bool(master, slave, address, value) do
+    value = Number.to_bit(value)
 
-    case Master.exec(master, {:rir, slave, 1, 2}) do
-      {:ok, [w0, w1]} -> {:ok, {[w0, w1], index}}
+    case Master.exec(master, {:fc, slave, address, value}) do
+      :ok -> {:ok, value}
       any -> any
     end
   end
 
-  defp laurel_alarm(_master, _input, index, alarm) do
-    {:ok, {alarm, index}}
+  defp read_decimal(data, address, decimals) do
+    # map address to data index
+    w0 = data[address - 1]
+    w1 = data[address]
+    <<sign::1, reading::31>> = <<w0::16, w1::16>>
+
+    sign =
+      case sign do
+        1 -> -1
+        0 -> 1
+      end
+
+    case decimals do
+      0 -> sign * reading
+      _ -> sign * reading * :math.pow(10, -decimals)
+    end
   end
 
-  defp laurel_bit([w0, w1], index) do
+  defp read_alarm(data, index) do
+    w0 = data[0]
+    w1 = data[1]
     <<_unused::28, a4::1, a3::1, a2::1, a1::1>> = <<w0::16, w1::16>>
 
     case index do
