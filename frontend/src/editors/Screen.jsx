@@ -164,6 +164,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             event.stopPropagation()
         }
         function onPointerDown(event, index, control) {
+            //only on left button = 0
+            if (event.button) return;
             const setts = control.setts
             const posX = Number(setts.posX)
             const posY = Number(setts.posY)
@@ -225,6 +227,17 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             }
         }
         function onPointerUp(event) {
+            console.log("onPointerUp")
+            if (dragged.index >= 0) {
+                moveControl(event, true)
+                dragged.cleanup()
+            }
+        }
+        //apple trackpads gestures generate capture losses
+        //that prevented dropping because up event never came
+        //when that happen, moves are received with index!=dragged.index
+        function onLostPointerCapture(event) {
+            console.log("onLostPointerCapture")
             if (dragged.index >= 0) {
                 moveControl(event, true)
                 dragged.cleanup()
@@ -245,6 +258,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             onPointerMove: (e) => onPointerMove(e),
             onPointerUp: (e) => onPointerUp(e),
             onClick: (e) => onClickControl(e, index, control),
+            onLostPointerCapture: (e) => onLostPointerCapture(e),
         } : {}
         //setting tabIndex adds a selection border that extends to the inner contents
         return (
