@@ -227,7 +227,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             }
         }
         function onPointerUp(event) {
-            console.log("onPointerUp")
             if (dragged.index >= 0) {
                 moveControl(event, true)
                 dragged.cleanup()
@@ -237,7 +236,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         //that prevented dropping because up event never came
         //when that happen, moves are received with index!=dragged.index
         function onLostPointerCapture(event) {
-            console.log("onLostPointerCapture")
             if (dragged.index >= 0) {
                 moveControl(event, true)
                 dragged.cleanup()
