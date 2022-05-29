@@ -1,4 +1,5 @@
-﻿var prompt = args[0];
+﻿Console.SetWindowSize(80, 12);
+var prompt = args[0];
 var trimmed = bool.Parse(args[1]);
 var hidden = bool.Parse(args[2]);
 var file = args[3];

@@ -64,6 +64,18 @@ const outputExtractor = {
             }
         })
     },
+    Laurel: function (item, add) {
+        item.config.slaves.forEach(slave => {
+            slave.outputs.forEach(point => {
+                if (point.name.trim().length > 0) {
+                    add({
+                        point: { name: point.name },
+                        item: { id: item.id, name: item.name }
+                    })
+                }
+            })
+        })
+    },
 }
 
 function nop() { }
