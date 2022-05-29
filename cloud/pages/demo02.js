@@ -6,7 +6,7 @@ import Tab from 'react-bootstrap/Tab'
 import Jumbo from '../components/jumbo'
 import YoutubeEmbed from "../components/youtube";
 
-export default function Demo01() {
+export default function Demo02() {
   return (
     <>
       <Head>
