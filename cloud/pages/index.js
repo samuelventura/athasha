@@ -28,6 +28,9 @@ export default function Home() {
           <li>
             <Link href="/demo02"><a>Opto22 Learning Center Demo</a></Link>
           </li>
+          <li>
+            <Link href="/demo03"><a>Laurel Electronics Meter Demo</a></Link>
+          </li>
         </ul>
         <Tabs defaultActiveKey="overview">
           <Tab eventKey="overview" title="Overview">
