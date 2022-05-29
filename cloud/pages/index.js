@@ -32,10 +32,10 @@ export default function Home() {
             <Link href="/demo03"><a>Laurel Electronics Meter Demo</a></Link>
           </li>
         </ul>
-        <Tabs defaultActiveKey="overview">
+        <Tabs defaultActiveKey="overview" id="tabs">
           <Tab eventKey="overview" title="Overview">
             <Image src="/slides.gif" layout="responsive" width={1024} height={576}
-              alt="Athasha Slides" />
+              alt="Athasha Slides" priority="lazy" />
           </Tab>
           <Tab eventKey="installation" title="Installation Video">
             <YoutubeEmbed embedId="CyaJckPYIh4" />

@@ -24,9 +24,10 @@ export default function Demo01() {
             <Link href="/demo01.athasha.backup.json"><a target="_blank" download>Demo Backup</a></Link>
           </li>
         </ul>
-        <Tabs defaultActiveKey="overview">
+        <Tabs defaultActiveKey="overview" id="tabs">
           <Tab eventKey="overview" title="Overview">
-            <Image src="/demo01.png" alt="Athasha AllenBradley Micro850" layout="responsive" width={960} height={540} />
+            <Image src="/demo01.png" alt="Athasha AllenBradley Micro850"
+              layout="responsive" width={960} height={540} priority="lazy" />
           </Tab>
           <Tab eventKey="live-screen-testing" title="Live Screen Testing">
             <YoutubeEmbed embedId="Qwzs0qlyGEI" />

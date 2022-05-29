@@ -21,10 +21,10 @@ export default function Demo03() {
             <Link href="/demo03.athasha.backup.json"><a target="_blank" download>Demo Backup</a></Link>
           </li>
         </ul>
-        <Tabs defaultActiveKey="overview">
+        <Tabs defaultActiveKey="overview" id="tabs">
           <Tab eventKey="overview" title="Overview">
             <Image src="/demo03.png" alt="Laurel Electronics Meter"
-              layout="responsive" width={960} height={540} />
+              layout="responsive" width={960} height={540} priority="lazy" />
           </Tab>
           <Tab eventKey="live-screen-testing" title="Live Screen Testing">
             <YoutubeEmbed embedId="SqVAubYEc8c" />

@@ -24,10 +24,10 @@ export default function Demo02() {
             <Link href="/demo02.athasha.backup.json"><a target="_blank" download>Demo Backup</a></Link>
           </li>
         </ul>
-        <Tabs defaultActiveKey="overview">
+        <Tabs defaultActiveKey="overview" id="tabs">
           <Tab eventKey="overview" title="Overview">
             <Image src="/demo02.png" alt="Opto22 Learning Center"
-              layout="responsive" width={960} height={540} />
+              layout="responsive" width={960} height={540} priority="lazy" />
           </Tab>
           <Tab eventKey="live-screen-testing" title="Live Screen Testing">
             <YoutubeEmbed embedId="D04rBPwaCxk" />
