@@ -5,3 +5,4 @@
 *.dump
 setup/*.exe
 .vs
+node_modules
