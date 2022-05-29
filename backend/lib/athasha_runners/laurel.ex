@@ -206,7 +206,6 @@ defmodule Athasha.Runner.Laurel do
               PubSub.Output.update!(id, output.id, output.name, value)
 
             {:error, reason} ->
-              PubSub.Output.update!(id, output.id, output.name, nil)
               PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
               Raise.error({:exec_output, output, value, reason})
           end

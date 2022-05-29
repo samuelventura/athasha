@@ -50,7 +50,6 @@ function Editor(props) {
         setSlaves(next)
     }
     function delSlave(sindex) {
-        if (slaves.length < 2) return
         const next = [...slaves]
         next.splice(sindex, 1)
         setTab("tab0")
@@ -70,7 +69,6 @@ function Editor(props) {
     }
     function delInput(sindex, pindex) {
         const slave = slaves[sindex]
-        if (slave.inputs.length < 2) return
         const next = [...slave.inputs]
         next.splice(pindex, 1)
         setSlaveProp(sindex, "inputs", next)
@@ -98,7 +96,6 @@ function Editor(props) {
     }
     function delOutput(sindex, pindex) {
         const slave = slaves[sindex]
-        if (slave.outputs.length < 2) return
         const next = [...slave.outputs]
         next.splice(pindex, 1)
         setSlaveProp(sindex, "outputs", next)
@@ -295,7 +292,7 @@ function Editor(props) {
                 </td>
                 <td>
                     <Button variant='outline-danger' size="sm" onClick={() => delInput(sindex, pindex)}
-                        title="Delete Row" disabled={slave.inputs.length < 2}>
+                        title="Delete Row">
                         <FontAwesomeIcon icon={faTimes} />
                     </Button>
                     &nbsp;
@@ -323,7 +320,7 @@ function Editor(props) {
                 </td>
                 <td>
                     <Button variant='outline-danger' size="sm" onClick={() => delOutput(sindex, pindex)}
-                        title="Delete Row" disabled={slave.outputs.length < 2}>
+                        title="Delete Row">
                         <FontAwesomeIcon icon={faTimes} />
                     </Button>
                     &nbsp;
@@ -354,7 +351,7 @@ function Editor(props) {
                     <Col></Col>
                     <Col xs={1}>
                         <Button variant='outline-danger' size="sm" onClick={() => delSlave(sindex)}
-                            title="Delete Slave" disabled={slaves.length < 2}>
+                            title="Delete Slave">
                             <FontAwesomeIcon icon={faTimes} />
                         </Button>
                     </Col>

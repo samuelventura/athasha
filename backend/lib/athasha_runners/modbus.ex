@@ -146,7 +146,6 @@ defmodule Athasha.Runner.Modbus do
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
-          PubSub.Input.update!(id, input.id, input.name, nil)
           PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
           Raise.error({:exec_input, input, reason})
       end
@@ -164,7 +163,6 @@ defmodule Athasha.Runner.Modbus do
             PubSub.Output.update!(id, output.id, output.name, reversed)
 
           {:error, reason} ->
-            PubSub.Output.update!(id, output.id, output.name, nil)
             PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
             Raise.error({:exec_output, output, value, reason})
         end
