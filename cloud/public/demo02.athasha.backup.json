@@ -1,9 +1,5 @@
 [
   {
-    "id": "1b56ecc9-4477-401e-976b-3d0180ee39ca",
-    "name": "Opto22 Learning Center",
-    "type": "Opto22",
-    "enabled": true,
     "config": {
       "inputs": [
         {
@@ -53,13 +49,13 @@
         "slave": "1",
         "type": "Snap"
       }
-    }
+    },
+    "enabled": true,
+    "id": "1b56ecc9-4477-401e-976b-3d0180ee39ca",
+    "name": "Opto22 Learning Center",
+    "type": "Opto22"
   },
   {
-    "id": "850e8aa2-3895-4f70-a9ee-ba0303b04824",
-    "name": "Screen Learning Center",
-    "type": "Screen",
-    "enabled": true,
     "config": {
       "controls": [
         {
@@ -497,7 +493,7 @@
             "posX": "5",
             "posY": "3",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Turn Alarm Off",
             "value": "0",
             "width": "1"
           },
@@ -560,7 +556,7 @@
             "posX": "7",
             "posY": "3",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Turn Alarm On",
             "value": "1",
             "width": "1"
           },
@@ -623,7 +619,7 @@
             "posX": "5",
             "posY": "5",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Enter Custom Value",
             "value": "0",
             "width": "3"
           },
@@ -686,7 +682,7 @@
             "posX": "5",
             "posY": "6",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Set Value",
             "value": "3500",
             "width": "1"
           },
@@ -749,7 +745,7 @@
             "posX": "7",
             "posY": "6",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Set Value",
             "value": "6800",
             "width": "1"
           },
@@ -900,6 +896,10 @@
         "scale": "fit",
         "width": "640"
       }
-    }
+    },
+    "enabled": true,
+    "id": "850e8aa2-3895-4f70-a9ee-ba0303b04824",
+    "name": "Screen Learning Center",
+    "type": "Screen"
   }
 ]

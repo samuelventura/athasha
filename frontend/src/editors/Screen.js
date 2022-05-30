@@ -45,7 +45,7 @@ function csetts() {
         posY: '0',
         width: '1',
         height: '1',
-        title: "",
+        title: "Click to Set Value",
         input: "",
         output: "",
         click: "Fixed Value",

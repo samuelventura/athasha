@@ -1,9 +1,5 @@
 [
   {
-    "id": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604",
-    "name": "Laurel Electronics Meter",
-    "type": "Laurel",
-    "enabled": true,
     "config": {
       "setts": {
         "dbpsb": "8N1",
@@ -70,13 +66,13 @@
           ]
         }
       ]
-    }
+    },
+    "enabled": true,
+    "id": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604",
+    "name": "Laurel Electronics Meter",
+    "type": "Laurel"
   },
   {
-    "id": "cc74861f-58a6-49da-b116-c8ecbd2f8458",
-    "name": "Laurel Electronics Screen",
-    "type": "Screen",
-    "enabled": true,
     "config": {
       "controls": [
         {
@@ -577,7 +573,7 @@
             "posX": "7",
             "posY": "3",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Reset Peak",
             "value": "1",
             "width": "2"
           },
@@ -640,7 +636,7 @@
             "posX": "7",
             "posY": "4",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Reset Valley",
             "value": "1",
             "width": "2"
           },
@@ -703,7 +699,7 @@
             "posX": "7",
             "posY": "2",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Tare",
             "value": "1",
             "width": "2"
           },
@@ -1018,7 +1014,7 @@
             "posX": "1",
             "posY": "8",
             "prompt": "Enter Value",
-            "title": "",
+            "title": "Click to Reset Alarms",
             "value": "1",
             "width": "8"
           },
@@ -1046,6 +1042,10 @@
         "scale": "fit",
         "width": "640"
       }
-    }
+    },
+    "enabled": true,
+    "id": "cc74861f-58a6-49da-b116-c8ecbd2f8458",
+    "name": "Laurel Electronics Screen",
+    "type": "Screen"
   }
 ]

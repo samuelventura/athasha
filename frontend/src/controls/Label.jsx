@@ -293,7 +293,7 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
     const trigger = control.setts.title ? ['hover', 'focus'] : []
     return (
         <OverlayTrigger
-            placement="bottom"
+            placement="auto"
             overlay={overlay}
             trigger={trigger}
         >
