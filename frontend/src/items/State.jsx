@@ -31,7 +31,7 @@ function version_state(next) {
   return next
 }
 
-function reducer(state, { name, args, self, restore }) {
+function reducer(state, { name, args, self, restore, clone }) {
   switch (name) {
     case "init": {
       const next = clone_object(state)
@@ -57,8 +57,9 @@ function reducer(state, { name, args, self, restore }) {
       if (self) {
         next.selected = args.item
       }
-      if (self && !restore) {
-        next.created = args.item
+      if (self && !restore && !clone) {
+        //auto open disabled
+        //next.created = args.item
       }
       return version_state(next)
     }
