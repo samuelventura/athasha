@@ -288,9 +288,11 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
         }
     }
 
+    const title = control.setts.title
+    const output = control.setts.output
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
-    const overlay = <Tooltip>{control.setts.title}</Tooltip>
-    const trigger = control.setts.title ? ['hover', 'focus'] : []
+    const overlay = <Tooltip>{title}</Tooltip>
+    const trigger = output && title ? ['hover', 'focus'] : []
     return (
         <OverlayTrigger
             placement="auto"
