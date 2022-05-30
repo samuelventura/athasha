@@ -1,3 +1,5 @@
+import Log from "./Log"
+
 //chrome not working with non loopback addresses
 //ff Uncaught (in promise) DOMException: 
 //tools/Clipboard write was blocked due to lack of user activation.

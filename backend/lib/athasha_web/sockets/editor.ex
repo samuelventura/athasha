@@ -40,7 +40,7 @@ defmodule AthashaWeb.Socket.Editor do
     Bus.register!({:status, id})
     Bus.register!(:version)
     Bus.register!(:logout)
-    status = [PubSub.Status.get_one(id)]
+    status = PubSub.Status.get_one(id)
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = Globals.find_all()

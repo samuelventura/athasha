@@ -9,11 +9,11 @@ function initial() {
   }
 }
 
-function build_status(type, msg) {
+function build_status({ type, msg }) {
   return { msg, type }
 }
 
-function clone_object(object) {
+function clone_shallow(object) {
   return Object.assign({}, object)
 }
 
@@ -28,7 +28,7 @@ function version_state(next) {
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "init": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.items = {}
       next.status = {}
       next.addresses = args.addresses
@@ -37,37 +37,37 @@ function reducer(state, { name, args, self }) {
         next.items[item.id] = item
       })
       args.status.forEach(status => {
-        next.status[status.id] = build_status(status.type, status.msg)
+        next.status[status.id] = build_status(status)
       })
       return version_state(next)
     }
     case "create": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.items[args.id] = args.item
       next.status[args.id] = {}
       return version_state(next)
     }
     case "rename": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.items[args.id] = args.item
       return version_state(next)
     }
     case "enable": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.items[args.id] = args.item
       next.status[args.id] = {}
       return version_state(next)
     }
     case "delete": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       delete next.status[args.id]
       delete next.items[args.id]
       return version_state(next)
     }
     case "status": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       if (next.items[args.id]) {
-        next.status[args.id] = build_status(args.type, args.msg)
+        next.status[args.id] = build_status(args)
       }
       return version_state(next)
     }

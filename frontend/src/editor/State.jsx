@@ -1,31 +1,28 @@
 import Router from "../tools/Router"
-import Log from "../tools/Log"
 import Extractor from "./Extractor"
+import Log from "../tools/Log"
 
 function initial() {
   return {
-    editor: Router.getEditorId(),
+    id: Router.getEditorId(),
+    item: {},
     items: {},
     status: {},
-    targeted: {},
     inputs: [],
     outputs: [],
     version: 0,
   }
 }
 
-function build_status(type, msg) {
+function build_status({ type, msg }) {
   return { msg, type }
 }
 
-function clone_object(object) {
+function clone_shallow(object) {
   return Object.assign({}, object)
 }
 
 function version_state(next) {
-  const status = Object.keys(next.status).length
-  const items = Object.keys(next.items).length
-  if (status !== items) throw `Sync error items:${items} status:${status}`
   next.version++
   return next
 }
@@ -44,97 +41,69 @@ function update_points(next) {
 }
 
 function setup_editor(next) {
-  if (next.editor) {
-    const item = next.items[next.editor]
+  if (next.id) {
+    const item = next.items[next.id]
     if (item) {
-      next.targeted = {
-        action: "edit",
-        item
-      }
+      next.item = item
       document.title = `Athasha ${item.type} Editor - ${item.name}`
     }
   }
 }
 
-function reducer(state, { name, args, self, restore }) {
+function reducer(state, { name, args }) {
   switch (name) {
     case "init": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.items = {}
       next.status = {}
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
       })
-      args.status.forEach(status => {
-        next.status[status.id] = build_status(status.type, status.msg)
-      })
+      next.status = build_status(args.status)
       setup_editor(next)
       update_points(next)
       return version_state(next)
     }
     case "create": {
-      const next = clone_object(state)
-      const item = clone_object(args)
+      const next = clone_shallow(state)
+      const item = clone_shallow(args)
       next.items[args.id] = item
       next.status[args.id] = {}
-      if (self) {
-        next.selected = item
-      }
-      if (self && !restore) {
-        next.created = item
-      }
       update_points(next)
       return version_state(next)
     }
-    case "created": {
-      const next = clone_object(state)
-      next.created = args
-      return version_state(next)
-    }
     case "delete": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       delete next.status[args.id]
       delete next.items[args.id]
       update_points(next)
       return version_state(next)
     }
+    case "edit": {
+      const next = clone_shallow(state)
+      const item = next.items[args.id]
+      item.config = args.config
+      update_points(next)
+      return version_state(next)
+    }
     case "rename": {
-      const next = clone_object(state)
+      if (args.id !== state.id) return state
+      const next = clone_shallow(state)
       next.items[args.id].name = args.name
       return version_state(next)
     }
     case "enable": {
-      const next = clone_object(state)
+      if (args.id !== state.id) return state
+      const next = clone_shallow(state)
       next.items[args.id].enabled = args.enabled
-      next.status[args.id] = build_status("info", args.enabled ? "Enabled" : "Disabled")
-      return version_state(next)
-    }
-    case "edit": {
-      const next = clone_object(state)
-      const item = next.items[args.id]
-      item.config = args.config
-      if (self) {
-        next.selected = item
-      }
-      update_points(next)
+      next.status[args.id] = {}
       return version_state(next)
     }
     case "status": {
-      const next = clone_object(state)
-      if (next.items[args.id]) {
-        next.status[args.id] = build_status(args.type, args.msg)
-      }
-      return version_state(next)
-    }
-    case "select": {
-      const next = clone_object(state)
-      next.selected = args
-      return version_state(next)
-    }
-    case "target": {
-      const next = clone_object(state)
-      next.targeted = args
+      if (args.id !== state.id) return state
+      const next = clone_shallow(state)
+      next.status = build_status(args)
       return version_state(next)
     }
     case "close": {

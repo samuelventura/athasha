@@ -1,4 +1,4 @@
-import Environ from "../tools/Router"
+import Log from "../tools/Log"
 
 function initial() {
   return {
@@ -11,14 +11,14 @@ function initial() {
   }
 }
 
-function clone_object(object) {
+function clone_shallow(object) {
   return Object.assign({}, object)
 }
 
 function reducer(state, { name, args, self }) {
   switch (name) {
     case "init": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.id = args.id
       next.name = args.name
       next.status = args.status
@@ -26,12 +26,12 @@ function reducer(state, { name, args, self }) {
       return next
     }
     case "status": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.status = args
       return next
     }
     case "data": {
-      const next = clone_object(state)
+      const next = clone_shallow(state)
       next.data = args
       next.version++
       return next

@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Types from '../common/Types'
 import Item from "../common/Item"
 import Editors from './Editors'
 import { useApp } from '../App'
+import Log from '../tools/Log'
 
 function EditItem() {
+    Log.react("EditItem")
     const app = useApp()
-    const targeted = app.state.targeted
-    const action = targeted.action
-    function isActive() { return action === "edit" }
+    const item = app.state.item
+    const status = app.state.status
+    function isActive() { return !!item.id }
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
-    const [item, setItem] = useState({})
-    useEffect(() => {
-        setItem({})
-        if (isActive()) {
-            setValid(false)
-            setConfig({})
-            setItem(targeted.item)
-        }
-    }, [targeted.action])
     function onButton(action) {
         const id = item.id
         switch (action) {
@@ -51,10 +44,6 @@ function EditItem() {
     function cloned() {
         return JSON.parse(JSON.stringify(item.config))
     }
-    function getStatus() {
-        const status = app.state.status[item.id]
-        return status || {}
-    }
     //id required as use effect flag
     function itemEditor(type) {
         const state = { globals: { inputs: app.state.inputs, outputs: app.state.outputs } }
@@ -81,7 +70,7 @@ function EditItem() {
                 <Modal.Title>
                     {itemIcon()}
                     <Item.Name item={item} />
-                    <Item.Status item={item} status={getStatus()} />
+                    <Item.Status item={item} status={status} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

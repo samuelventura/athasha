@@ -8,12 +8,13 @@ import Main from './Main'
 import State from './State'
 import './Index.css'
 
+//share session with items
 ReactDOM.render(
   <React.StrictMode>
     <AppContext path="editor"
       reducer={State.reducer}
       initial={State.initial}
-      sessioner={Session.api("editor")}>
+      sessioner={Session.api("items")}>
       <Main />
     </AppContext>
   </React.StrictMode>,
