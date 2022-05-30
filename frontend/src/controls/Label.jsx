@@ -297,7 +297,7 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
             overlay={overlay}
             trigger={trigger}
         >
-            <svg filter={filter} title={control.setts.title}>
+            <svg title={control.setts.title}>
                 <filter id='hover' colorInterpolationFilters="sRGB">
                     <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.5" floodColor={hoverColor} />
                 </filter>
@@ -305,8 +305,10 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
                     <feOffset in="SourceGraphic" dx="1" dy="1" />
                 </filter>
                 <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                    fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
-                <text x={x} y="50%" dominantBaseline="central" fill={fgColor}
+                    fill={background || "none"} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
+                <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
+                    fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
+                <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
                     textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
                     {text}
                 </text>
