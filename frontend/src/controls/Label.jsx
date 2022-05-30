@@ -299,7 +299,7 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
             overlay={overlay}
             trigger={trigger}
         >
-            <svg title={control.setts.title}>
+            <svg>
                 <filter id='hover' colorInterpolationFilters="sRGB">
                     <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.5" floodColor={hoverColor} />
                 </filter>
