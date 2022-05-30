@@ -108,8 +108,7 @@ defmodule Athasha.Runner.Modbus do
         run_loop(item, config, master, %{}, period)
 
       {:error, reason} ->
-        PubSub.Status.update!(item, :error, "#{inspect(reason)}")
-        Raise.error({:connect_master, config, reason})
+        Raise.error({:connect, reason})
     end
   end
 
@@ -138,7 +137,7 @@ defmodule Athasha.Runner.Modbus do
     end
   end
 
-  defp run_once(item = %{id: id}, config, master, values) do
+  defp run_once(%{id: id}, config, master, values) do
     Enum.each(config.inputs, fn input ->
       case input.getter.(master) do
         {:ok, value} ->
@@ -146,8 +145,7 @@ defmodule Athasha.Runner.Modbus do
           PubSub.Input.update!(id, input.id, input.name, value)
 
         {:error, reason} ->
-          PubSub.Status.update!(item, :error, "#{inspect(input)} #{inspect(reason)}")
-          Raise.error({:exec_input, input, reason})
+          Raise.error({:input, reason, input.id})
       end
     end)
 
@@ -163,8 +161,7 @@ defmodule Athasha.Runner.Modbus do
             PubSub.Output.update!(id, output.id, output.name, reversed)
 
           {:error, reason} ->
-            PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
-            Raise.error({:exec_output, output, value, reason})
+            Raise.error({:output, reason, output.id, value})
         end
       end
     end)

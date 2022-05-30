@@ -8,8 +8,12 @@ import Button from 'react-bootstrap/Button'
 //- standard focus handling
 function Header(props) {
 
-    function handleSortChange(value) {
-        props.onSortChange(value)
+    function onSortAsc() {
+        props.setSort("asc")
+    }
+
+    function onSortDesc() {
+        props.setSort("desc")
     }
 
     return (
@@ -19,10 +23,10 @@ function Header(props) {
                 <span className="fw-bold">Name</span>
             </Button>
             <span>
-                <Button onClick={() => handleSortChange("asc")} variant="link"
+                <Button onClick={onSortAsc} variant="link"
                     size="sm" title="Sort Ascending">
                     <FontAwesomeIcon icon={faArrowUp} /></Button>
-                <Button onClick={() => handleSortChange("desc")} variant="link"
+                <Button onClick={onSortDesc} variant="link"
                     size="sm" title="Sort Descending">
                     <FontAwesomeIcon icon={faArrowDown} /></Button>
             </span>

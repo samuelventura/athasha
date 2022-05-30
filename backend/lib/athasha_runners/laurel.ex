@@ -148,8 +148,7 @@ defmodule Athasha.Runner.Laurel do
         run_loop(item, config, master, %{}, period)
 
       {:error, reason} ->
-        PubSub.Status.update!(item, :error, "#{inspect(reason)}")
-        Raise.error({:connect_master, config, reason})
+        Raise.error({:connect, reason})
     end
   end
 
@@ -178,7 +177,7 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp run_once(item = %{id: id}, config, master, values) do
+  defp run_once(%{id: id}, config, master, values) do
     Enum.each(config.slaves, fn {slave, inputs, outputs} ->
       case Master.exec(master, {:rir, slave.address, 1, slave.length}) do
         {:ok, data} ->
@@ -193,8 +192,7 @@ defmodule Athasha.Runner.Laurel do
           end)
 
         {:error, reason} ->
-          PubSub.Status.update!(item, :error, "#{inspect(slave)} #{inspect(reason)}")
-          Raise.error({:exec_input, slave, reason})
+          Raise.error({:input, reason, slave})
       end
 
       Enum.each(outputs, fn output ->
@@ -206,8 +204,7 @@ defmodule Athasha.Runner.Laurel do
               PubSub.Output.update!(id, output.id, output.name, value)
 
             {:error, reason} ->
-              PubSub.Status.update!(item, :error, "#{inspect(output)} #{inspect(reason)}")
-              Raise.error({:exec_output, output, value, reason})
+              Raise.error({:output, reason, output.id, value})
           end
         end
       end)

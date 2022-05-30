@@ -14,8 +14,8 @@ function useItems() {
     return {
         sort,
         filter,
-        onFilterChange: (value) => setFilter(value),
-        onSortChange: (value) => setSort(value),
+        setFilter,
+        setSort,
         list,
     }
 }

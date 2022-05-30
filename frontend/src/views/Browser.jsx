@@ -17,7 +17,7 @@ function Browser() {
                         <th>
                             <Search
                                 filter={items.filter}
-                                onFilterChange={items.onFilterChange}
+                                setFilter={items.setFilter}
                             />
                         </th>
                     </tr>
@@ -28,7 +28,7 @@ function Browser() {
                     <tr>
                         <th>
                             <Header sort={items.sort}
-                                onSortChange={items.onSortChange} />
+                                setSort={items.setSort} />
                         </th>
                         <th>
                             <Button variant="none" className="pe-none">

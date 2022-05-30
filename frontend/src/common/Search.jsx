@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import Log from '../tools/Log'
+
+function ClearButton({ filter, clear }) {
+    return filter.length > 0 ? (<Button onClick={clear}
+        variant="outline-secondary"
+        title="Clear Filter">
+        <FontAwesomeIcon icon={faTimes} />
+    </Button>) : null
+}
 
 //requirements
 //- clears on escape
@@ -14,12 +21,11 @@ import Log from '../tools/Log'
 //- enables clear button on non-empty
 // spaces do count to match placeholder behaviour
 function Search(props) {
-    Log.react("Search")
     const input = useRef(null)
-    const [filter, setFilter] = useState("")
 
     function handleChange(e) {
-        setFilter(e.target.value)
+        const value = e.target.value
+        props.setFilter(value)
     }
 
     function handleKeyUp(e) {
@@ -30,7 +36,7 @@ function Search(props) {
     }
 
     function clearFilter() {
-        setFilter("")
+        props.setFilter("")
     }
 
     function handleKeyPress(e) {
@@ -40,31 +46,15 @@ function Search(props) {
         }
     }
 
-    useEffect(() => {
-        setFilter(props.filter)
-    }, [props.filter])
-
-    useEffect(() => {
-        props.onFilterChange(filter)
-    }, [filter, props.onFilterChange])
-
-    function ClearButton() {
-        return filter.length > 0 ? (<Button onClick={clearFilter}
-            variant="outline-secondary"
-            title="Clear Filter">
-            <FontAwesomeIcon icon={faTimes} />
-        </Button>) : null
-    }
-
     return (
         <div>
             <Form>
                 <InputGroup>
                     <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
-                    <Form.Control autoFocus value={filter} onChange={handleChange}
+                    <Form.Control autoFocus value={props.filter} onChange={handleChange}
                         onKeyPress={handleKeyPress} onKeyUp={handleKeyUp}
                         placeholder="Filter..." type="text" ref={input} />
-                    <ClearButton />
+                    <ClearButton filter={props.filter} clear={clearFilter} />
                 </InputGroup>
             </Form>
         </div>

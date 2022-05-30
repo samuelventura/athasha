@@ -118,7 +118,7 @@ defmodule AthashaWeb.Socket.Points do
         reply_text(resp, state)
 
       false ->
-        resp = %{name: "login", args: args["active"]}
+        resp = %{name: "login", args: %{active: args["active"]}}
         reply_text(resp, state)
     end
   end

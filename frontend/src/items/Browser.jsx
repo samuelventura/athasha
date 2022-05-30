@@ -57,7 +57,7 @@ function Browser() {
                         <th>
                             <Search
                                 filter={items.filter}
-                                onFilterChange={items.onFilterChange}
+                                setFilter={items.setFilter}
                             />
                         </th>
                         <th>
@@ -71,7 +71,7 @@ function Browser() {
                     <tr>
                         <th>
                             <Header sort={items.sort}
-                                onSortChange={items.onSortChange} />
+                                setSort={items.setSort} />
                         </th>
                         <th>
                             <Dropdown as={ButtonGroup}>

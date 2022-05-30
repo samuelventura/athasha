@@ -13,7 +13,6 @@ import Types from "../common/Types"
 import Item from "../common/Item"
 
 function Rows(props) {
-    Log.react("Rows")
     const app = useApp()
 
     function isSelected(item) {
@@ -70,7 +69,6 @@ function Rows(props) {
     }
 
     const rows = props.items.map(item => {
-        Log.react("Row", item.id)
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
             <Button variant="link" onClick={(e) => onAction('view', item)}

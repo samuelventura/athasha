@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react'
 import Socket from './tools/Socket'
 import Files from './tools/Files'
-import Log from './tools/Log'
 
 function initialAlert() { return { type: "", message: "" } }
 function initialSessioner() {
@@ -33,7 +32,6 @@ const App = React.createContext({
 })
 
 function AppContext({ path, reducer, initial, sessioner, children }) {
-  Log.react("AppContext")
   const [state, dispatch] = useReducer(reducer, initial())
   const [alert, setAlert] = useState(initialAlert())
   const [logged, setLogged] = useState(false)
@@ -59,7 +57,6 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
     sessioner,
   }
   useEffect(() => {
-    Log.react(`AppContext useEffect alert.type:${alert.type}`)
     if (alert.type) {
       const timer = setTimeout(() => setAlert(initialAlert()), 500)
       return () => clearTimeout(timer)
@@ -79,7 +76,7 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
           break
         }
         case "open": {
-          const send = args
+          const send = args.send
           setSend(() => send)
           setConnected(true)
           const active = false
@@ -89,7 +86,8 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
         }
         case "login": {
           setLogin(true)
-          if (args) { errorAlert("Login failed") }
+          const active = args.active
+          if (active) { errorAlert("Login failed") }
           break
         }
         case "session": {
@@ -115,7 +113,6 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
   //auto reconnect item views
   //views listing never gets here
   useEffect(() => {
-    Log.react(`AppContext useEffect login:${login} send:${send}`)
     if (login) {
       const timer = setInterval(() => {
         const session = sessioner.fetch()

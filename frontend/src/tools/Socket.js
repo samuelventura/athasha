@@ -102,7 +102,7 @@ function createSocket(base, query, { path, dispatch }) {
             reco_ms = 1000
             reset_idle()
             clear_conn()
-            dispatch({ name: "open", args: send })
+            dispatch({ name: "open", args: { send } })
         }
     }
     reco = setTimeout(connect, 0)

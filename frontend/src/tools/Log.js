@@ -8,7 +8,9 @@ const enabled = {
 function createLog(name) {
     return function log(...args) {
         if (enabled[name]) {
-            console.log(...args)
+            const now = new Date().toISOString()
+            const ts = now.substring(14, 23)
+            console.log(ts, ...args)
         }
     }
 }
