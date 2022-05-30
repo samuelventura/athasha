@@ -12,7 +12,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Datafetch.js'
 import Check from './Check'
-import Tools from '../items/Tools'
+import Tools from '../editor/Tools'
 import { useApp } from '../App'
 
 function Editor(props) {

@@ -47,10 +47,15 @@ function reducer(state, { name, args, self }) {
       next.status[args.id] = {}
       return version_state(next)
     }
-    case "rename":
+    case "rename": {
+      const next = clone_object(state)
+      next.items[args.id] = args.item
+      return version_state(next)
+    }
     case "enable": {
       const next = clone_object(state)
       next.items[args.id] = args.item
+      next.status[args.id] = {}
       return version_state(next)
     }
     case "delete": {

@@ -6,14 +6,11 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
-import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid'
 import Clipboard from "../tools/Clipboard"
 import Log from "../tools/Log"
-import Router from '../tools/Router'
 import Files from '../tools/Files'
-import Initials from "./Initials"
-import Types from "./Types"
+import Types from "../common/Types"
 import { useApp } from '../App'
 
 function DeleteAllItems() {
@@ -168,7 +165,7 @@ function NewItem() {
     }
     function onAccept() {
         if (isValid()) {
-            const config = Initials(type).config()
+            const config = Types.initial(type).config()
             const args = { name, type, config, enabled: false }
             app.dispatch({ name: "target", args: {} })
             app.send({ name: "create", args })
@@ -283,24 +280,6 @@ function ToolsButton() {
     ) : null
 }
 
-function HostButton() {
-    const app = useApp()
-    const addresses = [app.state.hostname, ...app.state.addresses, "localhost", "127.0.0.1"]
-    const dropdownItems = addresses.map((ip, index) =>
-        <Dropdown.Item key={index} href={Router.reHost(ip)}>{ip}</Dropdown.Item>
-    )
-    return app.logged ? (
-        <Dropdown className="d-inline">
-            <Dropdown.Toggle variant="link" title="Change Hostname/IP">
-                <FontAwesomeIcon icon={faEthernet} />
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-                {dropdownItems}
-            </Dropdown.Menu>
-        </Dropdown>
-    ) : null
-}
-
 function InfoButton() {
     const app = useApp()
     const identity = app.state.identity
@@ -320,4 +299,4 @@ function InfoButton() {
     ) : null
 }
 
-export { NewItem, DeleteItem, DeleteAllItems, RenameItem, InfoButton, HostButton, ToolsButton }
+export { NewItem, DeleteItem, DeleteAllItems, RenameItem, InfoButton, ToolsButton }

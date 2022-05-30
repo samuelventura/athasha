@@ -1,34 +1,19 @@
 import Button from 'react-bootstrap/Button'
 import { useApp } from '../App'
-import Types from "../items/Types"
-import Status from "../items/Status"
+import Types from "../common/Types"
+import Item from "../common/Item"
 
 function Rows(props) {
     const app = useApp()
 
-    function enabledClass(item) {
-        return item.enabled ?
-            "fw-normal" : "fst-italic"
-    }
-
-    function handleClick(item) {
-        const page = item.type.toLowerCase()
-        window.open(`${page}.html?id=${item.id}`, '_blank').focus();
-    }
-
     const rows = props.items.map(item => {
         return Types.withView.includes(item.type) ? (
             <tr key={item.id} id={"item_" + item.id}
-                onDoubleClick={(e) => handleClick(item)}
+                onDoubleClick={(e) => Item.onView(item)}
                 className='align-middle'>
-                <td className={enabledClass(item)} title={item.id}>
-                    <img src={Types.icon(item.type)} width="20"
-                        alt={item.type} className='me-2' />
-                    <span className='align-middle user-select-none'>{item.name}</span>
-                    <Status item={item} status={app.state.status[item.id]} />
-                </td>
+                <Item.Td item={item} status={app.state.status[item.id]} />
                 <td>
-                    <Button variant="link" onClick={(e) => handleClick(item)}>View</Button>
+                    <Button variant="link" onClick={(e) => Item.onView(item)}>View</Button>
                 </td>
             </tr>) : null
     })

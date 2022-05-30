@@ -18,7 +18,7 @@ defmodule Modbus.RescueTest do
     {:ok, spid} = Slave.start_link(model: @state)
     port = Slave.port(spid)
     {:ok, pid} = Master.start_link(ip: {127, 0, 0, 1}, port: port)
-    {:error, {:invalid, {:cmd, 0}}} = Master.exec(pid, {:cmd, 0})
+    {:error, {:invalid, {:cmd, 0}, 0}} = Master.exec(pid, {:cmd, 0})
     :ok = Master.exec(pid, {:fc, 0x50, 0x5152, 0})
     {:ok, [0]} = Master.exec(pid, {:rc, 0x50, 0x5152, 1})
     :ok = Master.exec(pid, {:fc, 0x50, 0x5152, 1})

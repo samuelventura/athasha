@@ -6,15 +6,14 @@ import { AppContext } from '../App'
 import Session from '../tools/Session'
 import Main from './Main'
 import State from './State'
-import '../common/Items.css'
 import './Index.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <AppContext path="items"
+    <AppContext path="editor"
       reducer={State.reducer}
       initial={State.initial}
-      sessioner={Session.api("items")}>
+      sessioner={Session.api("editor")}>
       <Main />
     </AppContext>
   </React.StrictMode>,

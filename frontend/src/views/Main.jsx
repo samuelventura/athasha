@@ -2,7 +2,7 @@ import React from 'react'
 import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import { ConnectDialog } from '../Dialogs'
-import { HostButton } from '../items/Dialogs'
+import { HostButton } from '../Dialogs'
 import Browser from "./Browser"
 import Logo from '../logo.svg'
 

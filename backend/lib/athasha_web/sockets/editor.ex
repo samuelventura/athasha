@@ -1,9 +1,8 @@
-defmodule AthashaWeb.Socket.Items do
+defmodule AthashaWeb.Socket.Editor do
   @behaviour Phoenix.Socket.Transport
   @ping 5000
   alias Athasha.Bus
   alias Athasha.Auth
-  alias Athasha.Item
   alias Athasha.Server
   alias Athasha.PubSub
   alias Athasha.Globals
@@ -13,8 +12,8 @@ defmodule AthashaWeb.Socket.Items do
     %{id: __MODULE__, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
   end
 
-  def connect(_state) do
-    {:ok, %{logged: false}}
+  def connect(state) do
+    {:ok, %{logged: false, id: state.params["id"]}}
   end
 
   def init(state) do
@@ -31,21 +30,21 @@ defmodule AthashaWeb.Socket.Items do
     reply_text(resp, state)
   end
 
-  def handle_info({:status, nil, status}, state) do
+  def handle_info({{:status, id}, nil, status}, state) do
+    status = Map.put(status, :id, id)
     resp = %{name: "status", args: status}
     reply_text(resp, state)
   end
 
-  def handle_info(:logged, state) do
-    Bus.register!(:status)
+  def handle_info(:logged, state = %{id: id}) do
+    Bus.register!({:status, id})
     Bus.register!(:version)
     Bus.register!(:logout)
-    status = PubSub.Status.get_all()
+    status = [PubSub.Status.get_one(id)]
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = Globals.find_all()
-    items = Enum.map(all.items, &Item.head(&1))
-    args = Map.put(args, :items, items)
+    args = Map.put(args, :items, all.items)
     args = Map.put(args, :status, status)
     resp = %{name: "init", args: args}
     reply_text(resp, state)
@@ -59,24 +58,15 @@ defmodule AthashaWeb.Socket.Items do
     {:stop, :init, state}
   end
 
-  def handle_info({:version, nil, {from, version, muta, item}}, state) do
-    # do not handle "edit" in separated method without updating state version
+  def handle_info({:version, nil, {from, version, muta, _item}}, state) do
     case state.version + 1 do
       ^version ->
-        case muta.name do
-          "edit" ->
-            state = Map.put(state, :version, version)
-            {:ok, state}
-
-          _ ->
-            item = Item.head(item)
-            args = %{id: item.id, item: item}
-            muta = Map.put(muta, :version, version)
-            muta = Map.put(muta, :self, from == self())
-            muta = Map.put(muta, :args, args)
-            state = Map.put(state, :version, version)
-            reply_text(muta, state)
-        end
+        args = muta.args
+        muta = Map.put(muta, :version, version)
+        muta = Map.put(muta, :self, from == self())
+        muta = Map.put(muta, :args, args)
+        state = Map.put(state, :version, version)
+        reply_text(muta, state)
 
       _ ->
         {:ok, state}
@@ -111,43 +101,11 @@ defmodule AthashaWeb.Socket.Items do
     end
   end
 
-  defp handle_event(%{"name" => "backup-all"}, state = %{logged: true}) do
-    all = Server.all()
-    args = %{hostname: Globals.find_hostname(), items: all.items}
-    resp = %{name: "backup-all", args: args}
-    reply_text(resp, state)
-  end
-
-  defp handle_event(event = %{"name" => "backup-one"}, state = %{logged: true}) do
-    args = event["args"]
-    id = args["id"]
-    one = Server.one(id)
-    resp = %{name: "backup-one", args: one.item}
-    reply_text(resp, state)
-  end
-
-  defp handle_event(event = %{"name" => "restore"}, state = %{logged: true}) do
-    name = event["name"]
-
-    args =
-      Enum.map(event["args"], fn item ->
-        %{
-          id: item["id"],
-          name: item["name"],
-          type: item["type"],
-          enabled: item["enabled"],
-          config: item["config"]
-        }
-      end)
-
-    Server.apply(%{name: name, args: args})
-
-    {:ok, state}
-  end
-
-  defp handle_event(event, state = %{logged: true}) do
+  defp handle_event(event, state = %{logged: true, id: id}) do
     name = event["name"]
     args = event["args"]
+    # assert
+    ^id = args["id"]
     event = fix_event(name, args)
     # ignore event collision (do not check :ok =)
     Server.apply(event)
@@ -156,28 +114,11 @@ defmodule AthashaWeb.Socket.Items do
 
   defp fix_event(name, args) do
     case name do
-      "rename" ->
-        %{name: "rename", args: %{id: args["id"], name: args["name"]}}
-
       "enable" ->
         %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
 
-      "delete" ->
-        %{name: "delete", args: %{id: args["id"]}}
-
-      "clone" ->
-        %{name: "clone", args: %{id: args["id"]}}
-
-      "create" ->
-        %{
-          name: "create",
-          args: %{
-            name: args["name"],
-            type: args["type"],
-            enabled: args["enabled"],
-            config: args["config"]
-          }
-        }
+      "edit" ->
+        %{name: "edit", args: %{id: args["id"], config: args["config"]}}
     end
   end
 

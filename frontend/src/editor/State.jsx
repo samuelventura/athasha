@@ -1,17 +1,16 @@
+import Router from "../tools/Router"
 import Log from "../tools/Log"
+import Extractor from "./Extractor"
 
 function initial() {
   return {
+    editor: Router.getEditorId(),
     items: {},
     status: {},
-    selected: {},
-    created: {},
     targeted: {},
+    inputs: [],
+    outputs: [],
     version: 0,
-    hostname: "",
-    identity: "",
-    licenses: 0,
-    addresses: [],
   }
 }
 
@@ -31,16 +30,38 @@ function version_state(next) {
   return next
 }
 
+function update_points(next) {
+  const inputs = []
+  const outputs = []
+  const addInput = (point) => inputs.push(point)
+  const addOutput = (point) => outputs.push(point)
+  Object.values(next.items).forEach((item) => {
+    Extractor.inputExtractor(item.type)(item, addInput)
+    Extractor.outputExtractor(item.type)(item, addOutput)
+  })
+  next.inputs = inputs
+  next.outputs = outputs
+}
+
+function setup_editor(next) {
+  if (next.editor) {
+    const item = next.items[next.editor]
+    if (item) {
+      next.targeted = {
+        action: "edit",
+        item
+      }
+      document.title = `Athasha ${item.type} Editor - ${item.name}`
+    }
+  }
+}
+
 function reducer(state, { name, args, self, restore }) {
   switch (name) {
     case "init": {
       const next = clone_object(state)
       next.items = {}
       next.status = {}
-      next.hostname = args.hostname
-      next.identity = args.identity
-      next.licenses = args.licenses
-      next.addresses = args.addresses
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
@@ -48,35 +69,55 @@ function reducer(state, { name, args, self, restore }) {
       args.status.forEach(status => {
         next.status[status.id] = build_status(status.type, status.msg)
       })
+      setup_editor(next)
+      update_points(next)
       return version_state(next)
     }
     case "create": {
       const next = clone_object(state)
-      next.items[args.id] = args.item
+      const item = clone_object(args)
+      next.items[args.id] = item
       next.status[args.id] = {}
       if (self) {
-        next.selected = args.item
+        next.selected = item
       }
       if (self && !restore) {
-        next.created = args.item
+        next.created = item
       }
+      update_points(next)
       return version_state(next)
     }
-    case "rename": {
+    case "created": {
       const next = clone_object(state)
-      next.items[args.id] = args.item
-      return version_state(next)
-    }
-    case "enable": {
-      const next = clone_object(state)
-      next.items[args.id] = args.item
-      next.status[args.id] = {}
+      next.created = args
       return version_state(next)
     }
     case "delete": {
       const next = clone_object(state)
       delete next.status[args.id]
       delete next.items[args.id]
+      update_points(next)
+      return version_state(next)
+    }
+    case "rename": {
+      const next = clone_object(state)
+      next.items[args.id].name = args.name
+      return version_state(next)
+    }
+    case "enable": {
+      const next = clone_object(state)
+      next.items[args.id].enabled = args.enabled
+      next.status[args.id] = build_status("info", args.enabled ? "Enabled" : "Disabled")
+      return version_state(next)
+    }
+    case "edit": {
+      const next = clone_object(state)
+      const item = next.items[args.id]
+      item.config = args.config
+      if (self) {
+        next.selected = item
+      }
+      update_points(next)
       return version_state(next)
     }
     case "status": {
@@ -84,11 +125,6 @@ function reducer(state, { name, args, self, restore }) {
       if (next.items[args.id]) {
         next.status[args.id] = build_status(args.type, args.msg)
       }
-      return version_state(next)
-    }
-    case "created": {
-      const next = clone_object(state)
-      next.created = args
       return version_state(next)
     }
     case "select": {

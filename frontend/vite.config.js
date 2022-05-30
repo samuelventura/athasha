@@ -34,6 +34,12 @@ export default defineConfig({
         secure: false,
         ws: true
       },
+      '/editor/websocket': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      },
       '/points/websocket': {
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,

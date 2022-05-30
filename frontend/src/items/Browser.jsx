@@ -1,33 +1,20 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import Filter from '../tools/Filter'
 import Log from "../tools/Log"
 import Files from '../tools/Files'
-import Search from "./Search"
-import Header from "./Header"
+import Search from "../common/Search"
+import Header from "../common/Header"
+import useItems from '../common/Items'
+import { useApp } from '../App'
 import Rows from "./Rows"
 import New from "./New"
-import { useApp } from '../App'
 
 function Browser() {
     const app = useApp()
-    const [filter, setFilter] = useState("")
-    const [sort, setSort] = useState("asc")
-
-    function handleFilterChange(value) {
-        setFilter(value)
-    }
-
-    function handleSortChange(value) {
-        setSort(value)
-    }
-
-    function viewItems() {
-        return Filter.apply(app.state.items, filter, sort)
-    }
+    const items = useItems()
 
     function onAction(action) {
         switch (action) {
@@ -48,16 +35,7 @@ function Browser() {
                 break
             }
             case "backup-all": {
-                const items = Object.values(app.state.items).map(item => {
-                    return {
-                        id: item.id,
-                        name: item.name,
-                        type: item.type,
-                        enabled: item.enabled,
-                        config: item.config,
-                    }
-                })
-                Files.downloadJson(items, app.state.hostname, Files.backupExtension)
+                app.send({ name: "backup-all" })
                 break
             }
             case "restore": {
@@ -78,8 +56,8 @@ function Browser() {
                     <tr>
                         <th>
                             <Search
-                                filter={filter}
-                                onFilterChange={handleFilterChange}
+                                filter={items.filter}
+                                onFilterChange={items.onFilterChange}
                             />
                         </th>
                         <th>
@@ -92,8 +70,8 @@ function Browser() {
                 <thead>
                     <tr>
                         <th>
-                            <Header sort={sort}
-                                onSortChange={handleSortChange} />
+                            <Header sort={items.sort}
+                                onSortChange={items.onSortChange} />
                         </th>
                         <th>
                             <Dropdown as={ButtonGroup}>
@@ -112,7 +90,7 @@ function Browser() {
                         </th>
                     </tr>
                 </thead>
-                <Rows items={viewItems()} />
+                <Rows items={items.list()} />
             </Table >
         </>
     )

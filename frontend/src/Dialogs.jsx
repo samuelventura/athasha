@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
+import Dropdown from 'react-bootstrap/Dropdown'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { faKey } from '@fortawesome/free-solid-svg-icons'
+import Router from './tools/Router'
 import { useApp } from './App'
 
 function ConnectDialog() {
@@ -92,9 +95,28 @@ function AlertBanner() {
   ) : null
 }
 
+function HostButton() {
+  const app = useApp()
+  const addresses = [app.state.hostname, ...app.state.addresses, "localhost", "127.0.0.1"]
+  const dropdownItems = addresses.map((ip, index) =>
+    <Dropdown.Item key={index} href={Router.reHost(ip)}>{ip}</Dropdown.Item>
+  )
+  return app.logged ? (
+    <Dropdown className="d-inline">
+      <Dropdown.Toggle variant="link" title="Change Hostname/IP">
+        <FontAwesomeIcon icon={faEthernet} />
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        {dropdownItems}
+      </Dropdown.Menu>
+    </Dropdown>
+  ) : null
+}
+
 export {
   ConnectDialog,
   LoginDialog,
   LogoutButton,
   AlertBanner,
+  HostButton,
 }

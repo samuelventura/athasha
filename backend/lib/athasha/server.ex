@@ -33,6 +33,10 @@ defmodule Athasha.Server do
     GenServer.call(__MODULE__, :all)
   end
 
+  def one(id) do
+    GenServer.call(__MODULE__, {:one, id})
+  end
+
   def apply(muta) do
     GenServer.call(__MODULE__, {:apply, self(), muta})
   end
@@ -75,6 +79,11 @@ defmodule Athasha.Server do
     {:reply, all, state}
   end
 
+  def handle_call({:one, id}, _from, state) do
+    one = get_one(state, id)
+    {:reply, one, state}
+  end
+
   def handle_call({:apply, from, muta = %{name: "restore"}}, _from, state) do
     state =
       Enum.reduce(muta.args, state, fn item, state ->
@@ -108,7 +117,8 @@ defmodule Athasha.Server do
       {:ok, state}
     rescue
       e ->
-        IO.inspect({e, __STACKTRACE__, from, muta, state})
+        IO.inspect({e, __STACKTRACE__, from, muta})
+        # IO.inspect({e, __STACKTRACE__, from, muta, state})
         {:error, e, state}
     end
   end
@@ -120,6 +130,18 @@ defmodule Athasha.Server do
     muta = Map.put(muta, :args, args)
     muta = Map.put(muta, :name, "create")
     muta = Map.put(muta, :restore, true)
+    apply_muta(:set, item, muta, from, state)
+  end
+
+  defp apply_muta(muta = %{name: "clone"}, from, state) do
+    id = muta.args.id
+    args = state.items[id]
+    args = Item.strip(args)
+    args = Map.put(args, :enabled, false)
+    {:ok, item} = insert(args)
+    args = Item.strip(item)
+    muta = Map.put(muta, :args, args)
+    muta = Map.put(muta, :name, "create")
     apply_muta(:set, item, muta, from, state)
   end
 
@@ -193,6 +215,16 @@ defmodule Athasha.Server do
 
   defp insert(args, :id) do
     Item.changeset(%Item{}, args, :id) |> Repo.insert()
+  end
+
+  defp get_one(state, id) do
+    item =
+      case state.items[id] do
+        nil -> nil
+        item -> Item.strip(item)
+      end
+
+    %{version: state.version, item: item}
   end
 
   defp get_all(state) do

@@ -1,0 +1,19 @@
+svg.draggable {
+    cursor: move;
+}
+
+/* hide ugly datalist arrow down */
+input::-webkit-calendar-picker-indicator {
+    color: white;
+}
+
+svg text {
+    -webkit-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.form-floating:not(:placeholder-shown) {
+    color: silver !important;
+}

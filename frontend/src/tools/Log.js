@@ -1,20 +1,34 @@
+// LOG
 
-let logEnabled = import.meta.env.DEV
+const enabled = {
+    log: import.meta.env.DEV,
+    react: import.meta.env.DEV,
+}
 
-function log(...args) {
-    if (logEnabled) {
-        console.log(...args)
+function createLog(name) {
+    return function log(...args) {
+        if (enabled[name]) {
+            console.log(...args)
+        }
     }
 }
 
-function enableLog(enable) {
-    logEnabled = enable
+function enableLog(name) {
+    enabled[name] = true
 }
 
-window.enableLog = enableLog
-window.logOn = () => enableLog(true)
-window.logOff = () => enableLog(false)
+function disableLog(name) {
+    enabled[name] = false
+}
 
-const exports = { log }
+window.logOn = (name) => enableLog(name || "log")
+window.logOff = (name) => disableLog(name || "log")
+
+
+const log = createLog("log")
+const react = createLog("react")
+
+// EXPORTS
+const exports = { log, react }
 
 export default exports

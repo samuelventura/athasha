@@ -9,11 +9,11 @@ import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
 import { DeleteAllItems } from "./Dialogs"
 import Clipboard from "../tools/Clipboard"
-import EditItem from "./Editor"
-import Types from "./Types"
-import Status from "./Status"
+import Types from "../common/Types"
+import Item from "../common/Item"
 
 function Rows(props) {
+    Log.react("Rows")
     const app = useApp()
 
     function isSelected(item) {
@@ -29,17 +29,11 @@ function Rows(props) {
             "table-active" : ""
     }
 
-    function enabledClass(item) {
-        return item.enabled ?
-            "fw-normal" : "fst-italic"
-    }
-
     function onAction(action, item, args) {
         app.dispatch({ name: "select", args: item })
         switch (action) {
             case "edit": {
-                // app.dispatch({ name: "target", args: { action, item } })
-                window.open(`editor.html?id=${item.id}`, '_blank').focus();
+                Item.onEdit(item)
                 break
             }
             case "delete": {
@@ -55,20 +49,15 @@ function Rows(props) {
                 break
             }
             case "clone": {
-                const clone = JSON.parse(JSON.stringify(item))
-                clone.id = null
-                clone.enabled = false
-                app.send({ name: "create", args: clone })
+                app.send({ name: "clone", args: { id: item.id } })
                 break
             }
             case "backup": {
-                const clone = JSON.parse(JSON.stringify(item))
-                Files.downloadJson([clone], item.name, Files.backupExtension);
+                app.send({ name: "backup-one", args: { id: item.id } })
                 break
             }
             case "view": {
-                const page = item.type.toLowerCase()
-                window.open(`${page}.html?id=${item.id}`, '_blank').focus();
+                Item.onView(item)
                 break
             }
             case "copy-id": {
@@ -81,6 +70,7 @@ function Rows(props) {
     }
 
     const rows = props.items.map(item => {
+        Log.react("Row", item.id)
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
             <Button variant="link" onClick={(e) => onAction('view', item)}
@@ -91,12 +81,7 @@ function Rows(props) {
             onClick={() => handleSelect(item)}
             onDoubleClick={(e) => onAction("edit", item)}
             className={selectedClass(item) + ' align-middle'}>
-            <td className={enabledClass(item)} title={item.id}>
-                <img src={Types.icon(item.type)} width="20"
-                    alt={item.type} className='me-2' />
-                <span className='align-middle user-select-none'>{item.name}</span>
-                <Status item={item} status={app.state.status[item.id]} />
-            </td>
+            <Item.Td item={item} status={app.state.status[item.id]} />
             <td>
                 {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
@@ -140,7 +125,6 @@ function Rows(props) {
 
     return (
         <tbody>
-            <EditItem />
             <DeleteItem />
             <RenameItem />
             <DeleteAllItems />

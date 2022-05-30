@@ -1,6 +1,7 @@
 import React from 'react'
 import Badge from 'react-bootstrap/Badge'
 import Clipboard from "../tools/Clipboard"
+import Types from './Types'
 
 function statusTitle(item, status) {
     if (!item.enabled) {
@@ -44,4 +45,46 @@ function Status({ item, status }) {
     )
 }
 
-export default Status
+function enabledClass(item) {
+    return item.enabled ?
+        "fw-normal" : "fst-italic"
+}
+
+function Name({ item }) {
+    return <span className='align-middle user-select-none'>{item.name}</span>
+}
+
+function Entry({ item, status }) {
+    return <>
+        <img src={Types.icon(item.type)} width="20"
+            alt={item.type} className='me-2' />
+        <Name item={item} />
+        <Status item={item} status={status} />
+    </>
+}
+
+function Td({ item, status }) {
+    return <td className={enabledClass(item)} title={item.id}>
+        <Entry item={item} status={status} />
+    </td>
+}
+
+function onView(item) {
+    const page = item.type.toLowerCase()
+    window.open(`${page}.html?id=${item.id}`, '_blank').focus();
+}
+
+function onEdit(item) {
+    window.open(`editor.html?id=${item.id}`, '_blank').focus();
+}
+
+const exports = {
+    Status,
+    Entry,
+    Name,
+    Td,
+    onView,
+    onEdit,
+}
+
+export default exports

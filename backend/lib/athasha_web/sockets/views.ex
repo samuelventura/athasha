@@ -53,7 +53,7 @@ defmodule AthashaWeb.Socket.Views do
   end
 
   def handle_info({:version, nil, {_from, version, muta, item}}, state) do
-    # do not handle "edit" in separated method without updateing state version
+    # do not handle "edit" in separated method without updating state version
     case state.version + 1 do
       ^version ->
         case muta.name do
@@ -63,7 +63,8 @@ defmodule AthashaWeb.Socket.Views do
 
           _ ->
             item = Item.head(item)
-            args = %{version: version, id: item.id, item: item}
+            args = %{id: item.id, item: item}
+            muta = Map.put(muta, :version, version)
             muta = Map.put(muta, :args, args)
             state = Map.put(state, :version, version)
             reply_text(muta, state)

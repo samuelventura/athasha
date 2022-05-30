@@ -1,28 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
-import Filter from '../tools/Filter'
-import Search from "./Search"
-import Header from "./Header"
+import Header from "../common/Header"
+import Search from "../common/Search"
+import useItems from '../common/Items'
 import Rows from "./Rows"
-import { useApp } from '../App'
 
 function Browser() {
-    const app = useApp()
-    const [filter, setFilter] = useState("")
-    const [sort, setSort] = useState("asc")
-
-    function handleFilterChange(value) {
-        setFilter(value)
-    }
-
-    function handleSortChange(value) {
-        setSort(value)
-    }
-
-    function viewItems() {
-        return Filter.apply(app.state.items, filter, sort)
-    }
+    const items = useItems()
 
     return (
         <>
@@ -31,8 +16,8 @@ function Browser() {
                     <tr>
                         <th>
                             <Search
-                                filter={filter}
-                                onFilterChange={handleFilterChange}
+                                filter={items.filter}
+                                onFilterChange={items.onFilterChange}
                             />
                         </th>
                     </tr>
@@ -42,8 +27,8 @@ function Browser() {
                 <thead>
                     <tr>
                         <th>
-                            <Header sort={sort}
-                                onSortChange={handleSortChange} />
+                            <Header sort={items.sort}
+                                onSortChange={items.onSortChange} />
                         </th>
                         <th>
                             <Button variant="none" className="pe-none">
@@ -52,7 +37,7 @@ function Browser() {
                         </th>
                     </tr>
                 </thead>
-                <Rows items={viewItems()} />
+                <Rows items={items.list()} />
             </Table>
         </>
     )

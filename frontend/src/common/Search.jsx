@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import Log from '../tools/Log'
 
 //requirements
 //- clears on escape
@@ -14,7 +14,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 //- enables clear button on non-empty
 // spaces do count to match placeholder behaviour
 function Search(props) {
-
+    Log.react("Search")
     const input = useRef(null)
     const [filter, setFilter] = useState("")
 
@@ -42,11 +42,11 @@ function Search(props) {
 
     useEffect(() => {
         setFilter(props.filter)
-    }, [props])
+    }, [props.filter])
 
     useEffect(() => {
         props.onFilterChange(filter)
-    }, [props, filter])
+    }, [filter, props.onFilterChange])
 
     function ClearButton() {
         return filter.length > 0 ? (<Button onClick={clearFilter}

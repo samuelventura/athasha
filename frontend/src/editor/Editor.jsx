@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import Types from './Types'
-import Status from "./Status"
+import Types from '../common/Types'
+import Item from "../common/Item"
+import Editors from './Editors'
 import { useApp } from '../App'
 
 function EditItem() {
@@ -64,7 +65,7 @@ function EditItem() {
             setValid(next.valid)
             setConfig(next.config)
         } : () => { }
-        const editor = Types.editor(type)(state)
+        const editor = Editors(type)(state)
         //the wrapping div destroys the screen 100vh requirement
         //the need for a key make this non iterable
         return match ? editor : <div className="d-none">{editor}</div>
@@ -79,8 +80,8 @@ function EditItem() {
             <Modal.Header closeButton>
                 <Modal.Title>
                     {itemIcon()}
-                    <span className="align-middle">{item.name}</span>
-                    <Status item={item} status={getStatus()} />
+                    <Item.Name item={item} />
+                    <Item.Status item={item} status={getStatus()} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
