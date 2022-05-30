@@ -95,6 +95,43 @@ function hasProp(value, label, prop) {
     }
 }
 
+function debounce(func, wait) {
+    let timeout
+    let later
+    let done
+    function clear() {
+        if (timeout) clearTimeout(timeout)
+        timeout = null
+    }
+    function reset() {
+        timeout = setTimeout(() => {
+            timeout = null
+            commit()
+        }, wait)
+    }
+    function commit() {
+        if (later) later()
+        later = null
+    }
+    const apply = function () {
+        const context = this, args = arguments
+        if (done) {
+            return func.apply(context, args)
+        }
+        later = function () {
+            func.apply(context, args)
+        }
+        clear()
+        reset()
+    }
+    function exit() {
+        commit()
+        clear()
+        done = true
+    }
+    return { apply, exit }
+}
+
 function props({ captured, setCaptured, label, hint, value, defval, setter, check }) {
     function recover() { return captured }
     function capture(value) { setCaptured(value) }
@@ -115,6 +152,7 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
             return false
         }
     }
+    const debounced = debounce(apply, 100)
     return {
         value: value,
         title: `${label}\n${hint}`,
@@ -124,19 +162,21 @@ function props({ captured, setCaptured, label, hint, value, defval, setter, chec
                 throw `Not null captured ${captured}`
             }
             capture(e.target.value)
-            apply(e, e.target.value)
+            debounced.apply(e, e.target.value)
         },
         onKeyPress: function (e) {
             if (e.key === 'Enter') {
-                apply(e, e.target.value)
+                e.preventDefault()
+                debounced.apply(e, e.target.value)
             }
         },
         onChange: function (e) {
-            apply(e, e.target.value)
+            debounced.apply(e, e.target.value)
         },
         onBlur: function (e) {
-            if (!apply(e, recover())) {
-                apply(e, defval)
+            debounced.exit()
+            if (!debounced.apply(e, recover())) {
+                debounced.apply(e, defval)
             }
             remove()
         },

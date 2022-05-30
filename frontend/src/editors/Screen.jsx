@@ -14,6 +14,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
+import debounceRender from "react-debounce-render"
 import { FormEntry } from '../controls/Tools'
 import Points from '../common/Points'
 import Controls from './Controls'
@@ -538,6 +539,10 @@ function PreviewControl({ preview, setPreview }) {
     </span>)
 }
 
+const DebouncedSvgWindow = debounceRender(SvgWindow, 100, {
+    leading: true,
+})
+
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [controls, setControls] = useState(Initial.config().controls)
@@ -659,7 +664,7 @@ function Editor(props) {
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
             </Col>
             <Col className="gx-0 bg-light">
-                <SvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
+                <DebouncedSvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
                     selected={selected} setSelected={setSelected} preview={preview} />
             </Col>
             <Col sm="auto" style={rightStyle} className="mh-100">
