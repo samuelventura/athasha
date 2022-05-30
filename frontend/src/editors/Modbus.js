@@ -133,8 +133,8 @@ const hints = {
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     inputs: {
-        slave: (i) => "Non empty integer [0, 255]",
-        code: (i) => "Select the function code from list"
+        slave: () => "Non empty integer [0, 255]",
+        code: () => "Select the function code from list"
             + "\n01 Read Coil"
             + "\n02 Read Input"
             + "\n03 Read Holding Register"
@@ -146,14 +146,14 @@ const hints = {
             + "\nBE Big Endian"
             + "\nLE Little Endian"
             + "\nD/R Direct/Reversed",
-        address: (i) => "Non empty integer [1, 65536]",
-        name: (i) => "Non empty input name",
-        factor: (i) => "Non zero number m in f(x)=m*x+b",
-        offset: (i) => "Non empty number b in f(x)=m*x+b",
+        address: () => "Non empty integer [1, 65536]",
+        name: () => "Non empty input name",
+        factor: () => "Non zero number m in f(x)=m*x+b",
+        offset: () => "Non empty number b in f(x)=m*x+b",
     },
     outputs: {
-        slave: (i) => "Non empty integer [0, 255]",
-        code: (i) => "Select the function code from list"
+        slave: () => "Non empty integer [0, 255]",
+        code: () => "Select the function code from list"
             + "\n05 Write Coil"
             + "\n06 Write Register"
             + "\n16 Write Registers"
@@ -164,10 +164,10 @@ const hints = {
             + "\nBE Big Endian"
             + "\nLE Little Endian"
             + "\nD/R Direct/Reversed",
-        address: (i) => "Non empty integer [1, 65536]",
-        name: (i) => "Non empty input name",
-        factor: (i) => "Non zero number m in f(x)=m*x+b",
-        offset: (i) => "Non empty number b in f(x)=m*x+b",
+        address: () => "Non empty integer [1, 65536]",
+        name: () => "Non empty input name",
+        factor: () => "Non zero number m in f(x)=m*x+b",
+        offset: () => "Non empty number b in f(x)=m*x+b",
     },
 }
 

@@ -25,7 +25,6 @@ function calcGeom(parent, setts) {
     const H = Number(setts.height)
     const gx = Number(setts.gridX)
     const gy = Number(setts.gridY)
-    const pr = parent.pw / parent.ph
     const sx = W / gx
     const sy = H / gy
     let w = W
@@ -117,7 +116,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
     const { ref, width, height } = useResizeDetector()
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
-    const { H, W, vb, sx, sy } = calcGeom(parent, setts)
+    const { vb, sx, sy } = calcGeom(parent, setts)
     const background = setts.bgColor
     const controlList = controls.map((control, index) => {
         const csetts = control.setts

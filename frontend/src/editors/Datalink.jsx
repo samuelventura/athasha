@@ -13,10 +13,8 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../common/Points'
 import Initial from './Datalink.js'
 import Check from './Check'
-import { useApp } from '../App'
 
 function Editor(props) {
-    const app = useApp()
     const [setts, setSetts] = useState(Initial.config().setts)
     const [links, setLinks] = useState(Initial.config().links)
     const [captured, setCaptured] = useState(null)

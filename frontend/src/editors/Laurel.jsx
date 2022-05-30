@@ -81,7 +81,7 @@ function Editor(props) {
         next.splice(index, 0, next.splice(pindex, 1)[0])
         setSlaveProp(sindex, "inputs", next)
     }
-    function setInputProp(sindex, pindex, name, value, e) {
+    function setInputProp(sindex, pindex, name, value) {
         const slave = slaves[sindex]
         const next = [...slave.inputs]
         next[pindex][name] = value
@@ -108,7 +108,7 @@ function Editor(props) {
         next.splice(index, 0, next.splice(pindex, 1)[0])
         setSlaveProp(sindex, "outputs", next)
     }
-    function setOutputProp(sindex, pindex, name, value, e) {
+    function setOutputProp(sindex, pindex, name, value) {
         const slave = slaves[sindex]
         const next = [...slave.outputs]
         next[pindex][name] = value

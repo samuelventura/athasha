@@ -57,7 +57,7 @@ const hints = {
         + "\nQuery must return equal number of columns as added inputs"
         + "\nConsult your IT specialist",
     inputs: {
-        name: (i) => "Non empty input name",
+        name: () => "Non empty input name",
     }
 }
 

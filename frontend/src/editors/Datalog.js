@@ -53,7 +53,7 @@ const hints = {
         + "\nFor instance @1 references input 1"
         + "\nConsult your IT specialist",
     inputs: {
-        id: (i) => "Select the input name from the list",
+        id: () => "Select the input name from the list",
     }
 }
 

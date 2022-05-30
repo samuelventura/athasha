@@ -78,8 +78,8 @@ const hints = {
     yformat: "Use 0.00 for 2 decimal digits",
     lineWidth: "Non empty integer > 0",
     columns: {
-        name: (i) => "Non empty column name",
-        color: (i) => "Non empty column color #RRGGBB",
+        name: () => "Non empty column name",
+        color: () => "Non empty column color #RRGGBB",
     }
 }
 

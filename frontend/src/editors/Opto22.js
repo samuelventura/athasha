@@ -84,16 +84,16 @@ const hints = {
     password: "Optional access password",
     slave: "Non empty integer [0, 255]",
     inputs: {
-        code: (i) => "Select the input type from list",
-        module: (i) => "Non empty integer [0, 15]",
-        number: (i) => "Non empty integer [1, 4]",
-        name: (i) => "Non empty input name",
+        code: () => "Select the input type from list",
+        module: () => "Non empty integer [0, 15]",
+        number: () => "Non empty integer [1, 4]",
+        name: () => "Non empty input name",
     },
     outputs: {
-        code: (i) => "Select the output type from list",
-        module: (i) => "Non empty integer [0, 15]",
-        number: (i) => "Non empty integer [1, 4]",
-        name: (i) => "Non empty output name",
+        code: () => "Select the output type from list",
+        module: () => "Non empty integer [0, 15]",
+        number: () => "Non empty integer [1, 4]",
+        name: () => "Non empty output name",
     },
 }
 

@@ -68,7 +68,7 @@ function isLE(value, label, limit) {
     }
 }
 
-function notZero(value, label, limit) {
+function notZero(value, label) {
     const num = Number(value)
     if (num === 0) {
         throw `${label} is cannot be 0`

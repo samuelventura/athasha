@@ -5,10 +5,8 @@ import Types from '../common/Types'
 import Item from "../common/Item"
 import Editors from './Editors'
 import { useApp } from '../App'
-import Log from '../tools/Log'
 
 function EditItem() {
-    Log.react("EditItem")
     const app = useApp()
     const item = app.state.item
     const status = app.state.status
@@ -25,10 +23,11 @@ function EditItem() {
                     app.dispatch({ name: "target", args: {} })
                 }
                 break
-            case "view":
+            case "view": {
                 const page = item.type.toLowerCase()
                 window.open(`${page}.html?id=${id}`, '_blank').focus();
                 break
+            }
             case "save":
                 app.send({ name: "edit", args: { id, config } })
                 break

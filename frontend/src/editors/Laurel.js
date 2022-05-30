@@ -125,16 +125,16 @@ const hints = {
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     slaves: {
-        address: (i) => `Non empty integer [0-255]`,
-        decimals: (i) => `Non empty integer [0-16]`,
+        address: () => `Non empty integer [0-255]`,
+        decimals: () => `Non empty integer [0-16]`,
     },
     inputs: {
-        code: (i) => `Select the register name from list`,
-        name: (i) => `Non empty input name`,
+        code: () => `Select the register name from list`,
+        name: () => `Non empty input name`,
     },
     outputs: {
-        code: (i) => `Select the register name from list`,
-        name: (i) => `Non empty output name`,
+        code: () => `Select the register name from list`,
+        name: () => `Non empty output name`,
     },
 }
 

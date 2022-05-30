@@ -12,7 +12,7 @@ function Main() {
       <Navbar bg="light" variant="light">
         <Container>
           <Navbar.Brand title="athasha.io">
-            <a href="https://athasha.io" target="_blank">
+            <a href="https://athasha.io" target="_blank" rel="noreferrer">
               <img src={Logo} alt="Athasha" height="48"></img>
             </a>
           </Navbar.Brand>

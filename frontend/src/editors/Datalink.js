@@ -41,10 +41,10 @@ const labels = {
 const hints = {
     period: "Non empty integer period > 0",
     links: {
-        input: (i) => "Select the input name from the list",
-        output: (i) => "Select the output name from the list",
-        factor: (i) => "Non zero number m in f(x)=m*x+b",
-        offset: (i) => "Non empty number b in f(x)=m*x+b",
+        input: () => "Select the input name from the list",
+        output: () => "Select the output name from the list",
+        factor: () => "Non zero number m in f(x)=m*x+b",
+        offset: () => "Non empty number b in f(x)=m*x+b",
     }
 }
 

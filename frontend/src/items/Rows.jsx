@@ -1,9 +1,8 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Log from "../tools/Log"
-import Files from "../tools/Files"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
 import { RenameItem } from "./Dialogs"
@@ -71,30 +70,30 @@ function Rows(props) {
     const rows = props.items.map(item => {
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
-            <Button variant="link" onClick={(e) => onAction('view', item)}
+            <Button variant="link" onClick={() => onAction('view', item)}
                 onDoubleClick={(e) => onDoubleClick(e)}
                 disabled={!Types.withView.includes(item.type)}>View</Button>
         )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}
-            onDoubleClick={(e) => onAction("edit", item)}
+            onDoubleClick={() => onAction("edit", item)}
             className={selectedClass(item) + ' align-middle'}>
             <Item.Td item={item} status={app.state.status[item.id]} />
             <td>
                 {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
-                    <Button variant="link" onClick={(e) => onAction('edit', item)}>
+                    <Button variant="link" onClick={() => onAction('edit', item)}>
                         Edit
                     </Button>
                     <Dropdown.Toggle split variant="link" />
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={(e) => onAction('rename', item)}>Rename</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('enable', item, true)}>Enable</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('enable', item, false)}>Disable</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('delete', item)}>Delete</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('clone', item)}>Clone</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('backup', item)}>Backup</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => onAction('copy-id', item)}>Copy ID</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('rename', item)}>Rename</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('enable', item, true)}>Enable</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('enable', item, false)}>Disable</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('delete', item)}>Delete</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('clone', item)}>Clone</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('backup', item)}>Backup</Dropdown.Item>
+                        <Dropdown.Item onClick={() => onAction('copy-id', item)}>Copy ID</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>

@@ -19,7 +19,7 @@ function uploadJson(ext, callback) {
     const input = document.createElement('input')
     input.setAttribute('accept', `.${ext}`)
     input.type = 'file'
-    input.onchange = _ => {
+    input.onchange = () => {
         const files = Array.from(input.files)
         const reader = new FileReader()
         reader.addEventListener('load', (event) => {

@@ -159,7 +159,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         const w = cetts.width * sx
         const h = cetts.height * sy
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
-        function onClickControl(event, index, control) {
+        function onClickControl(event) {
             //prevent screen click and selection clear
             event.stopPropagation()
         }

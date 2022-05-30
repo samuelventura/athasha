@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -72,7 +72,7 @@ function DeleteItem() {
                 <Modal.Title>Danger</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Delete item '{name}'?
+                Delete item &apos;{name}&apos;?
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onCancel}>
