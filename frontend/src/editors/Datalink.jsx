@@ -15,9 +15,10 @@ import Initial from './Datalink.js'
 import Check from './Check'
 
 function Editor(props) {
+    const captured = props.globals.captured
+    const setCaptured = props.globals.setCaptured
     const [setts, setSetts] = useState(Initial.config().setts)
     const [links, setLinks] = useState(Initial.config().links)
-    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -52,15 +53,14 @@ function Editor(props) {
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                const next = { ...setts }
-                next[name] = value
-                setSetts(next)
+                setts[name] = value
+                setSetts({ ...setts })
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
@@ -77,7 +77,7 @@ function Editor(props) {
         const args = { captured, setCaptured }
         args.label = Initial.labels.links[prop](index)
         args.hint = Initial.hints.links[prop](index)
-        args.value = links[index][prop]
+        args.getter = () => links[index][prop]
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.links[prop](index, value)
         args.defval = Initial.link()[prop]

@@ -111,11 +111,13 @@ const cchecks = {
         Check.isString(value, labels.posX)
         Check.notEmpty(value, labels.posX)
         Check.isInteger(value, labels.posX)
+        Check.isGE(value, labels.posX, 0)
     },
     posY: function (value) {
         Check.isString(value, labels.posY)
         Check.notEmpty(value, labels.posY)
         Check.isInteger(value, labels.posY)
+        Check.isGE(value, labels.posY, 0)
     },
     width: function (value) {
         Check.isString(value, labels.width)

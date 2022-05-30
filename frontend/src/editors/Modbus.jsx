@@ -17,12 +17,13 @@ import Serial from "./Serial"
 import Check from './Check'
 
 function Editor(props) {
+    const captured = props.globals.captured
+    const setCaptured = props.globals.setCaptured
     const [setts, setSetts] = useState(Initial.config().setts)
     const [inputs, setInputs] = useState(Initial.config().inputs)
     const [outputs, setOutputs] = useState(Initial.config().outputs)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
-    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
@@ -61,11 +62,6 @@ function Editor(props) {
         next.splice(nindex, 0, next.splice(index, 1)[0])
         setInputs(next)
     }
-    function setInputProp(index, name, value) {
-        const next = [...inputs]
-        next[index][name] = value
-        setInputs(next)
-    }
     function addOutput() {
         const next = [...outputs]
         const output = Initial.output(next.length)
@@ -84,23 +80,17 @@ function Editor(props) {
         next.splice(nindex, 0, next.splice(index, 1)[0])
         setOutputs(next)
     }
-    function setOutputProp(index, name, value) {
-        const next = [...outputs]
-        next[index][name] = value
-        setOutputs(next)
-    }
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                const next = { ...setts }
-                next[name] = value
-                setSetts(next)
+                setts[name] = value
+                setSetts({ ...setts })
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
@@ -109,13 +99,15 @@ function Editor(props) {
     function inputProps(index, prop) {
         function setter(name) {
             return function (value) {
-                setInputProp(index, name, value)
+                const next = [...inputs]
+                next[index][name] = value
+                setInputs(next)
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels.inputs[prop](index)
         args.hint = Initial.hints.inputs[prop](index)
-        args.value = inputs[index][prop]
+        args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.inputs[prop](index, value)
         args.defval = Initial.input()[prop]
@@ -124,13 +116,15 @@ function Editor(props) {
     function outputProps(index, prop) {
         function setter(name) {
             return function (value) {
-                setOutputProp(index, name, value)
+                const next = [...outputs]
+                next[index][name] = value
+                setOutputs(next)
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels.outputs[prop](index)
         args.hint = Initial.hints.outputs[prop](index)
-        args.value = outputs[index][prop]
+        args.getter = () => outputs[index][prop]
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.outputs[prop](index, value)
         args.defval = Initial.output()[prop]

@@ -75,7 +75,9 @@ function onView(item) {
 }
 
 function onEdit(item) {
-    window.open(`editor.html?id=${item.id}`, '_blank').focus();
+    const data = { id: item.id, type: item.type }
+    const id = btoa(JSON.stringify(data))
+    window.open(`editor.html?id=${id}`, '_blank').focus();
 }
 
 const exports = {

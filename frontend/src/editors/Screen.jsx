@@ -317,20 +317,20 @@ function LeftPanel({ show, setShow, addControl }) {
     )
 }
 
-function ScreenEditor({ setShow, setts, setSetts, preview }) {
-    const [captured, setCaptured] = useState(null)
+function ScreenEditor({ setShow, setts, setSetts, preview, globals }) {
+    const captured = globals.captured
+    const setCaptured = globals.setCaptured
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                const next = { ...setts }
-                next[name] = value
-                setSetts(next)
+                setts[name] = value
+                setSetts({ ...setts })
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
@@ -398,12 +398,13 @@ function ScreenEditor({ setShow, setts, setSetts, preview }) {
 
 function ControlEditor({ setShow, selected, setCSetts, actionControl,
     setDataProp, preview, globals }) {
-    const [captured, setCaptured] = useState(null)
     const { control } = selected
     const setts = control.setts
+    const captured = globals.captured
+    const setCaptured = globals.setCaptured
     const controller = Controls.getController(control.type)
     const dataSetProp = (name, value, e) => setDataProp(control, name, value, e)
-    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, globals, captured, setCaptured }) : null
+    const editor = controller.Editor ? controller.Editor({ control, setProp: dataSetProp, globals }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -423,7 +424,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         const args = { captured, setCaptured }
         args.label = Initial.clabels[prop]
         args.hint = Initial.chints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.cchecks[prop]
         args.defval = Initial.csetts()[prop]
@@ -460,10 +461,10 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                     </ListGroup.Item>
                     <ListGroup.Item>
                         <FormEntry label={Initial.clabels.posX}>
-                            <Form.Control type="number" {...settsProps("posX")} step="1" />
+                            <Form.Control type="number" {...settsProps("posX")} min="0" step="1" />
                         </FormEntry>
                         <FormEntry label={Initial.clabels.posY}>
-                            <Form.Control type="number" {...settsProps("posY")} step="1" />
+                            <Form.Control type="number" {...settsProps("posY")} min="0" step="1" />
                         </FormEntry>
                         <FormEntry label={Initial.clabels.width}>
                             <Form.Control type="number" {...settsProps("width")} min="1" step="1" />
@@ -513,6 +514,7 @@ function RightPanel({ show, setShow, setts, setSetts, selected, actionControl,
         setts={setts}
         setSetts={setSetts}
         preview={preview}
+        globals={globals}
     />
     const controlEditor = <ControlEditor
         setShow={setShow}

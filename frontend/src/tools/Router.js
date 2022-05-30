@@ -21,11 +21,12 @@ function isViews() {
     return (locurl.pathname === "/views.html")
 }
 
-function getEditorId() {
-    if (locurl.pathname !== "/editor.html") return null
-    return locurl.searchParams.get("id")
+function getEditorData() {
+    if (locurl.pathname !== "/editor.html") return {}
+    const id = locurl.searchParams.get("id")
+    return JSON.parse(atob(id))
 }
 
-const exports = { wsURL, wsQuery, getEditorId, isViews, reHost }
+const exports = { wsURL, wsQuery, getEditorData, isViews, reHost }
 
 export default exports

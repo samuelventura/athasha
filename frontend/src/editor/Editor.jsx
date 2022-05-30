@@ -8,20 +8,18 @@ import { useApp } from '../App'
 
 function EditItem() {
     const app = useApp()
+    const type = app.state.type
     const item = app.state.item
     const status = app.state.status
     function isActive() { return !!item.id }
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
+    const [captured, setCaptured] = useState({})
     function onButton(action) {
         const id = item.id
         switch (action) {
             case "close":
-                if (app.state.editor) {
-                    window.close()
-                } else {
-                    app.dispatch({ name: "target", args: {} })
-                }
+                window.close()
                 break
             case "view": {
                 const page = item.type.toLowerCase()
@@ -44,19 +42,21 @@ function EditItem() {
         return JSON.parse(JSON.stringify(item.config))
     }
     //id required as use effect flag
-    function itemEditor(type) {
-        const state = { globals: { inputs: app.state.inputs, outputs: app.state.outputs } }
-        const match = item.id && type === item.type
-        state.config = match ? cloned() : {}
-        state.id = match ? item.id : ""
-        state.setter = match ? (next) => {
+    function itemEditor() {
+        const state = {
+            globals: {
+                captured, setCaptured,
+                inputs: app.state.inputs,
+                outputs: app.state.outputs
+            }
+        }
+        state.config = isActive() ? cloned() : {}
+        state.id = isActive() ? item.id : ""
+        state.setter = isActive() ? (next) => {
             setValid(next.valid)
             setConfig(next.config)
         } : () => { }
-        const editor = Editors(type)(state)
-        //the wrapping div destroys the screen 100vh requirement
-        //the need for a key make this non iterable
-        return match ? editor : <div className="d-none">{editor}</div>
+        return Editors(type)(state)
     }
     function itemIcon() {
         return isActive() ? <img className="align-middle me-2" src={Types.icon(item.type)} width="24"
@@ -64,7 +64,7 @@ function EditItem() {
     }
     return (
         <Modal show={isActive()} onHide={() => onButton("close")} backdrop="static"
-            centered dialogClassName="EditorModal" fullscreen keyboard={!app.state.editor}>
+            centered dialogClassName="EditorModal" fullscreen keyboard={false}>
             <Modal.Header closeButton>
                 <Modal.Title>
                     {itemIcon()}
@@ -73,14 +73,7 @@ function EditItem() {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {itemEditor("Datafetch")}
-                {itemEditor("Datalink")}
-                {itemEditor("Datalog")}
-                {itemEditor("Dataplot")}
-                {itemEditor("Laurel")}
-                {itemEditor("Modbus")}
-                {itemEditor("Opto22")}
-                {itemEditor("Screen")}
+                {itemEditor()}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={() => onButton("close")}

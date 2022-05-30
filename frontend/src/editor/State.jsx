@@ -3,8 +3,10 @@ import Extractor from "./Extractor"
 import Log from "../tools/Log"
 
 function initial() {
+  const editor = Router.getEditorData()
   return {
-    id: Router.getEditorId(),
+    id: editor.id,
+    type: editor.type,
     item: {},
     items: {},
     status: {},

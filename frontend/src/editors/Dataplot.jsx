@@ -18,9 +18,10 @@ import { useApp } from '../App'
 
 function Editor(props) {
     const app = useApp()
+    const captured = props.globals.captured
+    const setCaptured = props.globals.setCaptured
     const [setts, setSetts] = useState(Initial.config().setts)
     const [columns, setColumns] = useState(Initial.config().columns)
-    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -42,7 +43,7 @@ function Editor(props) {
         setColumns(next)
     }
     function delColumn(index) {
-        if (index < 1 || columns.length < 3) return
+        if (index < 1) return
         const next = [...columns]
         next.splice(index, 1)
         setColumns(next)
@@ -57,15 +58,14 @@ function Editor(props) {
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                const next = { ...setts }
-                next[name] = value
-                setSetts(next)
+                setts[name] = value
+                setSetts({ ...setts })
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
@@ -82,7 +82,7 @@ function Editor(props) {
         const args = { captured, setCaptured }
         args.label = Initial.labels.columns[prop](index)
         args.hint = Initial.hints.columns[prop](index)
-        args.value = columns[index][prop]
+        args.getter = () => columns[index][prop]
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.columns[prop](index, value)
         args.defval = Initial.column()[prop]
@@ -103,7 +103,7 @@ function Editor(props) {
                 </InputGroup>
             </td>
             <td>
-                <Button variant='outline-danger' size="sm" disabled={index < 1 || columns.length < 3}
+                <Button variant='outline-danger' size="sm" disabled={index < 1}
                     onClick={() => delColumn(index)} title="Delete Row">
                     <FontAwesomeIcon icon={faTimes} />
                 </Button>

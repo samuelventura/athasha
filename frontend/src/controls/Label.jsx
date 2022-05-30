@@ -22,7 +22,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         const args = { captured, setCaptured }
         args.label = Initial.clabels[prop]
         args.hint = Initial.chints[prop]
-        args.value = cond[prop]
+        args.getter = () => cond[prop]
         args.setter = setter(prop)
         args.check = Initial.cchecks[prop]
         args.defval = Initial.cond()[prop]
@@ -86,7 +86,9 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         </>)
 }
 
-function Editor({ control, setProp, captured, setCaptured }) {
+function Editor({ control, setProp, globals }) {
+    const captured = globals.captured
+    const setCaptured = globals.setCaptured
     const data = control.data
     function setCondProp(cond) {
         return function (name, value) {
@@ -104,7 +106,7 @@ function Editor({ control, setProp, captured, setCaptured }) {
         const args = { captured, setCaptured }
         args.label = Initial.dlabels[prop]
         args.hint = Initial.dhints[prop]
-        args.value = data[prop]
+        args.getter = () => data[prop]
         args.setter = setter(prop)
         args.check = Initial.dchecks[prop]
         args.defval = Initial.data()[prop]

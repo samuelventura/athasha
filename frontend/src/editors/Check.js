@@ -132,56 +132,77 @@ function debounce(func, wait) {
     return { apply, exit }
 }
 
-function props({ captured, setCaptured, label, hint, value, defval, setter, check }) {
-    function recover() { return captured }
-    function capture(value) { setCaptured(value) }
-    function remove() { setCaptured(null) }
+function props({ captured, setCaptured, label, hint, defval, getter, setter, check }) {
+    function getValue() { return captured.value }
+    function getDebounced() { return captured.debounced }
+    function capture(value, debounced) {
+        captured.value = value
+        if (debounced) {
+            captured.debounced = debounced
+        }
+        setCaptured({ ...captured })
+    }
+    function release() { setCaptured({}) }
     function apply(e, val) {
         try {
             //do not trigger full validations on each blur
-            if (val != value) {
+            if (val != getter()) {
                 setter(val)
                 check(val)
                 capture(val)
-                e.target.classList.remove("is-invalid");
+                e.target.classList.remove("is-invalid")
             }
             return true
         }
         catch (ex) {
-            e.target.classList.add("is-invalid");
+            e.target.classList.add("is-invalid")
+            Log.log(ex)
             return false
         }
     }
-    const debounced = debounce(apply, 100)
     return {
-        value: value,
+        value: getter(),
         title: `${label}\n${hint}`,
         placeholder: label,
         onFocus: function (e) {
-            if (captured != null) {
+            if (captured.value != null) {
                 throw `Not null captured ${captured}`
             }
-            capture(e.target.value)
+            const debounced = e.target.type === "color" ? debounce(apply, 100) : {
+                apply, exit: () => { }
+            }
+            capture(e.target.value, debounced)
             debounced.apply(e, e.target.value)
         },
         onKeyPress: function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault()
+                const debounced = getDebounced()
                 debounced.apply(e, e.target.value)
             }
         },
         onChange: function (e) {
+            const debounced = getDebounced()
             debounced.apply(e, e.target.value)
         },
         onBlur: function (e) {
+            const debounced = getDebounced()
             debounced.exit()
-            if (!debounced.apply(e, recover())) {
+            if (!debounced.apply(e, getValue())) {
                 debounced.apply(e, defval)
             }
-            remove()
+            release()
         },
     }
 }
+
+// function time(action) {
+//     const start = new Date();
+//     action()
+//     const end = new Date();
+//     const diff = end.getTime() - start.getTime()
+//     Log.log("elapsed", diff)
+// }
 
 function run(action) {
     try {

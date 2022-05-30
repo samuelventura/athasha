@@ -18,9 +18,10 @@ import { useApp } from '../App'
 
 function Editor(props) {
     const app = useApp()
+    const captured = props.globals.captured
+    const setCaptured = props.globals.setCaptured
     const [setts, setSetts] = useState(Initial.config().setts)
     const [inputs, setInputs] = useState(Initial.config().inputs)
-    const [captured, setCaptured] = useState(null)
     useEffect(() => {
         const init = Initial.config()
         const config = props.config
@@ -55,15 +56,14 @@ function Editor(props) {
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                const next = { ...setts }
-                next[name] = value
-                setSetts(next)
+                setts[name] = value
+                setSetts({ ...setts })
             }
         }
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.value = setts[prop]
+        args.getter = () => setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
@@ -80,7 +80,7 @@ function Editor(props) {
         const args = { captured, setCaptured }
         args.label = Initial.labels.inputs[prop](index)
         args.hint = Initial.hints.inputs[prop](index)
-        args.value = inputs[index][prop]
+        args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
         args.check = (value) => Initial.checks.inputs[prop](index, value)
         args.defval = Initial.input()[prop]

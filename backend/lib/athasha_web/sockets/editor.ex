@@ -13,7 +13,8 @@ defmodule AthashaWeb.Socket.Editor do
   end
 
   def connect(state) do
-    {:ok, %{logged: false, id: state.params["id"]}}
+    params = state.params["id"] |> Base.decode64!() |> Jason.decode!()
+    {:ok, %{logged: false, id: params["id"], type: params["type"]}}
   end
 
   def init(state) do
