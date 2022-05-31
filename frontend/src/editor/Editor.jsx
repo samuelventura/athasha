@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
+import Initials from '../common/Initials'
 import Types from '../common/Types'
 import Item from "../common/Item"
 import Editors from './Editors'
@@ -11,6 +12,7 @@ function EditItem() {
     const type = app.state.type
     const item = app.state.item
     const status = app.state.status
+    const upgraded = app.state.upgraded
     function isActive() { return !!item.id }
     const [valid, setValid] = useState(false)
     const [config, setConfig] = useState({})
@@ -41,7 +43,6 @@ function EditItem() {
     function cloned() {
         return JSON.parse(JSON.stringify(item.config))
     }
-    //id required as use effect flag
     function itemEditor() {
         const state = {
             globals: {
@@ -50,7 +51,7 @@ function EditItem() {
                 outputs: app.state.outputs
             }
         }
-        state.config = isActive() ? cloned() : {}
+        state.config = isActive() ? cloned() : Initials(type).config()
         state.id = isActive() ? item.id : ""
         state.setter = isActive() ? (next) => {
             setValid(next.valid)
@@ -70,6 +71,7 @@ function EditItem() {
                     {itemIcon()}
                     <Item.Name item={item} />
                     <Item.Status item={item} status={status} />
+                    <Item.Upgraded upgraded={upgraded} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

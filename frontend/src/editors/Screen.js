@@ -1,5 +1,22 @@
 import Check from './Check'
 import Controls from './Controls'
+import Merge from "../tools/Merge"
+
+function merge(target) {
+    const _initial = config()
+    Merge(_initial, target)
+    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    target.controls.forEach((target, index) => {
+        const _initial = control(index)
+        Merge(_initial, target)
+        Merge(_initial.setts, target.setts, (name, value) => cchecks[name](value))
+        const controller = Controls.getController(target.type)
+        if (controller.Upgrade) {
+            _initial.data = controller.Upgrade(_initial.data)
+        }
+    })
+    return target
+}
 
 function config() {
     return {
@@ -154,21 +171,6 @@ const cchecks = {
     },
 }
 
-function fixSetts(curr) {
-    const next = {}
-    const init = setts()
-    Object.keys(curr).forEach((k) => {
-        const value = curr[k]
-        try {
-            checks[k](value)
-            next[k] = value
-        } catch (ex) {
-            next[k] = init[k]
-        }
-    })
-    return next
-}
-
 function fixCSetts(curr) {
     const next = {}
     const init = csetts()
@@ -290,6 +292,7 @@ function validator({ setts, controls }) {
 }
 
 export default {
+    merge,
     selected,
     config,
     setts,
@@ -299,7 +302,6 @@ export default {
     hints,
     checks,
     validator,
-    fixSetts,
     clabels,
     chints,
     cchecks,

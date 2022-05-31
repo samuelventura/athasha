@@ -1,5 +1,6 @@
 import Router from "../tools/Router"
 import Extractor from "./Extractor"
+import Initials from "../common/Initials"
 import Log from "../tools/Log"
 
 function initial() {
@@ -7,6 +8,8 @@ function initial() {
   return {
     id: editor.id,
     type: editor.type,
+    upgraded: false,
+    upgrades: {},
     item: {},
     items: {},
     status: {},
@@ -24,7 +27,14 @@ function clone_shallow(object) {
   return Object.assign({}, object)
 }
 
+function clone_deep(object) {
+  return JSON.parse(JSON.stringify(object))
+}
+
 function version_state(next) {
+  const upgrades = Object.keys(next.upgrades).length
+  const items = Object.keys(next.items).length
+  if (upgrades !== items) throw `Sync error items:${items} upgrades:${upgrades}`
   next.version++
   return next
 }
@@ -43,24 +53,37 @@ function update_points(next) {
 }
 
 function setup_editor(next) {
-  if (next.id) {
-    const item = next.items[next.id]
-    if (item) {
-      next.item = item
-      document.title = `Athasha ${item.type} Editor - ${item.name}`
-    }
+  const item = next.items[next.id]
+  if (item) {
+    next.item = item
+    next.upgraded = next.upgrades[next.id]
+    document.title = `Athasha ${item.type} Editor - ${item.name}`
   }
 }
 
+function upgrade_config(next, item) {
+  //point extraction requires to ensure valid schema
+  const json1 = JSON.stringify(item.config)
+  item.config = Initials(item.type).merge(item.config)
+  const json2 = JSON.stringify(item.config)
+  next.upgrades[item.id] = json1 !== json2
+  Log.log(item.id, "upgraded", next.upgrades[item.id], item.type, item.name)
+}
+
 function reducer(state, { name, args }) {
+  //this is being called twice by react
+  //deep clone required for idempotency
+  args = clone_deep(args)
   switch (name) {
     case "init": {
       const next = clone_shallow(state)
       next.items = {}
       next.status = {}
+      next.upgrades = {}
       args.items.forEach(item => {
         next.status[item.id] = {}
         next.items[item.id] = item
+        upgrade_config(next, item)
       })
       next.status = build_status(args.status)
       setup_editor(next)
@@ -69,9 +92,9 @@ function reducer(state, { name, args }) {
     }
     case "create": {
       const next = clone_shallow(state)
-      const item = clone_shallow(args)
-      next.items[args.id] = item
+      next.items[args.id] = args
       next.status[args.id] = {}
+      upgrade_config(next, args)
       update_points(next)
       return version_state(next)
     }
@@ -79,6 +102,7 @@ function reducer(state, { name, args }) {
       const next = clone_shallow(state)
       delete next.status[args.id]
       delete next.items[args.id]
+      delete next.upgrades[args.id]
       update_points(next)
       return version_state(next)
     }
@@ -86,6 +110,7 @@ function reducer(state, { name, args }) {
       const next = clone_shallow(state)
       const item = next.items[args.id]
       item.config = args.config
+      upgrade_config(next, item)
       update_points(next)
       return version_state(next)
     }

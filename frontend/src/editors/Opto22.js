@@ -1,5 +1,20 @@
 import Check from './Check'
+import Merge from "../tools/Merge"
 
+function merge(target) {
+    const _initial = config()
+    Merge(_initial, target)
+    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    target.inputs.forEach((target, index) => {
+        const _initial = input(index)
+        Merge(_initial, target, (name, value) => checks.inputs[name](index, value))
+    })
+    target.outputs.forEach((target, index) => {
+        const _initial = output(index)
+        Merge(_initial, target, (name, value) => checks.outputs[name](index, value))
+    })
+    return target
+}
 
 const inputCodes = ["4chd", "4cha"]
 const outputCodes = ["4chd", "4cha"]
@@ -213,6 +228,7 @@ function validator({ setts, inputs, outputs }) {
 }
 
 export default {
+    merge,
     inputCodes,
     outputCodes,
     inputLabels,

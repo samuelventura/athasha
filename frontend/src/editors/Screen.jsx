@@ -126,7 +126,6 @@ function initialDragged() {
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
 function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview }) {
-    const fsetts = Initial.fixSetts(setts)
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const resize = useResizeDetector()
@@ -144,9 +143,9 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
         ch = Number(style.getPropertyValue("height").replace("px", ""))
     }
     const parent = { pw: cw, ph: ch }
-    const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, fsetts)
-    const invertedBg = invertColor(fsetts.bgColor, true)
-    const invertedBgC = invertColor(fsetts.bgColor, false)
+    const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
+    const invertedBg = invertColor(setts.bgColor, true)
+    const invertedBgC = invertColor(setts.bgColor, false)
     function controlRender(control, index) {
         const cetts = Initial.fixCSetts(control.setts)
         //always draw them inside
@@ -284,7 +283,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
                         stroke={invertedBg} strokeWidth="1" />
                 </pattern>
             </defs>
-            <rect width={W} height={H} fill={fsetts.bgColor} stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" />
             {gridRect}
             {controlList}
             {dragFrame}
@@ -553,21 +552,9 @@ function Editor(props) {
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        const previous = config.controls || init.controls
-        const upgraded = previous.map(control => {
-            const controller = Controls.getController(control.type)
-            const upgrade = controller.Upgrade
-            if (upgrade) {
-                const next = { ...control }
-                next.data = upgrade(next.data)
-                return next
-            }
-            return control
-        })
-        setControls(upgraded)
+        setSetts(config.setts)
+        setControls(config.controls)
         setSelected(Initial.selected())
     }, [props.id]) //primitive type required
     useEffect(() => {

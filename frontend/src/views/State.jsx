@@ -17,6 +17,10 @@ function clone_shallow(object) {
   return Object.assign({}, object)
 }
 
+function clone_deep(object) {
+  return JSON.parse(JSON.stringify(object))
+}
+
 function version_state(next) {
   const status = Object.keys(next.status).length
   const items = Object.keys(next.items).length
@@ -26,6 +30,9 @@ function version_state(next) {
 }
 
 function reducer(state, { name, args, self }) {
+  //this is being called twice by react
+  //deep clone required for idempotency
+  args = clone_deep(args)
   switch (name) {
     case "init": {
       const next = clone_shallow(state)

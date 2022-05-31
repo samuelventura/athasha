@@ -68,6 +68,8 @@ function Rows(props) {
     }
 
     const rows = props.items.map(item => {
+        const status = app.state.status[item.id]
+        const upgraded = app.state.upgrades[item.id]
         function onDoubleClick(e) { e.stopPropagation() }
         const viewAction = (
             <Button variant="link" onClick={() => onAction('view', item)}
@@ -78,7 +80,7 @@ function Rows(props) {
             onClick={() => handleSelect(item)}
             onDoubleClick={() => onAction("edit", item)}
             className={selectedClass(item) + ' align-middle'}>
-            <Item.Td item={item} status={app.state.status[item.id]} />
+            <Item.Td item={item} status={status} upgraded={upgraded} />
             <td>
                 {viewAction}
                 <Dropdown as={ButtonGroup} onDoubleClick={(e) => onDoubleClick(e)}>
@@ -109,16 +111,6 @@ function Rows(props) {
                 el.scrollIntoView()
         }
     }, [app.state.selected.id])
-
-    useEffect(() => {
-        const created = app.state.created
-        if (created.id) {
-            //open a new tab stop the modal hiding transition a long
-            //delay is required to really launch when modal is closed
-            app.dispatch({ name: "created", args: {} })
-            setTimeout(() => { onAction("edit", created) }, 200)
-        }
-    }, [app.state.created.id])
 
     return (
         <tbody>

@@ -51,21 +51,22 @@ function enabledClass(item) {
 }
 
 function Name({ item }) {
-    return <span className='align-middle user-select-none'>{item.name}</span>
+    return <span title={item.id} className='align-middle user-select-none'>{item.name}</span>
 }
 
-function Entry({ item, status }) {
+function Entry({ item, status, upgraded }) {
     return <>
         <img src={Types.icon(item.type)} width="20"
             alt={item.type} className='me-2' />
         <Name item={item} />
         <Status item={item} status={status} />
+        <Upgraded upgraded={upgraded} />
     </>
 }
 
-function Td({ item, status }) {
+function Td({ item, status, upgraded }) {
     return <td className={enabledClass(item)} title={item.id}>
-        <Entry item={item} status={status} />
+        <Entry item={item} status={status} upgraded={upgraded} />
     </td>
 }
 
@@ -80,7 +81,16 @@ function onEdit(item) {
     window.open(`editor.html?id=${id}`, '_blank').focus();
 }
 
+function Upgraded(props) {
+    return props.upgraded ? (
+        <Badge pill bg="warning" title="Upgraded" className='ms-2 user-select-none'>
+            Upgraded
+        </Badge>
+    ) : null
+}
+
 const exports = {
+    Upgraded,
     Status,
     Entry,
     Name,

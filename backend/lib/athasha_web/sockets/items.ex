@@ -44,7 +44,7 @@ defmodule AthashaWeb.Socket.Items do
     all = Server.all()
     state = Map.put(state, :version, all.version)
     args = Globals.find_all()
-    items = Enum.map(all.items, &Item.head(&1))
+    items = Enum.map(all.items, &Item.strip(&1))
     args = Map.put(args, :items, items)
     args = Map.put(args, :status, status)
     resp = %{name: "init", args: args}
@@ -60,23 +60,15 @@ defmodule AthashaWeb.Socket.Items do
   end
 
   def handle_info({:version, nil, {from, version, muta, item}}, state) do
-    # do not handle "edit" in separated method without updating state version
     case state.version + 1 do
       ^version ->
-        case muta.name do
-          "edit" ->
-            state = Map.put(state, :version, version)
-            {:ok, state}
-
-          _ ->
-            item = Item.head(item)
-            args = %{id: item.id, item: item}
-            muta = Map.put(muta, :version, version)
-            muta = Map.put(muta, :self, from == self())
-            muta = Map.put(muta, :args, args)
-            state = Map.put(state, :version, version)
-            reply_text(muta, state)
-        end
+        item = Item.strip(item)
+        args = %{id: item.id, item: item}
+        muta = Map.put(muta, :version, version)
+        muta = Map.put(muta, :self, from == self())
+        muta = Map.put(muta, :args, args)
+        state = Map.put(state, :version, version)
+        reply_text(muta, state)
 
       _ ->
         {:ok, state}

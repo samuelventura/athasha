@@ -1,4 +1,16 @@
 import Check from './Check'
+import Merge from "../tools/Merge"
+
+function merge(target) {
+    const _initial = config()
+    Merge(_initial, target)
+    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    target.columns.forEach((target, index) => {
+        const _initial = column(index)
+        Merge(_initial, target, (name, value) => checks.columns[name](index, value))
+    })
+    return target
+}
 
 function config() {
     return {
@@ -165,6 +177,7 @@ function validator({ setts, columns }) {
 }
 
 export default {
+    merge,
     config,
     setts,
     column,

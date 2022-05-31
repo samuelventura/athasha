@@ -1,4 +1,24 @@
 import Check from './Check'
+import Merge from "../tools/Merge"
+
+function merge(target) {
+    const _initial = config()
+    Merge(_initial, target)
+    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    target.slaves.forEach((target, index) => {
+        const _initial = slave(index)
+        Merge(_initial, target, (name, value) => checks.slaves[name](index, value))
+        target.inputs.forEach((target, index) => {
+            const _initial = input(index)
+            Merge(_initial, target, (name, value) => checks.inputs[name](index, value))
+        })
+        target.outputs.forEach((target, index) => {
+            const _initial = output(index)
+            Merge(_initial, target, (name, value) => checks.outputs[name](index, value))
+        })
+    })
+    return target
+}
 
 const inputCodes = [
     "Item 1",
@@ -194,6 +214,8 @@ const checks = {
             Check.isGE(value, labels.slaves.decimals(index), 0)
             Check.isLE(value, labels.slaves.decimals(index), 6)
         },
+        inputs: () => { },
+        outputs: () => { },
     },
     inputs: {
         code: function (index, value) {
@@ -263,6 +285,7 @@ function validator({ setts, slaves }) {
 }
 
 export default {
+    merge,
     inputCodes,
     outputCodes,
     config,
