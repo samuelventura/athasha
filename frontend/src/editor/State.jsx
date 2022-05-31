@@ -70,7 +70,7 @@ function upgrade_config(next, item) {
   Log.log(item.id, "upgraded", next.upgrades[item.id], item.type, item.name)
 }
 
-function reducer(state, { name, args }) {
+function reducer(state, { name, args, self }) {
   //this is being called twice by react
   //deep clone required for idempotency
   args = clone_deep(args)
@@ -112,6 +112,10 @@ function reducer(state, { name, args }) {
       item.config = args.config
       upgrade_config(next, item)
       update_points(next)
+      if (self && args.id === next.id) {
+        //remove upgraded badge on save
+        next.upgraded = next.upgrades[next.id]
+      }
       return version_state(next)
     }
     case "rename": {
