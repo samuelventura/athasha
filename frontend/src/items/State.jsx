@@ -25,6 +25,8 @@ function clone_shallow(object) {
 }
 
 function clone_deep(object) {
+  if (object === null) return null
+  if (object === undefined) return undefined
   return JSON.parse(JSON.stringify(object))
 }
 
