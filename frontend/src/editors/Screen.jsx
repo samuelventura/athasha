@@ -629,6 +629,10 @@ function Editor(props) {
         setControls(next)
         setSelected({ index, control })
     }
+    function moduleIndex(index) {
+        const total = controls.length
+        return (index + total) % total
+    }
     function actionControl(action, control) {
         switch (action) {
             case "del": {
@@ -645,7 +649,7 @@ function Editor(props) {
                 const next = [...controls]
                 const index = next.indexOf(control)
                 next.splice(index, 1)
-                next.splice(index + 1, 0, control)
+                next.splice(moduleIndex(index + 1), 0, control)
                 setControls(next)
                 break
             }
@@ -653,7 +657,7 @@ function Editor(props) {
                 const next = [...controls]
                 const index = next.indexOf(control)
                 next.splice(index, 1)
-                next.splice(index - 1, 0, control)
+                next.splice(moduleIndex(index - 1), 0, control)
                 setControls(next)
                 break
             }
