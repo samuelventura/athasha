@@ -321,13 +321,11 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
     )
 }
 
-function Validator(control) {
-    Initial.validate(control)
-}
-
-const Type = "Label"
+const Type = Initial.type
 const Init = Initial.data
+const Merge = Initial.merge
+const Validate = Initial.validate
 
-const Label = { Type, Init, Editor, Renderer, Validator }
+const Label = { Type, Init, Editor, Renderer, Validate, Merge }
 
 export default Label

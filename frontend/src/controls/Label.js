@@ -1,4 +1,18 @@
 import Check from '../editors/Check'
+import Merge from "../tools/Merge"
+
+function merge(target) {
+    const checks = { ...dchecks }
+    checks.cond1 = () => { }
+    checks.cond2 = () => { }
+    checks.cond3 = () => { }
+    const _initial = data()
+    Merge(_initial, target, (name, value) => checks[name](value))
+    Merge(_initial.cond1, target.cond1, (name, value) => cchecks[name](value))
+    Merge(_initial.cond2, target.cond2, (name, value) => cchecks[name](value))
+    Merge(_initial.cond3, target.cond3, (name, value) => cchecks[name](value))
+    return target
+}
 
 function cond() {
     return {
@@ -190,7 +204,11 @@ function validate(control) {
     Check.validate(control.data, data(), dchecks, "data")
 }
 
+const type = "Label"
+
 export default {
+    type,
+    merge,
     validate,
     data,
     cond,

@@ -4,6 +4,7 @@ export default function (initial, target, check) {
     Object.keys(initial).forEach(key => {
         const value = target[key]
         if (value === undefined || value === null) {
+            Log.log(`Missing key ${key}`)
             target[key] = initial[key]
             return
         }

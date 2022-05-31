@@ -1,6 +1,9 @@
 import Check from './Check'
-import Controls from './Controls'
 import Merge from "../tools/Merge"
+import Label from '../controls/Label.js'
+
+const controlMap = {}
+controlMap[Label.type] = Label
 
 function merge(target) {
     const _initial = config()
@@ -10,9 +13,9 @@ function merge(target) {
         const _initial = control(index)
         Merge(_initial, target)
         Merge(_initial.setts, target.setts, (name, value) => cchecks[name](value))
-        const controller = Controls.getController(target.type)
-        if (controller.Upgrade) {
-            _initial.data = controller.Upgrade(_initial.data)
+        const initial = controlMap[target.type]
+        if (initial.merge) {
+            target.data = initial.merge(target.data)
         }
     })
     return target
@@ -285,9 +288,9 @@ function validator({ setts, controls }) {
         cchecks.value(control.setts.value)
         Check.hasProp(control.setts, clabel, "prompt")
         cchecks.prompt(control.setts.prompt)
-        const controller = Controls.getController(control.type)
-        const validator = controller.Validator
-        if (validator) validator(control)
+        const initial = controlMap[control.type]
+        const validate = initial.validate
+        if (validate) validate(control)
     })
 }
 
