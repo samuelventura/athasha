@@ -295,6 +295,8 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     const overlay = <Tooltip>{title}</Tooltip>
     const trigger = output && title ? ['hover', 'focus'] : []
+    const clickBg = data.bgEnabled ? data.bgColor : (background || "none")
+    const clickFt = isPressed ? "url(#pressed)" : "none"
     return (
         <OverlayTrigger
             placement="auto"
@@ -309,7 +311,7 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
                     <feOffset in="SourceGraphic" dx="1" dy="1" />
                 </filter>
                 <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                    fill={background || "none"} strokeWidth={data.brWidth} stroke={brColor} ry={radious} />
+                    fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} />
                 <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                     fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
                 <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
