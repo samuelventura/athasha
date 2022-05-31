@@ -115,6 +115,9 @@ defmodule AthashaWeb.Socket.Editor do
 
   defp fix_event(name, args) do
     case name do
+      "rename" ->
+        %{name: "rename", args: %{id: args["id"], name: args["name"]}}
+
       "enable" ->
         %{name: "enable", args: %{id: args["id"], enabled: args["enabled"]}}
 

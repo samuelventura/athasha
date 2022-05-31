@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form'
@@ -113,10 +113,69 @@ function HostButton() {
   ) : null
 }
 
+function RenameItem() {
+  const app = useApp()
+  const targeted = app.state.targeted
+  const action = targeted.action
+  const item = targeted.item
+  const focus = useRef(null)
+  const [name, setName] = useState("")
+  function isActive() { return action === "rename" }
+  function isValid() { return (name.trim().length) }
+  function onKeyPress(e) {
+    if (e.key === 'Enter') {
+      onAccept()
+    }
+  }
+  function onCancel() {
+    app.dispatch({ name: "target", args: {} })
+  }
+  function onAccept() {
+    if (isValid()) {
+      app.send({ name: "rename", args: { id: item.id, name } })
+      app.dispatch({ name: "target", args: {} })
+    }
+  }
+  useEffect(() => {
+    if (isActive()) {
+      setName(item.name)
+      //autoFocus fails with inputs but works with select above
+      setTimeout(() => {
+        const el = focus.current
+        if (el) {
+          el.focus()
+          el.select()
+        }
+      }, 0)
+    }
+  }, [targeted.action])
+  return (
+    <Modal show={isActive()} onHide={onCancel} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Rename</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Control autoFocus ref={focus} type="text" placeholder="New Name"
+          onKeyPress={onKeyPress}
+          value={name} onChange={e => setName(e.target.value)} />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+          Rename
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  )
+}
+
 export {
   ConnectDialog,
   LoginDialog,
   LogoutButton,
   AlertBanner,
   HostButton,
+  RenameItem,
 }

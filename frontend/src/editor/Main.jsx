@@ -2,6 +2,7 @@ import React from 'react'
 import { ConnectDialog } from '../Dialogs'
 import { LoginDialog } from '../Dialogs'
 import { AlertBanner } from '../Dialogs'
+import { RenameItem } from "../Dialogs"
 import EditItem from "./Editor"
 
 function Main() {
@@ -10,6 +11,7 @@ function Main() {
       <AlertBanner />
       <LoginDialog />
       <ConnectDialog />
+      <RenameItem />
       <EditItem />
     </>
   )

@@ -10,6 +10,7 @@ function initial() {
     type: editor.type,
     upgraded: false,
     upgrades: {},
+    targeted: {},
     item: {},
     items: {},
     status: {},
@@ -137,6 +138,11 @@ function reducer(state, { name, args, self }) {
       if (args.id !== state.id) return state
       const next = clone_shallow(state)
       next.status = build_status(args)
+      return version_state(next)
+    }
+    case "target": {
+      const next = clone_shallow(state)
+      next.targeted = args
       return version_state(next)
     }
     case "close": {

@@ -5,8 +5,8 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Log from "../tools/Log"
 import { useApp } from '../App'
 import { DeleteItem } from "./Dialogs"
-import { RenameItem } from "./Dialogs"
 import { DeleteAllItems } from "./Dialogs"
+import { RenameItem } from "../Dialogs"
 import Clipboard from "../tools/Clipboard"
 import Types from "../common/Types"
 import Item from "../common/Item"
@@ -51,7 +51,9 @@ function Rows(props) {
                 break
             }
             case "backup": {
-                app.send({ name: "backup-one", args: { id: item.id } })
+                const id = item.id
+                const name = `${item.name}`
+                app.send({ name: "backup-one", args: { id, name } })
                 break
             }
             case "view": {

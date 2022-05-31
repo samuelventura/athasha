@@ -1,6 +1,7 @@
 import Check from './Check'
 import Merge from "../tools/Merge"
 import Label from '../controls/Label.js'
+import { v4 as uuidv4 } from 'uuid'
 
 const controlMap = {}
 controlMap[Label.type] = Label
@@ -10,9 +11,9 @@ function merge(target) {
     Merge(_initial, target)
     Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
     target.controls.forEach((target, index) => {
-        const _initial = control(index)
-        Merge(_initial, target)
-        Merge(_initial.setts, target.setts, (name, value) => cchecks[name](value))
+        const _initial = control(index) //new uuid each time
+        Merge(_initial, target, (name, value) => cchecks[name](value))
+        Merge(_initial.setts, target.setts, (name, value) => cschecks[name](value))
         const initial = controlMap[target.type]
         if (initial.merge) {
             target.data = initial.merge(target.data)
@@ -37,8 +38,8 @@ function setts() {
         align: 'center',
         width: '640',
         height: '480',
-        gridX: '10',
-        gridY: '10',
+        gridX: '120',
+        gridY: '120',
         bgColor: "#ffffff",
         hvColor: "#808080",
     }
@@ -46,6 +47,7 @@ function setts() {
 
 function control() {
     return {
+        id: uuidv4(),
         type: "none",
         setts: csetts(),
         data: {},
@@ -127,6 +129,16 @@ const chints = {
 }
 
 const cchecks = {
+    id: function (value) {
+        Check.isString(value, labels.posX)
+        Check.notEmpty(value, labels.posX)
+    },
+    type: () => { },
+    setts: () => { },
+    data: () => { },
+}
+
+const cschecks = {
     posX: function (value) {
         Check.isString(value, labels.posX)
         Check.notEmpty(value, labels.posX)
@@ -180,7 +192,7 @@ function fixCSetts(curr) {
     Object.keys(curr).forEach((k) => {
         const value = curr[k]
         try {
-            cchecks[k](value)
+            cschecks[k](value)
             next[k] = value
         } catch (ex) {
             next[k] = init[k]
@@ -269,25 +281,25 @@ function validator({ setts, controls }) {
     controls.forEach((control, index) => {
         const clabel = `Control ${index + 1} type ${control.type}`
         Check.hasProp(control.setts, clabel, "posX")
-        cchecks.posX(control.setts.posX)
+        cschecks.posX(control.setts.posX)
         Check.hasProp(control.setts, clabel, "posY")
-        cchecks.posY(control.setts.posY)
+        cschecks.posY(control.setts.posY)
         Check.hasProp(control.setts, clabel, "width")
-        cchecks.width(control.setts.width)
+        cschecks.width(control.setts.width)
         Check.hasProp(control.setts, clabel, "height")
-        cchecks.height(control.setts.height)
+        cschecks.height(control.setts.height)
         Check.hasProp(control.setts, clabel, "title")
-        cchecks.title(control.setts.title)
+        cschecks.title(control.setts.title)
         Check.hasProp(control.setts, clabel, "input")
-        cchecks.input(control.setts.input)
+        cschecks.input(control.setts.input)
         Check.hasProp(control.setts, clabel, "output")
-        cchecks.output(control.setts.output)
+        cschecks.output(control.setts.output)
         Check.hasProp(control.setts, clabel, "click")
-        cchecks.click(control.setts.click)
+        cschecks.click(control.setts.click)
         Check.hasProp(control.setts, clabel, "value")
-        cchecks.value(control.setts.value)
+        cschecks.value(control.setts.value)
         Check.hasProp(control.setts, clabel, "prompt")
-        cchecks.prompt(control.setts.prompt)
+        cschecks.prompt(control.setts.prompt)
         const initial = controlMap[control.type]
         const validate = initial.validate
         if (validate) validate(control)
@@ -307,6 +319,6 @@ export default {
     validator,
     clabels,
     chints,
-    cchecks,
+    cchecks: cschecks,
     fixCSetts,
 }

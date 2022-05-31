@@ -35,7 +35,14 @@ function Browser() {
                 break
             }
             case "backup-all": {
-                app.send({ name: "backup-all" })
+                const name = `${app.state.hostname}`
+                app.send({ name: "backup-all", args: { name } })
+                break
+            }
+            case "backup-filtered": {
+                const name = `${app.state.hostname}-${items.filter}`
+                const list = items.list().map(item => item.id)
+                app.send({ name: "backup-list", args: { name, list } })
                 break
             }
             case "restore": {
@@ -84,6 +91,7 @@ function Browser() {
                                     <Dropdown.Item onClick={() => onAction("disable-all")}>Disable All</Dropdown.Item>
                                     <Dropdown.Item onClick={() => onAction("delete-all")}>Delete All</Dropdown.Item>
                                     <Dropdown.Item onClick={() => onAction("backup-all")}>Backup All</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => onAction("backup-filtered")}>Backup Filtered</Dropdown.Item>
                                     <Dropdown.Item onClick={() => onAction("restore")}>Restore Backup</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>

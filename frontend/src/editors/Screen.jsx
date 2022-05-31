@@ -10,8 +10,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { faAngleUp } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesUp } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import debounceRender from "react-debounce-render"
@@ -125,7 +127,7 @@ function initialDragged() {
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
-function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview }) {
+function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview, actionControl }) {
     //size reported here grows with svg content/viewBox
     //generated size change events are still valuable
     const resize = useResizeDetector()
@@ -241,6 +243,26 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
                 dragged.cleanup()
             }
         }
+        //onKeyPress wont receive arrows
+        function onKeyDown(event) {
+            console.log(event)
+            switch (event.code) {
+                case "Delete": {
+                    actionControl('del', control)
+                    break
+                }
+                case "ArrowDown": {
+                    if (event.shiftKey) actionControl('down', control)
+                    else if (event.ctrlKey) actionControl('bottom', control)
+                    break
+                }
+                case "ArrowUp": {
+                    if (event.shiftKey) actionControl('up', control)
+                    else if (event.ctrlKey) actionControl('top', control)
+                    break
+                }
+            }
+        }
         const size = { width: w, height: h }
         const isSelected = selected.control === control
         const borderStroke = isSelected ? "4" : "2"
@@ -257,10 +279,13 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview 
             onPointerUp: (e) => onPointerUp(e),
             onClick: (e) => onClickControl(e, index, control),
             onLostPointerCapture: (e) => onLostPointerCapture(e),
+            onKeyDown: (e) => onKeyDown(e),
         } : {}
         //setting tabIndex adds a selection border that extends to the inner contents
+        //tabIndex required to receive keyboard events
+        const key = control.id
         return (
-            <svg key={index} x={x} y={y}
+            <svg key={key} x={x} y={y} tabIndex={index}
                 width={w} height={h} className="draggable"
                 {...controlEvents}>
                 {controlInstance}
@@ -446,13 +471,22 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                             <FontAwesomeIcon icon={faTimes} />
                         </Button>
                         <Button variant='outline-secondary' size="sm"
+                            onClick={() => actionControl('bottom', control)} title="Selected Control To Bottom">
+                            <FontAwesomeIcon icon={faAnglesDown} />
+                        </Button>
+                        <Button variant='outline-secondary' size="sm"
                             onClick={() => actionControl('down', control)} title="Selected Control Down">
-                            <FontAwesomeIcon icon={faArrowDown} />
+                            <FontAwesomeIcon icon={faAngleDown} />
                         </Button>
                         <Button variant='outline-secondary' size="sm"
                             onClick={() => actionControl('up', control)} title="Selected Control Up">
-                            <FontAwesomeIcon icon={faArrowUp} />
+                            <FontAwesomeIcon icon={faAngleUp} />
                         </Button>
+                        <Button variant='outline-secondary' size="sm"
+                            onClick={() => actionControl('top', control)} title="Selected Control To Top">
+                            <FontAwesomeIcon icon={faAnglesUp} />
+                        </Button>
+                        &nbsp;&nbsp;
                         <Button variant='outline-secondary' size="sm"
                             onClick={() => actionControl('clone', control)} title="Clone Selected Control">
                             <FontAwesomeIcon icon={faClone} />
@@ -584,6 +618,8 @@ function Editor(props) {
     function addControl(controller) {
         const next = [...controls]
         const control = Initial.control()
+        control.setts.width = Math.max(1, Math.trunc(setts.gridX / 10)).toString()
+        control.setts.height = Math.max(1, Math.trunc(setts.gridY / 10)).toString()
         const index = next.length
         control.type = controller.Type
         if (controller.Init) {
@@ -593,50 +629,54 @@ function Editor(props) {
         setControls(next)
         setSelected({ index, control })
     }
-    function delControl(control) {
-        const next = [...controls]
-        const index = next.indexOf(control)
-        next.splice(index, 1)
-        setControls(next)
-        if (control === selected.control) {
-            setSelected(Initial.selected())
-        }
-    }
-    function upControl(control) {
-        const next = [...controls]
-        const index = next.indexOf(control)
-        next.splice(index, 1)
-        next.splice(index + 1, 0, control)
-        setControls(next)
-    }
-    function downControl(control) {
-        const next = [...controls]
-        const index = next.indexOf(control)
-        next.splice(index, 1)
-        next.splice(index - 1, 0, control)
-        setControls(next)
-    }
-    function cloneControl(control) {
-        const next = [...controls]
-        next.push(JSON.parse(JSON.stringify(control)))
-        setControls(next)
-    }
     function actionControl(action, control) {
         switch (action) {
             case "del": {
-                delControl(control)
+                const next = [...controls]
+                const index = next.indexOf(control)
+                next.splice(index, 1)
+                setControls(next)
+                if (control === selected.control) {
+                    setSelected(Initial.selected())
+                }
                 break
             }
             case "up": {
-                upControl(control)
+                const next = [...controls]
+                const index = next.indexOf(control)
+                next.splice(index, 1)
+                next.splice(index + 1, 0, control)
+                setControls(next)
                 break
             }
             case "down": {
-                downControl(control)
+                const next = [...controls]
+                const index = next.indexOf(control)
+                next.splice(index, 1)
+                next.splice(index - 1, 0, control)
+                setControls(next)
+                break
+            }
+            case "top": {
+                const next = [...controls]
+                const index = next.indexOf(control)
+                next.splice(index, 1)
+                next.splice(next.length, 0, control)
+                setControls(next)
+                break
+            }
+            case "bottom": {
+                const next = [...controls]
+                const index = next.indexOf(control)
+                next.splice(index, 1)
+                next.splice(0, 0, control)
+                setControls(next)
                 break
             }
             case "clone": {
-                cloneControl(control)
+                const next = [...controls]
+                next.push(JSON.parse(JSON.stringify(control)))
+                setControls(next)
                 break
             }
         }
@@ -654,7 +694,8 @@ function Editor(props) {
             </Col>
             <Col className="gx-0 bg-light">
                 <DebouncedSvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
-                    selected={selected} setSelected={setSelected} preview={preview} />
+                    selected={selected} setSelected={setSelected} preview={preview}
+                    actionControl={actionControl} />
             </Col>
             <Col sm="auto" style={rightStyle} className="mh-100">
                 <RightPanel

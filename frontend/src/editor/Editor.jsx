@@ -5,6 +5,7 @@ import Initials from '../common/Initials'
 import Types from '../common/Types'
 import Item from "../common/Item"
 import Editors from './Editors'
+import Files from '../tools/Files'
 import { useApp } from '../App'
 
 function EditItem() {
@@ -37,6 +38,12 @@ function EditItem() {
             case "save-enable":
                 app.send({ name: "edit", args: { id, config } })
                 app.send({ name: "enable", args: { id, enabled: true } })
+                break
+            case "backup":
+                Files.downloadJson([{ ...item, config }], item.name, Files.backupExtension)
+                break
+            case "rename":
+                app.dispatch({ name: "target", args: { action, item } })
                 break
         }
     }
@@ -87,13 +94,21 @@ function EditItem() {
                     title="Launch item viewer">
                     View
                 </Button>
+                <Button variant="secondary" onClick={() => onButton("backup")}
+                    title="Backup current state">
+                    Backup
+                </Button>
+                <Button variant="secondary" onClick={() => onButton("rename")}
+                    title="Rename this item">
+                    Rename
+                </Button>
+                <Button variant="secondary" onClick={() => onButton("disable")}
+                    title="Disable this item">
+                    Disable
+                </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save")}
                     title="Save changes but do not apply them yet">
                     Save
-                </Button>
-                <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("disable")}
-                    title="Disable the item">
-                    Disable
                 </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save-enable")}
                     title="Save and apply changes by re-enable the item">

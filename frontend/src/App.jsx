@@ -96,12 +96,8 @@ function AppContext({ path, reducer, initial, sessioner, children }) {
           setLogged(true)
           break
         }
-        case "backup-all": {
-          Files.downloadJson(args.items, args.hostname, Files.backupExtension)
-          break
-        }
-        case "backup-one": {
-          Files.downloadJson([args], args.name, Files.backupExtension);
+        case "backup": {
+          Files.downloadJson(args.items, args.name, Files.backupExtension)
           break
         }
         default:

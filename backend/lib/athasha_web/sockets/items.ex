@@ -103,18 +103,32 @@ defmodule AthashaWeb.Socket.Items do
     end
   end
 
-  defp handle_event(%{"name" => "backup-all"}, state = %{logged: true}) do
+  defp handle_event(event = %{"name" => "backup-all"}, state = %{logged: true}) do
+    args = event["args"]
+    name = args["name"]
     all = Server.all()
-    args = %{hostname: Globals.find_hostname(), items: all.items}
-    resp = %{name: "backup-all", args: args}
+    args = %{name: name, items: all.items}
+    resp = %{name: "backup", args: args}
     reply_text(resp, state)
   end
 
   defp handle_event(event = %{"name" => "backup-one"}, state = %{logged: true}) do
     args = event["args"]
     id = args["id"]
+    name = args["name"]
     one = Server.one(id)
-    resp = %{name: "backup-one", args: one.item}
+    args = %{name: name, items: [one.item]}
+    resp = %{name: "backup", args: args}
+    reply_text(resp, state)
+  end
+
+  defp handle_event(event = %{"name" => "backup-list"}, state = %{logged: true}) do
+    args = event["args"]
+    list = args["list"]
+    name = args["name"]
+    list = Enum.map(list, &Server.one(&1).item)
+    args = %{name: name, items: list}
+    resp = %{name: "backup", args: args}
     reply_text(resp, state)
   end
 
