@@ -280,7 +280,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         }
         const size = { width: w, height: h }
         const isSelected = selected.control === control
-        const strokeWidth = isSelected ? "4" : "2"
+        const strokeWidth = isSelected ? "6" : "2"
         const controller = Controls.getController(control.type)
         const controlInstance = controller.Renderer({ control, size })
         const isDragged = dragged.index === index || index < 0
