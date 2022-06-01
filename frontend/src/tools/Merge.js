@@ -1,6 +1,11 @@
 import Log from './Log'
 
 export default function (initial, target, check) {
+    Object.keys(target).forEach(key => {
+        if (!(key in initial)) {
+            delete target[key]
+        }
+    })
     Object.keys(initial).forEach(key => {
         const value = target[key]
         if (value === undefined || value === null) {

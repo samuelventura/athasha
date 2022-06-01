@@ -245,12 +245,49 @@ function Renderer({ size, control, value }) {
     } else {
         const tick = data.barWidth
         const center = { cx: size.width / 2, cy: size.height / 2 }
-        const radius = { cx: center.cx - tick / 2, cy: center.cy - tick / 2 }
-
+        let radius = Math.min(center.cx, center.cy) - tick / 2
+        if (radius <= 0) radius = 1 //transient editing errors
+        const perimeter = radius * 2 * Math.PI
+        const display = radius * Number(Math.PI * data.barSpan / 180)
+        const criticalDash = `${display}  ${perimeter}`
+        const criticalRota = data.barZero - 180
+        const criticalTrans = `rotate(${criticalRota}, ${center.cx}, ${center.cy})`
+        const input = getMinMax(data, "input")
+        const warning = getMinMax(data, "warning")
+        warning.display = display * warning.span / input.span
+        const warningDash = `${warning.display} ${perimeter}`
+        let warningRota = criticalRota + data.barSpan * (warning.min - input.min) / input.span
+        if (!isFinite(warningRota)) warningRota = 0 //transient editing errors
+        const warningTrans = `rotate(${warningRota}, ${center.cx}, ${center.cy})`
+        const normal = getMinMax(data, "normal")
+        normal.display = display * normal.span / input.span
+        const normalDash = `${normal.display} ${perimeter}`
+        let normalRota = criticalRota + data.barSpan * (normal.min - input.min) / input.span
+        if (!isFinite(normalRota)) normalRota = 0 //transient editing errors
+        const normalTrans = `rotate(${normalRota}, ${center.cx}, ${center.cy})`
+        const cursorWidth = 2
+        const cursorDash = `${cursorWidth} ${perimeter}`
+        let cursorRota = criticalRota + data.barSpan * ((trimmed - input.min) / input.span - cursorWidth / 2 / display)
+        if (!isFinite(cursorRota)) cursorRota = 0 //transient editing errors
+        const cursorTrans = `rotate(${cursorRota}, ${center.cx}, ${center.cy})`
         return <>
             <svg>
-                <ellipse rx={radius.cx} ry={radius.cy} cx={center.cx} cy={center.cy} fill="none"
-                    strokeWidth={tick} stroke={"red"} />
+                <g transform={criticalTrans}>
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={criticalDash} />
+                </g>
+                <g transform={warningTrans}>
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke={bgColors.warning} strokeDasharray={warningDash} />
+                </g>
+                <g transform={normalTrans}>
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke={bgColors.normal} strokeDasharray={normalDash} />
+                </g>
+                <g transform={cursorTrans}>
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursorDash} />
+                </g>
             </svg>
         </>
     }

@@ -12,7 +12,7 @@ function data() {
         orientation: "Vertical", //Vertical|Horizontal|Circular
         style: "Standard", //Standard|Custom
         barZero: "0",
-        barSpan: "100",
+        barSpan: "180",
         barWidth: "10",
         inputMin: "0",
         inputMax: "10000",
