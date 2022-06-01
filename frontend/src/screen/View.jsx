@@ -132,7 +132,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const hoverColor = setts.hvColor
         const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
-        const getter = (iid) => {
+        const getter = () => {
             //Number("") -> 0
             //Number(" ") -> 0
             //Number("-") -> NaN
@@ -144,7 +144,8 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
             //Number("false") -> NaN
             //Number("true") -> NaN
             //Number(undefined) -> NaN
-            const value = inputs ? inputs[iid] : null
+            const iid = control.setts.input
+            const value = iid && inputs ? inputs[iid] : null
             if (value === undefined) return null
             if (value === null) return null
             if (`${value}`.trim().length === 0) return null
@@ -154,7 +155,8 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
             //Number(x) conversion supports 0xFF from prompt modal
             return Number(value) * Number(csetts.outputFactor) + Number(csetts.outputOffset)
         }
-        const controlInstance = controller.Renderer({ control, size, getter, isPressed, hasHover, hoverColor, background })
+        const value = getter()
+        const controlInstance = controller.Renderer({ control, size, value, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
             switch (action) {
                 case "enter": {

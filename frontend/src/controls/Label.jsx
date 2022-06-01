@@ -196,7 +196,7 @@ function Editor({ control, setProp, globals }) {
     )
 }
 
-function Renderer({ control, size, getter, isPressed, hasHover, hoverColor, background }) {
+function Renderer({ control, size, value, isPressed, hasHover, hoverColor, background }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -264,22 +264,16 @@ function Renderer({ control, size, getter, isPressed, hasHover, hoverColor, back
     }
 
     //null while editing
-    if (getter) {
-        const iid = control.setts.input
-        if (iid) {
-            let value = getter(iid)
-            if (value !== null) {
-                if (!isNaN(value)) {
-                    if (data.cond1.type !== "Disabled") {
-                        evalCondition(data.cond1, value)
-                    }
-                    if (data.cond2.type !== "Disabled") {
-                        evalCondition(data.cond2, value)
-                    }
-                    if (data.cond3.type !== "Disabled") {
-                        evalCondition(data.cond3, value)
-                    }
-                }
+    if (value !== null) {
+        if (!isNaN(value)) {
+            if (data.cond1.type !== "Disabled") {
+                evalCondition(data.cond1, value)
+            }
+            if (data.cond2.type !== "Disabled") {
+                evalCondition(data.cond2, value)
+            }
+            if (data.cond3.type !== "Disabled") {
+                evalCondition(data.cond3, value)
             }
         }
     }
