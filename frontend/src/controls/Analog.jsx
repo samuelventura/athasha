@@ -1,5 +1,7 @@
 import React from 'react'
 import Form from 'react-bootstrap/Form'
+import Col from 'react-bootstrap/Col'
+import Row from 'react-bootstrap/Row'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
@@ -27,8 +29,30 @@ function Editor({ control, setProp, globals }) {
     }
     return (
         <>
-            <FormEntry label={Initial.dlabels.text}>
-                <Form.Control type="text" {...fieldProps("text")} />
+            <FormEntry label={Initial.dlabels.orientation}>
+                <Form.Select {...fieldProps("orientation")}>
+                    <option value="Vertical">Vertical</option>
+                    <option value="Horizontal">Horizontal</option>
+                    <option value="Circular">Circular</option>
+                </Form.Select>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.displayRange}>
+                <Row className="gx-0">
+                    <Col><Form.Control type="number" {...fieldProps("displayRangeZero")} min="-100" max="100" /></Col>
+                    <Col><Form.Control type="number" {...fieldProps("displayRangeSpan")} min="0" max="100" /></Col>
+                </Row>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.inputScale}>
+                <Row className="gx-0">
+                    <Col><Form.Control type="number" {...fieldProps("inputScaleFactor")} /></Col>
+                    <Col><Form.Control type="number" {...fieldProps("inputScaleOffset")} /></Col>
+                </Row>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.inputRange}>
+                <Row className="gx-0">
+                    <Col><Form.Control type="number" {...fieldProps("inputRangeMin")} /></Col>
+                    <Col><Form.Control type="number" {...fieldProps("inputRangeMax")} /></Col>
+                </Row>
             </FormEntry>
         </>
     )

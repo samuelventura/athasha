@@ -1,6 +1,19 @@
 import Log from '../tools/Log'
 
+function checkLabel(label) {
+    if (label === undefined) {
+        Log.log("ALERT: Label is undefined")
+        return
+    }
+    if (label === null) {
+        Log.log("ALERT: Label is null")
+        return
+    }
+    if (label.trim() === "") Log.log("ALERT: Label is empty")
+}
+
 function isString(value, label) {
+    checkLabel(label)
     const typeof_value = typeof value
     if (!(typeof_value === 'string' || value instanceof String)) {
         throw `${label} is not string: ${typeof_value} ${value}`
@@ -8,6 +21,7 @@ function isString(value, label) {
 }
 
 function isBoolean(value, label) {
+    checkLabel(label)
     const typeof_value = typeof value
     if (!(typeof_value === 'boolean')) {
         throw `${label} is not boolean: ${typeof_value} ${value}`
@@ -15,6 +29,7 @@ function isBoolean(value, label) {
 }
 
 function isArray(value, label) {
+    checkLabel(label)
     const typeof_value = typeof value
     if (!Array.isArray(value)) {
         throw `${label} is not array: ${typeof_value}`
@@ -22,18 +37,21 @@ function isArray(value, label) {
 }
 
 function notEmpty(value, label) {
+    checkLabel(label)
     if (value.trim().length == 0) {
         throw `${label} is empty`
     }
 }
 
 function inList(value, label, list) {
+    checkLabel(label)
     if (!list.includes(value)) {
         throw `${label} is not in ${list}`
     }
 }
 
 function isInteger(value, label) {
+    checkLabel(label)
     const num = Number(value)
     if (!Number.isInteger(num)) {
         throw `${label} is not an integer`
@@ -41,6 +59,7 @@ function isInteger(value, label) {
 }
 
 function isNumber(value, label) {
+    checkLabel(label)
     const num = Number(value)
     if (!Number.isFinite(num)) {
         throw `${label} is not a number`
@@ -48,6 +67,7 @@ function isNumber(value, label) {
 }
 
 function isGT(value, label, limit) {
+    checkLabel(label)
     const num = Number(value)
     if (num <= limit) {
         throw `${label} is not > ${limit}`
@@ -55,6 +75,7 @@ function isGT(value, label, limit) {
 }
 
 function isGE(value, label, limit) {
+    checkLabel(label)
     const num = Number(value)
     if (num < limit) {
         throw `${label} is not >= ${limit}`
@@ -62,6 +83,7 @@ function isGE(value, label, limit) {
 }
 
 function isLE(value, label, limit) {
+    checkLabel(label)
     const num = Number(value)
     if (num > limit) {
         throw `${label} is not <= ${limit}`
@@ -69,6 +91,7 @@ function isLE(value, label, limit) {
 }
 
 function notZero(value, label) {
+    checkLabel(label)
     const num = Number(value)
     if (num === 0) {
         throw `${label} is cannot be 0`
@@ -76,6 +99,7 @@ function notZero(value, label) {
 }
 
 function isColor(value, label) {
+    checkLabel(label)
     const re = /^#[0-9a-f]{6}/i
     if (!re.test(value)) {
         throw `${label} is not a color #RRGGBB`
@@ -83,12 +107,14 @@ function isColor(value, label) {
 }
 
 function nonZeroLength(value, label) {
+    checkLabel(label)
     if (value.length === 0) {
         throw `${label} has zero length`
     }
 }
 
 function hasProp(value, label, prop) {
+    checkLabel(label)
     //hasOwnProperties fails with proxy objects?
     if (!Object.keys(value).includes(prop)) {
         throw `${label} has no property: ${prop}`

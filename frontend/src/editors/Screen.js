@@ -2,10 +2,12 @@ import Check from './Check'
 import Merge from "../tools/Merge"
 import Label from '../controls/Label.js'
 import Analog from '../controls/Analog.js'
+import Image from '../controls/Image.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const controlMap = {}
 controlMap[Label.type] = Label
+controlMap[Image.type] = Image
 controlMap[Analog.type] = Analog
 
 function merge(target) {
@@ -69,16 +71,21 @@ function csetts() {
         posY: '0',
         width: '1',
         height: '1',
-        title: "Click to Set Value",
+        title: "",
         input: "",
         output: "",
         click: "Fixed Value",
         value: "0",
         prompt: "Enter Value",
+        inputFactor: "1",
+        inputOffset: "0",
+        outputFactor: "1",
+        outputOffset: "0",
     }
 }
 
 const labels = {
+    id: "UUID",
     password: "Access Password",
     period: "Period (ms)",
     scale: "Scale",
@@ -105,8 +112,10 @@ const hints = {
 }
 
 const clabels = {
+    position: "Position",
     posX: "Position X",
     posY: "Position Y",
+    dimensions: "Dimensions",
     width: "Width",
     height: "Height",
     title: "Tooltip",
@@ -115,6 +124,12 @@ const clabels = {
     click: "On Click",
     value: "Fixed Value",
     prompt: "Value Prompt",
+    inputScale: "Input Scale",
+    inputFactor: "Input Scale Factor",
+    inputOffset: "Input Scale Offset",
+    outputScale: "Output Scale",
+    outputFactor: "Output Scale Factor",
+    outputOffset: "Output Scale Offset",
 }
 
 const chints = {
@@ -128,12 +143,16 @@ const chints = {
     click: "Select on click action",
     value: "Non empty fixed value number",
     prompt: "Non empty value prompt",
+    inputFactor: "Non empty number m in f(x)=mx+b",
+    inputOffset: "Non empty number b in f(x)=mx+b",
+    outputFactor: "Non empty number m in f(x)=mx+b",
+    outputOffset: "Non empty number b in f(x)=mx+b",
 }
 
 const cchecks = {
     id: function (value) {
-        Check.isString(value, labels.posX)
-        Check.notEmpty(value, labels.posX)
+        Check.isString(value, labels.id)
+        Check.notEmpty(value, labels.id)
     },
     type: () => { },
     setts: () => { },
@@ -142,49 +161,69 @@ const cchecks = {
 
 const cschecks = {
     posX: function (value) {
-        Check.isString(value, labels.posX)
-        Check.notEmpty(value, labels.posX)
-        Check.isInteger(value, labels.posX)
-        Check.isGE(value, labels.posX, 0)
+        Check.isString(value, clabels.posX)
+        Check.notEmpty(value, clabels.posX)
+        Check.isInteger(value, clabels.posX)
+        Check.isGE(value, clabels.posX, 0)
     },
     posY: function (value) {
-        Check.isString(value, labels.posY)
-        Check.notEmpty(value, labels.posY)
-        Check.isInteger(value, labels.posY)
-        Check.isGE(value, labels.posY, 0)
+        Check.isString(value, clabels.posY)
+        Check.notEmpty(value, clabels.posY)
+        Check.isInteger(value, clabels.posY)
+        Check.isGE(value, clabels.posY, 0)
     },
     width: function (value) {
-        Check.isString(value, labels.width)
-        Check.notEmpty(value, labels.width)
-        Check.isInteger(value, labels.width)
-        Check.isGE(value, labels.width, 1)
+        Check.isString(value, clabels.width)
+        Check.notEmpty(value, clabels.width)
+        Check.isInteger(value, clabels.width)
+        Check.isGE(value, clabels.width, 1)
     },
     height: function (value) {
-        Check.isString(value, labels.height)
-        Check.notEmpty(value, labels.height)
-        Check.isInteger(value, labels.height)
-        Check.isGE(value, labels.height, 1)
+        Check.isString(value, clabels.height)
+        Check.notEmpty(value, clabels.height)
+        Check.isInteger(value, clabels.height)
+        Check.isGE(value, clabels.height, 1)
     },
     title: function (value) {
-        Check.isString(value, labels.title)
+        Check.isString(value, clabels.title)
     },
     input: function (value) {
-        Check.isString(value, labels.input)
+        Check.isString(value, clabels.input)
     },
     output: function (value) {
-        Check.isString(value, labels.output)
+        Check.isString(value, clabels.output)
     },
     click: function (value) {
-        Check.isString(value, labels.click)
-        Check.notEmpty(value, labels.click)
+        Check.isString(value, clabels.click)
+        Check.notEmpty(value, clabels.click)
     },
     value: function (value) {
-        Check.isString(value, labels.value)
-        Check.notEmpty(value, labels.value)
+        Check.isString(value, clabels.value)
+        Check.notEmpty(value, clabels.value)
     },
     prompt: function (value) {
-        Check.isString(value, labels.prompt)
-        Check.notEmpty(value, labels.prompt)
+        Check.isString(value, clabels.prompt)
+        Check.notEmpty(value, clabels.prompt)
+    },
+    inputFactor: function (value) {
+        Check.isString(value, clabels.inputFactor)
+        Check.notEmpty(value, clabels.inputFactor)
+        Check.isNumber(value, clabels.inputFactor)
+    },
+    inputOffset: function (value) {
+        Check.isString(value, clabels.inputOffset)
+        Check.notEmpty(value, clabels.inputOffset)
+        Check.isNumber(value, clabels.inputOffset)
+    },
+    outputFactor: function (value) {
+        Check.isString(value, clabels.outputFactor)
+        Check.notEmpty(value, clabels.outputFactor)
+        Check.isNumber(value, clabels.outputFactor)
+    },
+    outputOffset: function (value) {
+        Check.isString(value, clabels.outputOffset)
+        Check.notEmpty(value, clabels.outputOffset)
+        Check.isNumber(value, clabels.outputOffset)
     },
 }
 

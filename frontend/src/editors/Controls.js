@@ -1,6 +1,7 @@
 import Frame from '../controls/Frame.jsx'
 import Label from '../controls/Label.jsx'
 import Analog from '../controls/Analog.jsx'
+import Image from '../controls/Image.jsx'
 
 const registeredMap = {}
 const registeredList = []
@@ -15,6 +16,7 @@ function register(control, hide) {
 //https://vitejs.dev/guide/env-and-mode.html
 //register(ControlFrame, import.meta.env.PROD)
 register(Label)
+register(Image)
 register(Analog)
 
 function getController(type) {

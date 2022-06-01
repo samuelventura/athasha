@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -70,7 +72,7 @@ function PromptValue() {
     function onAccept() {
         if (isValid()) {
             const name = prompt.output
-            const fixed = Number(value) //support 0xFF
+            const fixed = prompt.scaler(value) //Number(x) conversion supports 0xFF
             app.send({ name: "write", args: { name, value: fixed } })
             app.dispatch({ name: "prompt", args: {} })
         }
@@ -130,7 +132,29 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const hoverColor = setts.hvColor
         const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
-        const controlInstance = controller.Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, background })
+        const getter = (iid) => {
+            //Number("") -> 0
+            //Number(" ") -> 0
+            //Number("-") -> NaN
+            //Number(null) -> 0
+            //Number([]) -> 0
+            //Number({}) -> NaN
+            //Number(false) -> 0
+            //Number(true) -> 1
+            //Number("false") -> NaN
+            //Number("true") -> NaN
+            //Number(undefined) -> NaN
+            const value = inputs ? inputs[iid] : null
+            if (value === undefined) return null
+            if (value === null) return null
+            if (`${value}`.trim().length === 0) return null
+            return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
+        }
+        const scaler = (value) => {
+            //Number(x) conversion supports 0xFF from prompt modal
+            return Number(value) * Number(csetts.outputFactor) + Number(csetts.outputOffset)
+        }
+        const controlInstance = controller.Renderer({ control, size, getter, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
             switch (action) {
                 case "enter": {
@@ -151,13 +175,13 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
                         switch (csetts.click) {
                             case "Fixed Value": {
                                 const name = output
-                                const value = control.setts.value
+                                const value = scaler(control.setts.value)
                                 send({ name: "write", args: { name, value } })
                                 break
                             }
                             case "Value Prompt": {
                                 const title = control.setts.prompt
-                                dispatch({ name: "prompt", args: { output, title } })
+                                dispatch({ name: "prompt", args: { output, title, scaler } })
                                 break
                             }
                         }
@@ -167,16 +191,27 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
                 }
             }
         }
+        const title = csetts.title
         const hoverStyle = hasHover ? { cursor: "pointer" } : {}
+        const overlay = <Tooltip>{title}</Tooltip>
+        const trigger = title ? ['hover', 'focus'] : []
         return (
-            <svg version="1.1" key={index} x={x} y={y} width={w} height={h}
-                onMouseEnter={() => onMouseAction("enter")}
-                onMouseLeave={() => onMouseAction("leave")}
-                onMouseDown={() => onMouseAction("down")}
-                onMouseUp={() => onMouseAction("up")}
-                style={hoverStyle}>
-                {controlInstance}
-            </svg>
+            <OverlayTrigger
+                placement="auto"
+                overlay={overlay}
+                trigger={trigger}
+                key={control.id}
+            >
+
+                <svg version="1.1" x={x} y={y} width={w} height={h}
+                    onMouseEnter={() => onMouseAction("enter")}
+                    onMouseLeave={() => onMouseAction("leave")}
+                    onMouseDown={() => onMouseAction("down")}
+                    onMouseUp={() => onMouseAction("up")}
+                    style={hoverStyle}>
+                    {controlInstance}
+                </svg>
+            </OverlayTrigger >
         )
     })
     return (<svg ref={ref} width="100%" height="100%">

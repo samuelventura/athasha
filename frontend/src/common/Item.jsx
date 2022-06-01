@@ -83,7 +83,7 @@ function onEdit(item) {
 
 function Upgraded(props) {
     return props.upgraded ? (
-        <Badge pill bg="warning" title="Upgraded" className='ms-2 user-select-none'>
+        <Badge pill bg="warning" title="Upgraded items require saving from editor" className='ms-2 user-select-none'>
             Upgraded
         </Badge>
     ) : null

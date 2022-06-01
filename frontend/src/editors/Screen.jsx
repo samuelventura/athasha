@@ -467,6 +467,33 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         args.defval = Initial.csetts()[prop]
         return Check.props(args)
     }
+    const inputProps = setts["input"] ? <FormEntry label={Initial.clabels.inputScale}>
+        <Row className="gx-0">
+            <Col><Form.Control type="number" {...settsProps("inputFactor")} /></Col>
+            <Col><Form.Control type="number" {...settsProps("inputOffset")} /></Col>
+        </Row>
+    </FormEntry> : null
+    const outputProps = setts["output"] ? <>
+        <FormEntry label={Initial.clabels.outputScale}>
+            <Row className="gx-0">
+                <Col><Form.Control type="number" {...settsProps("outputFactor")} /></Col>
+                <Col><Form.Control type="number" {...settsProps("outputOffset")} /></Col>
+            </Row>
+        </FormEntry>
+        <FormEntry label={Initial.clabels.click}>
+            <Form.Select {...settsProps("click")} >
+                <option value="Fixed Value">Fixed Value</option>
+                <option value="Value Prompt">Value Prompt</option>
+            </Form.Select>
+        </FormEntry>
+        <FormEntry label={Initial.clabels.value}>
+            <Form.Control type="number" {...settsProps("value")} />
+        </FormEntry>
+        <FormEntry label={Initial.clabels.prompt}>
+            <Form.Control type="text" {...settsProps("prompt")} />
+        </FormEntry>
+
+    </> : null
     return (
         <>
             <Card>
@@ -506,17 +533,17 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                         </Button>
                     </ListGroup.Item>
                     <ListGroup.Item>
-                        <FormEntry label={Initial.clabels.posX}>
-                            <Form.Control type="number" {...settsProps("posX")} min="0" step="1" />
+                        <FormEntry label={Initial.clabels.position}>
+                            <Row className="gx-0">
+                                <Col><Form.Control type="number" {...settsProps("posX")} min="0" step="1" /></Col>
+                                <Col><Form.Control type="number" {...settsProps("posY")} min="0" step="1" /></Col>
+                            </Row>
                         </FormEntry>
-                        <FormEntry label={Initial.clabels.posY}>
-                            <Form.Control type="number" {...settsProps("posY")} min="0" step="1" />
-                        </FormEntry>
-                        <FormEntry label={Initial.clabels.width}>
-                            <Form.Control type="number" {...settsProps("width")} min="1" step="1" />
-                        </FormEntry>
-                        <FormEntry label={Initial.clabels.height}>
-                            <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
+                        <FormEntry label={Initial.clabels.dimensions}>
+                            <Row className="gx-0">
+                                <Col><Form.Control type="number" {...settsProps("width")} min="1" step="1" /></Col>
+                                <Col><Form.Control type="number" {...settsProps("height")} min="1" step="1" /></Col>
+                            </Row>
                         </FormEntry>
                         <FormEntry label={Initial.clabels.title}>
                             <Form.Control type="text" {...settsProps("title")} />
@@ -527,24 +554,14 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                                 {Points.options(globals.inputs)}
                             </Form.Select>
                         </FormEntry>
+                        {inputProps}
                         <FormEntry label={Initial.clabels.output}>
                             <Form.Select {...settsProps("output")} >
                                 <option value=""></option>
                                 {Points.options(globals.outputs)}
                             </Form.Select>
                         </FormEntry>
-                        <FormEntry label={Initial.clabels.click}>
-                            <Form.Select {...settsProps("click")} >
-                                <option value="Fixed Value">Fixed Value</option>
-                                <option value="Value Prompt">Value Prompt</option>
-                            </Form.Select>
-                        </FormEntry>
-                        <FormEntry label={Initial.clabels.value}>
-                            <Form.Control type="number" {...settsProps("value")} />
-                        </FormEntry>
-                        <FormEntry label={Initial.clabels.prompt}>
-                            <Form.Control type="text" {...settsProps("prompt")} />
-                        </FormEntry>
+                        {outputProps}
                     </ListGroup.Item>
                 </ListGroup>
             </Card>

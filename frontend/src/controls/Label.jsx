@@ -2,8 +2,6 @@ import React from 'react'
 import numeral from 'numeral'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Tooltip from 'react-bootstrap/Tooltip'
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
@@ -198,7 +196,7 @@ function Editor({ control, setProp, globals }) {
     )
 }
 
-function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, background }) {
+function Renderer({ control, size, getter, isPressed, hasHover, hoverColor, background }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -266,15 +264,11 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
     }
 
     //null while editing
-    if (inputs) {
-        //decimals received as strings
+    if (getter) {
         const iid = control.setts.input
         if (iid) {
-            //Number(null) -> 0
-            //Number(undefined) -> NaN
-            let value = inputs[iid]
+            let value = getter(iid)
             if (value !== null) {
-                value = Number(value)
                 if (!isNaN(value)) {
                     if (data.cond1.type !== "Disabled") {
                         evalCondition(data.cond1, value)
@@ -290,36 +284,27 @@ function Renderer({ control, size, inputs, isPressed, hasHover, hoverColor, back
         }
     }
 
-    const title = control.setts.title
-    const output = control.setts.output
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
-    const overlay = <Tooltip>{title}</Tooltip>
-    const trigger = output && title ? ['hover', 'focus'] : []
     const clickBg = data.bgEnabled ? data.bgColor : (background || "none")
     const clickFt = isPressed ? "url(#pressed)" : "none"
     return (
-        <OverlayTrigger
-            placement="auto"
-            overlay={overlay}
-            trigger={trigger}
-        >
-            <svg>
-                <filter id='hover' colorInterpolationFilters="sRGB">
-                    <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.5" floodColor={hoverColor} />
-                </filter>
-                <filter id='pressed' colorInterpolationFilters="sRGB">
-                    <feOffset in="SourceGraphic" dx="1" dy="1" />
-                </filter>
-                <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                    fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} />
-                <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                    fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
-                <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
-                    textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
-                    {text}
-                </text>
-            </svg>
-        </OverlayTrigger >
+        <svg>
+            <filter id='hover' colorInterpolationFilters="sRGB">
+                <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.5" floodColor={hoverColor} />
+            </filter>
+            <filter id='pressed' colorInterpolationFilters="sRGB">
+                <feOffset in="SourceGraphic" dx="1" dy="1" />
+            </filter>
+            <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
+                fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} />
+            <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
+                fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
+            <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
+                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
+                {text}
+            </text>
+        </svg>
+
     )
 }
 
