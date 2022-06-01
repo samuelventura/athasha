@@ -473,6 +473,11 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
             <Col><Form.Control type="number" {...settsProps("inputOffset")} /></Col>
         </Row>
     </FormEntry> : null
+    const promptProp = setts["click"] === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
+        <Form.Control type="text" {...settsProps("prompt")} />
+    </FormEntry> : <FormEntry label={Initial.clabels.value}>
+        <Form.Control type="number" {...settsProps("value")} />
+    </FormEntry>
     const outputProps = setts["output"] ? <>
         <FormEntry label={Initial.clabels.outputScale}>
             <Row className="gx-0">
@@ -486,13 +491,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                 <option value="Value Prompt">Value Prompt</option>
             </Form.Select>
         </FormEntry>
-        <FormEntry label={Initial.clabels.value}>
-            <Form.Control type="number" {...settsProps("value")} />
-        </FormEntry>
-        <FormEntry label={Initial.clabels.prompt}>
-            <Form.Control type="text" {...settsProps("prompt")} />
-        </FormEntry>
-
+        {promptProp}
     </> : null
     return (
         <>
