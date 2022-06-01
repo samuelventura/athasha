@@ -245,7 +245,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         }
         //onKeyPress wont receive arrows
         function onKeyDown(event) {
-            console.log(event)
             switch (event.code) {
                 case "Delete": {
                     actionControl('del', control)
@@ -254,11 +253,21 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                 case "ArrowDown": {
                     if (event.shiftKey) actionControl('down', control)
                     else if (event.ctrlKey) actionControl('bottom', control)
+                    else actionControl('yinc', control)
                     break
                 }
                 case "ArrowUp": {
                     if (event.shiftKey) actionControl('up', control)
                     else if (event.ctrlKey) actionControl('top', control)
+                    else actionControl('ydec', control)
+                    break
+                }
+                case "ArrowLeft": {
+                    actionControl('xdec', control)
+                    break
+                }
+                case "ArrowRight": {
+                    actionControl('xinc', control)
                     break
                 }
             }
@@ -633,6 +642,12 @@ function Editor(props) {
         const total = controls.length
         return (index + total) % total
     }
+    function rangeValue(curr, inc, max, size) {
+        const upper = Number(max) - Number(size)
+        const value = Number(curr) + inc
+        const trimmed = Math.max(0, Math.min(upper, value))
+        return trimmed.toString()
+    }
     function actionControl(action, control) {
         switch (action) {
             case "del": {
@@ -681,6 +696,22 @@ function Editor(props) {
                 const next = [...controls]
                 next.push(JSON.parse(JSON.stringify(control)))
                 setControls(next)
+                break
+            }
+            case "xdec": {
+                setCSetts(control, "posX", rangeValue(control.setts.posX, -1, setts.gridX, control.setts.width))
+                break
+            }
+            case "xinc": {
+                setCSetts(control, "posX", rangeValue(control.setts.posX, +1, setts.gridX, control.setts.width))
+                break
+            }
+            case "ydec": {
+                setCSetts(control, "posY", rangeValue(control.setts.posY, -1, setts.gridY, control.setts.height))
+                break
+            }
+            case "yinc": {
+                setCSetts(control, "posY", rangeValue(control.setts.posY, +1, setts.gridY, control.setts.height))
                 break
             }
         }
