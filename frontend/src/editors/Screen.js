@@ -1,10 +1,12 @@
 import Check from './Check'
 import Merge from "../tools/Merge"
 import Label from '../controls/Label.js'
+import Analog from '../controls/Analog.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const controlMap = {}
 controlMap[Label.type] = Label
+controlMap[Analog.type] = Analog
 
 function merge(target) {
     const _initial = config()
@@ -38,7 +40,7 @@ function setts() {
         align: 'center',
         width: '640',
         height: '480',
-        gridX: '120',
+        gridX: '160',
         gridY: '120',
         bgColor: "#ffffff",
         hvColor: "#808080",

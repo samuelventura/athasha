@@ -147,7 +147,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     const parent = { pw: cw, ph: ch }
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
     const invertedBg = invertColor(setts.bgColor, true)
-    const invertedBgC = invertColor(setts.bgColor, false)
+    const invertedBgBw = invertColor(setts.bgColor, false)
     function controlRender(control, index) {
         const cetts = Initial.fixCSetts(control.setts)
         //always draw them inside
@@ -278,14 +278,14 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         }
         const size = { width: w, height: h }
         const isSelected = selected.control === control
-        const borderStroke = isSelected ? "4" : "2"
+        const strokeWidth = isSelected ? "4" : "2"
         const controller = Controls.getController(control.type)
         const controlInstance = controller.Renderer({ control, size })
         const isDragged = dragged.index === index || index < 0
-        const borderOpacity = isDragged ? "0.5" : "0"
+        const fillOpacity = isDragged ? "0.5" : "0"
         const controlBorder = !preview ? (
-            <rect width="100%" height="100%" fill="white" fillOpacity={borderOpacity}
-                stroke={invertedBgC} strokeWidth={borderStroke} />) : null
+            <rect width="100%" height="100%" fill="white" fillOpacity={fillOpacity}
+                stroke={invertedBgBw} strokeWidth={strokeWidth} strokeOpacity="0.2" />) : null
         const controlEvents = index >= 0 ? {
             onPointerDown: (e) => onPointerDown(e, index, control),
             onPointerMove: (e) => onPointerMove(e),
@@ -310,10 +310,10 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     function onClickScreen() {
         setSelected(Initial.selected())
     }
-    const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.25" />) : null
+    const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.1" />) : null
     const dragFrame = dragged.index >= 0 ? controlRender(dragged.frame, -1) : null
     return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
-        <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" />
+        <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
@@ -321,7 +321,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                         stroke={invertedBg} strokeWidth="1" />
                 </pattern>
             </defs>
-            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" />
+            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
             {gridRect}
             {controlList}
             {dragFrame}
