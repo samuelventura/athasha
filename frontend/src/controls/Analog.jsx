@@ -119,11 +119,8 @@ function calcStatus(data, value) {
     return "critical"
 }
 
-function calcDisplay(size, prop) {
-    const value = size[prop]
-    const zero = 0
-    const span = value
-    return { zero, span }
+function calcDisplay(standard, size, long, thick) {
+    return size[long] - (standard ? size[thick] : 0)
 }
 
 
@@ -136,7 +133,7 @@ function getMinMax(data, type) {
 
 function calcPos(display, input, value) {
     if (value === null) return null
-    return display.zero + display.span * (value - input.min) / input.span
+    return display * (value - input.min) / input.span
 }
 
 function calcRange(data, display, input, type) {
@@ -147,11 +144,8 @@ function calcRange(data, display, input, type) {
     return { min, max, span }
 }
 
-function portion(size, prop) {
-    const value = size[prop]
-    const zero = 0
-    const span = value
-    return { zero, span }
+function getWidth(size, prop) {
+    return size[prop]
 }
 
 function backColors(standard, data) {
@@ -192,52 +186,57 @@ function Renderer({ size, control, value }) {
     const bgColors = backColors(standard, data)
     const fgColors = foreColors(standard, data)
     const cursorWidth = 2
-    const borderWidth = 2 * cursorWidth
-    const borderColor = standard ? statusColor(status, fgColors) : "none"
+    const alertColor = standard ? statusColor(status, fgColors) : "none"
     if (!circular) {
         const thick = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
-        const width = portion(size, thick)
-        const display = calcDisplay(size, long)
+        const width = getWidth(size, thick)
+        const display = calcDisplay(standard, size, long, thick)
         const warning = calcRange(data, display, input, "warning")
         const normal = calcRange(data, display, input, "normal")
         const cursor = calcPos(display, input, trimmed)
         if (vertical) {
             const cursorLine = cursor !== null ? <>
-                <line x1={width.zero} y1={cursor} x2={width.span} y2={cursor}
+                <line x1={0} y1={cursor} x2={width} y2={cursor}
                     stroke={fgColors.cursor} strokeWidth={cursorWidth} />
             </> : null
+            const alertPath = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
+            const alertTrans = `translate(0, ${display})`
             const transform = `scale(1, -1) translate(0, -${size.height})`
             return (
                 <svg>
                     <g transform={transform}>
-                        <rect x={width.zero} y={display.zero} width={width.span} height={display.span}
+                        <rect x={0} y={0} width={width} height={display}
                             fill={bgColors.critical} />
-                        <rect x={width.zero} y={warning.min} width={width.span} height={warning.span}
+                        <rect x={0} y={warning.min} width={width} height={warning.span}
                             fill={bgColors.warning} />
-                        <rect x={width.zero} y={normal.min} width={width.span} height={normal.span}
+                        <rect x={0} y={normal.min} width={width} height={normal.span}
                             fill={bgColors.normal} />
-                        <rect x={width.zero} y={display.zero} width={width.span} height={display.span}
-                            stroke={borderColor} strokeWidth={borderWidth} fill="none" />
+                        <g transform={alertTrans}>
+                            <path d={alertPath} stroke="none" fill={alertColor} />
+                        </g>
                         {cursorLine}
                     </g>
                 </svg>
             )
         } else {
             const cursorLine = cursor !== null ? <>
-                <line y1={width.zero} x1={cursor} y2={width.span} x2={cursor}
+                <line y1={0} x1={cursor} y2={width} x2={cursor}
                     stroke={fgColors.cursor} strokeWidth={cursorWidth} />
             </> : null
+            const alertPath = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
+            const alertTrans = `translate(${display}, 0)`
             return (
                 <svg>
-                    <rect y={width.zero} x={display.zero} height={width.span} width={display.span}
+                    <rect y={0} x={0} height={width} width={display}
                         fill={bgColors.critical} />
-                    <rect y={width.zero} x={warning.min} height={width.span} width={warning.span}
+                    <rect y={0} x={warning.min} height={width} width={warning.span}
                         fill={bgColors.warning} />
-                    <rect y={width.zero} x={normal.min} height={width.span} width={normal.span}
+                    <rect y={0} x={normal.min} height={width} width={normal.span}
                         fill={bgColors.normal} />
-                    <rect y={width.zero} x={display.zero} height={width.span} width={display.span}
-                        stroke={borderColor} strokeWidth={borderWidth} fill="none" />
+                    <g transform={alertTrans}>
+                        <path d={alertPath} stroke="none" fill={alertColor} />
+                    </g>
                     {cursorLine}
                 </svg>
             )
@@ -270,9 +269,15 @@ function Renderer({ size, control, value }) {
         let cursorRota = criticalRota + data.barSpan * ((trimmed - input.min) / input.span - cursorWidth / 2 / display)
         if (!isFinite(cursorRota)) cursorRota = 0 //transient editing errors
         const cursorTrans = `rotate(${cursorRota}, ${center.cx}, ${center.cy})`
+        const alertRadious = radius - tick / 2
+        const alertDisplay = alertRadious * Number(Math.PI * data.barSpan / 180)
+        const alertDash = `${alertDisplay}  ${perimeter}`
+        const alertArc = standard ? <circle r={alertRadious} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={tick} stroke={alertColor} strokeDasharray={alertDash} /> : null
         return <>
             <svg>
                 <g transform={criticalTrans}>
+                    {alertArc}
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={criticalDash} />
                 </g>
