@@ -51,7 +51,9 @@ function invertColor(hex, bw) {
         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
     }
     if (hex.length !== 6) {
-        throw new Error('Invalid HEX color.')
+        //support incomplete editions
+        return '#000000'
+        //throw new Error('Invalid HEX color.')
     }
     var r = parseInt(hex.slice(0, 2), 16),
         g = parseInt(hex.slice(2, 4), 16),
@@ -468,10 +470,10 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         return Check.props(args)
     }
     const inputProps = setts["input"] ? <FormEntry label={Initial.clabels.inputScale}>
-        <Row className="gx-0">
-            <Col><Form.Control type="number" {...settsProps("inputFactor")} /></Col>
-            <Col><Form.Control type="number" {...settsProps("inputOffset")} /></Col>
-        </Row>
+        <InputGroup>
+            <Form.Control type="number" {...settsProps("inputFactor")} />
+            <Form.Control type="number" {...settsProps("inputOffset")} />
+        </InputGroup>
     </FormEntry> : null
     const promptProp = setts["click"] === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
         <Form.Control type="text" {...settsProps("prompt")} />
@@ -480,10 +482,10 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
     </FormEntry>
     const outputProps = setts["output"] ? <>
         <FormEntry label={Initial.clabels.outputScale}>
-            <Row className="gx-0">
-                <Col><Form.Control type="number" {...settsProps("outputFactor")} /></Col>
-                <Col><Form.Control type="number" {...settsProps("outputOffset")} /></Col>
-            </Row>
+            <InputGroup>
+                <Form.Control type="number" {...settsProps("outputFactor")} />
+                <Form.Control type="number" {...settsProps("outputOffset")} />
+            </InputGroup>
         </FormEntry>
         <FormEntry label={Initial.clabels.click}>
             <Form.Select {...settsProps("click")} >
@@ -533,16 +535,16 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                     </ListGroup.Item>
                     <ListGroup.Item>
                         <FormEntry label={Initial.clabels.position}>
-                            <Row className="gx-0">
-                                <Col><Form.Control type="number" {...settsProps("posX")} min="0" step="1" /></Col>
-                                <Col><Form.Control type="number" {...settsProps("posY")} min="0" step="1" /></Col>
-                            </Row>
+                            <InputGroup>
+                                <Form.Control type="number" {...settsProps("posX")} min="0" step="1" />
+                                <Form.Control type="number" {...settsProps("posY")} min="0" step="1" />
+                            </InputGroup>
                         </FormEntry>
                         <FormEntry label={Initial.clabels.dimensions}>
-                            <Row className="gx-0">
-                                <Col><Form.Control type="number" {...settsProps("width")} min="1" step="1" /></Col>
-                                <Col><Form.Control type="number" {...settsProps("height")} min="1" step="1" /></Col>
-                            </Row>
+                            <InputGroup>
+                                <Form.Control type="number" {...settsProps("width")} min="1" step="1" />
+                                <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
+                            </InputGroup>
                         </FormEntry>
                         <FormEntry label={Initial.clabels.title}>
                             <Form.Control type="text" {...settsProps("title")} />
@@ -714,7 +716,9 @@ function Editor(props) {
             }
             case "clone": {
                 const next = [...controls]
-                next.push(JSON.parse(JSON.stringify(control)))
+                const cloned = JSON.parse(JSON.stringify(control))
+                cloned.id = Initial.id()
+                next.push(cloned)
                 setControls(next)
                 break
             }

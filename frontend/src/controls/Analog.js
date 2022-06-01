@@ -9,52 +9,61 @@ function merge(target) {
 
 function data() {
     return {
-        orientation: "Vertical",
-        displayRangeZero: "0",
-        displayRangeSpan: "100",
-        inputScaleFactor: "1",
-        inputScaleOffset: "0",
-        inputRangeMin: "0",
-        inputRangeMax: "10000",
-        normalRangeMin: "4000",
-        normalRangeMax: "6000",
-        warningRangeMin: "2000",
-        warningRangeMax: "8000",
-        criticalRangeMin: "0",
-        criticalRangeMax: "10000",
+        orientation: "Vertical", //Vertical|Horizontal|Circular
+        style: "Standard", //Standard|Custom
+        barZero: "0",
+        barSpan: "100",
+        barWidth: "10",
+        inputMin: "0",
+        inputMax: "10000",
+        normalMin: "4000",
+        normalMax: "6000",
+        warningMin: "2000",
+        warningMax: "8000",
+        cursorColor: "#000000",
+        normalColor: "#27ae60",
+        warningColor: "#f1c40f",
+        criticalColor: "#c0392b",
     }
 }
 
 const dlabels = {
     orientation: "Orientation",
-    displayRange: "Display Range",
-    displayRangeZero: "Display Range Zero",
-    displayRangeSpan: "Display Range Span",
-    inputScale: "Input Scale",
-    inputScaleFactor: "Input Scale Factor",
-    inputScaleOffset: "Input Scale Offset",
+    style: "Style",
+    barRange: "Bar Config",
+    barZero: "Bar Range Zero",
+    barSpan: "Bar Range Span",
+    barWidth: "Bar Range Width",
     inputRange: "Input Range",
-    inputRangeMin: "Input Range Minimum",
-    inputRangeMax: "Input Range Maximum",
+    inputMin: "Input Range Minimum",
+    inputMax: "Input Range Maximum",
     normalRange: "Normal Range",
-    normalRangeMin: "Normal Range Minimum",
-    normalRangeMax: "Normal Range Maximum",
+    normalMin: "Normal Range Minimum",
+    normalMax: "Normal Range Maximum",
     warningRange: "Warning Range",
-    warningRangeMin: "Warning Range Minimum",
-    warningRangeMax: "Warning Range Maximum",
-    criticalRange: "Critical Range",
-    criticalRangeMin: "Critical Range Minimum",
-    criticalRangeMax: "Critical Range Maximum",
+    warningMin: "Warning Range Minimum",
+    warningMax: "Warning Range Maximum",
+    cursorColor: "Cursor Color",
+    normalColor: "Normal Color",
+    warningColor: "Warning Color",
+    criticalColor: "Critical Color",
 }
 
 const dhints = {
     orientation: "Bar orientation",
-    displayRangeZero: "Non empty number [-100, 100]",
-    displayRangeSpan: "Non empty number (0, 100]",
-    inputScaleFactor: "Non empty number m in f(x)=mx+b",
-    inputScaleOffset: "Non empty number b in f(x)=mx+b",
-    inputRangeMin: "Non empty number",
-    inputRangeMax: "Non empty number",
+    barZero: "Non empty number [-180, 180]",
+    barSpan: "Non empty number (0, 360]",
+    barWidth: "Non empty number > 0",
+    inputMin: "Non empty number (same as critical)",
+    inputMax: "Non empty number (same as critical)",
+    normalMin: "Non empty number",
+    normalMax: "Non empty number",
+    warningMin: "Non empty number",
+    warningMax: "Non empty number",
+    cursorColor: "Non empty cursor color #RRGGBB",
+    normalColor: "Non empty normal color #RRGGBB",
+    warningColor: "Non empty warning color #RRGGBB",
+    criticalColor: "Non empty critical color #RRGGBB",
 }
 
 const dchecks = {
@@ -62,69 +71,79 @@ const dchecks = {
         Check.isString(value, dlabels.orientation)
         Check.notEmpty(value, dlabels.orientation)
     },
-    displayRangeZero: function (value) {
-        Check.isString(value, dlabels.displayRangeZero)
-        Check.notEmpty(value, dlabels.displayRangeZero)
-        Check.isNumber(value, dlabels.displayRangeZero)
-        Check.isGE(value, dlabels.displayRangeZero, -100)
-        Check.isLE(value, dlabels.displayRangeZero, +100)
+    style: function (value) {
+        Check.isString(value, dlabels.style)
+        Check.notEmpty(value, dlabels.style)
     },
-    displayRangeSpan: function (value) {
-        Check.isString(value, dlabels.displayRangeSpan)
-        Check.notEmpty(value, dlabels.displayRangeSpan)
-        Check.isNumber(value, dlabels.displayRangeSpan)
-        Check.isGT(value, dlabels.displayRangeSpan, 0)
-        Check.isLE(value, dlabels.displayRangeSpan, 100)
+    barZero: function (value) {
+        Check.isString(value, dlabels.barZero)
+        Check.notEmpty(value, dlabels.barZero)
+        Check.isNumber(value, dlabels.barZero)
+        Check.isGE(value, dlabels.barZero, -180)
+        Check.isLE(value, dlabels.barZero, +180)
     },
-    inputScaleFactor: function (value) {
-        Check.isString(value, dlabels.inputScaleFactor)
-        Check.notEmpty(value, dlabels.inputScaleFactor)
-        Check.isNumber(value, dlabels.inputScaleFactor)
+    barSpan: function (value) {
+        Check.isString(value, dlabels.barSpan)
+        Check.notEmpty(value, dlabels.barSpan)
+        Check.isNumber(value, dlabels.barSpan)
+        Check.isGT(value, dlabels.barSpan, 0)
+        Check.isLE(value, dlabels.barSpan, 360)
     },
-    inputScaleOffset: function (value) {
-        Check.isString(value, dlabels.inputScaleOffset)
-        Check.notEmpty(value, dlabels.inputScaleOffset)
-        Check.isNumber(value, dlabels.inputScaleOffset)
+    barWidth: function (value) {
+        Check.isString(value, dlabels.barWidth)
+        Check.notEmpty(value, dlabels.barWidth)
+        Check.isNumber(value, dlabels.barWidth)
+        Check.isGT(value, dlabels.barWidth, 0)
     },
-    inputRangeMin: function (value) {
-        Check.isString(value, dlabels.inputRangeMin)
-        Check.notEmpty(value, dlabels.inputRangeMin)
-        Check.isNumber(value, dlabels.inputRangeMin)
+    inputMin: function (value) {
+        Check.isString(value, dlabels.inputMin)
+        Check.notEmpty(value, dlabels.inputMin)
+        Check.isNumber(value, dlabels.inputMin)
     },
-    inputRangeMax: function (value) {
-        Check.isString(value, dlabels.inputRangeMax)
-        Check.notEmpty(value, dlabels.inputRangeMax)
-        Check.isNumber(value, dlabels.inputRangeMax)
+    inputMax: function (value) {
+        Check.isString(value, dlabels.inputMax)
+        Check.notEmpty(value, dlabels.inputMax)
+        Check.isNumber(value, dlabels.inputMax)
     },
-    normalRangeMin: function (value) {
-        Check.isString(value, dlabels.normalRangeMin)
-        Check.notEmpty(value, dlabels.normalRangeMin)
-        Check.isNumber(value, dlabels.normalRangeMin)
+    normalMin: function (value) {
+        Check.isString(value, dlabels.normalMin)
+        Check.notEmpty(value, dlabels.normalMin)
+        Check.isNumber(value, dlabels.normalMin)
     },
-    normalRangeMax: function (value) {
-        Check.isString(value, dlabels.normalRangeMax)
-        Check.notEmpty(value, dlabels.normalRangeMax)
-        Check.isNumber(value, dlabels.normalRangeMax)
+    normalMax: function (value) {
+        Check.isString(value, dlabels.normalMax)
+        Check.notEmpty(value, dlabels.normalMax)
+        Check.isNumber(value, dlabels.normalMax)
     },
-    warningRangeMin: function (value) {
-        Check.isString(value, dlabels.warningRangeMin)
-        Check.notEmpty(value, dlabels.warningRangeMin)
-        Check.isNumber(value, dlabels.warningRangeMin)
+    warningMin: function (value) {
+        Check.isString(value, dlabels.warningMin)
+        Check.notEmpty(value, dlabels.warningMin)
+        Check.isNumber(value, dlabels.warningMin)
     },
-    warningRangeMax: function (value) {
-        Check.isString(value, dlabels.warningRangeMax)
-        Check.notEmpty(value, dlabels.warningRangeMax)
-        Check.isNumber(value, dlabels.warningRangeMax)
+    warningMax: function (value) {
+        Check.isString(value, dlabels.warningMax)
+        Check.notEmpty(value, dlabels.warningMax)
+        Check.isNumber(value, dlabels.warningMax)
     },
-    criticalRangeMin: function (value) {
-        Check.isString(value, dlabels.criticalRangeMin)
-        Check.notEmpty(value, dlabels.criticalRangeMin)
-        Check.isNumber(value, dlabels.criticalRangeMin)
+    cursorColor: function (value) {
+        Check.isString(value, dlabels.cursorColor)
+        Check.notEmpty(value, dlabels.cursorColor)
+        Check.isColor(value, dlabels.cursorColor)
     },
-    criticalRangeMax: function (value) {
-        Check.isString(value, dlabels.criticalRangeMax)
-        Check.notEmpty(value, dlabels.criticalRangeMax)
-        Check.isNumber(value, dlabels.criticalRangeMax)
+    normalColor: function (value) {
+        Check.isString(value, dlabels.normalColor)
+        Check.notEmpty(value, dlabels.normalColor)
+        Check.isColor(value, dlabels.normalColor)
+    },
+    warningColor: function (value) {
+        Check.isString(value, dlabels.warningColor)
+        Check.notEmpty(value, dlabels.warningColor)
+        Check.isColor(value, dlabels.warningColor)
+    },
+    criticalColor: function (value) {
+        Check.isString(value, dlabels.criticalColor)
+        Check.notEmpty(value, dlabels.criticalColor)
+        Check.isColor(value, dlabels.criticalColor)
     },
 }
 

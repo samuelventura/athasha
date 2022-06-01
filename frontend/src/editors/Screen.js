@@ -26,6 +26,10 @@ function merge(target) {
     return target
 }
 
+function id() {
+    return uuidv4()
+}
+
 function config() {
     return {
         setts: setts(),
@@ -51,7 +55,7 @@ function setts() {
 
 function control() {
     return {
-        id: uuidv4(),
+        id: id(),
         type: "none",
         setts: csetts(),
         data: {},
@@ -348,6 +352,7 @@ function validator({ setts, controls }) {
 }
 
 export default {
+    id,
     merge,
     selected,
     config,

@@ -57,7 +57,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.fgEnabled}
                         onChange={e => setProp("fgEnabled", e.target.checked)}
-                        title="Enable Text Color" />
+                        title={Initial.clabels.fgEnabled} />
                     <Form.Control type="color" {...fieldProps("fgColor")} />
                     <Form.Control type="text" {...fieldProps("fgColor")} />
                 </InputGroup>
@@ -66,7 +66,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.bgEnabled}
                         onChange={e => setProp("bgEnabled", e.target.checked)}
-                        title="Enable Background Color" />
+                        title={Initial.clabels.bgEnabled} />
                     <Form.Control type="color" {...fieldProps("bgColor")} />
                     <Form.Control type="text" {...fieldProps("bgColor")} />
                 </InputGroup>
@@ -75,7 +75,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                 <InputGroup>
                     <InputGroup.Checkbox checked={cond.brEnabled}
                         onChange={e => setProp("brEnabled", e.target.checked)}
-                        title="Enable Border Color" />
+                        title={Initial.clabels.brEnabled} />
                     <Form.Control type="color" {...fieldProps("brColor")} />
                     <Form.Control type="text" {...fieldProps("brColor")} />
                 </InputGroup>
@@ -164,7 +164,7 @@ function Editor({ control, setProp, globals }) {
                         <InputGroup>
                             <InputGroup.Checkbox checked={data.bgEnabled}
                                 onChange={e => setProp("bgEnabled", e.target.checked)}
-                                title="Enable Background Color" />
+                                title={Initial.dlabels.bgEnabled} />
                             <Form.Control type="color" {...fieldProps("bgColor")} />
                             <Form.Control type="text" {...fieldProps("bgColor")} />
                         </InputGroup>
@@ -265,16 +265,14 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
 
     //null while editing
     if (value !== null) {
-        if (!isNaN(value)) {
-            if (data.cond1.type !== "Disabled") {
-                evalCondition(data.cond1, value)
-            }
-            if (data.cond2.type !== "Disabled") {
-                evalCondition(data.cond2, value)
-            }
-            if (data.cond3.type !== "Disabled") {
-                evalCondition(data.cond3, value)
-            }
+        if (data.cond1.type !== "Disabled") {
+            evalCondition(data.cond1, value)
+        }
+        if (data.cond2.type !== "Disabled") {
+            evalCondition(data.cond2, value)
+        }
+        if (data.cond3.type !== "Disabled") {
+            evalCondition(data.cond3, value)
         }
     }
 
@@ -298,7 +296,6 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
                 {text}
             </text>
         </svg>
-
     )
 }
 

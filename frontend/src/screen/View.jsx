@@ -149,6 +149,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
             if (value === undefined) return null
             if (value === null) return null
             if (`${value}`.trim().length === 0) return null
+            if (!isFinite(value)) return null
             return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
         }
         const scaler = (value) => {
