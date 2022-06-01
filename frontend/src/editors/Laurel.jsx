@@ -14,7 +14,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Laurel.js'
 import Serial from "./Serial"
-import Check from './Check'
+import Check from '../common/Check'
 
 function Editor(props) {
     const captured = props.globals.captured
@@ -179,27 +179,24 @@ function Editor(props) {
         return Check.props(args)
     }
 
-    const configOptions = Serial.configList.map((c, i) => <option key={i} value={c}>{c}</option>)
-    const serialOptions = serials.map((serial, index) => {
-        return <option key={index} value={serial}>{serial}</option>
-    })
-
+    const configOptions = Serial.configList.map(v => <option key={v} value={v}>{v}</option>)
+    const serialOptions = serials.map(v => <option key={v} value={v}>{v}</option>)
+    const transportOptions = Initial.transports.map(v => <option key={v} value={v}>{v}</option>)
+    const protocolOptions = Initial.protocols.map(v => <option key={v} value={v}>{v}</option>)
     function subHeaderEditor() {
         return (
             <Row>
                 <Col xs={4}>
                     <FloatingLabel label={Initial.labels.trans}>
                         <Form.Select {...settsProps("trans")}>
-                            <option value="Socket">Socket</option>
-                            <option value="Serial">Serial</option>
+                            {transportOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.proto}>
                         <Form.Select {...settsProps("proto")}>
-                            <option value="TCP">TCP</option>
-                            <option value="RTU">RTU</option>
+                            {protocolOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
@@ -233,13 +230,15 @@ function Editor(props) {
         </Row>)
     }
 
+    //autocomplete wont shot on empty input, start typing beginning of port name...
+    //keyPress not emitting, onFocus replaces by check props
     function serialTransportEditor() {
         return (<Row>
             <Col xs={4}>
                 <FloatingLabel label={Initial.labels.tty}>
                     <Form.Control type="text" list="serialList"
-                        onClick={() => setTrigger(true)} onFocus={() => setTrigger(true)}
-                        onKeyPress={e => setTrigger(e.key === 'Enter')}
+                        onClick={() => setTrigger(true)}
+                        onKeyDown={e => setTrigger(e.key === 'Enter')}
                         {...settsProps("tty")} />
                     <datalist id="serialList">
                         {serialOptions}
@@ -276,8 +275,8 @@ function Editor(props) {
         </>
     }
 
-    const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
-    const outputOptions = Initial.outputCodes.map((code, index) => <option key={index} value={code}>{code}</option>)
+    const inputOptions = Initial.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const outputOptions = Initial.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
     function slaveEditor({ sindex, slave }) {
         const inputRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>

@@ -154,14 +154,14 @@ defmodule Athasha.Runner.Opto22 do
 
   # 4ch Digital, pag 12
   # 4ch Analog, pag 13
-  defp getter(master, "4chd", slave, address) do
+  defp getter(master, "4ch Digital", slave, address) do
     case Master.exec(master, {:ri, slave, address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
     end
   end
 
-  defp getter(master, "4cha", slave, address) do
+  defp getter(master, "4ch Analog", slave, address) do
     case Master.exec(master, {:rir, slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<value::float-big-32>> = <<w0::16, w1::16>>
@@ -172,7 +172,7 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter(master, "4chd", slave, address, value) do
+  defp setter(master, "4ch Digital", slave, address, value) do
     value = Number.to_bit(value)
 
     case Master.exec(master, {:fc, slave, address, value}) do
@@ -181,7 +181,7 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter(master, "4cha", slave, address, value) do
+  defp setter(master, "4ch Analog", slave, address, value) do
     value = :erlang.float(value)
     <<w0::16, w1::16>> = <<value::float-big-32>>
 
@@ -191,8 +191,8 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp address("Snap", "4chd", module, number), do: module * 4 + (number - 1)
-  defp address("Snap", "4cha", module, number), do: module * 8 + 2 * (number - 1)
+  defp address("Snap", "4ch Digital", module, number), do: module * 4 + (number - 1)
+  defp address("Snap", "4ch Analog", module, number), do: module * 8 + 2 * (number - 1)
 
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport

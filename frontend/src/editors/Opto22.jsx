@@ -13,7 +13,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Initial from './Opto22.js'
-import Check from './Check'
+import Check from '../common/Check'
 
 function Editor(props) {
     const captured = props.globals.captured
@@ -127,7 +127,7 @@ function Editor(props) {
         args.defval = Initial.output()[prop]
         return Check.props(args)
     }
-    const inputOptions = Initial.inputCodes.map((code, index) => <option key={index} value={code}>{Initial.inputLabels[index]}</option>)
+    const inputOptions = Initial.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const inputRows = inputs.map((input, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
@@ -162,7 +162,7 @@ function Editor(props) {
             </td>
         </tr >
     )
-    const outputOptions = Initial.outputCodes.map((code, index) => <option key={index} value={code}>{Initial.outputLabels[index]}</option>)
+    const outputOptions = Initial.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const outputRows = outputs.map((output, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
@@ -197,7 +197,7 @@ function Editor(props) {
             </td>
         </tr >
     )
-
+    const typeOptions = Initial.types.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
@@ -227,7 +227,7 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.type}>
                         <Form.Select {...settsProps("type")}>
-                            <option value="Snap">Snap</option>
+                            {typeOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>

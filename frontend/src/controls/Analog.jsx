@@ -5,7 +5,7 @@ import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Analog.js"
-import Check from '../editors/Check'
+import Check from '../common/Check'
 
 function Editor({ control, setProp, globals }) {
     const captured = globals.captured

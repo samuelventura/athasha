@@ -1,4 +1,4 @@
-import Check from './Check'
+import Check from '../common/Check'
 import Merge from "../tools/Merge"
 
 function merge(target) {
@@ -58,6 +58,9 @@ const outputCodes = [
     // "Force Alarm 4",
 ]
 
+const transports = ["Socket", "Serial"]
+const protocols = ["TCP", "RTU"]
+
 function config() {
     return {
         setts: setts(),
@@ -67,8 +70,8 @@ function config() {
 
 function setts() {
     return {
-        proto: "TCP",    //RTU
-        trans: "Socket", //Serial
+        proto: protocols[0],    //RTU
+        trans: transports[0], //Serial
         host: "127.0.0.1",
         port: "502",
         tty: "COM1",
@@ -89,11 +92,11 @@ function slave(index) {
 }
 
 function input(index) {
-    return { code: "Item 1", name: `Input ${1 + (index || 0)}` }
+    return { code: inputCodes[0], name: `Input ${1 + (index || 0)}` }
 }
 
 function output(index) {
-    return { code: "Device Reset", name: `Output ${1 + (index || 0)}` }
+    return { code: outputCodes[0], name: `Output ${1 + (index || 0)}` }
 }
 
 const labels = {
@@ -162,10 +165,12 @@ const checks = {
     trans: function (value) {
         Check.isString(value, labels.trans)
         Check.notEmpty(value, labels.trans)
+        Check.inList(value, labels.trans, transports)
     },
     proto: function (value) {
         Check.isString(value, labels.proto)
         Check.notEmpty(value, labels.proto)
+        Check.inList(value, labels.proto, protocols)
     },
     period: function (value) {
         Check.isString(value, labels.period)
@@ -285,6 +290,8 @@ function validator({ setts, slaves }) {
 }
 
 export default {
+    transports,
+    protocols,
     merge,
     inputCodes,
     outputCodes,

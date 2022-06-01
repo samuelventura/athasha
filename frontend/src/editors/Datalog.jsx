@@ -12,7 +12,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../common/Points'
 import Initial from './Datalog.js'
-import Check from './Check'
+import Check from '../common/Check'
 import Tools from '../editor/Tools'
 import { useApp } from '../App'
 
@@ -119,14 +119,14 @@ function Editor(props) {
         function done() { e.target.disabled = false }
         Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
+    const databaseOptions = Initial.databases.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.database}>
                         <Form.Select {...settsProps("database")}>
-                            <option value="sqlserver">SQL Server</option>
-                            {/* <option value="sqlite">SQLite</option> */}
+                            {databaseOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>

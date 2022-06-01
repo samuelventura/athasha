@@ -1,4 +1,4 @@
-import Check from './Check'
+import Check from '../common/Check'
 import Merge from "../tools/Merge"
 
 function merge(target) {
@@ -16,10 +16,9 @@ function merge(target) {
     return target
 }
 
-const inputCodes = ["4chd", "4cha"]
-const outputCodes = ["4chd", "4cha"]
-const inputLabels = ["4ch Digital", "4ch Analog"]
-const outputLabels = ["4ch Digital", "4ch Analog"]
+const types = ["Snap"]
+const inputCodes = ["4ch Digital", "4ch Analog"]
+const outputCodes = ["4ch Digital", "4ch Analog"]
 
 function config() {
     return {
@@ -31,7 +30,7 @@ function config() {
 
 function setts() {
     return {
-        type: "Snap",
+        type: types[0],
         host: "127.0.0.1",
         port: "502",
         period: "10",
@@ -42,7 +41,7 @@ function setts() {
 
 function input(index) {
     return {
-        code: "4chd",
+        code: inputCodes[0],
         module: "0",
         number: "1",
         name: `Input ${1 + (index || 0)}`,
@@ -51,7 +50,7 @@ function input(index) {
 
 function output(index) {
     return {
-        code: "4chd",
+        code: outputCodes[0],
         module: "0",
         number: "1",
         name: `Output ${1 + (index || 0)}`,
@@ -116,6 +115,7 @@ const checks = {
     type: function (value) {
         Check.isString(value, labels.type)
         Check.notEmpty(value, labels.type)
+        Check.inList(value, labels.type, types)
     },
     host: function (value) {
         Check.isString(value, labels.host)
@@ -148,6 +148,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.inputs.code(index))
             Check.notEmpty(value, labels.inputs.code(index))
+            Check.inList(value, labels.inputs.code(index), inputCodes)
         },
         module: function (index, value) {
             Check.isString(value, labels.inputs.module(index))
@@ -170,6 +171,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.outputs.code(index))
             Check.notEmpty(value, labels.outputs.code(index))
+            Check.inList(value, labels.outputs.code(index), outputCodes)
         },
         module: function (index, value) {
             Check.isString(value, labels.outputs.module(index))
@@ -228,11 +230,10 @@ function validator({ setts, inputs, outputs }) {
 }
 
 export default {
+    types,
     merge,
     inputCodes,
     outputCodes,
-    inputLabels,
-    outputLabels,
     config,
     setts,
     input,

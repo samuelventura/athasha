@@ -1,4 +1,4 @@
-import Check from './Check'
+import Check from '../common/Check'
 import Merge from "../tools/Merge"
 
 function merge(target) {
@@ -19,9 +19,11 @@ function config() {
     }
 }
 
+const databases = ["SQL Server"]
+
 function setts() {
     return {
-        database: "sqlserver",
+        database: databases[0],
         dbpass: "",
         connstr: "",
         command: "",
@@ -77,6 +79,7 @@ const checks = {
     database: function (value) {
         Check.isString(value, labels.database)
         Check.notEmpty(value, labels.database)
+        Check.inList(value, labels.database, databases)
     },
     dbpass: function (value) {
         Check.isString(value, labels.dbpass)
@@ -132,6 +135,7 @@ function validator({ setts, inputs }) {
 }
 
 export default {
+    databases,
     merge,
     config,
     setts,

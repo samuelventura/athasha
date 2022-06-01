@@ -12,7 +12,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../common/Points'
 import Initial from './Datalink.js'
-import Check from './Check'
+import Check from '../common/Check'
 
 function Editor(props) {
     const captured = props.globals.captured

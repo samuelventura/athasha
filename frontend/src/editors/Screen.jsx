@@ -21,7 +21,7 @@ import { FormEntry } from '../controls/Tools'
 import Points from '../common/Points'
 import Controls from './Controls'
 import Initial from './Screen.js'
-import Check from './Check'
+import Check from '../common/Check'
 
 function calcAlign(align, d, D) {
     switch (align) {

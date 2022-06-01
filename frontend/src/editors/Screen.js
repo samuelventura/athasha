@@ -1,4 +1,4 @@
-import Check from './Check'
+import Check from '../common/Check'
 import Merge from "../tools/Merge"
 import Label from '../controls/Label.js'
 import Analog from '../controls/Analog.js'

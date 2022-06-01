@@ -6,9 +6,9 @@ public class Database : IDisposable
     {
         switch (dbtype)
         {
-            case "sqlserver":
+            case "SQL Server":
                 return new SqlServerDatabase(connstr);
-            case "sqlite":
+            case "SQLite":
                 return new SqliteDatabase(connstr);
             default:
                 throw new Exception("Unknown dbtype");

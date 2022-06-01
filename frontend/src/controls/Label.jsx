@@ -8,7 +8,7 @@ import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Label.js"
-import Check from '../editors/Check'
+import Check from '../common/Check'
 
 function CondEditor({ cond, setProp, captured, setCaptured }) {
     function fieldProps(prop) {
