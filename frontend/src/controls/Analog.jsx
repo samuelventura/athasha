@@ -173,6 +173,10 @@ function statusColor(status, fgColors) {
     }
 }
 
+function fnn(v) {
+    return v < 0 ? 0 : v
+}
+
 function Renderer({ size, control, value }) {
     const data = control.data
     const input = getMinMax(data, "input")
@@ -208,11 +212,11 @@ function Renderer({ size, control, value }) {
             return (
                 <svg>
                     <g transform={transform}>
-                        <rect x={0} y={0} width={width} height={display}
+                        <rect x={0} y={0} width={fnn(width)} height={fnn(display)}
                             fill={bgColors.critical} />
-                        <rect x={0} y={warning.min} width={width} height={warning.span}
+                        <rect x={0} y={warning.min} width={fnn(width)} height={fnn(warning.span)}
                             fill={bgColors.warning} />
-                        <rect x={0} y={normal.min} width={width} height={normal.span}
+                        <rect x={0} y={normal.min} width={fnn(width)} height={fnn(normal.span)}
                             fill={bgColors.normal} />
                         {alertElem}
                         {cursorLine}
@@ -231,11 +235,11 @@ function Renderer({ size, control, value }) {
             </g> : null
             return (
                 <svg>
-                    <rect y={0} x={0} height={width} width={display}
+                    <rect y={0} x={0} height={fnn(width)} width={fnn(display)}
                         fill={bgColors.critical} />
-                    <rect y={0} x={warning.min} height={width} width={warning.span}
+                    <rect y={0} x={warning.min} height={fnn(width)} width={fnn(warning.span)}
                         fill={bgColors.warning} />
-                    <rect y={0} x={normal.min} height={width} width={normal.span}
+                    <rect y={0} x={normal.min} height={fnn(width)} width={fnn(normal.span)}
                         fill={bgColors.normal} />
                     {alertElem}
                     {cursorLine}
@@ -273,25 +277,25 @@ function Renderer({ size, control, value }) {
         const alertRadious = radius - tick / 2
         const alertDisplay = alertRadious * Number(Math.PI * data.barSpan / 180)
         const alertDash = `${alertDisplay}  ${perimeter}`
-        const alertArc = standard ? <circle r={alertRadious} cx={center.cx} cy={center.cy} fill="none"
+        const alertArc = standard ? <circle r={fnn(alertRadious)} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={tick} stroke={alertColor} strokeDasharray={alertDash} /> : null
         return <>
             <svg>
                 <g transform={criticalTrans}>
                     {alertArc}
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={criticalDash} />
                 </g>
                 <g transform={warningTrans}>
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={tick} stroke={bgColors.warning} strokeDasharray={warningDash} />
                 </g>
                 <g transform={normalTrans}>
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={tick} stroke={bgColors.normal} strokeDasharray={normalDash} />
                 </g>
                 <g transform={cursorTrans}>
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursorDash} />
                 </g>
             </svg>
