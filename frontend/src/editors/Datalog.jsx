@@ -120,6 +120,7 @@ function Editor(props) {
         Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
     const databaseOptions = Initial.databases.map(v => <option key={v} value={v}>{v}</option>)
+    const unitOptions = Initial.units.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
@@ -143,8 +144,7 @@ function Editor(props) {
                 <Col xs={2}>
                     <FloatingLabel label={Initial.labels.unit}>
                         <Form.Select {...settsProps("unit")} >
-                            <option value="s">Second(s)</option>
-                            <option value="m">Minute(s)</option>
+                            {unitOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>

@@ -13,6 +13,7 @@ function merge(target) {
 }
 
 const databases = ["SQL Server"]
+const units = ["Second(s)", "Minute(s)"]
 
 function config() {
     return {
@@ -28,7 +29,7 @@ function setts() {
         database: databases[0],
         dbpass: "",
         period: "1",
-        unit: "s",
+        unit: units[0],
     }
 }
 
@@ -89,7 +90,7 @@ const checks = {
     },
     unit: function (value) {
         Check.isString(value, labels.unit)
-        Check.inList(value, labels.unit, ["s", "m"])
+        Check.inList(value, labels.unit, units)
     },
     connstr: function (value) {
         Check.isString(value, labels.connstr)
@@ -130,6 +131,7 @@ function validator({ setts, inputs }) {
 
 export default {
     databases,
+    units,
     merge,
     config,
     setts,

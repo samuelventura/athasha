@@ -62,19 +62,19 @@ function Editor({ control, setProp, globals }) {
         </FormEntry>
     </> : null
 
+    const orientationOptions = Initial.orientations.map(v => <option key={v} value={v}>{v}</option>)
+    const styleOptions = Initial.styles.map(v => <option key={v} value={v}>{v}</option>)
+
     return (
         <>
             <FormEntry label={Initial.dlabels.orientation}>
                 <Form.Select {...fieldProps("orientation")}>
-                    <option value="Vertical">Vertical</option>
-                    <option value="Horizontal">Horizontal</option>
-                    <option value="Circular">Circular</option>
+                    {orientationOptions}
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.dlabels.style}>
                 <Form.Select {...fieldProps("style")}>
-                    <option value="Standard">Standard</option>
-                    <option value="Custom">Custom</option>
+                    {styleOptions}
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.dlabels.inputRange}>

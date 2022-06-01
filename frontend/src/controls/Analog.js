@@ -7,10 +7,13 @@ function merge(target) {
     return target
 }
 
+const orientations = ["Vertical", "Horizontal", "Circular"]
+const styles = ["Standard", "Custom"]
+
 function data() {
     return {
-        orientation: "Vertical", //Vertical|Horizontal|Circular
-        style: "Standard", //Standard|Custom
+        orientation: orientations[0],
+        style: styles[0],
         barZero: "0",
         barSpan: "180",
         barWidth: "10",
@@ -70,10 +73,12 @@ const dchecks = {
     orientation: function (value) {
         Check.isString(value, dlabels.orientation)
         Check.notEmpty(value, dlabels.orientation)
+        Check.inList(value, dlabels.orientation, orientations)
     },
     style: function (value) {
         Check.isString(value, dlabels.style)
         Check.notEmpty(value, dlabels.style)
+        Check.inList(value, dlabels.style, styles)
     },
     barZero: function (value) {
         Check.isString(value, dlabels.barZero)
@@ -161,4 +166,6 @@ export default {
     dlabels,
     dchecks,
     dhints,
+    orientations,
+    styles,
 }

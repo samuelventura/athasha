@@ -3,25 +3,25 @@
     "config": {
       "inputs": [
         {
-          "code": "4chd",
+          "code": "4ch Digital",
           "module": "0",
           "name": "Emergency",
           "number": "1"
         },
         {
-          "code": "4chd",
+          "code": "4ch Digital",
           "module": "1",
           "name": "Alarm",
           "number": "1"
         },
         {
-          "code": "4cha",
+          "code": "4ch Analog",
           "module": "2",
           "name": "Fuel Display",
           "number": "1"
         },
         {
-          "code": "4cha",
+          "code": "4ch Analog",
           "module": "4",
           "name": "Fuel Level",
           "number": "1"
@@ -29,13 +29,13 @@
       ],
       "outputs": [
         {
-          "code": "4chd",
+          "code": "4ch Digital",
           "module": "1",
           "name": "Alarm",
           "number": "1"
         },
         {
-          "code": "4cha",
+          "code": "4ch Analog",
           "module": "2",
           "name": "Fuel Display",
           "number": "1"
@@ -103,15 +103,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Outputs"
           },
+          "id": "62a5c50e-4edb-400b-9a39-304e03e8a9c9",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "1",
             "prompt": "Enter Value",
@@ -166,15 +171,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Inputs"
           },
+          "id": "70f66e17-bcde-48b5-bffe-017e63d2c161",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "1",
             "posY": "1",
             "prompt": "Enter Value",
@@ -229,15 +239,20 @@
               "type": "Disabled"
             },
             "fgColor": "#6f6d6d",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "48",
             "text": "Opto22 Learning Center"
           },
+          "id": "662872be-5fc2-4241-9e85-b03511eea3e3",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "0",
             "posY": "0",
             "prompt": "Enter Value",
@@ -265,7 +280,7 @@
               "param": "0",
               "txText": "",
               "txType": "Disabled",
-              "type": "Greater"
+              "type": "Input > Param"
             },
             "cond2": {
               "bgColor": "#ffffff",
@@ -292,15 +307,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Emergency"
           },
+          "id": "9cd79c0e-46be-444f-9763-e2a90ca08622",
           "setts": {
             "click": "Fixed Value",
             "height": "2",
             "input": "1b56ecc9-4477-401e-976b-3d0180ee39ca Emergency",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "1",
             "posY": "2",
             "prompt": "Enter Value",
@@ -327,7 +347,7 @@
               "fgEnabled": false,
               "param": "0",
               "txText": "0.0",
-              "txType": "Format",
+              "txType": "Format Text",
               "type": "Enabled"
             },
             "cond2": {
@@ -340,7 +360,7 @@
               "param": "5000",
               "txText": "",
               "txType": "Disabled",
-              "type": "Greater"
+              "type": "Input > Param"
             },
             "cond3": {
               "bgColor": "#ffffff",
@@ -355,15 +375,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "0.0"
           },
+          "id": "8f5c9f0f-719c-48c4-8fb9-cf042decbb07",
           "setts": {
             "click": "Fixed Value",
             "height": "2",
             "input": "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Level",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "1",
             "posY": "5",
             "prompt": "Enter Value",
@@ -391,7 +416,7 @@
               "param": "0",
               "txText": "",
               "txType": "Disabled",
-              "type": "Greater"
+              "type": "Input > Param"
             },
             "cond2": {
               "bgColor": "#ffffff",
@@ -418,15 +443,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Alarm"
           },
+          "id": "1eb6305e-9b4d-4f89-9f54-9b95ee893ed7",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "1b56ecc9-4477-401e-976b-3d0180ee39ca Alarm",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "2",
             "prompt": "Enter Value",
@@ -481,15 +511,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "24",
             "text": "Off"
           },
+          "id": "35c72117-eed7-4d56-a1a2-573cdea88842",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "1b56ecc9-4477-401e-976b-3d0180ee39ca Alarm",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "3",
             "prompt": "Enter Value",
@@ -544,15 +579,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "24",
             "text": "On"
           },
+          "id": "74e241ce-a8f5-4b81-bbdc-f3e8cbed90b4",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "1b56ecc9-4477-401e-976b-3d0180ee39ca Alarm",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "7",
             "posY": "3",
             "prompt": "Enter Value",
@@ -579,7 +619,7 @@
               "fgEnabled": false,
               "param": "0",
               "txText": "0",
-              "txType": "Format",
+              "txType": "Format Text",
               "type": "Enabled"
             },
             "cond2": {
@@ -607,15 +647,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "0"
           },
+          "id": "d0545345-a00e-4506-a24d-6035349b508f",
           "setts": {
             "click": "Value Prompt",
             "height": "1",
             "input": "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Display",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Display",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "5",
             "prompt": "Enter Value",
@@ -670,15 +715,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "16",
             "text": "3500"
           },
+          "id": "21c5458d-db56-4b3a-ab05-8bdd8e6d6a9b",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Display",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "6",
             "prompt": "Enter Value",
@@ -733,15 +783,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "16",
             "text": "6800"
           },
+          "id": "384b6638-c034-46ca-b4ac-16e8f5aaa795",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Display",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "7",
             "posY": "6",
             "prompt": "Enter Value",
@@ -796,15 +851,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Fuel Display"
           },
+          "id": "2bd8b6fc-553d-4fe8-a68b-2112c62db324",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "5",
             "posY": "4",
             "prompt": "Enter Value",
@@ -859,15 +919,20 @@
               "type": "Disabled"
             },
             "fgColor": "#aba6a6",
-            "ftFamily": "RobotoThin",
+            "ftFamily": "Roboto Thin",
             "ftSize": "32",
             "text": "Fuel Level"
           },
+          "id": "33b7a25e-ddf5-4150-baa9-64e38fa3a94e",
           "setts": {
             "click": "Fixed Value",
             "height": "1",
             "input": "",
+            "inputFactor": "1",
+            "inputOffset": "0",
             "output": "",
+            "outputFactor": "1",
+            "outputOffset": "0",
             "posX": "1",
             "posY": "4",
             "prompt": "Enter Value",
@@ -885,7 +950,7 @@
         "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Display"
       ],
       "setts": {
-        "align": "center",
+        "align": "Center",
         "bgColor": "#ffffff",
         "gridX": "9",
         "gridY": "7",
@@ -893,7 +958,7 @@
         "hvColor": "#808080",
         "password": "",
         "period": "25",
-        "scale": "fit",
+        "scale": "Fit",
         "width": "640"
       }
     },

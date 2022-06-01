@@ -26,16 +26,13 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         args.defval = Initial.cond()[prop]
         return Check.props(args)
     }
+    const condTypeOptions = Initial.condTypes.map(v => <option key={v} value={v}>{v}</option>)
+    const txTypeOptions = Initial.txTypes.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
             <FormEntry label={Initial.clabels.type}>
                 <Form.Select {...fieldProps("type")}>
-                    <option value="Disabled">Disabled</option>
-                    <option value="Enabled">Enabled</option>
-                    <option value="Greater">Input &gt; Param</option>
-                    <option value="GreaterOrEqual">Input &ge; Param</option>
-                    <option value="Lesser">Input &lt; Param</option>
-                    <option value="LesserOrEqual">Input &le; Param</option>
+                    {condTypeOptions}
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.clabels.param}>
@@ -43,9 +40,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
             </FormEntry>
             <FormEntry label={Initial.clabels.txType}>
                 <Form.Select {...fieldProps("txType")}>
-                    <option value="Disabled">Disabled</option>
-                    <option value="Fixed">Fixed Text</option>
-                    <option value="Format">Format Text</option>
+                    {txTypeOptions}
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.clabels.txText}>
@@ -110,6 +105,8 @@ function Editor({ control, setProp, globals }) {
         args.defval = Initial.data()[prop]
         return Check.props(args)
     }
+    const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
+    const ftFamilyOptions = Initial.ftFamilies.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
             <Tabs defaultActiveKey="default">
@@ -119,9 +116,7 @@ function Editor({ control, setProp, globals }) {
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.align}>
                         <Form.Select {...fieldProps("align")}>
-                            <option value="Center">Center</option>
-                            <option value="Left">Left</option>
-                            <option value="Right">Right</option>
+                            {alignOptions}
                         </Form.Select>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.fgColor}>
@@ -135,29 +130,7 @@ function Editor({ control, setProp, globals }) {
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.ftFamily}>
                         <Form.Select {...fieldProps("ftFamily")}>
-                            <option value="RobotoThin">Roboto Thin</option>
-                            <option value="RobotoLight">Roboto Light</option>
-                            <option value="RobotoRegular">Roboto Regular</option>
-                            <option value="RobotoMedium">Roboto Medium</option>
-                            <option value="RobotoBold">Roboto Bold</option>
-                            <option value="RobotoBlack">Roboto Black</option>
-                            <option value="Barcode39Regular">Barcode39 Regular</option>
-                            <option value="Barcode39Text">Barcode39 Text</option>
-                            <option value="Barcode128Regular">Barcode128 Regular</option>
-                            <option value="Barcode128Text">Barcode128 Text</option>
-                            <option value="OxaniumExtraLight">Oxanium Extra Light</option>
-                            <option value="OxaniumLight">Oxanium Light</option>
-                            <option value="OxaniumRegular">Oxanium Regular</option>
-                            <option value="OxaniumMedium">Oxanium Medium</option>
-                            <option value="OxaniumSemiBold">Oxanium Semi Bold</option>
-                            <option value="OxaniumBold">Oxanium Bold</option>
-                            <option value="OxaniumExtraBold">Oxanium Extra Bold</option>
-                            <option value="OrbitronRegular">Orbitron Regular</option>
-                            <option value="OrbitronMedium">Orbitron Medium</option>
-                            <option value="OrbitronSemiBold">Orbitron Semi Bold</option>
-                            <option value="OrbitronBold">Orbitron Bold</option>
-                            <option value="OrbitronExtraBold">Orbitron Extra Bold</option>
-                            <option value="OrbitronBlack">Orbitron Black</option>
+                            {ftFamilyOptions}
                         </Form.Select>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.bgColor}>
@@ -232,16 +205,16 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             case "Enabled":
                 met = true
                 break
-            case "Greater":
+            case "Input > Param":
                 met = (value > param)
                 break
-            case "GreaterOrEqual":
+            case "Input >= Param":
                 met = (value >= param)
                 break
-            case "Lesser":
+            case "Input < Param":
                 met = (value < param)
                 break
-            case "LesserOrEqual":
+            case "Input <= Param":
                 met = (value <= param)
                 break
         }
@@ -250,11 +223,11 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             if (cond.fgEnabled) fgColor = cond.fgColor
             if (cond.brEnabled) brColor = cond.brColor
             switch (cond.txType) {
-                case "Fixed": {
+                case "Fixed Text": {
                     text = cond.txText
                     break
                 }
-                case "Format": {
+                case "Format Text": {
                     //http://numeraljs.com/
                     text = numeral(value).format(cond.txText)
                     break
@@ -276,6 +249,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
         }
     }
 
+    const font = data.ftFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     const clickBg = data.bgEnabled ? data.bgColor : (background || "none")
     const clickFt = isPressed ? "url(#pressed)" : "none"
@@ -292,7 +266,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                 fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
             <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
-                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={data.ftFamily}>
+                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={font}>
                 {text}
             </text>
         </svg>

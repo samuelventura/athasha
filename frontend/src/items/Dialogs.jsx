@@ -13,40 +13,6 @@ import Files from '../tools/Files'
 import Types from "../common/Types"
 import { useApp } from '../App'
 
-function DeleteAllItems() {
-    const app = useApp()
-    const targeted = app.state.targeted
-    const action = targeted.action
-    function isActive() { return action === "delete-all" }
-    function onCancel() {
-        app.dispatch({ name: "target", args: {} })
-    }
-    function onAccept() {
-        Object.values(app.state.items).forEach((item) => {
-            app.send({ name: "delete", args: { id: item.id } })
-        })
-        app.dispatch({ name: "target", args: {} })
-    }
-    return (
-        <Modal show={isActive()} onHide={onCancel} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Danger</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                Delete All Items?
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onCancel}>
-                    Cancel
-                </Button>
-                <Button variant="danger" onClick={onAccept}>
-                    Delete
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    )
-}
-
 function DeleteItem() {
     const app = useApp()
     const targeted = app.state.targeted
@@ -125,7 +91,7 @@ function NewItem() {
         setName(value + " " + token.substring(0, 6))
     }
     function options() {
-        return Types.names.map((type, index) => (<option key={index} value={type}>{type}</option>))
+        return Types.names.map(v => <option key={v} value={v}>{v}</option>)
     }
     return (
         <Modal show={isActive()} onHide={onCancel} centered>
@@ -136,7 +102,7 @@ function NewItem() {
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
                     <Form.Select autoFocus value={type} onChange={e => onTypeChanged(e.target.value)}>
-                        <option></option>
+                        <option value=""></option>
                         {options()}
                     </Form.Select>
                 </Form.Group>
@@ -241,10 +207,44 @@ function InfoButton() {
     ) : null
 }
 
+function DeleteAllItems() {
+    const app = useApp()
+    const targeted = app.state.targeted
+    const action = targeted.action
+    function isActive() { return action === "delete-all" }
+    function onCancel() {
+        app.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        Object.values(app.state.items).forEach((item) => {
+            app.send({ name: "delete", args: { id: item.id } })
+        })
+        app.dispatch({ name: "target", args: {} })
+    }
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Danger</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Delete All Items?
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="danger" onClick={onAccept}>
+                    Delete
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 export {
     NewItem,
     DeleteItem,
-    DeleteAllItems,
     InfoButton,
-    ToolsButton
+    ToolsButton,
+    DeleteAllItems,
 }

@@ -25,9 +25,9 @@ import Check from '../common/Check'
 
 function calcAlign(align, d, D) {
     switch (align) {
-        case 'start': return 0
-        case 'center': return (D - d) / 2
-        case 'end': return (D - d)
+        case 'Start': return 0
+        case 'Center': return (D - d) / 2
+        case 'End': return (D - d)
     }
 }
 
@@ -78,7 +78,6 @@ function calcGeom(parent, setts) {
     const H = Number(setts.height)
     const gx = Number(setts.gridX)
     const gy = Number(setts.gridY)
-    const pr = parent.pw / parent.ph
     const sx = W / gx
     const sy = H / gy
     let w = W
@@ -86,7 +85,7 @@ function calcGeom(parent, setts) {
     let x = 0
     let y = 0
     switch (setts.scale) {
-        case 'fit': {
+        case 'Fit': {
             const wr = W / parent.pw
             const hr = H / parent.ph
             const r = wr > hr ? wr : hr
@@ -94,18 +93,6 @@ function calcGeom(parent, setts) {
             h = parent.ph * r
             x = calcAlign(align, w, W)
             y = calcAlign(align, h, H)
-            break
-        }
-        case 'fit-width': {
-            w = W
-            h = W / pr
-            y = calcAlign(align, h, H)
-            break
-        }
-        case 'fit-height': {
-            h = H
-            w = H * pr
-            x = calcAlign(align, w, W)
             break
         }
     }
@@ -151,7 +138,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     const invertedBg = invertColor(setts.bgColor, true)
     const invertedBgBw = invertColor(setts.bgColor, false)
     function controlRender(control, index) {
-        const cetts = Initial.fixCSetts(control.setts)
+        const cetts = control.setts
         //always draw them inside
         const mpos = { posX: gx - cetts.width, posY: gy - cetts.height }
         mpos.posX = mpos.posX < 0 ? 0 : mpos.posX
@@ -375,6 +362,8 @@ function ScreenEditor({ setShow, setts, setSetts, preview, globals }) {
         args.defval = Initial.setts()[prop]
         return Check.props(args)
     }
+    const scaleOptions = Initial.scales.map(v => <option key={v} value={v}>{v}</option>)
+    const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Card>
             <Card.Header>
@@ -393,17 +382,12 @@ function ScreenEditor({ setShow, setts, setSetts, preview, globals }) {
                     </FormEntry>
                     <FormEntry label={Initial.labels.scale}>
                         <Form.Select {...settsProps("scale")}>
-                            <option value="fit">Fit</option>
-                            {/* <option value="fit-width">Fit Width</option>
-                            <option value="fit-height">Fit Height</option> */}
-                            <option value="stretch">Stretch</option>
+                            {scaleOptions}
                         </Form.Select>
                     </FormEntry>
                     <FormEntry label={Initial.labels.align}>
                         <Form.Select {...settsProps("align")}>
-                            <option value="start">Start</option>
-                            <option value="center">Center</option>
-                            <option value="end">End</option>
+                            {alignOptions}
                         </Form.Select>
                     </FormEntry>
                     <FormEntry label={Initial.labels.width}>
@@ -465,7 +449,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         args.hint = Initial.chints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.cchecks[prop]
+        args.check = Initial.cschecks[prop]
         args.defval = Initial.csetts()[prop]
         return Check.props(args)
     }
@@ -475,11 +459,15 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
             <Form.Control type="number" {...settsProps("inputOffset")} />
         </InputGroup>
     </FormEntry> : null
+
     const promptProp = setts["click"] === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
         <Form.Control type="text" {...settsProps("prompt")} />
     </FormEntry> : <FormEntry label={Initial.clabels.value}>
         <Form.Control type="number" {...settsProps("value")} />
     </FormEntry>
+
+    const clickOptions = Initial.clicks.map(v => <option key={v} value={v}>{v}</option>)
+
     const outputProps = setts["output"] ? <>
         <FormEntry label={Initial.clabels.outputScale}>
             <InputGroup>
@@ -489,12 +477,12 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         </FormEntry>
         <FormEntry label={Initial.clabels.click}>
             <Form.Select {...settsProps("click")} >
-                <option value="Fixed Value">Fixed Value</option>
-                <option value="Value Prompt">Value Prompt</option>
+                {clickOptions}
             </Form.Select>
         </FormEntry>
         {promptProp}
     </> : null
+
     return (
         <>
             <Card>

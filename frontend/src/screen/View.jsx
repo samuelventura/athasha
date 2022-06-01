@@ -159,6 +159,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const value = getter()
         const controlInstance = controller.Renderer({ control, size, value, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
+            console.log(action)
             switch (action) {
                 case "enter": {
                     setHover(index)
@@ -195,9 +196,10 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
             }
         }
         const title = csetts.title
-        const hoverStyle = hasHover ? { cursor: "pointer" } : {}
+        const classes = output ? "output" : ""
         const overlay = <Tooltip>{title}</Tooltip>
         const trigger = title ? ['hover', 'focus'] : []
+        //no mouse event received after modal closes with pointer still within boudaries
         return (
             <OverlayTrigger
                 placement="auto"
@@ -205,13 +207,14 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
                 trigger={trigger}
                 key={control.id}
             >
-
                 <svg version="1.1" x={x} y={y} width={w} height={h}
                     onMouseEnter={() => onMouseAction("enter")}
+                    // onMouseOver={() => onMouseAction("enter")}
+                    onMouseMove={() => onMouseAction("enter")}
                     onMouseLeave={() => onMouseAction("leave")}
                     onMouseDown={() => onMouseAction("down")}
                     onMouseUp={() => onMouseAction("up")}
-                    style={hoverStyle}>
+                    className={classes}>
                     {controlInstance}
                 </svg>
             </OverlayTrigger >

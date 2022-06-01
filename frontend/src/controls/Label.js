@@ -14,11 +14,40 @@ function merge(target) {
     return target
 }
 
+const condTypes = ["Disabled", "Enabled", "Input > Param", "Input >= Param", "Input < Param", "Input <= Param"]
+const txTypes = ["Disabled", "Fixed Text", "Format Text"]
+const aligns = ["Center", "Left", "Right"]
+const ftFamilies = [
+    "Roboto Thin",
+    "Roboto Light",
+    "Roboto Regular",
+    "Roboto Medium",
+    "Roboto Bold",
+    "Roboto Black",
+    "Barcode39 Regular",
+    "Barcode39 Text",
+    "Barcode128 Regular",
+    "Barcode128 Text",
+    "Oxanium Extra Light",
+    "Oxanium Light",
+    "Oxanium Regular",
+    "Oxanium Medium",
+    "Oxanium Semi Bold",
+    "Oxanium Bold",
+    "Oxanium Extra Bold",
+    "Orbitron Regular",
+    "Orbitron Medium",
+    "Orbitron Semi Bold",
+    "Orbitron Bold",
+    "Orbitron Extra Bold",
+    "Orbitron Black",
+]
+
 function cond() {
     return {
-        type: "Disabled",
+        type: condTypes[0],
         param: "0",
-        txType: "Disabled",
+        txType: txTypes[0],
         txText: "",
         bgEnabled: false,
         bgColor: "#ffffff",
@@ -32,10 +61,10 @@ function cond() {
 function data() {
     return {
         text: "Label",
-        align: "Center",
+        align: aligns[0],
         fgColor: "#000000",
         ftSize: "10",
-        ftFamily: "RobotoThin",
+        ftFamily: ftFamilies[0],
         bgEnabled: false,
         bgColor: "#ffffff",
         brWidth: "0",
@@ -80,6 +109,7 @@ const dchecks = {
     align: function (value) {
         Check.isString(value, dlabels.align)
         Check.notEmpty(value, dlabels.align)
+        Check.inList(value, dlabels.align, aligns)
     },
     fgColor: function (value) {
         Check.isString(value, dlabels.fgColor)
@@ -95,6 +125,7 @@ const dchecks = {
     ftFamily: function (value) {
         Check.isString(value, dlabels.ftFamily)
         Check.notEmpty(value, dlabels.ftFamily)
+        Check.inList(value, dlabels.ftFamily, ftFamilies)
     },
     bgEnabled: function (value) {
         Check.isBoolean(value, dlabels.bgEnabled)
@@ -163,6 +194,7 @@ const cchecks = {
     type: function (value) {
         Check.isString(value, clabels.type)
         Check.notEmpty(value, clabels.type)
+        Check.inList(value, clabels.type, condTypes)
     },
     param: function (value) {
         Check.isString(value, clabels.param)
@@ -170,6 +202,7 @@ const cchecks = {
     txType: function (value) {
         Check.isString(value, clabels.txType)
         Check.notEmpty(value, clabels.txType)
+        Check.inList(value, clabels.txType, txTypes)
     },
     txText: function (value) {
         Check.isString(value, clabels.txText)
@@ -218,4 +251,8 @@ export default {
     cchecks,
     dhints,
     chints,
+    condTypes,
+    txTypes,
+    aligns,
+    ftFamilies,
 }

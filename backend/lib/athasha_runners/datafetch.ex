@@ -20,8 +20,8 @@ defmodule Athasha.Runner.Datafetch do
 
     period =
       case unit do
-        "s" -> period * 1000
-        "m" -> period * 1000 * 60
+        "Seconds(s)" -> period * 1000
+        "Minutes(s)" -> period * 1000 * 60
       end
 
     inputs =

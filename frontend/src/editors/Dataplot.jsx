@@ -124,7 +124,7 @@ function Editor(props) {
         function done() { e.target.disabled = false }
         Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
-    const databaseOptions = Initial.databases.map(db => <option key={db} value={db}>{db}</option>)
+    const databaseOptions = Initial.databases.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>

@@ -70,8 +70,8 @@ function config() {
 
 function setts() {
     return {
-        proto: protocols[0],    //RTU
-        trans: transports[0], //Serial
+        proto: protocols[0],
+        trans: transports[0],
         host: "127.0.0.1",
         port: "502",
         tty: "COM1",
@@ -144,7 +144,7 @@ const hints = {
     password: "Optional access password",
     tty: "Select serial port from list"
         + "\nType begining of name to show completing list"
-        + "\nPress ENTER to update list",
+        + "\nClick or press ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     slaves: {
@@ -226,6 +226,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.inputs.code(index))
             Check.notEmpty(value, labels.inputs.code(index))
+            Check.inList(value, labels.inputs.code(index), inputCodes)
         },
         name: function (index, value) {
             Check.isString(value, labels.inputs.code(index))
@@ -236,6 +237,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.outputs.code(index))
             Check.notEmpty(value, labels.outputs.code(index))
+            Check.inList(value, labels.outputs.code(index), outputCodes)
         },
         name: function (index, value) {
             Check.isString(value, labels.outputs.code(index))

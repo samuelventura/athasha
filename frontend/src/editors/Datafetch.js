@@ -20,6 +20,7 @@ function config() {
 }
 
 const databases = ["SQL Server"]
+const units = ["Second(s)", "Minute(s)"]
 
 function setts() {
     return {
@@ -29,7 +30,7 @@ function setts() {
         command: "",
         password: "",
         period: "1",
-        unit: "s",
+        unit: units[0],
     }
 }
 
@@ -93,7 +94,7 @@ const checks = {
     },
     unit: function (value) {
         Check.isString(value, labels.unit)
-        Check.inList(value, labels.unit, ["s", "m"])
+        Check.inList(value, labels.unit, units)
     },
     password: function (value) {
         Check.isString(value, labels.password)
@@ -136,6 +137,7 @@ function validator({ setts, inputs }) {
 
 export default {
     databases,
+    units,
     merge,
     config,
     setts,

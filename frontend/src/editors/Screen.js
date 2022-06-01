@@ -38,12 +38,16 @@ function config() {
     }
 }
 
+const scales = ["Fit", "Stretch"]
+const aligns = ["Center", "Start", "End"]
+const clicks = ["Fixed Value", "Value Prompt"]
+
 function setts() {
     return {
         password: "",
         period: "25",
-        scale: 'fit',
-        align: 'center',
+        scale: scales[0],
+        align: aligns[0],
         width: '640',
         height: '480',
         gridX: '160',
@@ -78,7 +82,7 @@ function csetts() {
         title: "",
         input: "",
         output: "",
-        click: "Fixed Value",
+        click: clicks[0],
         value: "0",
         prompt: "Enter Value",
         inputFactor: "1",
@@ -200,6 +204,7 @@ const cschecks = {
     click: function (value) {
         Check.isString(value, clabels.click)
         Check.notEmpty(value, clabels.click)
+        Check.inList(value, clabels.click, clicks)
     },
     value: function (value) {
         Check.isString(value, clabels.value)
@@ -231,21 +236,6 @@ const cschecks = {
     },
 }
 
-function fixCSetts(curr) {
-    const next = {}
-    const init = csetts()
-    Object.keys(curr).forEach((k) => {
-        const value = curr[k]
-        try {
-            cschecks[k](value)
-            next[k] = value
-        } catch (ex) {
-            next[k] = init[k]
-        }
-    })
-    return next
-}
-
 const checks = {
     password: function (value) {
         Check.isString(value, labels.password)
@@ -260,10 +250,12 @@ const checks = {
     scale: function (value) {
         Check.isString(value, labels.scale)
         Check.notEmpty(value, labels.scale)
+        Check.inList(value, labels.scale, scales)
     },
     align: function (value) {
         Check.isString(value, labels.align)
         Check.notEmpty(value, labels.align)
+        Check.inList(value, labels.align, aligns)
     },
     width: function (value) {
         Check.isString(value, labels.width)
@@ -365,6 +357,8 @@ export default {
     validator,
     clabels,
     chints,
-    cchecks: cschecks,
-    fixCSetts,
+    cschecks,
+    scales,
+    aligns,
+    clicks,
 }

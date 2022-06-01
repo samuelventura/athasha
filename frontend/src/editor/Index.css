@@ -14,7 +14,7 @@ svg text {
    user-select: none;
 }
 
-svg:focus{
+svg:focus {
     outline: none;
 }
 

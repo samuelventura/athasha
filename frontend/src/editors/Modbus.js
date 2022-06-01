@@ -77,7 +77,7 @@ function setts() {
 function input(index) {
     return {
         slave: "1",
-        code: "01 Coil",
+        code: inputCodes[0],
         address: `${1 + (index || 0)}`,
         name: `Input ${1 + (index || 0)}`,
         factor: "1",
@@ -88,7 +88,7 @@ function input(index) {
 function output(index) {
     return {
         slave: "1",
-        code: "05 Coil",
+        code: outputCodes[0],
         address: `${1 + (index || 0)}`,
         name: `Output ${1 + (index || 0)}`,
         factor: "1",
@@ -148,7 +148,7 @@ const hints = {
     password: "Optional access password",
     tty: "Select serial port from list"
         + "\nType begining of name to show completing list"
-        + "\nPress ENTER to update list",
+        + "\nClick or press ENTER to update list",
     speed: "Non empty integer > 0",
     dbpsb: "Select config from list",
     inputs: {
@@ -245,6 +245,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.inputs.code(index))
             Check.notEmpty(value, labels.inputs.code(index))
+            Check.inList(value, labels.inputs.code(index), inputCodes)
         },
         address: function (index, value) {
             Check.isString(value, labels.inputs.address(index))
@@ -278,6 +279,7 @@ const checks = {
         code: function (index, value) {
             Check.isString(value, labels.outputs.code(index))
             Check.notEmpty(value, labels.outputs.code(index))
+            Check.inList(value, labels.outputs.code(index), outputCodes)
         },
         address: function (index, value) {
             Check.isString(value, labels.outputs.address(index))
