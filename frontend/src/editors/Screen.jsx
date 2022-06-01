@@ -16,7 +16,7 @@ import { faAnglesUp } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
-import debounceRender from "react-debounce-render"
+// import debounceRender from "react-debounce-render"
 import { FormEntry } from '../controls/Tools'
 import Points from '../common/Points'
 import Controls from './Controls'
@@ -253,21 +253,25 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                 case "ArrowDown": {
                     if (event.shiftKey) actionControl('down', control)
                     else if (event.ctrlKey) actionControl('bottom', control)
+                    else if (event.altKey) actionControl('hinc', control)
                     else actionControl('yinc', control)
                     break
                 }
                 case "ArrowUp": {
                     if (event.shiftKey) actionControl('up', control)
                     else if (event.ctrlKey) actionControl('top', control)
+                    else if (event.altKey) actionControl('hdec', control)
                     else actionControl('ydec', control)
                     break
                 }
                 case "ArrowLeft": {
-                    actionControl('xdec', control)
+                    if (event.altKey) actionControl('wdec', control)
+                    else actionControl('xdec', control)
                     break
                 }
                 case "ArrowRight": {
-                    actionControl('xinc', control)
+                    if (event.altKey) actionControl('winc', control)
+                    else actionControl('xinc', control)
                     break
                 }
             }
@@ -583,9 +587,9 @@ function PreviewControl({ preview, setPreview }) {
     </span>)
 }
 
-const DebouncedSvgWindow = debounceRender(SvgWindow, 100, {
-    leading: true,
-})
+// const DebouncedSvgWindow = debounceRender(SvgWindow, 100, {
+//     leading: true,
+// })
 
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
@@ -642,10 +646,10 @@ function Editor(props) {
         const total = controls.length
         return (index + total) % total
     }
-    function rangeValue(curr, inc, max, size) {
+    function rangeValue(curr, inc, min, max, size) {
         const upper = Number(max) - Number(size)
         const value = Number(curr) + inc
-        const trimmed = Math.max(0, Math.min(upper, value))
+        const trimmed = Math.max(min, Math.min(upper, value))
         return trimmed.toString()
     }
     function actionControl(action, control) {
@@ -699,19 +703,35 @@ function Editor(props) {
                 break
             }
             case "xdec": {
-                setCSetts(control, "posX", rangeValue(control.setts.posX, -1, setts.gridX, control.setts.width))
+                setCSetts(control, "posX", rangeValue(control.setts.posX, -1, 0, setts.gridX, control.setts.width))
                 break
             }
             case "xinc": {
-                setCSetts(control, "posX", rangeValue(control.setts.posX, +1, setts.gridX, control.setts.width))
+                setCSetts(control, "posX", rangeValue(control.setts.posX, +1, 0, setts.gridX, control.setts.width))
                 break
             }
             case "ydec": {
-                setCSetts(control, "posY", rangeValue(control.setts.posY, -1, setts.gridY, control.setts.height))
+                setCSetts(control, "posY", rangeValue(control.setts.posY, -1, 0, setts.gridY, control.setts.height))
                 break
             }
             case "yinc": {
-                setCSetts(control, "posY", rangeValue(control.setts.posY, +1, setts.gridY, control.setts.height))
+                setCSetts(control, "posY", rangeValue(control.setts.posY, +1, 0, setts.gridY, control.setts.height))
+                break
+            }
+            case "wdec": {
+                setCSetts(control, "width", rangeValue(control.setts.width, -1, 1, setts.gridX, control.setts.posX))
+                break
+            }
+            case "winc": {
+                setCSetts(control, "width", rangeValue(control.setts.width, +1, 1, setts.gridX, control.setts.posX))
+                break
+            }
+            case "hdec": {
+                setCSetts(control, "height", rangeValue(control.setts.height, -1, 1, setts.gridY, control.setts.posY))
+                break
+            }
+            case "hinc": {
+                setCSetts(control, "height", rangeValue(control.setts.height, +1, 1, setts.gridY, control.setts.posY))
                 break
             }
         }
@@ -728,7 +748,7 @@ function Editor(props) {
                 <LeftPanel addControl={addControl} show={left} setShow={setLeft} />
             </Col>
             <Col className="gx-0 bg-light">
-                <DebouncedSvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
+                <SvgWindow setts={setts} controls={controls} setCSetts={setCSetts}
                     selected={selected} setSelected={setSelected} preview={preview}
                     actionControl={actionControl} />
             </Col>
