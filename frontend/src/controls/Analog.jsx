@@ -27,6 +27,18 @@ function Editor({ control, setProp, globals }) {
         return Check.props(args)
     }
     const customProps = data.style === "Custom" ? <>
+        <FormEntry label={Initial.dlabels.criticalColor}>
+            <InputGroup>
+                <Form.Control type="color" {...fieldProps("criticalColor")} />
+                <Form.Control type="text" {...fieldProps("criticalColor")} />
+            </InputGroup>
+        </FormEntry>
+        <FormEntry label={Initial.dlabels.warningColor}>
+            <InputGroup>
+                <Form.Control type="color" {...fieldProps("warningColor")} />
+                <Form.Control type="text" {...fieldProps("warningColor")} />
+            </InputGroup>
+        </FormEntry>
         <FormEntry label={Initial.dlabels.normalColor}>
             <InputGroup>
                 <Form.Control type="color" {...fieldProps("normalColor")} />
@@ -84,18 +96,6 @@ function Editor({ control, setProp, globals }) {
                 </InputGroup>
             </FormEntry>
             {circularProps}
-            <FormEntry label={Initial.dlabels.criticalColor}>
-                <InputGroup>
-                    <Form.Control type="color" {...fieldProps("criticalColor")} />
-                    <Form.Control type="text" {...fieldProps("criticalColor")} />
-                </InputGroup>
-            </FormEntry>
-            <FormEntry label={Initial.dlabels.warningColor}>
-                <InputGroup>
-                    <Form.Control type="color" {...fieldProps("warningColor")} />
-                    <Form.Control type="text" {...fieldProps("warningColor")} />
-                </InputGroup>
-            </FormEntry>
             {customProps}
         </>
     )
@@ -157,11 +157,10 @@ function backColors(standard, data) {
 }
 
 function foreColors(standard, data) {
-    const initial = Initial.data()
     return {
-        cursor: standard ? initial.cursorColor : data.cursorColor,
-        warning: standard ? initial.warningColor : data.warningColor,
-        critical: standard ? initial.criticalColor : data.criticalColor,
+        cursor: standard ? "black" : data.cursorColor,
+        warning: standard ? "#FCE92A" : data.warningColor,
+        critical: standard ? "#FC342A" : data.criticalColor,
     }
 }
 
@@ -203,6 +202,9 @@ function Renderer({ size, control, value }) {
             const alertPath = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
             const alertTrans = `translate(0, ${display})`
             const transform = `scale(1, -1) translate(0, -${size.height})`
+            const alertElem = standard ? <g transform={alertTrans}>
+                <path d={alertPath} stroke="none" fill={alertColor} />
+            </g> : null
             return (
                 <svg>
                     <g transform={transform}>
@@ -212,9 +214,7 @@ function Renderer({ size, control, value }) {
                             fill={bgColors.warning} />
                         <rect x={0} y={normal.min} width={width} height={normal.span}
                             fill={bgColors.normal} />
-                        <g transform={alertTrans}>
-                            <path d={alertPath} stroke="none" fill={alertColor} />
-                        </g>
+                        {alertElem}
                         {cursorLine}
                     </g>
                 </svg>
@@ -226,6 +226,9 @@ function Renderer({ size, control, value }) {
             </> : null
             const alertPath = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
             const alertTrans = `translate(${display}, 0)`
+            const alertElem = standard ? <g transform={alertTrans}>
+                <path d={alertPath} stroke="none" fill={alertColor} />
+            </g> : null
             return (
                 <svg>
                     <rect y={0} x={0} height={width} width={display}
@@ -234,9 +237,7 @@ function Renderer({ size, control, value }) {
                         fill={bgColors.warning} />
                     <rect y={0} x={normal.min} height={width} width={normal.span}
                         fill={bgColors.normal} />
-                    <g transform={alertTrans}>
-                        <path d={alertPath} stroke="none" fill={alertColor} />
-                    </g>
+                    {alertElem}
                     {cursorLine}
                 </svg>
             )
