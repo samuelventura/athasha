@@ -305,57 +305,6 @@ const checks = {
     },
 }
 
-function validator({ setts, inputs, outputs }) {
-    Check.hasProp(setts, "Setts", "trans")
-    Check.hasProp(setts, "Setts", "proto")
-    Check.hasProp(setts, "Setts", "host")
-    Check.hasProp(setts, "Setts", "port")
-    Check.hasProp(setts, "Setts", "period")
-    Check.hasProp(setts, "Setts", "tty")
-    Check.hasProp(setts, "Setts", "speed")
-    Check.hasProp(setts, "Setts", "dbpsb")
-    checks.trans(setts.trans)
-    checks.proto(setts.proto)
-    checks.host(setts.host)
-    checks.port(setts.port)
-    checks.period(setts.period)
-    checks.tty(setts.tty)
-    checks.speed(setts.speed)
-    checks.dbpsb(setts.dbpsb)
-    Check.isArray(inputs, "Inputs")
-    // Check.nonZeroLength(inputs, "Inputs")
-    inputs.forEach((input, index) => {
-        Check.hasProp(input, labels.inputs.slave(index), "slave")
-        checks.inputs.slave(index, input.slave)
-        Check.hasProp(input, labels.inputs.code(index), "code")
-        checks.inputs.code(index, input.code)
-        Check.hasProp(input, labels.inputs.address(index), "address")
-        checks.inputs.address(index, input.address)
-        Check.hasProp(input, labels.inputs.name(index), "name")
-        checks.inputs.name(index, input.name)
-        Check.hasProp(input, labels.inputs.factor(index), "factor")
-        checks.inputs.factor(index, input.factor)
-        Check.hasProp(input, labels.inputs.offset(index), "offset")
-        checks.inputs.offset(index, input.offset)
-    })
-    Check.isArray(outputs, "Output")
-    // Check.nonZeroLength(outputs, "Output")
-    outputs.forEach((output, index) => {
-        Check.hasProp(output, labels.outputs.slave(index), "slave")
-        checks.outputs.slave(index, output.slave)
-        Check.hasProp(output, labels.outputs.code(index), "code")
-        checks.outputs.code(index, output.code)
-        Check.hasProp(output, labels.outputs.address(index), "address")
-        checks.outputs.address(index, output.address)
-        Check.hasProp(output, labels.outputs.name(index), "name")
-        checks.outputs.name(index, output.name)
-        Check.hasProp(output, labels.outputs.factor(index), "factor")
-        checks.outputs.factor(index, output.factor)
-        Check.hasProp(output, labels.outputs.offset(index), "offset")
-        checks.outputs.offset(index, output.offset)
-    })
-}
-
 export default {
     transports,
     protocols,
@@ -369,5 +318,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }

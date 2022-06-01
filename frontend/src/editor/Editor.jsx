@@ -61,8 +61,12 @@ function EditItem() {
         state.config = isActive() ? cloned() : Initials(type).config()
         state.id = isActive() ? item.id : ""
         state.setter = isActive() ? (next) => {
-            setValid(next.valid)
-            setConfig(next.config)
+            const json1 = JSON.stringify(next)
+            const cloned = JSON.parse(json1)
+            const merged = Initials(type).merge(cloned)
+            const json2 = JSON.stringify(merged)
+            setValid(json1 === json2)
+            setConfig(next)
         } : () => { }
         return Editors(type)(state)
     }

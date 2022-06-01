@@ -246,51 +246,6 @@ const checks = {
     },
 }
 
-function validator({ setts, slaves }) {
-    Check.hasProp(setts, "Setts", "trans")
-    Check.hasProp(setts, "Setts", "proto")
-    Check.hasProp(setts, "Setts", "host")
-    Check.hasProp(setts, "Setts", "port")
-    Check.hasProp(setts, "Setts", "period")
-    Check.hasProp(setts, "Setts", "tty")
-    Check.hasProp(setts, "Setts", "speed")
-    Check.hasProp(setts, "Setts", "dbpsb")
-    checks.trans(setts.trans)
-    checks.proto(setts.proto)
-    checks.host(setts.host)
-    checks.port(setts.port)
-    checks.period(setts.period)
-    checks.tty(setts.tty)
-    checks.speed(setts.speed)
-    checks.dbpsb(setts.dbpsb)
-    Check.isArray(slaves, "Slaves")
-    Check.nonZeroLength(slaves, "Slaves")
-    slaves.forEach((slave, index) => {
-        Check.hasProp(slave, labels.slaves.address(index), "address")
-        checks.slaves.address(index, slave.address)
-        Check.hasProp(slave, labels.slaves.decimals(index), "decimals")
-        checks.slaves.decimals(index, slave.decimals)
-        Check.hasProp(slave, "Inputs", "inputs")
-        Check.isArray(slave.inputs, "Input")
-        // Check.nonZeroLength(slave.inputs, "Input")
-        slave.inputs.forEach((input, index) => {
-            Check.hasProp(input, labels.inputs.code(index), "code")
-            checks.inputs.code(index, input.code)
-            Check.hasProp(input, labels.inputs.name(index), "name")
-            checks.inputs.name(index, input.name)
-        })
-        Check.hasProp(slave, "Outputs", "outputs")
-        Check.isArray(slave.outputs, "Output")
-        // Check.nonZeroLength(slave.outputs, "Output")
-        slave.outputs.forEach((output, index) => {
-            Check.hasProp(output, labels.outputs.code(index), "code")
-            checks.outputs.code(index, output.code)
-            Check.hasProp(output, labels.outputs.name(index), "name")
-            checks.outputs.name(index, output.name)
-        })
-    })
-}
-
 export default {
     transports,
     protocols,
@@ -305,5 +260,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }

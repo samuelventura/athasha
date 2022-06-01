@@ -28,8 +28,7 @@ function Editor(props) {
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, links }
-            const valid = Check.run(() => Initial.validator(config))
-            props.setter({ config, valid })
+            props.setter(config)
         }
     }, [setts, links])
     function addLink() {

@@ -81,6 +81,8 @@ function csetts() {
         height: '1',
         title: "",
         input: "",
+        defValue: "0",
+        defEnabled: false,
         output: "",
         click: clicks[0],
         value: "0",
@@ -128,6 +130,8 @@ const clabels = {
     height: "Height",
     title: "Tooltip",
     input: "Input",
+    defValue: "Input Default",
+    defEnabled: "Input Default Enabled",
     output: "Output",
     click: "On Click",
     value: "Fixed Value",
@@ -147,6 +151,8 @@ const chints = {
     height: "Non empty integer > 0",
     title: "Optional tooltip",
     input: "Select optional input from list",
+    defValue: "Non empty number",
+    defEnabled: "Check to enable input default",
     output: "Select optional output from list",
     click: "Select on click action",
     value: "Non empty fixed value number",
@@ -198,6 +204,14 @@ const cschecks = {
     input: function (value) {
         Check.isString(value, clabels.input)
     },
+    defValue: function (value) {
+        Check.isString(value, clabels.defValue)
+        Check.notEmpty(value, clabels.defValue)
+        Check.isNumber(value, clabels.defValue)
+    },
+    defEnabled: function (value) {
+        Check.isBoolean(value, clabels.defEnabled)
+    },
     output: function (value) {
         Check.isString(value, clabels.output)
     },
@@ -209,6 +223,7 @@ const cschecks = {
     value: function (value) {
         Check.isString(value, clabels.value)
         Check.notEmpty(value, clabels.value)
+        Check.isNumber(value, clabels.value)
     },
     prompt: function (value) {
         Check.isString(value, clabels.prompt)
@@ -293,56 +308,6 @@ const checks = {
     },
 }
 
-function validator({ setts, controls }) {
-    Check.hasProp(setts, "Setts", "password")
-    Check.hasProp(setts, "Setts", "period")
-    Check.hasProp(setts, "Setts", "scale")
-    Check.hasProp(setts, "Setts", "align")
-    Check.hasProp(setts, "Setts", "width")
-    Check.hasProp(setts, "Setts", "height")
-    Check.hasProp(setts, "Setts", "gridX")
-    Check.hasProp(setts, "Setts", "gridY")
-    Check.hasProp(setts, "Setts", "bgColor")
-    Check.hasProp(setts, "Setts", "hvColor")
-    checks.password(setts.password)
-    checks.period(setts.period)
-    checks.scale(setts.scale)
-    checks.align(setts.align)
-    checks.width(setts.width)
-    checks.height(setts.height)
-    checks.gridX(setts.gridX)
-    checks.gridY(setts.gridY)
-    checks.bgColor(setts.bgColor)
-    checks.bgColor(setts.hvColor)
-    Check.isArray(controls, "Controls")
-    controls.forEach((control, index) => {
-        const clabel = `Control ${index + 1} type ${control.type}`
-        Check.hasProp(control.setts, clabel, "posX")
-        cschecks.posX(control.setts.posX)
-        Check.hasProp(control.setts, clabel, "posY")
-        cschecks.posY(control.setts.posY)
-        Check.hasProp(control.setts, clabel, "width")
-        cschecks.width(control.setts.width)
-        Check.hasProp(control.setts, clabel, "height")
-        cschecks.height(control.setts.height)
-        Check.hasProp(control.setts, clabel, "title")
-        cschecks.title(control.setts.title)
-        Check.hasProp(control.setts, clabel, "input")
-        cschecks.input(control.setts.input)
-        Check.hasProp(control.setts, clabel, "output")
-        cschecks.output(control.setts.output)
-        Check.hasProp(control.setts, clabel, "click")
-        cschecks.click(control.setts.click)
-        Check.hasProp(control.setts, clabel, "value")
-        cschecks.value(control.setts.value)
-        Check.hasProp(control.setts, clabel, "prompt")
-        cschecks.prompt(control.setts.prompt)
-        const initial = controlMap[control.type]
-        const validate = initial.validate
-        if (validate) validate(control)
-    })
-}
-
 export default {
     id,
     merge,
@@ -354,7 +319,6 @@ export default {
     labels,
     hints,
     checks,
-    validator,
     clabels,
     chints,
     cschecks,

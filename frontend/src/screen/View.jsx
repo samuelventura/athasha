@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Controls from '../editors/Controls'
+import Input from './Input'
 import { useApp } from '../App'
 
 function calcAlign(align, d, D) {
@@ -132,26 +133,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const hoverColor = setts.hvColor
         const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
-        const getter = () => {
-            //Number("") -> 0
-            //Number(" ") -> 0
-            //Number("-") -> NaN
-            //Number(null) -> 0
-            //Number([]) -> 0
-            //Number({}) -> NaN
-            //Number(false) -> 0
-            //Number(true) -> 1
-            //Number("false") -> NaN
-            //Number("true") -> NaN
-            //Number(undefined) -> NaN
-            const iid = control.setts.input
-            const value = iid && inputs ? inputs[iid] : null
-            if (value === undefined) return null
-            if (value === null) return null
-            if (`${value}`.trim().length === 0) return null
-            if (!isFinite(value)) return null
-            return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
-        }
+        const getter = () => { return Input.getter(csetts, inputs) }
         const scaler = (value) => {
             //Number(x) conversion supports 0xFF from prompt modal
             return Number(value) * Number(csetts.outputFactor) + Number(csetts.outputOffset)

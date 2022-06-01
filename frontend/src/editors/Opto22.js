@@ -192,43 +192,6 @@ const checks = {
     },
 }
 
-function validator({ setts, inputs, outputs }) {
-    Check.hasProp(setts, "Setts", "type")
-    Check.hasProp(setts, "Setts", "host")
-    Check.hasProp(setts, "Setts", "port")
-    Check.hasProp(setts, "Setts", "period")
-    Check.hasProp(setts, "Setts", "slave")
-    checks.type(setts.type)
-    checks.host(setts.host)
-    checks.port(setts.port)
-    checks.period(setts.period)
-    checks.slave(setts.slave)
-    Check.isArray(inputs, "Inputs")
-    //Check.nonZeroLength(inputs, "Inputs")
-    inputs.forEach((input, index) => {
-        Check.hasProp(input, labels.inputs.code(index), "code")
-        checks.inputs.code(index, input.code)
-        Check.hasProp(input, labels.inputs.module(index), "module")
-        checks.inputs.module(index, input.module)
-        Check.hasProp(input, labels.inputs.number(index), "number")
-        checks.inputs.number(index, input.number)
-        Check.hasProp(input, labels.inputs.name(index), "name")
-        checks.inputs.name(index, input.name)
-    })
-    Check.isArray(outputs, "Outputs")
-    //Check.nonZeroLength(outputs, "Outputs")
-    outputs.forEach((output, index) => {
-        Check.hasProp(output, labels.outputs.code(index), "code")
-        checks.outputs.code(index, output.code)
-        Check.hasProp(output, labels.outputs.module(index), "module")
-        checks.outputs.module(index, output.module)
-        Check.hasProp(output, labels.outputs.number(index), "number")
-        checks.outputs.number(index, output.number)
-        Check.hasProp(output, labels.outputs.name(index), "name")
-        checks.outputs.name(index, output.name)
-    })
-}
-
 export default {
     types,
     merge,
@@ -241,5 +204,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }

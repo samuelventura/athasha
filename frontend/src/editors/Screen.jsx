@@ -16,12 +16,12 @@ import { faAnglesUp } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
-// import debounceRender from "react-debounce-render"
 import { FormEntry } from '../controls/Tools'
 import Points from '../common/Points'
 import Controls from './Controls'
 import Initial from './Screen.js'
 import Check from '../common/Check'
+import Input from "../screen/Input"
 
 function calcAlign(align, d, D) {
     switch (align) {
@@ -138,17 +138,17 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     const invertedBg = invertColor(setts.bgColor, true)
     const invertedBgBw = invertColor(setts.bgColor, false)
     function controlRender(control, index) {
-        const cetts = control.setts
+        const csetts = control.setts
         //always draw them inside
-        const mpos = { posX: gx - cetts.width, posY: gy - cetts.height }
+        const mpos = { posX: gx - csetts.width, posY: gy - csetts.height }
         mpos.posX = mpos.posX < 0 ? 0 : mpos.posX
         mpos.posY = mpos.posY < 0 ? 0 : mpos.posY
-        cetts.posX = cetts.posX > mpos.posX ? mpos.posX : cetts.posX
-        cetts.posY = cetts.posY > mpos.posY ? mpos.posY : cetts.posY
-        const x = cetts.posX * sx
-        const y = cetts.posY * sy
-        const w = cetts.width * sx
-        const h = cetts.height * sy
+        csetts.posX = csetts.posX > mpos.posX ? mpos.posX : csetts.posX
+        csetts.posY = csetts.posY > mpos.posY ? mpos.posY : csetts.posY
+        const x = csetts.posX * sx
+        const y = csetts.posY * sy
+        const w = csetts.width * sx
+        const h = csetts.height * sy
         //requires fill != "none" transparent bg achievable with fillOpacity="0"
         function onClickControl(event) {
             //prevent screen click and selection clear
@@ -208,8 +208,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
             if (final) {
                 const control = dragged.control
                 //prevent unexpected updates
-                if (cetts.posX !== point.posX) setCSetts(control, 'posX', point.posX)
-                if (cetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
+                if (csetts.posX !== point.posX) setCSetts(control, 'posX', point.posX)
+                if (csetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
             }
         }
         function onPointerMove(event) {
@@ -269,7 +269,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         const isSelected = selected.control === control
         const strokeWidth = isSelected ? "6" : "2"
         const controller = Controls.getController(control.type)
-        const controlInstance = controller.Renderer({ control, size })
+        const value = Input.getter(csetts, null)
+        const controlInstance = controller.Renderer({ control, size, value })
         const isDragged = dragged.index === index || index < 0
         const fillOpacity = isDragged ? "0.5" : "0"
         const controlBorder = !preview ? (
@@ -453,12 +454,14 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         args.defval = Initial.csetts()[prop]
         return Check.props(args)
     }
-    const inputProps = setts["input"] ? <FormEntry label={Initial.clabels.inputScale}>
-        <InputGroup>
-            <Form.Control type="number" {...settsProps("inputFactor")} />
-            <Form.Control type="number" {...settsProps("inputOffset")} />
-        </InputGroup>
-    </FormEntry> : null
+    const inputProps = setts["input"] ? <>
+        <FormEntry label={Initial.clabels.inputScale}>
+            <InputGroup>
+                <Form.Control type="number" {...settsProps("inputFactor")} />
+                <Form.Control type="number" {...settsProps("inputOffset")} />
+            </InputGroup>
+        </FormEntry>
+    </> : null
 
     const promptProp = setts["click"] === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
         <Form.Control type="text" {...settsProps("prompt")} />
@@ -543,6 +546,14 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
                                 {Points.options(globals.inputs)}
                             </Form.Select>
                         </FormEntry>
+                        <FormEntry label={Initial.clabels.defValue}>
+                            <InputGroup>
+                                <InputGroup.Checkbox checked={setts.defEnabled}
+                                    onChange={e => setCSetts(control, "defEnabled", e.target.checked)}
+                                    title={Initial.clabels.defEnabled} />
+                                <Form.Control type="number" {...settsProps("defValue")} />
+                            </InputGroup>
+                        </FormEntry>
                         {inputProps}
                         <FormEntry label={Initial.clabels.output}>
                             <Form.Select {...settsProps("output")} >
@@ -593,10 +604,6 @@ function PreviewControl({ preview, setPreview }) {
     </span>)
 }
 
-// const DebouncedSvgWindow = debounceRender(SvgWindow, 100, {
-//     leading: true,
-// })
-
 function Editor(props) {
     const [setts, setSetts] = useState(Initial.config().setts)
     const [controls, setControls] = useState(Initial.config().controls)
@@ -620,8 +627,7 @@ function Editor(props) {
                 return inputs
             }, [])
             const config = { setts, controls, inputs }
-            const valid = Check.run(() => Initial.validator(config))
-            props.setter({ config, valid })
+            props.setter(config)
         }
     }, [setts, controls])
     function setCSetts(control, name, value) {

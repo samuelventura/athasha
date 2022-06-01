@@ -90,23 +90,6 @@ const checks = {
     }
 }
 
-function validator({ setts, links }) {
-    Check.hasProp(setts, "Setts", "period")
-    checks.period(setts.period)
-    Check.isArray(links, "Links")
-    Check.nonZeroLength(links, "Links")
-    links.forEach((link, index) => {
-        Check.hasProp(link, labels.links.input(index), "input")
-        checks.links.input(index, link.input)
-        Check.hasProp(link, labels.links.factor(index), "factor")
-        checks.links.factor(index, link.factor)
-        Check.hasProp(link, labels.links.offset(index), "offset")
-        checks.links.offset(index, link.offset)
-        Check.hasProp(link, labels.links.output(index), "output")
-        checks.links.output(index, link.output)
-    })
-}
-
 export default {
     merge,
     config,
@@ -115,5 +98,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }

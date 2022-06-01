@@ -152,33 +152,6 @@ const checks = {
     }
 }
 
-function validator({ setts, columns }) {
-    Check.hasProp(setts, "Setts", "database")
-    Check.hasProp(setts, "Setts", "dbpass")
-    Check.hasProp(setts, "Setts", "connstr")
-    Check.hasProp(setts, "Setts", "command")
-    Check.hasProp(setts, "Setts", "ymin")
-    Check.hasProp(setts, "Setts", "ymax")
-    Check.hasProp(setts, "Setts", "yformat")
-    Check.hasProp(setts, "Setts", "lineWidth")
-    checks.database(setts.database)
-    checks.dbpass(setts.dbpass)
-    checks.connstr(setts.connstr)
-    checks.command(setts.command)
-    checks.ymin(setts.ymin)
-    checks.ymax(setts.ymax)
-    checks.yformat(setts.yformat)
-    checks.lineWidth(setts.lineWidth)
-    Check.isArray(columns, "Columns")
-    Check.nonZeroLength(columns, "Columns")
-    columns.forEach((column, index) => {
-        Check.hasProp(column, labels.columns.name(index), "name")
-        checks.columns.name(index, column.name)
-        Check.hasProp(column, labels.columns.name(index), "color")
-        checks.columns.color(index, column.color)
-    })
-}
-
 export default {
     databases,
     merge,
@@ -188,5 +161,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }

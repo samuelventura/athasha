@@ -108,27 +108,6 @@ const checks = {
     }
 }
 
-function validator({ setts, inputs }) {
-    Check.hasProp(setts, "Setts", "database")
-    Check.hasProp(setts, "Setts", "dbpass")
-    Check.hasProp(setts, "Setts", "period")
-    Check.hasProp(setts, "Setts", "unit")
-    Check.hasProp(setts, "Setts", "connstr")
-    Check.hasProp(setts, "Setts", "command")
-    checks.database(setts.database)
-    checks.dbpass(setts.dbpass)
-    checks.period(setts.period)
-    checks.unit(setts.unit)
-    checks.connstr(setts.connstr)
-    checks.command(setts.command)
-    Check.isArray(inputs, "Inputs")
-    Check.nonZeroLength(inputs, "Inputs")
-    inputs.forEach((input, index) => {
-        Check.hasProp(input, labels.inputs.id(index), "id")
-        checks.inputs.id(index, input.id)
-    })
-}
-
 export default {
     databases,
     units,
@@ -139,5 +118,4 @@ export default {
     labels,
     hints,
     checks,
-    validator,
 }
