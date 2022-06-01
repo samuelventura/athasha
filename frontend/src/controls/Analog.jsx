@@ -112,8 +112,8 @@ function trimValue(input, value) {
 }
 
 function calcStatus(data, value) {
-    if (value === null) return null
-    if (value === undefined) return null
+    if (value === null) return "critical"
+    if (value === undefined) return "critical"
     if (value >= data.normalMin && value <= data.normalMax) return "normal"
     if (value >= data.warningMin && value <= data.warningMax) return "warning"
     return "critical"
