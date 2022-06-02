@@ -26,7 +26,7 @@ function data() {
         cursorColor: "#000000",
         normalColor: "#27ae60",
         warningColor: "#f1c40f",
-        criticalColor: "#c0392b",
+        criticalColor: "#FC342A",
     }
 }
 

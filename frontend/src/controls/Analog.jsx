@@ -103,7 +103,6 @@ function Editor({ control, setProp, globals }) {
 
 function trimValue(input, value) {
     if (value === null) return null
-    if (value === undefined) return null
     const min = input.min
     const max = input.max
     if (value < min) return min
@@ -113,7 +112,6 @@ function trimValue(input, value) {
 
 function calcStatus(data, value) {
     if (value === null) return "critical"
-    if (value === undefined) return "critical"
     if (value >= data.normalMin && value <= data.normalMax) return "normal"
     if (value >= data.warningMin && value <= data.warningMax) return "warning"
     return "critical"
@@ -122,7 +120,6 @@ function calcStatus(data, value) {
 function calcDisplay(standard, size, long, thick) {
     return size[long] - (standard ? size[thick] : 0)
 }
-
 
 function getMinMax(data, type) {
     const min = Number(data[`${type}Min`])
@@ -159,15 +156,23 @@ function backColors(standard, data) {
 function foreColors(standard, data) {
     return {
         cursor: standard ? "black" : data.cursorColor,
+        normal: standard ? "none" : data.normalColor,
         warning: standard ? "#FCE92A" : data.warningColor,
         critical: standard ? "#FC342A" : data.criticalColor,
     }
 }
 
-function statusColor(status, fgColors) {
-    if (status == null) return "none"
+function calcAlertColor(status, fgColors) {
     switch (status) {
         case "normal": return "none"
+        case "warning": return fgColors.warning
+        default: return fgColors.critical
+    }
+}
+
+function calcLevelColor(status, fgColors) {
+    switch (status) {
+        case "normal": return fgColors.normal
         case "warning": return fgColors.warning
         default: return fgColors.critical
     }
@@ -189,20 +194,26 @@ function Renderer({ size, control, value }) {
     const bgColors = backColors(standard, data)
     const fgColors = foreColors(standard, data)
     const cursorWidth = 2
-    const alertColor = standard ? statusColor(status, fgColors) : "none"
+    const alertColor = calcAlertColor(status, fgColors)
+    const levelColor = calcLevelColor(status, fgColors)
+    const opacity = standard ? "1.0" : "0.2"
+    const levelRatio = 0.8
     if (!circular) {
         const thick = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
         const width = getWidth(size, thick)
         const display = calcDisplay(standard, size, long, thick)
+        const level = display * (trimmed - input.min) / input.span
         const warning = calcRange(data, display, input, "warning")
         const normal = calcRange(data, display, input, "normal")
         const cursor = calcPos(display, input, trimmed)
         if (vertical) {
-            const cursorLine = cursor !== null ? <>
+            const standardCursor = cursor !== null ? <>
                 <line x1={0} y1={cursor} x2={width} y2={cursor}
                     stroke={fgColors.cursor} strokeWidth={cursorWidth} />
             </> : null
+            const levelCursor = <rect x={width * (1 - levelRatio) / 2} y={0}
+                width={fnn(width * levelRatio)} height={fnn(level)} fill={levelColor} />
             const alertPath = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
             const alertTrans = `translate(0, ${display})`
             const transform = `scale(1, -1) translate(0, -${size.height})`
@@ -213,21 +224,23 @@ function Renderer({ size, control, value }) {
                 <svg>
                     <g transform={transform}>
                         <rect x={0} y={0} width={fnn(width)} height={fnn(display)}
-                            fill={bgColors.critical} />
+                            fill={bgColors.critical} fillOpacity={opacity} />
                         <rect x={0} y={warning.min} width={fnn(width)} height={fnn(warning.span)}
-                            fill={bgColors.warning} />
+                            fill={bgColors.warning} fillOpacity={opacity} />
                         <rect x={0} y={normal.min} width={fnn(width)} height={fnn(normal.span)}
-                            fill={bgColors.normal} />
+                            fill={bgColors.normal} fillOpacity={opacity} />
                         {alertElem}
-                        {cursorLine}
+                        {standard ? standardCursor : levelCursor}
                     </g>
                 </svg>
             )
         } else {
-            const cursorLine = cursor !== null ? <>
+            const standardCursor = cursor !== null ? <>
                 <line y1={0} x1={cursor} y2={width} x2={cursor}
                     stroke={fgColors.cursor} strokeWidth={cursorWidth} />
             </> : null
+            const levelCursor = <rect y={width * (1 - levelRatio) / 2} x={0}
+                height={fnn(width * levelRatio)} width={fnn(level)} fill={levelColor} />
             const alertPath = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
             const alertTrans = `translate(${display}, 0)`
             const alertElem = standard ? <g transform={alertTrans}>
@@ -236,13 +249,13 @@ function Renderer({ size, control, value }) {
             return (
                 <svg>
                     <rect y={0} x={0} height={fnn(width)} width={fnn(display)}
-                        fill={bgColors.critical} />
+                        fill={bgColors.critical} fillOpacity={opacity} />
                     <rect y={0} x={warning.min} height={fnn(width)} width={fnn(warning.span)}
-                        fill={bgColors.warning} />
+                        fill={bgColors.warning} fillOpacity={opacity} />
                     <rect y={0} x={normal.min} height={fnn(width)} width={fnn(normal.span)}
-                        fill={bgColors.normal} />
+                        fill={bgColors.normal} fillOpacity={opacity} />
                     {alertElem}
-                    {cursorLine}
+                    {standard ? standardCursor : levelCursor}
                 </svg>
             )
         }
@@ -279,25 +292,30 @@ function Renderer({ size, control, value }) {
         const alertDash = `${alertDisplay}  ${perimeter}`
         const alertArc = standard ? <circle r={fnn(alertRadious)} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={tick} stroke={alertColor} strokeDasharray={alertDash} /> : null
+        const standardCursor = <g transform={cursorTrans}>
+            <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursorDash} />
+        </g>
+        const level = display * (trimmed - input.min) / input.span
+        const levelDash = `${level}  ${perimeter}`
+        const levelCursor = <g transform={criticalTrans}><circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={tick * levelRatio} stroke={levelColor} strokeDasharray={levelDash} /></g>
         return <>
             <svg>
                 <g transform={criticalTrans}>
                     {alertArc}
-                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={criticalDash} />
                 </g>
                 <g transform={warningTrans}>
-                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={tick} stroke={bgColors.warning} strokeDasharray={warningDash} />
                 </g>
                 <g transform={normalTrans}>
-                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={tick} stroke={bgColors.normal} strokeDasharray={normalDash} />
                 </g>
-                <g transform={cursorTrans}>
-                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursorDash} />
-                </g>
+                {standard ? standardCursor : levelCursor}
             </svg>
         </>
     }
