@@ -127,6 +127,8 @@
           "id": "c6c44583-732b-4e89-ae9c-f35faa869c07",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -195,6 +197,8 @@
           "id": "a61b4463-4b51-41b5-af4c-d881f149df03",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -263,6 +267,8 @@
           "id": "b9cbf7cd-9496-4146-9297-96e1dfcea762",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Measurement",
             "inputFactor": "1",
@@ -331,6 +337,8 @@
           "id": "3e5aea4e-9293-4116-8d29-0ff29f4eb3da",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -399,6 +407,8 @@
           "id": "9cf9a791-a0d7-4d9b-95ea-8c7764645132",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Peak",
             "inputFactor": "1",
@@ -467,6 +477,8 @@
           "id": "072ce6b5-b321-41cf-a631-b1658897fc16",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -535,6 +547,8 @@
           "id": "85c6b061-675f-4362-9f21-d8eb865ada25",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Valley",
             "inputFactor": "1",
@@ -603,6 +617,8 @@
           "id": "7385992a-4db1-454a-9271-23793a36925b",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -671,6 +687,8 @@
           "id": "b5f3e196-a748-4da9-8d58-b320c9ea57ed",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -739,6 +757,8 @@
           "id": "a0944737-89ef-4516-a64a-dbde23bca6a1",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -807,6 +827,8 @@
           "id": "cc43e099-68bf-4bcc-b8fe-72017a37de95",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Alarm 1",
             "inputFactor": "1",
@@ -875,6 +897,8 @@
           "id": "579a0725-f2dd-4957-a0c6-b61424014e46",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Alarm 2",
             "inputFactor": "1",
@@ -943,6 +967,8 @@
           "id": "8d0fb3e8-8acf-4938-a00b-99bc574c91c0",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Alarm 3",
             "inputFactor": "1",
@@ -1011,6 +1037,8 @@
           "id": "c059f822-a9dc-4b3f-8c5d-c1886b1647aa",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "bd8bf08e-76a2-4429-a2e8-4a7c4b41b604 Alarm 4",
             "inputFactor": "1",
@@ -1079,6 +1107,8 @@
           "id": "39331ac1-a8f2-454f-86d4-c1a72055c5cf",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",

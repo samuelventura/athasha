@@ -54,6 +54,8 @@
           "id": "833987a5-0521-4143-a7e5-0f86c57a2fa7",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "",
             "inputFactor": "1",
@@ -122,6 +124,8 @@
           "id": "991c8300-face-4950-a7d7-750c9bb396ed",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 AI1",
             "inputFactor": "1",
@@ -190,6 +194,8 @@
           "id": "cbbf823e-9bf4-4bc0-971c-902958bc4687",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "",
             "inputFactor": "1",
@@ -258,6 +264,8 @@
           "id": "131f1e88-c42e-40b7-bb1b-956ed7dccc88",
           "setts": {
             "click": "Value Prompt",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 AO1",
             "inputFactor": "1",
@@ -326,6 +334,8 @@
           "id": "471c6534-feb8-4f7a-99b3-f0674db12264",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -394,6 +404,8 @@
           "id": "a4dcbae4-2cc4-4699-9490-30dfde08a54c",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -462,6 +474,8 @@
           "id": "fc9d1b31-7921-4894-8105-f699e8b3acc5",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -530,6 +544,8 @@
           "id": "dd84c309-43da-4583-ac81-5c77cf234f13",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -598,6 +614,8 @@
           "id": "0ae41e54-43fc-4f8b-95e3-099e67408d77",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DI1",
             "inputFactor": "1",
@@ -666,6 +684,8 @@
           "id": "316441d7-c8f6-4f94-b645-267b3a26246b",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -734,6 +754,8 @@
           "id": "b1ff08e3-314e-48d7-bbb1-2530c775729a",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "",
             "inputFactor": "1",
@@ -802,6 +824,8 @@
           "id": "27cb008c-d958-4b16-9cb0-cb3e6d9e48a7",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "2",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DI2",
             "inputFactor": "1",
@@ -870,6 +894,8 @@
           "id": "4bb7cfd1-3455-413a-98cd-515c1be358d6",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO1",
             "inputFactor": "1",
@@ -938,6 +964,8 @@
           "id": "f0a610df-fc26-47f9-b720-f5615bd9f9ec",
           "setts": {
             "click": "Fixed Value",
+            "defEnabled": false,
+            "defValue": "0",
             "height": "1",
             "input": "e30b76a5-bdb3-4e66-894f-077053c06f64 DO2",
             "inputFactor": "1",
