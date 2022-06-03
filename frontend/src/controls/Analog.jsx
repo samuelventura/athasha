@@ -121,11 +121,17 @@ function calcDisplay(standard, size, long, thick) {
     return size[long] - (standard ? size[thick] : 0)
 }
 
-function getMinMax(data, type) {
+function getMinMax(data, type, trim) {
     const min = Number(data[`${type}Min`])
     const max = Number(data[`${type}Max`])
-    const span = max - min
-    return { min, max, span }
+    const val = { min, max }
+    if (trim) {
+        if (min < trim.min) val.min = trim.min
+        if (max < trim.max) val.max = trim.max
+    }
+    val.span = max - min
+    if (val.span < 0) val.span = 0
+    return val
 }
 
 function calcPos(display, input, value) {
@@ -182,38 +188,44 @@ function fnn(v) {
     return v < 0 ? 0 : v
 }
 
+// function fnf(v) {
+//     return isFinite(v) ? v : 0
+// }
+
 function Renderer({ size, control, value }) {
     const data = control.data
     const input = getMinMax(data, "input")
-    const trimmed = trimValue(input, value)
-    const status = calcStatus(data, trimmed)
-    //const standard = control.data.style === "Standard"
+    const cursor = { width: 2, value: trimValue(input, value) }
+    const status = calcStatus(data, cursor.value)
     const circular = data.orientation === "Circular"
     const vertical = data.orientation === "Vertical"
     const standard = data.style === "Standard"
     const bgColors = backColors(standard, data)
     const fgColors = foreColors(standard, data)
-    const cursorWidth = 2
     const alertColor = calcAlertColor(status, fgColors)
     const levelColor = calcLevelColor(status, fgColors)
     const opacity = standard ? "1.0" : "0.2"
-    const levelRatio = 0.8
+    const level = { ratio: 0.4 }
+    const criticalId = `critical-${control.id}`
+    const warningId = `warning-${control.id}`
+    const criticalMask = standard ? "" : `url(#${criticalId})`
+    const warningMask = standard ? "" : `url(#${warningId})`
     if (!circular) {
         const thick = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
         const width = getWidth(size, thick)
         const display = calcDisplay(standard, size, long, thick)
-        const level = display * (trimmed - input.min) / input.span
+        level.length = display * (cursor.value - input.min) / input.span
         const warning = calcRange(data, display, input, "warning")
         const normal = calcRange(data, display, input, "normal")
-        const cursor = calcPos(display, input, trimmed)
+        cursor.arc = calcPos(display, input, cursor.value)
         if (vertical) {
-            const standardCursor = cursor !== null ? <>
-                <line x1={0} y1={cursor} x2={width} y2={cursor}
-                    stroke={fgColors.cursor} strokeWidth={cursorWidth} />
+            const standardCursor = cursor.arc !== null ? <>
+                <line x1={0} y1={cursor.arc} x2={width} y2={cursor.arc}
+                    stroke={fgColors.cursor} strokeWidth={cursor.width} />
             </> : null
-            const levelCursor = <rect x={width * (1 - levelRatio) / 2} y={0}
-                width={fnn(width * levelRatio)} height={fnn(level)} fill={levelColor} />
+            level.cursor = <rect x={width * (1 - level.ratio) / 2} y={0}
+                width={fnn(width * level.ratio)} height={fnn(level.length)} fill={levelColor} />
             const alertPath = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
             const alertTrans = `translate(0, ${display})`
             const transform = `scale(1, -1) translate(0, -${size.height})`
@@ -222,25 +234,34 @@ function Renderer({ size, control, value }) {
             </g> : null
             return (
                 <svg>
+                    <mask id={criticalId}>
+                        <rect x={0} y={0} width={fnn(width)} height={fnn(display)} fill="white" />
+                        <rect x={0} y={warning.min} width={fnn(width)} height={fnn(warning.span)} fill="black" />
+                        <rect x={0} y={normal.min} width={fnn(width)} height={fnn(normal.span)} fill="black" />
+                    </mask>
+                    <mask id={warningId}>
+                        <rect x={0} y={warning.min} width={fnn(width)} height={fnn(warning.span)} fill="white" />
+                        <rect x={0} y={normal.min} width={fnn(width)} height={fnn(normal.span)} fill="black" />
+                    </mask>
                     <g transform={transform}>
                         <rect x={0} y={0} width={fnn(width)} height={fnn(display)}
-                            fill={bgColors.critical} fillOpacity={opacity} />
+                            fill={bgColors.critical} fillOpacity={opacity} mask={criticalMask} />
                         <rect x={0} y={warning.min} width={fnn(width)} height={fnn(warning.span)}
-                            fill={bgColors.warning} fillOpacity={opacity} />
+                            fill={bgColors.warning} fillOpacity={opacity} mask={warningMask} />
                         <rect x={0} y={normal.min} width={fnn(width)} height={fnn(normal.span)}
                             fill={bgColors.normal} fillOpacity={opacity} />
                         {alertElem}
-                        {standard ? standardCursor : levelCursor}
+                        {standard ? standardCursor : level.cursor}
                     </g>
                 </svg>
             )
         } else {
-            const standardCursor = cursor !== null ? <>
-                <line y1={0} x1={cursor} y2={width} x2={cursor}
-                    stroke={fgColors.cursor} strokeWidth={cursorWidth} />
+            const standardCursor = cursor.arc !== null ? <>
+                <line y1={0} x1={cursor.arc} y2={width} x2={cursor.arc}
+                    stroke={fgColors.cursor} strokeWidth={cursor.width} />
             </> : null
-            const levelCursor = <rect y={width * (1 - levelRatio) / 2} x={0}
-                height={fnn(width * levelRatio)} width={fnn(level)} fill={levelColor} />
+            level.cursor = <rect y={width * (1 - level.ratio) / 2} x={0}
+                height={fnn(width * level.ratio)} width={fnn(level.length)} fill={levelColor} />
             const alertPath = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
             const alertTrans = `translate(${display}, 0)`
             const alertElem = standard ? <g transform={alertTrans}>
@@ -248,74 +269,88 @@ function Renderer({ size, control, value }) {
             </g> : null
             return (
                 <svg>
+                    <mask id={criticalId}>
+                        <rect y={0} x={0} height={fnn(width)} width={fnn(display)} fill="white" />
+                        <rect y={0} x={warning.min} height={fnn(width)} width={fnn(warning.span)} fill="black" />
+                        <rect y={0} x={normal.min} height={fnn(width)} width={fnn(normal.span)} fill="black" />
+                    </mask>
+                    <mask id={warningId}>
+                        <rect y={0} x={warning.min} height={fnn(width)} width={fnn(warning.span)} fill="white" />
+                        <rect y={0} x={normal.min} height={fnn(width)} width={fnn(normal.span)} fill="black" />
+                    </mask>
                     <rect y={0} x={0} height={fnn(width)} width={fnn(display)}
-                        fill={bgColors.critical} fillOpacity={opacity} />
+                        fill={bgColors.critical} fillOpacity={opacity} mask={criticalMask} />
                     <rect y={0} x={warning.min} height={fnn(width)} width={fnn(warning.span)}
-                        fill={bgColors.warning} fillOpacity={opacity} />
+                        fill={bgColors.warning} fillOpacity={opacity} mask={warningMask} />
                     <rect y={0} x={normal.min} height={fnn(width)} width={fnn(normal.span)}
                         fill={bgColors.normal} fillOpacity={opacity} />
                     {alertElem}
-                    {standard ? standardCursor : levelCursor}
+                    {standard ? standardCursor : level.cursor}
                 </svg>
             )
         }
     } else {
-        const tick = data.barWidth
+        const bar = {
+            width: Number(data.barWidth),
+            zero: Number(data.barZero),
+            span: Number(data.barSpan),
+        }
+        const tick = bar.width
         const center = { cx: size.width / 2, cy: size.height / 2 }
-        let radius = Math.min(center.cx, center.cy) - tick / 2
-        if (radius <= 0) radius = 1 //transient editing errors
-        const perimeter = radius * 2 * Math.PI
-        const display = radius * Number(Math.PI * data.barSpan / 180)
-        const criticalDash = `${display}  ${perimeter}`
-        const criticalRota = data.barZero - 180
-        const criticalTrans = `rotate(${criticalRota}, ${center.cx}, ${center.cy})`
+        const radius = fnn(Math.min(center.cx, center.cy) - tick / 2)
+        const arc = (d) => radius * Number(Math.PI * d / 180)
+        const ini = (v) => arc((v - input.min) * bar.span / input.span)
+        const perimeter = arc(360)
         const input = getMinMax(data, "input")
-        const warning = getMinMax(data, "warning")
-        warning.display = display * warning.span / input.span
-        const warningDash = `${warning.display} ${perimeter}`
-        let warningRota = criticalRota + data.barSpan * (warning.min - input.min) / input.span
-        if (!isFinite(warningRota)) warningRota = 0 //transient editing errors
-        const warningTrans = `rotate(${warningRota}, ${center.cx}, ${center.cy})`
-        const normal = getMinMax(data, "normal")
-        normal.display = display * normal.span / input.span
-        const normalDash = `${normal.display} ${perimeter}`
-        let normalRota = criticalRota + data.barSpan * (normal.min - input.min) / input.span
-        if (!isFinite(normalRota)) normalRota = 0 //transient editing errors
-        const normalTrans = `rotate(${normalRota}, ${center.cx}, ${center.cy})`
-        const cursorWidth = 2
-        const cursorDash = `${cursorWidth} ${perimeter}`
-        let cursorRota = criticalRota + data.barSpan * ((trimmed - input.min) / input.span - cursorWidth / 2 / display)
-        if (!isFinite(cursorRota)) cursorRota = 0 //transient editing errors
-        const cursorTrans = `rotate(${cursorRota}, ${center.cx}, ${center.cy})`
-        const alertRadious = radius - tick / 2
-        const alertDisplay = alertRadious * Number(Math.PI * data.barSpan / 180)
-        const alertDash = `${alertDisplay}  ${perimeter}`
-        const alertArc = standard ? <circle r={fnn(alertRadious)} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={tick} stroke={alertColor} strokeDasharray={alertDash} /> : null
-        const standardCursor = <g transform={cursorTrans}>
-            <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
-                strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursorDash} />
-        </g>
-        const level = display * (trimmed - input.min) / input.span
-        const levelDash = `${level}  ${perimeter}`
-        const levelCursor = <g transform={criticalTrans}><circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={tick * levelRatio} stroke={levelColor} strokeDasharray={levelDash} /></g>
+        input.arc = arc(bar.span)
+        input.dash = `${input.arc}  ${perimeter}`
+        const warning = getMinMax(data, "warning", input)
+        warning.arc = arc(warning.span * bar.span / input.span)
+        warning.ini = ini(warning.min)
+        warning.dash = `0 ${warning.ini} ${warning.arc} ${perimeter}`
+        const normal = getMinMax(data, "normal", input)
+        normal.arc = arc(normal.span * bar.span / input.span)
+        normal.ini = ini(normal.min)
+        normal.dash = `0 ${normal.ini} ${normal.arc} ${perimeter}`
+        cursor.ini = ini(cursor.value)
+        cursor.dash = `0 ${cursor.ini} ${cursor.width} ${perimeter}`
+        cursor.elem = <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={tick} stroke={fgColors.cursor} strokeDasharray={cursor.dash} />
+        level.dash = `${cursor.ini} ${perimeter}`
+        level.elem = <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={tick * level.ratio} stroke={levelColor} strokeDasharray={level.dash} />
+        const rotate = `rotate(${bar.zero + 180}, ${center.cx}, ${center.cy})`
+        const alert = { radius: radius - tick / 2 }
+        alert.arc = alert.radius * Number(Math.PI * bar.span / 180)
+        alert.dash = `${alert.arc}  ${perimeter}`
+        alert.elem = standard ? <circle r={fnn(radius - tick / 2)} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={tick} stroke={alertColor} strokeDasharray={alert.dash} /> : null
         return <>
             <svg>
-                <g transform={criticalTrans}>
-                    {alertArc}
+                <mask id={criticalId}>
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke="white" strokeDasharray={input.dash} />
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke="black" strokeDasharray={warning.dash} />
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke="black" strokeDasharray={normal.dash} />
+                </mask>
+                <mask id={warningId}>
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke="white" strokeDasharray={warning.dash} />
+                    <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none"
+                        strokeWidth={tick} stroke="black" strokeDasharray={normal.dash} />
+                </mask>
+                <g transform={rotate}>
+                    {alert.elem}
                     <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
-                        strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={criticalDash} />
-                </g>
-                <g transform={warningTrans}>
+                        strokeWidth={tick} stroke={bgColors.critical} strokeDasharray={input.dash} mask={criticalMask} />
                     <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
-                        strokeWidth={tick} stroke={bgColors.warning} strokeDasharray={warningDash} />
-                </g>
-                <g transform={normalTrans}>
+                        strokeWidth={tick} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warningMask} />
                     <circle r={fnn(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
-                        strokeWidth={tick} stroke={bgColors.normal} strokeDasharray={normalDash} />
+                        strokeWidth={tick} stroke={bgColors.normal} strokeDasharray={normal.dash} />
+                    {standard ? cursor.elem : level.elem}
                 </g>
-                {standard ? standardCursor : levelCursor}
             </svg>
         </>
     }
