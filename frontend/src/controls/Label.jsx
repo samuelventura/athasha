@@ -155,13 +155,13 @@ function Editor({ control, setProp, globals }) {
                         <Form.Control type="number" {...fieldProps("brRadius")} min="0" max="1" step="0.1" />
                     </FormEntry>
                 </Tab>
-                <Tab eventKey="condition1" title="Cond 1">
+                <Tab eventKey="condition1" title="Cond 1" tabAttrs={{ title: "Overrides Default" }}>
                     <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
-                <Tab eventKey="condition2" title="Cond 2">
+                <Tab eventKey="condition2" title="Cond 2" tabAttrs={{ title: "Overrides Cond 1" }}>
                     <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
-                <Tab eventKey="condition3" title="Cond 3">
+                <Tab eventKey="condition3" title="Cond 3" tabAttrs={{ title: "Overrides Cond 2" }}>
                     <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
             </Tabs>
