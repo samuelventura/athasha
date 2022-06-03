@@ -454,7 +454,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         args.defval = Initial.csetts()[prop]
         return Check.props(args)
     }
-    const inputProps = setts["input"] ? <>
+    const inputProps = setts.input || setts.defEnabled ? <>
         <FormEntry label={Initial.clabels.inputScale}>
             <InputGroup>
                 <Form.Control type="number" {...settsProps("inputFactor")} />
@@ -463,7 +463,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
         </FormEntry>
     </> : null
 
-    const promptProp = setts["click"] === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
+    const promptProp = setts.click === "Value Prompt" ? <FormEntry label={Initial.clabels.prompt}>
         <Form.Control type="text" {...settsProps("prompt")} />
     </FormEntry> : <FormEntry label={Initial.clabels.value}>
         <Form.Control type="number" {...settsProps("value")} />
@@ -471,7 +471,7 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
 
     const clickOptions = Initial.clicks.map(v => <option key={v} value={v}>{v}</option>)
 
-    const outputProps = setts["output"] ? <>
+    const outputProps = setts.output ? <>
         <FormEntry label={Initial.clabels.outputScale}>
             <InputGroup>
                 <Form.Control type="number" {...settsProps("outputFactor")} />

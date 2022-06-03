@@ -23,7 +23,6 @@ function data() {
         normalMax: "6000",
         warningMin: "2000",
         warningMax: "8000",
-        cursorColor: "#000000",
         normalColor: "#88B407",
         warningColor: "#FF9436",
         criticalColor: "#FC342A",
@@ -32,7 +31,7 @@ function data() {
 
 const dlabels = {
     orientation: "Orientation",
-    style: "Style",
+    style: "Look & Feel",
     barRange: "Bar Config",
     barZero: "Bar Zero",
     barSpan: "Bar Span",
@@ -46,7 +45,6 @@ const dlabels = {
     warningRange: "Warning Range",
     warningMin: "Warning Range Minimum",
     warningMax: "Warning Range Maximum",
-    cursorColor: "Cursor Color",
     normalColor: "Normal Color",
     warningColor: "Warning Color",
     criticalColor: "Critical Color",
@@ -63,7 +61,6 @@ const dhints = {
     normalMax: "Non empty number",
     warningMin: "Non empty number",
     warningMax: "Non empty number",
-    cursorColor: "Non empty cursor color #RRGGBB",
     normalColor: "Non empty normal color #RRGGBB",
     warningColor: "Non empty warning color #RRGGBB",
     criticalColor: "Non empty critical color #RRGGBB",
@@ -129,11 +126,6 @@ const dchecks = {
         Check.isString(value, dlabels.warningMax)
         Check.notEmpty(value, dlabels.warningMax)
         Check.isNumber(value, dlabels.warningMax)
-    },
-    cursorColor: function (value) {
-        Check.isString(value, dlabels.cursorColor)
-        Check.notEmpty(value, dlabels.cursorColor)
-        Check.isColor(value, dlabels.cursorColor)
     },
     normalColor: function (value) {
         Check.isString(value, dlabels.normalColor)

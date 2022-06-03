@@ -45,12 +45,6 @@ function Editor({ control, setProp, globals }) {
                 <Form.Control type="text" {...fieldProps("normalColor")} />
             </InputGroup>
         </FormEntry>
-        <FormEntry label={Initial.dlabels.cursorColor}>
-            <InputGroup>
-                <Form.Control type="color" {...fieldProps("cursorColor")} />
-                <Form.Control type="text" {...fieldProps("cursorColor")} />
-            </InputGroup>
-        </FormEntry>
     </> : null
     const circularProps = data.orientation === "Circular" ? <>
         <FormEntry label={Initial.dlabels.barRange}>
@@ -83,16 +77,16 @@ function Editor({ control, setProp, globals }) {
                     <Form.Control type="number" {...fieldProps("inputMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.warningRange}>
-                <InputGroup>
-                    <Form.Control type="number" {...fieldProps("warningMin")} />
-                    <Form.Control type="number" {...fieldProps("warningMax")} />
-                </InputGroup>
-            </FormEntry>
             <FormEntry label={Initial.dlabels.normalRange}>
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("normalMin")} />
                     <Form.Control type="number" {...fieldProps("normalMax")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.warningRange}>
+                <InputGroup>
+                    <Form.Control type="number" {...fieldProps("warningMin")} />
+                    <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
             {circularProps}
@@ -140,7 +134,7 @@ function backColors(standard, data) {
 
 function foreColors(standard, data) {
     return {
-        cursor: standard ? "black" : data.cursorColor,
+        cursor: standard ? "black" : "none",
         normal: standard ? "none" : data.normalColor,
         warning: standard ? "#FF9436" : data.warningColor,
         critical: standard ? "#FC342A" : data.criticalColor,
