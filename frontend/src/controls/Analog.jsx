@@ -123,10 +123,10 @@ function getMinMax(data, type, trim) {
     const val = { min, max }
     if (trim) {
         if (min < trim.min) val.min = trim.min
-        if (max < trim.max) val.max = trim.max
+        if (max > trim.max) val.max = trim.max
     }
-    val.span = max - min
-    if (val.span < 0) val.span = 0
+    if (val.max < val.min) val.max = val.min
+    val.span = val.max - val.min
     return val
 }
 
@@ -142,7 +142,7 @@ function foreColors(standard, data) {
     return {
         cursor: standard ? "black" : data.cursorColor,
         normal: standard ? "none" : data.normalColor,
-        warning: standard ? "#FCE92A" : data.warningColor,
+        warning: standard ? "#FF9436" : data.warningColor,
         critical: standard ? "#FC342A" : data.criticalColor,
     }
 }
@@ -197,17 +197,17 @@ function Renderer({ size, control, value }) {
         const wide = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
         const width = size[wide]
-        input.len = size[long] - (standard ? width : 0)
-        warning.ini = input.len * (warning.min - input.min) / input.span
-        warning.len = input.len * warning.span / input.span
-        normal.ini = input.len * (normal.min - input.min) / input.span
-        normal.len = input.len * normal.span / input.span
-        level.len = input.len * (level.value - input.min) / input.span
+        input.len = f(size[long] - (standard ? width : 0))
+        warning.ini = f(input.len * (warning.min - input.min) / input.span)
+        warning.len = f(input.len * warning.span / input.span)
+        normal.ini = f(input.len * (normal.min - input.min) / input.span)
+        normal.len = f(input.len * normal.span / input.span)
+        level.len = f(input.len * (level.value - input.min) / input.span)
         if (vertical) {
             level.cursor = <line x1={0} y1={level.len} x2={width} y2={level.len}
                 stroke={fgColors.cursor} strokeWidth={level.width} />
             level.bar = <rect x={width * (1 - level.ratio) / 2} y={0}
-                width={f(width * level.ratio)} height={f(level.len)} fill={level.color} />
+                width={width * level.ratio} height={level.len} fill={level.color} />
             alert.path = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
             alert.trans = `translate(0, ${input.len})`
             alert.elem = <g transform={alert.trans}>
@@ -217,20 +217,20 @@ function Renderer({ size, control, value }) {
             return (
                 <svg>
                     <mask id={input.id}>
-                        <rect x={0} y={0} width={f(width)} height={f(input.len)} fill="white" />
-                        <rect x={0} y={warning.ini} width={f(width)} height={f(warning.len)} fill="black" />
-                        <rect x={0} y={normal.ini} width={f(width)} height={f(normal.len)} fill="black" />
+                        <rect x={0} y={0} width={width} height={input.len} fill="white" />
+                        <rect x={0} y={warning.ini} width={width} height={warning.len} fill="black" />
+                        <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
                     </mask>
                     <mask id={warning.id}>
-                        <rect x={0} y={warning.ini} width={f(width)} height={f(warning.len)} fill="white" />
-                        <rect x={0} y={normal.ini} width={f(width)} height={f(normal.len)} fill="black" />
+                        <rect x={0} y={warning.ini} width={width} height={warning.len} fill="white" />
+                        <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
                     </mask>
                     <g transform={transform}>
-                        <rect x={0} y={0} width={f(width)} height={f(input.len)}
+                        <rect x={0} y={0} width={width} height={input.len}
                             fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                        <rect x={0} y={warning.ini} width={f(width)} height={f(warning.len)}
+                        <rect x={0} y={warning.ini} width={width} height={warning.len}
                             fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                        <rect x={0} y={normal.ini} width={f(width)} height={f(normal.len)}
+                        <rect x={0} y={normal.ini} width={width} height={normal.len}
                             fill={bgColors.normal} fillOpacity={opacity} />
                         {standard ? alert.elem : null}
                         {standard ? level.cursor : level.bar}
@@ -241,7 +241,7 @@ function Renderer({ size, control, value }) {
             level.cursor = <line y1={0} x1={level.len} y2={width} x2={level.len}
                 stroke={fgColors.cursor} strokeWidth={level.width} />
             level.bar = <rect y={width * (1 - level.ratio) / 2} x={0}
-                height={f(width * level.ratio)} width={f(level.len)} fill={level.color} />
+                height={width * level.ratio} width={level.len} fill={level.color} />
             alert.path = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
             alert.trans = `translate(${input.len}, 0)`
             alert.elem = <g transform={alert.trans}>
@@ -250,19 +250,19 @@ function Renderer({ size, control, value }) {
             return (
                 <svg>
                     <mask id={input.id}>
-                        <rect y={0} x={0} height={f(width)} width={f(input.len)} fill="white" />
-                        <rect y={0} x={warning.ini} height={f(width)} width={f(warning.len)} fill="black" />
-                        <rect y={0} x={normal.ini} height={f(width)} width={f(normal.len)} fill="black" />
+                        <rect y={0} x={0} height={width} width={input.len} fill="white" />
+                        <rect y={0} x={warning.ini} height={width} width={warning.len} fill="black" />
+                        <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
                     </mask>
                     <mask id={warning.id}>
-                        <rect y={0} x={warning.ini} height={f(width)} width={f(warning.len)} fill="white" />
-                        <rect y={0} x={normal.ini} height={f(width)} width={f(normal.len)} fill="black" />
+                        <rect y={0} x={warning.ini} height={width} width={warning.len} fill="white" />
+                        <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
                     </mask>
-                    <rect y={0} x={0} height={f(width)} width={f(input.len)}
+                    <rect y={0} x={0} height={width} width={input.len}
                         fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                    <rect y={0} x={warning.ini} height={f(width)} width={f(warning.len)}
+                    <rect y={0} x={warning.ini} height={width} width={warning.len}
                         fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                    <rect y={0} x={normal.ini} height={f(width)} width={f(normal.len)}
+                    <rect y={0} x={normal.ini} height={width} width={normal.len}
                         fill={bgColors.normal} fillOpacity={opacity} />
                     {standard ? alert.elem : null}
                     {standard ? level.cursor : level.bar}
@@ -278,7 +278,7 @@ function Renderer({ size, control, value }) {
         const center = { cx: size.width / 2, cy: size.height / 2 }
         const radius = f(Math.min(center.cx, center.cy) - bar.width / 2)
         const arc = (d) => radius * Math.PI * d / 180
-        const ini = (v) => arc((v - input.min) * bar.span / input.span)
+        const ini = (v) => arc(f((v - input.min) * bar.span / input.span))
         const perimeter = arc(360)
         input.arc = arc(bar.span)
         input.dash = `${input.arc} ${perimeter}`
@@ -289,41 +289,41 @@ function Renderer({ size, control, value }) {
         normal.ini = ini(normal.min)
         normal.dash = `0 ${normal.ini} ${normal.arc} ${perimeter}`
         level.ini = ini(level.value)
-        level.dash = `0 ${level.ini} ${level.width} ${perimeter}`
-        level.cursor = <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+        level.dash = `0 ${level.ini - level.width / 2} ${level.width} ${perimeter}`
+        level.cursor = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width} stroke={fgColors.cursor} strokeDasharray={level.dash} />
         level.dash = `${level.ini} ${perimeter}`
-        level.bar = <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+        level.bar = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width * level.ratio} stroke={level.color} strokeDasharray={level.dash} />
         const rotate = `rotate(${bar.zero + 180}, ${center.cx}, ${center.cy})`
         alert.radius = f(radius - bar.width / 2)
         alert.arc = alert.radius * Math.PI * bar.span / 180
         alert.dash = `${alert.arc}  ${perimeter}`
-        alert.elem = standard ? <circle r={f(alert.radius)} cx={center.cx} cy={center.cy} fill="none"
+        alert.elem = standard ? <circle r={alert.radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width} stroke={alert.color} strokeDasharray={alert.dash} /> : null
         return <>
             <svg>
                 <mask id={input.id}>
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="white" strokeDasharray={input.dash} />
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="black" strokeDasharray={warning.dash} />
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="black" strokeDasharray={normal.dash} />
                 </mask>
                 <mask id={warning.id}>
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="white" strokeDasharray={warning.dash} />
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none"
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="black" strokeDasharray={normal.dash} />
                 </mask>
                 <g transform={rotate}>
                     {alert.elem}
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={bar.width} stroke={bgColors.critical} strokeDasharray={input.dash} mask={input.mask} />
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={bar.width} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warning.mask} />
-                    <circle r={f(radius)} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
                         strokeWidth={bar.width} stroke={bgColors.normal} strokeDasharray={normal.dash} />
                     {standard ? level.cursor : level.bar}
                 </g>

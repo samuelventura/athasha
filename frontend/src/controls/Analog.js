@@ -24,8 +24,8 @@ function data() {
         warningMin: "2000",
         warningMax: "8000",
         cursorColor: "#000000",
-        normalColor: "#27ae60",
-        warningColor: "#f1c40f",
+        normalColor: "#88B407",
+        warningColor: "#FF9436",
         criticalColor: "#FC342A",
     }
 }
