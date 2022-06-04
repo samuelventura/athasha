@@ -253,6 +253,9 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     const clickBg = data.bgEnabled ? data.bgColor : (background || "none")
     const clickFt = isPressed ? "url(#pressed)" : "none"
+    const clickArea = data.output ? <rect x={halfBorder} y={halfBorder}
+        width={size.width - fullBorder} height={size.height - fullBorder}
+        fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} /> : null
     return (
         <svg>
             <filter id='hover' colorInterpolationFilters="sRGB">
@@ -261,8 +264,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             <filter id='pressed' colorInterpolationFilters="sRGB">
                 <feOffset in="SourceGraphic" dx="1" dy="1" />
             </filter>
-            <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} />
+            {clickArea}
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
                 fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
             <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
