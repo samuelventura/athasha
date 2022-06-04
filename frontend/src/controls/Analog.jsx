@@ -270,7 +270,10 @@ function Renderer({ size, control, value }) {
             span: Number(data.barSpan),
         }
         const center = { cx: size.width / 2, cy: size.height / 2 }
-        const radius = f(Math.min(center.cx, center.cy) - bar.width / 2)
+        //ensure radious wont go negative
+        center.radius = Math.min(center.cx, center.cy)
+        if (bar.width > center.radius) bar.width = center.radius
+        const radius = center.radius - bar.width / 2
         const arc = (d) => radius * Math.PI * d / 180
         const ini = (v) => arc(f((v - input.min) * bar.span / input.span))
         const perimeter = arc(360)
@@ -283,7 +286,9 @@ function Renderer({ size, control, value }) {
         normal.ini = ini(normal.min)
         normal.dash = `0 ${normal.ini} ${normal.arc} ${perimeter}`
         level.ini = ini(level.value)
-        level.dash = `0 ${level.ini - level.width / 2} ${level.width} ${perimeter}`
+        //adjusted cursor position to keep the cursor within the input range
+        level.pos = Math.max(0, Math.min(level.ini - level.width / 2, input.arc - level.width))
+        level.dash = `0 ${level.pos} ${level.width} ${perimeter}`
         level.cursor = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width} stroke={fgColors.cursor} strokeDasharray={level.dash} />
         level.dash = `${level.ini} ${perimeter}`
@@ -295,9 +300,10 @@ function Renderer({ size, control, value }) {
         alert.dash = `${alert.arc}  ${perimeter}`
         alert.elem = standard ? <circle r={alert.radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width} stroke={alert.color} strokeDasharray={alert.dash} /> : null
+        console.log(control.id, warning.dash)
         return <>
             <svg>
-                <mask id={input.id}>
+                <mask id={input.id} maskUnits="userSpaceOnUse">
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="white" strokeDasharray={input.dash} />
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
@@ -305,7 +311,7 @@ function Renderer({ size, control, value }) {
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="black" strokeDasharray={normal.dash} />
                 </mask>
-                <mask id={warning.id}>
+                <mask id={warning.id} maskUnits="userSpaceOnUse">
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
                         strokeWidth={bar.width} stroke="white" strokeDasharray={warning.dash} />
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"

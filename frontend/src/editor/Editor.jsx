@@ -22,6 +22,9 @@ function EditItem() {
         const id = item.id
         switch (action) {
             case "close":
+                //ff Scripts may not close windows that were not opened by script.
+                //ff fails when lauching from a direct copy/pasted link
+                //ff works when launched from a double click on item row
                 window.close()
                 break
             case "view": {
