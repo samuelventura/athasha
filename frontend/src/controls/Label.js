@@ -24,9 +24,9 @@ const condTypes = [
     "Param1 < Input <= Param2",
     "Param1 < Input < Param2",
 ]
-const txTypes = ["Disabled", "Fixed Text", "Format Text"]
+const textActions = ["Disabled", "Fixed Text", "Format Text"]
 const aligns = ["Center", "Left", "Right"]
-const ftFamilies = [
+const fontFamilies = [
     "Roboto Thin",
     "Roboto Light",
     "Roboto Regular",
@@ -58,14 +58,14 @@ function cond() {
         param1: "0",
         param2: "0",
         negate: false,
-        txType: txTypes[0],
-        txText: "",
+        textAction: textActions[0],
+        textParam: "",
         backColored: false,
         backColor: "#ffffff",
-        fgEnabled: false,
-        fgColor: "#ffffff",
-        brEnabled: false,
-        brColor: "#ffffff",
+        textColored: false,
+        textColor: "#ffffff",
+        borderColored: false,
+        borderColor: "#ffffff",
     }
 }
 
@@ -73,14 +73,14 @@ function data() {
     return {
         text: "Label",
         align: aligns[0],
-        fgColor: "#000000",
-        ftSize: "10",
-        ftFamily: ftFamilies[0],
+        textColor: "#000000",
+        fontSize: "10",
+        fontFamily: fontFamilies[0],
         backColored: false,
         backColor: "#ffffff",
-        brWidth: "0",
-        brColor: "#000000",
-        brRadius: "0",
+        borderWidth: "0",
+        borderColor: "#000000",
+        borderRadius: "0",
         cond1: cond(),
         cond2: cond(),
         cond3: cond(),
@@ -90,27 +90,27 @@ function data() {
 const dlabels = {
     text: "Text",
     align: "Align",
-    fgColor: "Text Color",
-    ftSize: "Font Size",
-    ftFamily: "Font Family",
+    textColor: "Text Color",
+    fontSize: "Font Size",
+    fontFamily: "Font Family",
     backColored: "Back Color Enabled",
     backColor: "Back Color",
-    brWidth: "Border Width",
-    brColor: "Border Color",
-    brRadius: "Border Radius",
+    borderWidth: "Border Width",
+    borderColor: "Border Color",
+    borderRadius: "Border Radius",
 }
 
 const dhints = {
     text: "Default text to show on label",
     align: "Label text alignment",
-    fgColor: "Non empty text color #RRGGBB",
-    ftSize: "Non empty integer > 0",
-    ftFamily: "Select family from list",
+    textColor: "Non empty text color #RRGGBB",
+    fontSize: "Non empty integer > 0",
+    fontFamily: "Select family from list",
     backColored: "Uncheck for transparent background",
     backColor: "Non empty background color #RRGGBB",
-    brWidth: "Non empty integer >= 0",
-    brColor: "Non empty border color #RRGGBB",
-    brRadius: "Non empty number [0,1]",
+    borderWidth: "Non empty integer >= 0",
+    borderColor: "Non empty border color #RRGGBB",
+    borderRadius: "Non empty number [0,1]",
 }
 
 const dchecks = {
@@ -122,21 +122,21 @@ const dchecks = {
         Check.notEmpty(value, dlabels.align)
         Check.inList(value, dlabels.align, aligns)
     },
-    fgColor: function (value) {
-        Check.isString(value, dlabels.fgColor)
-        Check.notEmpty(value, dlabels.fgColor)
-        Check.isColor(value, dlabels.fgColor)
+    textColor: function (value) {
+        Check.isString(value, dlabels.textColor)
+        Check.notEmpty(value, dlabels.textColor)
+        Check.isColor(value, dlabels.textColor)
     },
-    ftSize: function (value) {
-        Check.isString(value, dlabels.ftSize)
-        Check.notEmpty(value, dlabels.ftSize)
-        Check.isInteger(value, dlabels.ftSize)
-        Check.isGE(value, dlabels.ftSize, 1)
+    fontSize: function (value) {
+        Check.isString(value, dlabels.fontSize)
+        Check.notEmpty(value, dlabels.fontSize)
+        Check.isInteger(value, dlabels.fontSize)
+        Check.isGE(value, dlabels.fontSize, 1)
     },
-    ftFamily: function (value) {
-        Check.isString(value, dlabels.ftFamily)
-        Check.notEmpty(value, dlabels.ftFamily)
-        Check.inList(value, dlabels.ftFamily, ftFamilies)
+    fontFamily: function (value) {
+        Check.isString(value, dlabels.fontFamily)
+        Check.notEmpty(value, dlabels.fontFamily)
+        Check.inList(value, dlabels.fontFamily, fontFamilies)
     },
     backColored: function (value) {
         Check.isBoolean(value, dlabels.backColored)
@@ -146,23 +146,23 @@ const dchecks = {
         Check.notEmpty(value, dlabels.backColor)
         Check.isColor(value, dlabels.backColor)
     },
-    brWidth: function (value) {
-        Check.isString(value, dlabels.brWidth)
-        Check.notEmpty(value, dlabels.brWidth)
-        Check.isInteger(value, dlabels.brWidth)
-        Check.isGE(value, dlabels.brWidth, 0)
+    borderWidth: function (value) {
+        Check.isString(value, dlabels.borderWidth)
+        Check.notEmpty(value, dlabels.borderWidth)
+        Check.isInteger(value, dlabels.borderWidth)
+        Check.isGE(value, dlabels.borderWidth, 0)
     },
-    brColor: function (value) {
-        Check.isString(value, dlabels.brColor)
-        Check.notEmpty(value, dlabels.brColor)
-        Check.isColor(value, dlabels.brColor)
+    borderColor: function (value) {
+        Check.isString(value, dlabels.borderColor)
+        Check.notEmpty(value, dlabels.borderColor)
+        Check.isColor(value, dlabels.borderColor)
     },
-    brRadius: function (value) {
-        Check.isString(value, dlabels.brRadius)
-        Check.notEmpty(value, dlabels.brRadius)
-        Check.isNumber(value, dlabels.brRadius)
-        Check.isGE(value, dlabels.brRadius, 0)
-        Check.isLE(value, dlabels.brRadius, 1)
+    borderRadius: function (value) {
+        Check.isString(value, dlabels.borderRadius)
+        Check.notEmpty(value, dlabels.borderRadius)
+        Check.isNumber(value, dlabels.borderRadius)
+        Check.isGE(value, dlabels.borderRadius, 0)
+        Check.isLE(value, dlabels.borderRadius, 1)
     },
     cond1: function (value) {
         Check.validate(value, cond(), cchecks, "cond1")
@@ -181,14 +181,14 @@ const clabels = {
     param1: "Param 1",
     param2: "Param 2",
     negate: "Negate",
-    txType: "Text Action",
-    txText: "Text Param",
+    textAction: "Text Action",
+    textParam: "Text Param",
     backColored: "Back Color Enabled",
     backColor: "Back Color",
-    fgEnabled: "Text Color Enabled",
-    fgColor: "Text Color",
-    brEnabled: "Border Color Enabled",
-    brColor: "Border Color",
+    textColored: "Text Color Enabled",
+    textColor: "Text Color",
+    borderColored: "Border Color Enabled",
+    borderColor: "Border Color",
 }
 
 const chints = {
@@ -196,14 +196,14 @@ const chints = {
     param1: "Optional number",
     param2: "Optional number",
     negate: "Reverse the comparison codition",
-    txType: "Select the text action from list",
-    txText: "Optional text param",
+    textAction: "Select the text action from list",
+    textParam: "Optional text param",
     backColored: "Uncheck for transparent back color",
     backColor: "Non empty column color #RRGGBB",
-    fgEnabled: "Uncheck to leave the default text color",
-    fgColor: "Non empty column color #RRGGBB",
-    brEnabled: "Uncheck to leave the default border color",
-    brColor: "Non empty column color #RRGGBB",
+    textColored: "Uncheck to leave the default text color",
+    textColor: "Non empty column color #RRGGBB",
+    borderColored: "Uncheck to leave the default border color",
+    borderColor: "Non empty column color #RRGGBB",
 }
 
 const cchecks = {
@@ -221,13 +221,13 @@ const cchecks = {
     negate: function (value) {
         Check.isBoolean(value, clabels.negate)
     },
-    txType: function (value) {
-        Check.isString(value, clabels.txType)
-        Check.notEmpty(value, clabels.txType)
-        Check.inList(value, clabels.txType, txTypes)
+    textAction: function (value) {
+        Check.isString(value, clabels.textAction)
+        Check.notEmpty(value, clabels.textAction)
+        Check.inList(value, clabels.textAction, textActions)
     },
-    txText: function (value) {
-        Check.isString(value, clabels.txText)
+    textParam: function (value) {
+        Check.isString(value, clabels.textParam)
     },
     backColored: function (value) {
         Check.isBoolean(value, clabels.backColored)
@@ -237,21 +237,21 @@ const cchecks = {
         Check.notEmpty(value, clabels.backColor)
         Check.isColor(value, clabels.backColor)
     },
-    fgEnabled: function (value) {
-        Check.isBoolean(value, clabels.fgEnabled)
+    textColored: function (value) {
+        Check.isBoolean(value, clabels.textColored)
     },
-    fgColor: function (value) {
-        Check.isString(value, clabels.fgColor)
-        Check.notEmpty(value, clabels.fgColor)
-        Check.isColor(value, clabels.fgColor)
+    textColor: function (value) {
+        Check.isString(value, clabels.textColor)
+        Check.notEmpty(value, clabels.textColor)
+        Check.isColor(value, clabels.textColor)
     },
-    brEnabled: function (value) {
-        Check.isBoolean(value, clabels.brEnabled)
+    borderColored: function (value) {
+        Check.isBoolean(value, clabels.borderColored)
     },
-    brColor: function (value) {
-        Check.isString(value, clabels.brColor)
-        Check.notEmpty(value, clabels.brColor)
-        Check.isColor(value, clabels.brColor)
+    borderColor: function (value) {
+        Check.isString(value, clabels.borderColor)
+        Check.notEmpty(value, clabels.borderColor)
+        Check.isColor(value, clabels.borderColor)
     },
 }
 
@@ -269,7 +269,7 @@ export default {
     dhints,
     chints,
     condTypes,
-    txTypes,
+    textActions,
     aligns,
-    ftFamilies,
+    fontFamilies,
 }

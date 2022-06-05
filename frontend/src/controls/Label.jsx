@@ -27,7 +27,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         return Check.props(args)
     }
     const condTypeOptions = Initial.condTypes.map(v => <option key={v} value={v}>{v}</option>)
-    const txTypeOptions = Initial.txTypes.map(v => <option key={v} value={v}>{v}</option>)
+    const txTypeOptions = Initial.textActions.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
             <FormEntry label={Initial.clabels.type}>
@@ -44,23 +44,23 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                     <Form.Control type="number" {...fieldProps("param2")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.txType}>
-                <Form.Select {...fieldProps("txType")}>
+            <FormEntry label={Initial.clabels.textAction}>
+                <Form.Select {...fieldProps("textAction")}>
                     {txTypeOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.clabels.txText}>
+            <FormEntry label={Initial.clabels.textParam}>
                 <InputGroup>
-                    <Form.Control type="text" {...fieldProps("txText")} />
+                    <Form.Control type="text" {...fieldProps("textParam")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.fgColor}>
+            <FormEntry label={Initial.clabels.textColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.fgEnabled}
-                        onChange={e => setProp("fgEnabled", e.target.checked)}
-                        title={Initial.clabels.fgEnabled} />
-                    <Form.Control type="color" {...fieldProps("fgColor")} />
-                    <Form.Control type="text" {...fieldProps("fgColor")} />
+                    <InputGroup.Checkbox checked={cond.textColored}
+                        onChange={e => setProp("textColored", e.target.checked)}
+                        title={Initial.clabels.textColored} />
+                    <Form.Control type="color" {...fieldProps("textColor")} />
+                    <Form.Control type="text" {...fieldProps("textColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.clabels.backColor}>
@@ -72,13 +72,13 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                     <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.brColor}>
+            <FormEntry label={Initial.clabels.borderColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.brEnabled}
-                        onChange={e => setProp("brEnabled", e.target.checked)}
-                        title={Initial.clabels.brEnabled} />
-                    <Form.Control type="color" {...fieldProps("brColor")} />
-                    <Form.Control type="text" {...fieldProps("brColor")} />
+                    <InputGroup.Checkbox checked={cond.borderColored}
+                        onChange={e => setProp("borderColored", e.target.checked)}
+                        title={Initial.clabels.borderColored} />
+                    <Form.Control type="color" {...fieldProps("borderColor")} />
+                    <Form.Control type="text" {...fieldProps("borderColor")} />
                 </InputGroup>
             </FormEntry>
 
@@ -112,7 +112,7 @@ function Editor({ control, setProp, globals }) {
         return Check.props(args)
     }
     const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
-    const ftFamilyOptions = Initial.ftFamilies.map(v => <option key={v} value={v}>{v}</option>)
+    const ftFamilyOptions = Initial.fontFamilies.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
             <Tabs defaultActiveKey="default">
@@ -125,18 +125,18 @@ function Editor({ control, setProp, globals }) {
                             {alignOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.ftSize}>
-                        <Form.Control type="number" {...fieldProps("ftSize")} min="1" step="1" />
+                    <FormEntry label={Initial.dlabels.fontSize}>
+                        <Form.Control type="number" {...fieldProps("fontSize")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.ftFamily}>
-                        <Form.Select {...fieldProps("ftFamily")}>
+                    <FormEntry label={Initial.dlabels.fontFamily}>
+                        <Form.Select {...fieldProps("fontFamily")}>
                             {ftFamilyOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.fgColor}>
+                    <FormEntry label={Initial.dlabels.textColor}>
                         <InputGroup>
-                            <Form.Control type="color" {...fieldProps("fgColor")} />
-                            <Form.Control type="text" {...fieldProps("fgColor")} />
+                            <Form.Control type="color" {...fieldProps("textColor")} />
+                            <Form.Control type="text" {...fieldProps("textColor")} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.backColor}>
@@ -148,17 +148,17 @@ function Editor({ control, setProp, globals }) {
                             <Form.Control type="text" {...fieldProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.brColor}>
+                    <FormEntry label={Initial.dlabels.borderColor}>
                         <InputGroup>
-                            <Form.Control type="color" {...fieldProps("brColor")} />
-                            <Form.Control type="text" {...fieldProps("brColor")} />
+                            <Form.Control type="color" {...fieldProps("borderColor")} />
+                            <Form.Control type="text" {...fieldProps("borderColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.brWidth}>
-                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" step="1" />
+                    <FormEntry label={Initial.dlabels.borderWidth}>
+                        <Form.Control type="number" {...fieldProps("borderWidth")} min="0" step="1" />
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.brRadius}>
-                        <Form.Control type="number" {...fieldProps("brRadius")} min="0" max="1" step="0.1" />
+                    <FormEntry label={Initial.dlabels.borderRadius}>
+                        <Form.Control type="number" {...fieldProps("borderRadius")} min="0" max="1" step="0.1" />
                     </FormEntry>
                 </Tab>
                 <Tab eventKey="condition1" title="Cond 1" tabAttrs={{ title: "Overrides Default" }}>
@@ -191,13 +191,13 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             break
         }
     }
-    const radious = `${data.brRadius * 100}%`
-    const halfBorder = Math.ceil(data.brWidth / 2) + 2
+    const radious = `${data.borderRadius * 100}%`
+    const halfBorder = Math.ceil(data.borderWidth / 2) + 2
     const fullBorder = 2 * halfBorder
 
     let text = data.text
-    let brColor = data.brColor
-    let fgColor = data.fgColor
+    let borderColor = data.borderColor
+    let textColor = data.textColor
     //passing background as default instead of none
     //puts am ugly shadow rectangle in non rounded labels
     //non passing a default background restricts the 
@@ -233,16 +233,16 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
         }
         if (met) {
             if (cond.backColored) backColor = cond.backColor
-            if (cond.fgEnabled) fgColor = cond.fgColor
-            if (cond.brEnabled) brColor = cond.brColor
-            switch (cond.txType) {
+            if (cond.textColored) textColor = cond.textColor
+            if (cond.borderColored) borderColor = cond.borderColor
+            switch (cond.textAction) {
                 case "Fixed Text": {
-                    text = cond.txText
+                    text = cond.textParam
                     break
                 }
                 case "Format Text": {
                     //http://numeraljs.com/
-                    text = numeral(value).format(cond.txText)
+                    text = numeral(value).format(cond.textParam)
                     break
                 }
             }
@@ -262,13 +262,13 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
         }
     }
 
-    const font = data.ftFamily.replace(/\s/g, '') //remove spaces
+    const font = data.fontFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     const clickBg = data.backColored ? data.backColor : (background || "none")
     const clickFt = isPressed ? "url(#pressed)" : "none"
     const clickArea = data.output ? <rect x={halfBorder} y={halfBorder}
         width={size.width - fullBorder} height={size.height - fullBorder}
-        fill={clickBg} strokeWidth={data.brWidth} stroke="none" ry={radious} filter={clickFt} /> : null
+        fill={clickBg} strokeWidth={data.borderWidth} stroke="none" ry={radious} filter={clickFt} /> : null
     return (
         <svg>
             <filter id='hover' colorInterpolationFilters="sRGB">
@@ -279,9 +279,9 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             </filter>
             {clickArea}
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={backColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
-            <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
-                textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={font}>
+                fill={backColor} strokeWidth={data.borderWidth} stroke={borderColor} ry={radious} filter={filter} />
+            <text x={x} y="50%" dominantBaseline="central" fill={textColor} filter={filter}
+                textAnchor={textAnchor} fontSize={data.fontSize} fontFamily={font}>
                 {text}
             </text>
         </svg>
