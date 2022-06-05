@@ -20,8 +20,8 @@ function data() {
         barRatio: "1",
         barOpacity: "0.5",
         barGrayscale: "0",
-        bgEnabled: false,
-        bgColor: "#c0c0c0",
+        barColored: false,
+        barColor: "#c0c0c0",
         inputMin: "0",
         inputMax: "10000",
         normalMin: "4000",
@@ -45,8 +45,8 @@ const dlabels = {
     barRatio: "Bar Ratio",
     barOpacity: "Bar Opacity",
     barGrayscale: "Bar Grayscale",
-    bgEnabled: "Background Enabled",
-    bgColor: "Background",
+    barColored: "Bar Color Enabled",
+    barColor: "Bar Color",
     inputRange: "Input Range",
     inputMin: "Input Range Minimum",
     inputMax: "Input Range Maximum",
@@ -69,8 +69,8 @@ const dhints = {
     barRatio: "Non empty number (0, 1]",
     barOpacity: "Non empty number (0, 1]",
     barGrayscale: "Non empty number [0, 1]",
-    bgEnabled: "Uncheck for transparent background",
-    bgColor: "Non empty background color #RRGGBB",
+    barColored: "Uncheck for transparent background",
+    barColor: "Non empty background color #RRGGBB",
     inputMin: "Non empty number (same as critical)",
     inputMax: "Non empty number (same as critical)",
     normalMin: "Non empty number",
@@ -134,13 +134,13 @@ const dchecks = {
         Check.isGE(value, dlabels.barGrayscale, 0)
         Check.isLE(value, dlabels.barGrayscale, 1)
     },
-    bgEnabled: function (value) {
-        Check.isBoolean(value, dlabels.bgEnabled)
+    barColored: function (value) {
+        Check.isBoolean(value, dlabels.barColored)
     },
-    bgColor: function (value) {
-        Check.isString(value, dlabels.bgColor)
-        Check.notEmpty(value, dlabels.bgColor)
-        Check.isColor(value, dlabels.bgColor)
+    barColor: function (value) {
+        Check.isString(value, dlabels.barColor)
+        Check.notEmpty(value, dlabels.barColor)
+        Check.isColor(value, dlabels.barColor)
     },
     inputMin: function (value) {
         Check.isString(value, dlabels.inputMin)

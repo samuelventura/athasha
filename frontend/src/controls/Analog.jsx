@@ -29,13 +29,13 @@ function Editor({ control, setProp, globals }) {
     const custom = data.style === "Custom"
     const circular = data.orientation === "Circular"
     const customProps = custom ? <>
-        <FormEntry label={Initial.dlabels.bgColor}>
+        <FormEntry label={Initial.dlabels.barColor}>
             <InputGroup>
-                <InputGroup.Checkbox checked={data.bgEnabled}
-                    onChange={e => setProp("bgEnabled", e.target.checked)}
-                    title={Initial.dlabels.bgEnabled} />
-                <Form.Control type="color" {...fieldProps("bgColor")} />
-                <Form.Control type="text" {...fieldProps("bgColor")} />
+                <InputGroup.Checkbox checked={data.barColored}
+                    onChange={e => setProp("barColored", e.target.checked)}
+                    title={Initial.dlabels.barColored} />
+                <Form.Control type="color" {...fieldProps("barColor")} />
+                <Form.Control type="text" {...fieldProps("barColor")} />
             </InputGroup>
         </FormEntry>
     </> : null
@@ -45,15 +45,6 @@ function Editor({ control, setProp, globals }) {
                 <Form.Control type="number" {...fieldProps("barZero")} min="-180" max="180" />
                 <Form.Control type="number" {...fieldProps("barSpan")} min="0" max="360" />
                 <Form.Control type="number" {...fieldProps("barWidth")} min="0" />
-            </InputGroup>
-        </FormEntry>
-    </> : null
-    const customOrCircularProps = custom || circular ? <>
-        <FormEntry label={Initial.dlabels.barParams}>
-            <InputGroup>
-                <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
-                <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" />
-                <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" />
             </InputGroup>
         </FormEntry>
     </> : null
@@ -91,7 +82,13 @@ function Editor({ control, setProp, globals }) {
                     <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
-            {customOrCircularProps}
+            <FormEntry label={Initial.dlabels.barParams}>
+                <InputGroup>
+                    <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
+                    <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" />
+                    <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" />
+                </InputGroup>
+            </FormEntry>
             {circularProps}
             {customProps}
             <FormEntry label={Initial.dlabels.criticalColor}>
@@ -147,9 +144,9 @@ function getMinMax(data, type, trim) {
 
 function backColors(standard, data) {
     return {
-        normal: standard ? data.normalColor : (data.bgEnabled ? data.bgColor : data.normalColor),
-        warning: standard ? data.warningColor : (data.bgEnabled ? data.bgColor : data.warningColor),
-        critical: standard ? data.criticalColor : (data.bgEnabled ? data.bgColor : data.criticalColor),
+        normal: standard ? data.normalColor : (data.barColored ? data.barColor : data.normalColor),
+        warning: standard ? data.warningColor : (data.barColored ? data.barColor : data.warningColor),
+        critical: standard ? data.criticalColor : (data.barColored ? data.barColor : data.criticalColor),
     }
 }
 
@@ -214,6 +211,13 @@ function Renderer({ size, control, value }) {
         const wide = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
         const width = size[wide]
+        alert.cx = width / 2
+        alert.cy = width / 2
+        alert.len = width / 2 * level.ratio
+        alert.x1 = alert.cx - alert.len
+        alert.x2 = alert.cx + alert.len
+        alert.y1 = alert.cy - alert.len
+        alert.y2 = alert.cy + alert.len
         input.len = f(size[long] - (standard ? width : 0))
         warning.ini = f(input.len * (warning.min - input.min) / input.span)
         warning.len = f(input.len * warning.span / input.span)
@@ -225,7 +229,17 @@ function Renderer({ size, control, value }) {
                 stroke={fgColors.cursor} strokeWidth={level.width} />
             level.bar = <rect x={width * (1 - level.ratio) / 2} y={0}
                 width={width * level.ratio} height={level.len} fill={level.color} />
-            alert.path = `M 0 0 L ${width / 2} ${width} L ${width} 0 Z`
+            level.back = <rect x={0} y={0} width={width} height={input.len} style={grayscale}
+                fill={data.barColor} fillOpacity={opacity} />
+            level.bars = <g>
+                <rect x={0} y={0} width={width} height={input.len} style={grayscale}
+                    fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
+                <rect x={0} y={warning.ini} width={width} height={warning.len} style={grayscale}
+                    fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
+                <rect x={0} y={normal.ini} width={width} height={normal.len} style={grayscale}
+                    fill={bgColors.normal} fillOpacity={opacity} />
+            </g>
+            alert.path = `M ${alert.x1} ${alert.y1} L ${alert.cx} ${alert.y2} L ${alert.x2} ${alert.y1} Z`
             alert.trans = `translate(0, ${input.len})`
             alert.elem = <g transform={alert.trans}>
                 <path d={alert.path} stroke="none" fill={alert.color} />
@@ -243,12 +257,7 @@ function Renderer({ size, control, value }) {
                         <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
                     </mask>
                     <g transform={transform}>
-                        <rect x={0} y={0} width={width} height={input.len} style={grayscale}
-                            fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                        <rect x={0} y={warning.ini} width={width} height={warning.len} style={grayscale}
-                            fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                        <rect x={0} y={normal.ini} width={width} height={normal.len} style={grayscale}
-                            fill={bgColors.normal} fillOpacity={opacity} />
+                        {data.barColored ? level.back : level.bars}
                         {standard ? alert.elem : null}
                         {standard ? level.cursor : level.bar}
                     </g>
@@ -259,7 +268,16 @@ function Renderer({ size, control, value }) {
                 stroke={fgColors.cursor} strokeWidth={level.width} />
             level.bar = <rect y={width * (1 - level.ratio) / 2} x={0}
                 height={width * level.ratio} width={level.len} fill={level.color} />
+            level.back = <rect y={0} x={0} height={width} width={input.len} style={grayscale}
+                fill={data.barColor} fillOpacity={opacity} />
+            level.bars = <g><rect y={0} x={0} height={width} width={input.len} style={grayscale}
+                fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
+                <rect y={0} x={warning.ini} height={width} width={warning.len} style={grayscale}
+                    fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
+                <rect y={0} x={normal.ini} height={width} width={normal.len} style={grayscale}
+                    fill={bgColors.normal} fillOpacity={opacity} /></g>
             alert.path = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
+            alert.path = `M ${alert.x1} ${alert.y1} L ${alert.x1} ${alert.y2} L ${alert.x2} ${alert.cy} Z`
             alert.trans = `translate(${input.len}, 0)`
             alert.elem = <g transform={alert.trans}>
                 <path d={alert.path} stroke="none" fill={alert.color} />
@@ -275,12 +293,7 @@ function Renderer({ size, control, value }) {
                         <rect y={0} x={warning.ini} height={width} width={warning.len} fill="white" />
                         <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
                     </mask>
-                    <rect y={0} x={0} height={width} width={input.len} style={grayscale}
-                        fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                    <rect y={0} x={warning.ini} height={width} width={warning.len} style={grayscale}
-                        fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                    <rect y={0} x={normal.ini} height={width} width={normal.len} style={grayscale}
-                        fill={bgColors.normal} fillOpacity={opacity} />
+                    {data.barColored ? level.back : level.bars}
                     {standard ? alert.elem : null}
                     {standard ? level.cursor : level.bar}
                 </svg>
@@ -318,6 +331,16 @@ function Renderer({ size, control, value }) {
         level.dash = `${level.ini} ${perimeter}`
         level.bar = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width * level.ratio} stroke={level.color} strokeDasharray={level.dash} />
+        level.back = <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
+            strokeWidth={bar.width} stroke={data.barColor} strokeDasharray={input.dash} />
+        level.bars = <g>
+            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
+                strokeWidth={bar.width} stroke={bgColors.critical} strokeDasharray={input.dash} mask={input.mask} />
+            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
+                strokeWidth={bar.width} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warning.mask} />
+            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
+                strokeWidth={bar.width} stroke={bgColors.normal} strokeDasharray={normal.dash} />
+        </g>
         const rotate = `rotate(${bar.zero + 180}, ${center.cx}, ${center.cy})`
         alert.width = bar.width * bar.ratio
         alert.radius = f(radius - bar.width / 2 - alert.width / 2)
@@ -343,12 +366,7 @@ function Renderer({ size, control, value }) {
                 </mask>
                 <g transform={rotate}>
                     {alert.elem}
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                        strokeWidth={bar.width} stroke={bgColors.critical} strokeDasharray={input.dash} mask={input.mask} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                        strokeWidth={bar.width} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warning.mask} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                        strokeWidth={bar.width} stroke={bgColors.normal} strokeDasharray={normal.dash} />
+                    {data.barColored ? level.back : level.bars}
                     {standard ? level.cursor : level.bar}
                 </g>
             </svg>

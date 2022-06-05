@@ -125,12 +125,6 @@ function Editor({ control, setProp, globals }) {
                             {alignOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.fgColor}>
-                        <InputGroup>
-                            <Form.Control type="color" {...fieldProps("fgColor")} />
-                            <Form.Control type="text" {...fieldProps("fgColor")} />
-                        </InputGroup>
-                    </FormEntry>
                     <FormEntry label={Initial.dlabels.ftSize}>
                         <Form.Control type="number" {...fieldProps("ftSize")} min="1" step="1" />
                     </FormEntry>
@@ -138,6 +132,12 @@ function Editor({ control, setProp, globals }) {
                         <Form.Select {...fieldProps("ftFamily")}>
                             {ftFamilyOptions}
                         </Form.Select>
+                    </FormEntry>
+                    <FormEntry label={Initial.dlabels.fgColor}>
+                        <InputGroup>
+                            <Form.Control type="color" {...fieldProps("fgColor")} />
+                            <Form.Control type="text" {...fieldProps("fgColor")} />
+                        </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.bgColor}>
                         <InputGroup>
@@ -148,14 +148,14 @@ function Editor({ control, setProp, globals }) {
                             <Form.Control type="text" {...fieldProps("bgColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.brWidth}>
-                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" step="1" />
-                    </FormEntry>
                     <FormEntry label={Initial.dlabels.brColor}>
                         <InputGroup>
                             <Form.Control type="color" {...fieldProps("brColor")} />
                             <Form.Control type="text" {...fieldProps("brColor")} />
                         </InputGroup>
+                    </FormEntry>
+                    <FormEntry label={Initial.dlabels.brWidth}>
+                        <Form.Control type="number" {...fieldProps("brWidth")} min="0" step="1" />
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brRadius}>
                         <Form.Control type="number" {...fieldProps("brRadius")} min="0" max="1" step="0.1" />
