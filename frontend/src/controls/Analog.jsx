@@ -335,8 +335,7 @@ function Renderer({ size, control, value }) {
 const Type = Initial.type
 const Init = Initial.data
 const Merge = Initial.merge
-const Validate = Initial.validate
 
-const Label = { Type, Init, Editor, Renderer, Validate, Merge }
+const Label = { Type, Init, Editor, Renderer, Merge }
 
 export default Label

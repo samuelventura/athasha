@@ -16,6 +16,19 @@ function downloadText(data, prefix, ext) {
 }
 
 function uploadJson(ext, callback) {
+    uploadText(ext, (txt, file) => {
+        callback(JSON.parse(txt), file)
+    })
+}
+
+function uploadText(ext, callback) {
+    uploadB64(ext, (base64, file) => {
+        const text = atob(base64)
+        callback(text, file)
+    })
+}
+
+function uploadB64(ext, callback) {
     const input = document.createElement('input')
     input.setAttribute('accept', `.${ext}`)
     input.type = 'file'
@@ -26,9 +39,7 @@ function uploadJson(ext, callback) {
             const uri = event.target.result
             //data:application/jsonbase64,XXXXX....
             const base64 = uri.substring(uri.indexOf(",") + 1)
-            const json = atob(base64)
-            const data = JSON.parse(json)
-            callback(data)
+            callback(base64, files[0].name)
         })
         reader.readAsDataURL(files[0])
     }
@@ -44,4 +55,6 @@ export default {
     downloadText,
     downloadJson,
     uploadJson,
+    uploadText,
+    uploadB64,
 }
