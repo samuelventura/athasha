@@ -14,7 +14,16 @@ function merge(target) {
     return target
 }
 
-const condTypes = ["Disabled", "Enabled", "Input > Param", "Input >= Param", "Input < Param", "Input <= Param"]
+const condTypes = [
+    "Disabled",
+    "Enabled",
+    "Input > Param1",
+    "Input >= Param1",
+    "Param1 <= Input <= Param2",
+    "Param1 <= Input < Param2",
+    "Param1 < Input <= Param2",
+    "Param1 < Input < Param2",
+]
 const txTypes = ["Disabled", "Fixed Text", "Format Text"]
 const aligns = ["Center", "Left", "Right"]
 const ftFamilies = [
@@ -46,7 +55,9 @@ const ftFamilies = [
 function cond() {
     return {
         type: condTypes[0],
-        param: "0",
+        param1: "0",
+        param2: "0",
+        negate: false,
         txType: txTypes[0],
         txText: "",
         bgEnabled: false,
@@ -166,7 +177,10 @@ const dchecks = {
 
 const clabels = {
     type: "Condition",
-    param: "Param",
+    param: "Params",
+    param1: "Param 1",
+    param2: "Param 2",
+    negate: "Negate",
     txType: "Text Action",
     txText: "Text Param",
     bgEnabled: "Background Enabled",
@@ -179,7 +193,9 @@ const clabels = {
 
 const chints = {
     type: "Select the condition type from list",
-    param: "Optional number",
+    param1: "Optional number",
+    param2: "Optional number",
+    negate: "Reverse the comparison codition",
     txType: "Select the text action from list",
     txText: "Optional text param",
     bgEnabled: "Uncheck to leave the default background",
@@ -196,8 +212,14 @@ const cchecks = {
         Check.notEmpty(value, clabels.type)
         Check.inList(value, clabels.type, condTypes)
     },
-    param: function (value) {
-        Check.isString(value, clabels.param)
+    param1: function (value) {
+        Check.isString(value, clabels.param1)
+    },
+    param2: function (value) {
+        Check.isString(value, clabels.param2)
+    },
+    negate: function (value) {
+        Check.isBoolean(value, clabels.negate)
     },
     txType: function (value) {
         Check.isString(value, clabels.txType)
@@ -233,16 +255,11 @@ const cchecks = {
     },
 }
 
-function validate(control) {
-    Check.validate(control.data, data(), dchecks, "data")
-}
-
 const type = "Label"
 
 export default {
     type,
     merge,
-    validate,
     data,
     cond,
     dlabels,

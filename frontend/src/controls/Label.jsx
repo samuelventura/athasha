@@ -36,7 +36,13 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                 </Form.Select>
             </FormEntry>
             <FormEntry label={Initial.clabels.param}>
-                <Form.Control type="number" {...fieldProps("param")} />
+                <InputGroup>
+                    <InputGroup.Checkbox checked={cond.negate}
+                        onChange={e => setProp("negate", e.target.checked)}
+                        title={Initial.clabels.negate + "\n" + Initial.chints.negate} />
+                    <Form.Control type="number" {...fieldProps("param1")} />
+                    <Form.Control type="number" {...fieldProps("param2")} />
+                </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.clabels.txType}>
                 <Form.Select {...fieldProps("txType")}>
@@ -199,23 +205,30 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
     let bgColor = data.bgEnabled ? data.bgColor : "none"
 
     function evalCondition(cond, value) {
-        const param = Number(cond.param)
+        const param1 = Number(cond.param1)
+        const param2 = Number(cond.param2)
         let met = false
         switch (cond.type) {
             case "Enabled":
                 met = true
                 break
-            case "Input > Param":
-                met = (value > param)
+            case "Input > Param1":
+                met = (value > param1) ^ cond.negate
                 break
-            case "Input >= Param":
-                met = (value >= param)
+            case "Input >= Param1":
+                met = (value >= param1) ^ cond.negate
                 break
-            case "Input < Param":
-                met = (value < param)
+            case "Param1 <= Input <= Param2":
+                met = (param1 <= value && value <= param2) ^ cond.negate
                 break
-            case "Input <= Param":
-                met = (value <= param)
+            case "Param1 <= Input < Param2":
+                met = (param1 <= value && value < param2) ^ cond.negate
+                break
+            case "Param1 < Input <= Param2":
+                met = (param1 < value && value <= param2) ^ cond.negate
+                break
+            case "Param1 < Input < Param2":
+                met = (param1 < value && value < param2) ^ cond.negate
                 break
         }
         if (met) {
