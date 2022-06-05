@@ -240,27 +240,25 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                     break
                 }
                 case "ArrowDown": {
-                    if (event.shiftKey) actionControl('down', control)
-                    else if (event.ctrlKey) actionControl('bottom', control)
-                    else if (event.altKey) actionControl('hinc', control)
-                    else actionControl('yinc', control)
+                    if (event.altKey) actionControl(event.shiftKey ? 'bottom' : 'down', control)
+                    else if (event.ctrlKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
+                    else actionControl(event.shiftKey ? 'yinc10' : 'yinc', control)
                     break
                 }
                 case "ArrowUp": {
-                    if (event.shiftKey) actionControl('up', control)
-                    else if (event.ctrlKey) actionControl('top', control)
-                    else if (event.altKey) actionControl('hdec', control)
-                    else actionControl('ydec', control)
+                    if (event.altKey) actionControl(event.shiftKey ? 'top' : "up", control)
+                    else if (event.ctrlKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
+                    else actionControl(event.shiftKey ? 'ydec10' : 'ydec', control)
                     break
                 }
                 case "ArrowLeft": {
-                    if (event.altKey) actionControl('wdec', control)
-                    else actionControl('xdec', control)
+                    if (event.ctrlKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
+                    else actionControl(event.shiftKey ? 'xdec10' : 'xdec', control)
                     break
                 }
                 case "ArrowRight": {
-                    if (event.altKey) actionControl('winc', control)
-                    else actionControl('xinc', control)
+                    if (event.ctrlKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
+                    else actionControl(event.shiftKey ? 'xinc10' : 'xinc', control)
                     break
                 }
             }
@@ -720,32 +718,64 @@ function Editor(props) {
                 setCSetts(control, "posX", rangeValue(control.setts.posX, -1, 0, setts.gridX, control.setts.width))
                 break
             }
+            case "xdec10": {
+                setCSetts(control, "posX", rangeValue(control.setts.posX, -10, 0, setts.gridX, control.setts.width))
+                break
+            }
             case "xinc": {
                 setCSetts(control, "posX", rangeValue(control.setts.posX, +1, 0, setts.gridX, control.setts.width))
+                break
+            }
+            case "xinc10": {
+                setCSetts(control, "posX", rangeValue(control.setts.posX, +10, 0, setts.gridX, control.setts.width))
                 break
             }
             case "ydec": {
                 setCSetts(control, "posY", rangeValue(control.setts.posY, -1, 0, setts.gridY, control.setts.height))
                 break
             }
+            case "ydec10": {
+                setCSetts(control, "posY", rangeValue(control.setts.posY, -10, 0, setts.gridY, control.setts.height))
+                break
+            }
             case "yinc": {
                 setCSetts(control, "posY", rangeValue(control.setts.posY, +1, 0, setts.gridY, control.setts.height))
+                break
+            }
+            case "yinc10": {
+                setCSetts(control, "posY", rangeValue(control.setts.posY, +10, 0, setts.gridY, control.setts.height))
                 break
             }
             case "wdec": {
                 setCSetts(control, "width", rangeValue(control.setts.width, -1, 1, setts.gridX, control.setts.posX))
                 break
             }
+            case "wdec10": {
+                setCSetts(control, "width", rangeValue(control.setts.width, -10, 1, setts.gridX, control.setts.posX))
+                break
+            }
             case "winc": {
                 setCSetts(control, "width", rangeValue(control.setts.width, +1, 1, setts.gridX, control.setts.posX))
+                break
+            }
+            case "winc10": {
+                setCSetts(control, "width", rangeValue(control.setts.width, +10, 1, setts.gridX, control.setts.posX))
                 break
             }
             case "hdec": {
                 setCSetts(control, "height", rangeValue(control.setts.height, -1, 1, setts.gridY, control.setts.posY))
                 break
             }
+            case "hdec10": {
+                setCSetts(control, "height", rangeValue(control.setts.height, -10, 1, setts.gridY, control.setts.posY))
+                break
+            }
             case "hinc": {
                 setCSetts(control, "height", rangeValue(control.setts.height, +1, 1, setts.gridY, control.setts.posY))
+                break
+            }
+            case "hinc10": {
+                setCSetts(control, "height", rangeValue(control.setts.height, +10, 1, setts.gridY, control.setts.posY))
                 break
             }
         }
