@@ -8,7 +8,7 @@ function merge(target) {
 }
 
 const orientations = ["Circular", "Vertical", "Horizontal"]
-const styles = ["Standard", "Custom"]
+const styles = ["Custom", "Standard"]
 
 function data() {
     return {
@@ -18,10 +18,10 @@ function data() {
         barSpan: "180",
         barWidth: "10",
         barRatio: "1",
-        barOpacity: "0.1",
+        barOpacity: "0.5",
         barGrayscale: "0",
         bgEnabled: false,
-        bgColor: "#f8f8f8",
+        bgColor: "#c0c0c0",
         inputMin: "0",
         inputMax: "10000",
         normalMin: "4000",

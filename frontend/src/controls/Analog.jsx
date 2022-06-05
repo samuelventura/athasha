@@ -38,24 +38,6 @@ function Editor({ control, setProp, globals }) {
                 <Form.Control type="text" {...fieldProps("bgColor")} />
             </InputGroup>
         </FormEntry>
-        <FormEntry label={Initial.dlabels.criticalColor}>
-            <InputGroup>
-                <Form.Control type="color" {...fieldProps("criticalColor")} />
-                <Form.Control type="text" {...fieldProps("criticalColor")} />
-            </InputGroup>
-        </FormEntry>
-        <FormEntry label={Initial.dlabels.warningColor}>
-            <InputGroup>
-                <Form.Control type="color" {...fieldProps("warningColor")} />
-                <Form.Control type="text" {...fieldProps("warningColor")} />
-            </InputGroup>
-        </FormEntry>
-        <FormEntry label={Initial.dlabels.normalColor}>
-            <InputGroup>
-                <Form.Control type="color" {...fieldProps("normalColor")} />
-                <Form.Control type="text" {...fieldProps("normalColor")} />
-            </InputGroup>
-        </FormEntry>
     </> : null
     const circularProps = circular ? <>
         <FormEntry label={Initial.dlabels.barConfig}>
@@ -70,8 +52,8 @@ function Editor({ control, setProp, globals }) {
         <FormEntry label={Initial.dlabels.barParams}>
             <InputGroup>
                 <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
-                <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" disabled={!custom} />
-                <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" disabled={!custom} />
+                <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" />
+                <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" />
             </InputGroup>
         </FormEntry>
     </> : null
@@ -112,6 +94,24 @@ function Editor({ control, setProp, globals }) {
             {customOrCircularProps}
             {circularProps}
             {customProps}
+            <FormEntry label={Initial.dlabels.criticalColor}>
+                <InputGroup>
+                    <Form.Control type="color" {...fieldProps("criticalColor")} />
+                    <Form.Control type="text" {...fieldProps("criticalColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.warningColor}>
+                <InputGroup>
+                    <Form.Control type="color" {...fieldProps("warningColor")} />
+                    <Form.Control type="text" {...fieldProps("warningColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.normalColor}>
+                <InputGroup>
+                    <Form.Control type="color" {...fieldProps("normalColor")} />
+                    <Form.Control type="text" {...fieldProps("normalColor")} />
+                </InputGroup>
+            </FormEntry>
         </>
     )
 }
@@ -147,9 +147,9 @@ function getMinMax(data, type, trim) {
 
 function backColors(standard, data) {
     return {
-        normal: standard ? "#b7d7e8" : (data.bgEnabled ? data.bgColor : data.normalColor),
-        warning: standard ? "#87bdd8" : (data.bgEnabled ? data.bgColor : data.warningColor),
-        critical: standard ? "#667292" : (data.bgEnabled ? data.bgColor : data.criticalColor),
+        normal: standard ? data.normalColor : (data.bgEnabled ? data.bgColor : data.normalColor),
+        warning: standard ? data.warningColor : (data.bgEnabled ? data.bgColor : data.warningColor),
+        critical: standard ? data.criticalColor : (data.bgEnabled ? data.bgColor : data.criticalColor),
     }
 }
 
@@ -187,7 +187,7 @@ function Renderer({ size, control, value }) {
     const circular = data.orientation === "Circular"
     const vertical = data.orientation === "Vertical"
     const standard = data.style === "Standard"
-    const opacity = standard ? "1.0" : data.barOpacity
+    const opacity = data.barOpacity
     const input = getMinMax(data, "input")
     const warning = getMinMax(data, "warning", input)
     const normal = getMinMax(data, "normal", input)
@@ -209,7 +209,7 @@ function Renderer({ size, control, value }) {
     warning.id = `warning-${control.id}`
     input.mask = standard ? "" : `url(#${input.id})`
     warning.mask = standard ? "" : `url(#${warning.id})`
-    const grayscale = standard ? {} : { filter: `grayscale(${level.grayscale})` }
+    const grayscale = { filter: `grayscale(${level.grayscale})` }
     if (!circular) {
         const wide = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
