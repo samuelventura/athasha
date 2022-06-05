@@ -7,7 +7,7 @@ function merge(target) {
     return target
 }
 
-const orientations = ["Vertical", "Horizontal", "Circular"]
+const orientations = ["Circular", "Vertical", "Horizontal"]
 const styles = ["Standard", "Custom"]
 
 function data() {
@@ -17,6 +17,11 @@ function data() {
         barZero: "0",
         barSpan: "180",
         barWidth: "10",
+        barRatio: "1",
+        barOpacity: "0.1",
+        barGrayscale: "0",
+        bgEnabled: false,
+        bgColor: "#f8f8f8",
         inputMin: "0",
         inputMax: "10000",
         normalMin: "4000",
@@ -32,10 +37,16 @@ function data() {
 const dlabels = {
     orientation: "Orientation",
     style: "Look & Feel",
-    barRange: "Bar Config",
+    barConfig: "Bar Config",
     barZero: "Bar Zero",
     barSpan: "Bar Span",
     barWidth: "Bar Width",
+    barParams: "Bar Params",
+    barRatio: "Bar Ratio",
+    barOpacity: "Bar Opacity",
+    barGrayscale: "Bar Grayscale",
+    bgEnabled: "Background Enabled",
+    bgColor: "Background",
     inputRange: "Input Range",
     inputMin: "Input Range Minimum",
     inputMax: "Input Range Maximum",
@@ -55,6 +66,11 @@ const dhints = {
     barZero: "Non empty number [-180, 180]",
     barSpan: "Non empty number (0, 360]",
     barWidth: "Non empty number > 0",
+    barRatio: "Non empty number (0, 1]",
+    barOpacity: "Non empty number (0, 1]",
+    barGrayscale: "Non empty number [0, 1]",
+    bgEnabled: "Uncheck for transparent background",
+    bgColor: "Non empty background color #RRGGBB",
     inputMin: "Non empty number (same as critical)",
     inputMax: "Non empty number (same as critical)",
     normalMin: "Non empty number",
@@ -96,6 +112,35 @@ const dchecks = {
         Check.notEmpty(value, dlabels.barWidth)
         Check.isNumber(value, dlabels.barWidth)
         Check.isGT(value, dlabels.barWidth, 0)
+    },
+    barRatio: function (value) {
+        Check.isString(value, dlabels.barRatio)
+        Check.notEmpty(value, dlabels.barRatio)
+        Check.isNumber(value, dlabels.barRatio)
+        Check.isGT(value, dlabels.barRatio, 0)
+        Check.isLE(value, dlabels.barRatio, 1)
+    },
+    barOpacity: function (value) {
+        Check.isString(value, dlabels.barOpacity)
+        Check.notEmpty(value, dlabels.barOpacity)
+        Check.isNumber(value, dlabels.barOpacity)
+        Check.isGT(value, dlabels.barOpacity, 0)
+        Check.isLE(value, dlabels.barOpacity, 1)
+    },
+    barGrayscale: function (value) {
+        Check.isString(value, dlabels.barGrayscale)
+        Check.notEmpty(value, dlabels.barGrayscale)
+        Check.isNumber(value, dlabels.barGrayscale)
+        Check.isGE(value, dlabels.barGrayscale, 0)
+        Check.isLE(value, dlabels.barGrayscale, 1)
+    },
+    bgEnabled: function (value) {
+        Check.isBoolean(value, dlabels.bgEnabled)
+    },
+    bgColor: function (value) {
+        Check.isString(value, dlabels.bgColor)
+        Check.notEmpty(value, dlabels.bgColor)
+        Check.isColor(value, dlabels.bgColor)
     },
     inputMin: function (value) {
         Check.isString(value, dlabels.inputMin)

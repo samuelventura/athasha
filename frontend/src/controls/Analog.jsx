@@ -26,7 +26,18 @@ function Editor({ control, setProp, globals }) {
         args.defval = Initial.data()[prop]
         return Check.props(args)
     }
-    const customProps = data.style === "Custom" ? <>
+    const custom = data.style === "Custom"
+    const circular = data.orientation === "Circular"
+    const customProps = custom ? <>
+        <FormEntry label={Initial.dlabels.bgColor}>
+            <InputGroup>
+                <InputGroup.Checkbox checked={data.bgEnabled}
+                    onChange={e => setProp("bgEnabled", e.target.checked)}
+                    title={Initial.dlabels.bgEnabled} />
+                <Form.Control type="color" {...fieldProps("bgColor")} />
+                <Form.Control type="text" {...fieldProps("bgColor")} />
+            </InputGroup>
+        </FormEntry>
         <FormEntry label={Initial.dlabels.criticalColor}>
             <InputGroup>
                 <Form.Control type="color" {...fieldProps("criticalColor")} />
@@ -46,12 +57,21 @@ function Editor({ control, setProp, globals }) {
             </InputGroup>
         </FormEntry>
     </> : null
-    const circularProps = data.orientation === "Circular" ? <>
-        <FormEntry label={Initial.dlabels.barRange}>
+    const circularProps = circular ? <>
+        <FormEntry label={Initial.dlabels.barConfig}>
             <InputGroup>
                 <Form.Control type="number" {...fieldProps("barZero")} min="-180" max="180" />
                 <Form.Control type="number" {...fieldProps("barSpan")} min="0" max="360" />
                 <Form.Control type="number" {...fieldProps("barWidth")} min="0" />
+            </InputGroup>
+        </FormEntry>
+    </> : null
+    const customOrCircularProps = custom || circular ? <>
+        <FormEntry label={Initial.dlabels.barParams}>
+            <InputGroup>
+                <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
+                <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" disabled={!custom} />
+                <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" disabled={!custom} />
             </InputGroup>
         </FormEntry>
     </> : null
@@ -89,6 +109,7 @@ function Editor({ control, setProp, globals }) {
                     <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
+            {customOrCircularProps}
             {circularProps}
             {customProps}
         </>
@@ -126,9 +147,9 @@ function getMinMax(data, type, trim) {
 
 function backColors(standard, data) {
     return {
-        normal: standard ? "#b7d7e8" : data.normalColor,
-        warning: standard ? "#87bdd8" : data.warningColor,
-        critical: standard ? "#667292" : data.criticalColor,
+        normal: standard ? "#b7d7e8" : (data.bgEnabled ? data.bgColor : data.normalColor),
+        warning: standard ? "#87bdd8" : (data.bgEnabled ? data.bgColor : data.warningColor),
+        critical: standard ? "#667292" : (data.bgEnabled ? data.bgColor : data.criticalColor),
     }
 }
 
@@ -166,7 +187,7 @@ function Renderer({ size, control, value }) {
     const circular = data.orientation === "Circular"
     const vertical = data.orientation === "Vertical"
     const standard = data.style === "Standard"
-    const opacity = standard ? "1.0" : "0.2"
+    const opacity = standard ? "1.0" : data.barOpacity
     const input = getMinMax(data, "input")
     const warning = getMinMax(data, "warning", input)
     const normal = getMinMax(data, "normal", input)
@@ -175,10 +196,11 @@ function Renderer({ size, control, value }) {
     const bgColors = backColors(standard, data)
     const fgColors = foreColors(standard, data)
     const level = {
-        ratio: 0.4,
         width: 2,
         value: trimmed,
+        ratio: data.barRatio,
         color: calcLevelColor(status, fgColors),
+        grayscale: Number(data.barGrayscale),
     }
     const alert = {
         color: calcAlertColor(status, fgColors),
@@ -187,6 +209,7 @@ function Renderer({ size, control, value }) {
     warning.id = `warning-${control.id}`
     input.mask = standard ? "" : `url(#${input.id})`
     warning.mask = standard ? "" : `url(#${warning.id})`
+    const grayscale = standard ? {} : { filter: `grayscale(${level.grayscale})` }
     if (!circular) {
         const wide = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
@@ -220,11 +243,11 @@ function Renderer({ size, control, value }) {
                         <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
                     </mask>
                     <g transform={transform}>
-                        <rect x={0} y={0} width={width} height={input.len}
+                        <rect x={0} y={0} width={width} height={input.len} style={grayscale}
                             fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                        <rect x={0} y={warning.ini} width={width} height={warning.len}
+                        <rect x={0} y={warning.ini} width={width} height={warning.len} style={grayscale}
                             fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                        <rect x={0} y={normal.ini} width={width} height={normal.len}
+                        <rect x={0} y={normal.ini} width={width} height={normal.len} style={grayscale}
                             fill={bgColors.normal} fillOpacity={opacity} />
                         {standard ? alert.elem : null}
                         {standard ? level.cursor : level.bar}
@@ -252,11 +275,11 @@ function Renderer({ size, control, value }) {
                         <rect y={0} x={warning.ini} height={width} width={warning.len} fill="white" />
                         <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
                     </mask>
-                    <rect y={0} x={0} height={width} width={input.len}
+                    <rect y={0} x={0} height={width} width={input.len} style={grayscale}
                         fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                    <rect y={0} x={warning.ini} height={width} width={warning.len}
+                    <rect y={0} x={warning.ini} height={width} width={warning.len} style={grayscale}
                         fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                    <rect y={0} x={normal.ini} height={width} width={normal.len}
+                    <rect y={0} x={normal.ini} height={width} width={normal.len} style={grayscale}
                         fill={bgColors.normal} fillOpacity={opacity} />
                     {standard ? alert.elem : null}
                     {standard ? level.cursor : level.bar}
@@ -268,6 +291,7 @@ function Renderer({ size, control, value }) {
             width: Number(data.barWidth),
             zero: Number(data.barZero),
             span: Number(data.barSpan),
+            ratio: Number(data.barRatio),
         }
         const center = { cx: size.width / 2, cy: size.height / 2 }
         //ensure radious wont go negative
@@ -295,12 +319,12 @@ function Renderer({ size, control, value }) {
         level.bar = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
             strokeWidth={bar.width * level.ratio} stroke={level.color} strokeDasharray={level.dash} />
         const rotate = `rotate(${bar.zero + 180}, ${center.cx}, ${center.cy})`
-        alert.radius = f(radius - bar.width / 2)
+        alert.width = bar.width * bar.ratio
+        alert.radius = f(radius - bar.width / 2 - alert.width / 2)
         alert.arc = alert.radius * Math.PI * bar.span / 180
         alert.dash = `${alert.arc}  ${perimeter}`
         alert.elem = standard ? <circle r={alert.radius} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={bar.width} stroke={alert.color} strokeDasharray={alert.dash} /> : null
-        console.log(control.id, warning.dash)
+            strokeWidth={alert.width} stroke={alert.color} strokeDasharray={alert.dash} /> : null
         return <>
             <svg>
                 <mask id={input.id} maskUnits="userSpaceOnUse">
@@ -319,11 +343,11 @@ function Renderer({ size, control, value }) {
                 </mask>
                 <g transform={rotate}>
                     {alert.elem}
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
                         strokeWidth={bar.width} stroke={bgColors.critical} strokeDasharray={input.dash} mask={input.mask} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
                         strokeWidth={bar.width} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warning.mask} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity}
+                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
                         strokeWidth={bar.width} stroke={bgColors.normal} strokeDasharray={normal.dash} />
                     {standard ? level.cursor : level.bar}
                 </g>
