@@ -120,7 +120,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
     const { vb, sx, sy } = calcGeom(parent, setts)
-    const background = setts.bgColor
+    const background = setts.backColor
     const controlList = controls.map((control, index) => {
         const csetts = control.setts
         const x = csetts.posX * sx
@@ -130,7 +130,7 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const size = { width: w, height: h }
         const output = control.setts.output
         const hasHover = output && hover === index
-        const hoverColor = setts.hvColor
+        const hoverColor = setts.hoverColor
         const isPressed = output && pressed === index
         const controller = Controls.getController(control.type)
         const getter = () => { return Input.getter(csetts, inputs) }

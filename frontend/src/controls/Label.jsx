@@ -63,13 +63,13 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
                     <Form.Control type="text" {...fieldProps("fgColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.bgColor}>
+            <FormEntry label={Initial.clabels.backColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.bgEnabled}
-                        onChange={e => setProp("bgEnabled", e.target.checked)}
-                        title={Initial.clabels.bgEnabled} />
-                    <Form.Control type="color" {...fieldProps("bgColor")} />
-                    <Form.Control type="text" {...fieldProps("bgColor")} />
+                    <InputGroup.Checkbox checked={cond.backColored}
+                        onChange={e => setProp("backColored", e.target.checked)}
+                        title={Initial.clabels.backColored} />
+                    <Form.Control type="color" {...fieldProps("backColor")} />
+                    <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.clabels.brColor}>
@@ -139,13 +139,13 @@ function Editor({ control, setProp, globals }) {
                             <Form.Control type="text" {...fieldProps("fgColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.bgColor}>
+                    <FormEntry label={Initial.dlabels.backColor}>
                         <InputGroup>
-                            <InputGroup.Checkbox checked={data.bgEnabled}
-                                onChange={e => setProp("bgEnabled", e.target.checked)}
-                                title={Initial.dlabels.bgEnabled} />
-                            <Form.Control type="color" {...fieldProps("bgColor")} />
-                            <Form.Control type="text" {...fieldProps("bgColor")} />
+                            <InputGroup.Checkbox checked={data.backColored}
+                                onChange={e => setProp("backColored", e.target.checked)}
+                                title={Initial.dlabels.backColored} />
+                            <Form.Control type="color" {...fieldProps("backColor")} />
+                            <Form.Control type="text" {...fieldProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.brColor}>
@@ -202,7 +202,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
     //puts am ugly shadow rectangle in non rounded labels
     //non passing a default background restricts the 
     //mouse action to the drawn paths instead of the whole area
-    let bgColor = data.bgEnabled ? data.bgColor : "none"
+    let backColor = data.backColored ? data.backColor : "none"
 
     function evalCondition(cond, value) {
         const param1 = Number(cond.param1)
@@ -232,7 +232,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
                 break
         }
         if (met) {
-            if (cond.bgEnabled) bgColor = cond.bgColor
+            if (cond.backColored) backColor = cond.backColor
             if (cond.fgEnabled) fgColor = cond.fgColor
             if (cond.brEnabled) brColor = cond.brColor
             switch (cond.txType) {
@@ -264,7 +264,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
 
     const font = data.ftFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
-    const clickBg = data.bgEnabled ? data.bgColor : (background || "none")
+    const clickBg = data.backColored ? data.backColor : (background || "none")
     const clickFt = isPressed ? "url(#pressed)" : "none"
     const clickArea = data.output ? <rect x={halfBorder} y={halfBorder}
         width={size.width - fullBorder} height={size.height - fullBorder}
@@ -279,7 +279,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             </filter>
             {clickArea}
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={bgColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
+                fill={backColor} strokeWidth={data.brWidth} stroke={brColor} ry={radious} filter={filter} />
             <text x={x} y="50%" dominantBaseline="central" fill={fgColor} filter={filter}
                 textAnchor={textAnchor} fontSize={data.ftSize} fontFamily={font}>
                 {text}

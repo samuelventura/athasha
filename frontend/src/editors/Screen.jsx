@@ -135,8 +135,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     }
     const parent = { pw: cw, ph: ch }
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
-    const invertedBg = invertColor(setts.bgColor, true)
-    const invertedBgBw = invertColor(setts.bgColor, false)
+    const invertedBg = invertColor(setts.backColor, true)
+    const invertedBgBw = invertColor(setts.backColor, false)
     function controlRender(control, index) {
         const csetts = control.setts
         //always draw them inside
@@ -309,7 +309,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                         stroke={invertedBg} strokeWidth="1" />
                 </pattern>
             </defs>
-            <rect width={W} height={H} fill={setts.bgColor} stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
+            <rect width={W} height={H} fill={setts.backColor} stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
             {gridRect}
             {controlList}
             {dragFrame}
@@ -401,16 +401,16 @@ function ScreenEditor({ setShow, setts, setSetts, preview, globals }) {
                     <FormEntry label={Initial.labels.gridY}>
                         <Form.Control type="number" {...settsProps("gridY")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={Initial.labels.bgColor}>
+                    <FormEntry label={Initial.labels.backColor}>
                         <InputGroup>
-                            <Form.Control type="color" {...settsProps("bgColor")} />
-                            <Form.Control type="text" {...settsProps("bgColor")} />
+                            <Form.Control type="color" {...settsProps("backColor")} />
+                            <Form.Control type="text" {...settsProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.labels.hvColor}>
+                    <FormEntry label={Initial.labels.hoverColor}>
                         <InputGroup>
-                            <Form.Control type="color" {...settsProps("hvColor")} />
-                            <Form.Control type="text" {...settsProps("hvColor")} />
+                            <Form.Control type="color" {...settsProps("hoverColor")} />
+                            <Form.Control type="text" {...settsProps("hoverColor")} />
                         </InputGroup>
                     </FormEntry>
                 </ListGroup.Item>

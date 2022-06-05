@@ -52,8 +52,8 @@ function setts() {
         height: '480',
         gridX: '160',
         gridY: '120',
-        bgColor: "#ffffff",
-        hvColor: "#808080",
+        backColor: "#ffffff",
+        hoverColor: "#808080",
     }
 }
 
@@ -104,8 +104,8 @@ const labels = {
     height: "Height",
     gridX: "Grid X",
     gridY: "Grid Y",
-    bgColor: "Background",
-    hvColor: "Hover",
+    backColor: "Back Color",
+    hoverColor: "Hover Color",
 }
 
 const hints = {
@@ -117,8 +117,8 @@ const hints = {
     height: "Non empty integer > 0",
     gridX: "Non empty integer > 0",
     gridY: "Non empty integer > 0",
-    bgColor: "Non empty backgroung color #RRGGBB",
-    hvColor: "Non empty hover color #RRGGBB",
+    backColor: "Non empty backgroung color #RRGGBB",
+    hoverColor: "Non empty hover color #RRGGBB",
 }
 
 const clabels = {
@@ -296,15 +296,15 @@ const checks = {
         Check.isInteger(value, labels.gridY)
         Check.isGE(value, labels.gridY, 1)
     },
-    bgColor: function (value) {
-        Check.isString(value, labels.bgColor)
-        Check.notEmpty(value, labels.bgColor)
-        Check.isColor(value, labels.bgColor)
+    backColor: function (value) {
+        Check.isString(value, labels.backColor)
+        Check.notEmpty(value, labels.backColor)
+        Check.isColor(value, labels.backColor)
     },
-    hvColor: function (value) {
-        Check.isString(value, labels.hvColor)
-        Check.notEmpty(value, labels.hvColor)
-        Check.isColor(value, labels.hvColor)
+    hoverColor: function (value) {
+        Check.isString(value, labels.hoverColor)
+        Check.notEmpty(value, labels.hoverColor)
+        Check.isColor(value, labels.hoverColor)
     },
 }
 

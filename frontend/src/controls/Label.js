@@ -60,8 +60,8 @@ function cond() {
         negate: false,
         txType: txTypes[0],
         txText: "",
-        bgEnabled: false,
-        bgColor: "#ffffff",
+        backColored: false,
+        backColor: "#ffffff",
         fgEnabled: false,
         fgColor: "#ffffff",
         brEnabled: false,
@@ -76,8 +76,8 @@ function data() {
         fgColor: "#000000",
         ftSize: "10",
         ftFamily: ftFamilies[0],
-        bgEnabled: false,
-        bgColor: "#ffffff",
+        backColored: false,
+        backColor: "#ffffff",
         brWidth: "0",
         brColor: "#000000",
         brRadius: "0",
@@ -93,8 +93,8 @@ const dlabels = {
     fgColor: "Text Color",
     ftSize: "Font Size",
     ftFamily: "Font Family",
-    bgEnabled: "Background Enabled",
-    bgColor: "Background",
+    backColored: "Back Color Enabled",
+    backColor: "Back Color",
     brWidth: "Border Width",
     brColor: "Border Color",
     brRadius: "Border Radius",
@@ -106,8 +106,8 @@ const dhints = {
     fgColor: "Non empty text color #RRGGBB",
     ftSize: "Non empty integer > 0",
     ftFamily: "Select family from list",
-    bgEnabled: "Uncheck for transparent background",
-    bgColor: "Non empty background color #RRGGBB",
+    backColored: "Uncheck for transparent background",
+    backColor: "Non empty background color #RRGGBB",
     brWidth: "Non empty integer >= 0",
     brColor: "Non empty border color #RRGGBB",
     brRadius: "Non empty number [0,1]",
@@ -138,13 +138,13 @@ const dchecks = {
         Check.notEmpty(value, dlabels.ftFamily)
         Check.inList(value, dlabels.ftFamily, ftFamilies)
     },
-    bgEnabled: function (value) {
-        Check.isBoolean(value, dlabels.bgEnabled)
+    backColored: function (value) {
+        Check.isBoolean(value, dlabels.backColored)
     },
-    bgColor: function (value) {
-        Check.isString(value, dlabels.bgColor)
-        Check.notEmpty(value, dlabels.bgColor)
-        Check.isColor(value, dlabels.bgColor)
+    backColor: function (value) {
+        Check.isString(value, dlabels.backColor)
+        Check.notEmpty(value, dlabels.backColor)
+        Check.isColor(value, dlabels.backColor)
     },
     brWidth: function (value) {
         Check.isString(value, dlabels.brWidth)
@@ -183,8 +183,8 @@ const clabels = {
     negate: "Negate",
     txType: "Text Action",
     txText: "Text Param",
-    bgEnabled: "Background Enabled",
-    bgColor: "Background",
+    backColored: "Back Color Enabled",
+    backColor: "Back Color",
     fgEnabled: "Text Color Enabled",
     fgColor: "Text Color",
     brEnabled: "Border Color Enabled",
@@ -198,8 +198,8 @@ const chints = {
     negate: "Reverse the comparison codition",
     txType: "Select the text action from list",
     txText: "Optional text param",
-    bgEnabled: "Uncheck to leave the default background",
-    bgColor: "Non empty column color #RRGGBB",
+    backColored: "Uncheck for transparent back color",
+    backColor: "Non empty column color #RRGGBB",
     fgEnabled: "Uncheck to leave the default text color",
     fgColor: "Non empty column color #RRGGBB",
     brEnabled: "Uncheck to leave the default border color",
@@ -229,13 +229,13 @@ const cchecks = {
     txText: function (value) {
         Check.isString(value, clabels.txText)
     },
-    bgEnabled: function (value) {
-        Check.isBoolean(value, clabels.bgEnabled)
+    backColored: function (value) {
+        Check.isBoolean(value, clabels.backColored)
     },
-    bgColor: function (value) {
-        Check.isString(value, clabels.bgColor)
-        Check.notEmpty(value, clabels.bgColor)
-        Check.isColor(value, clabels.bgColor)
+    backColor: function (value) {
+        Check.isString(value, clabels.backColor)
+        Check.notEmpty(value, clabels.backColor)
+        Check.isColor(value, clabels.backColor)
     },
     fgEnabled: function (value) {
         Check.isBoolean(value, clabels.fgEnabled)
