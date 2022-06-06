@@ -55,25 +55,12 @@ defmodule AthashaWeb.Socket.Screen do
   end
 
   def handle_info(:logged, state = %{id: id}) do
-    item = PubSub.Runner.get_head(id)
-    config = PubSub.Runner.get_config(id)
-    status = PubSub.Status.get_one(id)
     Bus.register!({:error, id})
     Bus.register!({:status, id})
     Bus.register!({:screen, id})
     Bus.register!({:version, id})
-    initial = PubSub.Screen.initial!(id)
-
-    args = %{
-      id: id,
-      type: item.type,
-      name: item.name,
-      initial: initial,
-      config: config,
-      status: status
-    }
-
-    resp = %{name: "init", args: args}
+    init = PubSub.Screen.init!(id)
+    resp = %{name: "init", args: init}
     reply_text(resp, state)
   end
 

@@ -20,14 +20,16 @@ function reducer(state, { name, args, self }) {
   switch (name) {
     case "init": {
       const next = clone_shallow(state)
-      next.id = args.id
-      next.name = args.name
+      const item = args.item
+      next.id = item.id
+      next.name = item.name
+      next.setts = item.config.setts
+      next.controls = item.config.controls
       next.status = args.status
-      next.setts = args.config.setts
-      next.controls = args.config.controls
       next.inputs = {}
-      Object.keys(args.initial).forEach(iid => {
-        const config = args.initial[iid]
+      const inputs = args.inputs
+      Object.keys(inputs).forEach(iid => {
+        const config = inputs[iid]
         next.inputs[iid] = config.value
       })
       return next

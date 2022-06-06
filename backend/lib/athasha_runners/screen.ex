@@ -1,5 +1,6 @@
 defmodule Athasha.Runner.Screen do
   alias Athasha.Bus
+  alias Athasha.Ports
   alias Athasha.Raise
   alias Athasha.PubSub
   alias Athasha.Environ
@@ -8,13 +9,6 @@ defmodule Athasha.Runner.Screen do
   def clean(item) do
     File.rm(db_path(item.id))
   end
-
-  @sql_create "create table trend (dt INTEGER, input TEXT, value REAL)"
-  @sql_index_dt "create index trend_dt on trend (dt)"
-  @sql_index_input "create index trend_input on trend (input)"
-  @sql_insert "insert into trend (dt, input, value) values (?1, ?2, ?3)"
-  @sql_clean "delete from trend where input = ?1 and dt < ?2"
-  @sql_select "select dt, value from trend where input = ?1"
 
   def run(item) do
     id = item.id
@@ -25,19 +19,8 @@ defmodule Athasha.Runner.Screen do
     period = String.to_integer(setts["period"])
 
     dbpath = db_path(id)
-    exists = File.exists?(dbpath)
-    {:ok, conn} = Exqlite.Sqlite3.open(dbpath)
-
-    if !exists do
-      :ok = Exqlite.Sqlite3.execute(conn, @sql_create)
-      :ok = Exqlite.Sqlite3.execute(conn, @sql_index_dt)
-      :ok = Exqlite.Sqlite3.execute(conn, @sql_index_input)
-    end
-
-    {:ok, setter} = Exqlite.Sqlite3.prepare(conn, @sql_insert)
-    {:ok, cleaner} = Exqlite.Sqlite3.prepare(conn, @sql_clean)
-    {:ok, getter} = Exqlite.Sqlite3.prepare(conn, @sql_select)
-
+    port = connect_port(dbpath)
+    wait_ack(port, :connect)
     now = DateTime.utc_now()
 
     inputs =
@@ -51,10 +34,19 @@ defmodule Athasha.Runner.Screen do
           case trend do
             true ->
               first = DateTime.add(now, -length, :second) |> millis()
-              :ok = Exqlite.Sqlite3.bind(conn, cleaner, [input, first])
-              :done = Exqlite.Sqlite3.step(conn, cleaner)
-              :ok = Exqlite.Sqlite3.bind(conn, getter, [input])
-              read_all(conn, getter)
+              args = %{first: first, input: input}
+              true = Port.command(port, ["s", Jason.encode!(args)])
+              wait_ack(port, :select)
+
+              receive do
+                {^port, {:data, data}} ->
+                  data = Jason.decode!(data)
+                  data = Enum.zip(data["keys"], data["values"])
+                  Enum.into(data, %{})
+
+                {^port, {:exit_status, status}} ->
+                  Raise.error({:receive, {:exit_status, status}})
+              end
 
             false ->
               nil
@@ -72,23 +64,34 @@ defmodule Athasha.Runner.Screen do
         {input, config}
       end)
 
-    db = %{conn: conn, setter: setter, cleaner: cleaner}
-
-    run_once(id, inputs, db)
-    Bus.register!({:screen, :initial, id})
+    run_once(id, inputs, port)
+    Bus.register!({:screen, :init, id})
     PubSub.Status.update!(item, :success, "Running")
     PubSub.Password.register!(item, password)
     Process.send_after(self(), :status, @status)
     Process.send_after(self(), :once, period)
-    run_loop(id, item, inputs, period, db)
+    run_loop(id, item, inputs, period, port)
   end
 
-  defp run_loop(id, item, inputs, period, db) do
-    inputs = wait_once(id, item, inputs, period, db)
-    run_loop(id, item, inputs, period, db)
+  defp wait_ack(port, action) do
+    receive do
+      {^port, {:data, "ok"}} ->
+        :ok
+
+      {^port, {:data, <<"ex:", msg::binary>>}} ->
+        Raise.error({action, msg})
+
+      {^port, {:exit_status, status}} ->
+        Raise.error({:receive, {:exit_status, status}})
+    end
   end
 
-  defp wait_once(id, item, inputs, period, db) do
+  defp run_loop(id, item, inputs, period, port) do
+    inputs = wait_once(id, item, inputs, period, port)
+    run_loop(id, item, inputs, period, port)
+  end
+
+  defp wait_once(id, item, inputs, period, port) do
     receive do
       :status ->
         PubSub.Status.update!(item, :success, "Running")
@@ -96,13 +99,15 @@ defmodule Athasha.Runner.Screen do
         inputs
 
       :once ->
-        inputs = run_once(id, inputs, db)
+        inputs = run_once(id, inputs, port)
         Process.send_after(self(), :once, period)
         inputs
 
-      {{:screen, :initial, ^id}, nil, from} ->
-        initial = Enum.into(inputs, %{})
-        send(from, {:screen, :initial, initial})
+      {{:screen, :init, ^id}, nil, from} ->
+        inputs = Enum.into(inputs, %{})
+        status = PubSub.Status.get_one(id)
+        init = %{item: item, status: status, inputs: inputs}
+        send(from, {:screen, :init, init})
         inputs
 
       other ->
@@ -110,7 +115,7 @@ defmodule Athasha.Runner.Screen do
     end
   end
 
-  defp run_once(id, inputs, db) do
+  defp run_once(id, inputs, port) do
     Enum.map(inputs, fn {input, config} ->
       value = PubSub.Input.get_value(input)
       PubSub.Screen.update!(id, input, value)
@@ -124,13 +129,12 @@ defmodule Athasha.Runner.Screen do
       config =
         case config.trend && dt > config.next do
           true ->
-            :ok = Exqlite.Sqlite3.bind(db.conn, db.setter, [dt, input, value])
-            :done = Exqlite.Sqlite3.step(db.conn, db.setter)
-            last = dt - config.length
-            :ok = Exqlite.Sqlite3.bind(db.conn, db.cleaner, [input, last])
-            :done = Exqlite.Sqlite3.step(db.conn, db.cleaner)
-            values = Map.filter(config.values, fn {dt, _} -> dt > last end)
-            values = Map.put(values, dt, values)
+            first = dt - config.length
+            args = %{dt: dt, first: first, input: input, value: value}
+            true = Port.command(port, ["i", Jason.encode!(args)])
+            wait_ack(port, :select)
+            values = Map.filter(config.values, fn {dt, _} -> dt > first end)
+            values = Map.put(values, dt, value)
             next = dt + config.period
             Map.merge(config, %{next: next, values: values, value: value})
 
@@ -142,17 +146,11 @@ defmodule Athasha.Runner.Screen do
     end)
   end
 
+  defp connect_port(dbpath) do
+    args = [dbpath]
+    Ports.open4("screen", args)
+  end
+
   defp millis(dt), do: DateTime.to_unix(dt, :millisecond)
   defp db_path(id), do: Environ.file_path("screen_#{id}.db3")
-
-  defp read_all(conn, getter, map \\ %{}) do
-    case Exqlite.Sqlite3.step(conn, getter) do
-      :done ->
-        map
-
-      {:row, [dt, value]} ->
-        map = Map.put(map, dt, value)
-        read_all(conn, getter, map)
-    end
-  end
 end

@@ -25,15 +25,13 @@ defmodule Athasha.PubSub.Screen do
     end
   end
 
-  def initial!(id) do
-    Bus.dispatch!({@key, :initial, id}, self())
+  def init!(id) do
+    Bus.dispatch!({@key, :init, id}, self())
 
     receive do
-      {:screen, :initial, initial} ->
-        initial
+      {:screen, :init, init} -> init
     after
-      2000 ->
-        Raise.error({:timeout, :initial})
+      2000 -> Raise.error({:timeout, :init})
     end
   end
 end

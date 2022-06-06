@@ -33,6 +33,7 @@ OPTIONS="--configuration Release --runtime $TARGET --self-contained true"
 case $COMMAND in
     build)
     (cd native/serial && dotnet publish $OPTIONS)
+    (cd native/screen && dotnet publish $OPTIONS)
     (cd native/database && dotnet publish $OPTIONS)
     (cd native/identity && dotnet publish $OPTIONS)
     (cd native/monitor && dotnet publish $OPTIONS)
@@ -40,6 +41,7 @@ case $COMMAND in
     (cd native/perms && dotnet publish $OPTIONS)
     mkdir -p native/ports/priv
     rsync -avr native/serial/$PUBLISH native/ports/priv/dotnet
+    rsync -avr native/screen/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/database/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/identity/$PUBLISH native/ports/priv/dotnet
     rsync -avr native/monitor/$PUBLISH native/ports/priv/dotnet
@@ -53,6 +55,8 @@ case $COMMAND in
         rm -fr native/ports/priv/dotnet
         rm -fr native/serial/bin
         rm -fr native/serial/obj
+        rm -fr native/screen/bin
+        rm -fr native/screen/obj
         rm -fr native/database/bin
         rm -fr native/database/obj
         rm -fr native/identity/bin
