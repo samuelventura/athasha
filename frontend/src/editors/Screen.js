@@ -3,12 +3,14 @@ import Merge from "../tools/Merge"
 import Label from '../controls/Label.js'
 import Analog from '../controls/Analog.js'
 import Image from '../controls/Image.js'
+import Trend from '../controls/Trend.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const controlMap = {}
 controlMap[Label.type] = Label
 controlMap[Image.type] = Image
 controlMap[Analog.type] = Analog
+controlMap[Trend.type] = Trend
 
 function merge(target) {
     const _initial = config()

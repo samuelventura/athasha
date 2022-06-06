@@ -2,6 +2,7 @@ import Frame from '../controls/Frame.jsx'
 import Label from '../controls/Label.jsx'
 import Analog from '../controls/Analog.jsx'
 import Image from '../controls/Image.jsx'
+import Trend from '../controls/Trend.jsx'
 
 const registeredMap = {}
 const registeredList = []
@@ -18,6 +19,7 @@ function register(control, hide) {
 register(Label)
 register(Image)
 register(Analog)
+register(Trend)
 
 function getController(type) {
     return registeredMap[type] || Frame

@@ -189,16 +189,11 @@ const dchecks = {
     },
 }
 
-function validate(control) {
-    Check.validate(control.data, data(), dchecks, "data")
-}
-
 const type = "Analog"
 
 export default {
     type,
     merge,
-    validate,
     data,
     dlabels,
     dchecks,
