@@ -54,11 +54,6 @@ defmodule AthashaWeb.Socket.Screen do
     reply_text(resp, state)
   end
 
-  def handle_info({{:screen, :trend, _self}, nil, inputs}, state) do
-    resp = %{name: "trend", args: inputs}
-    reply_text(resp, state)
-  end
-
   def handle_info(:logged, state = %{id: id}) do
     item = PubSub.Runner.get_head(id)
     config = PubSub.Runner.get_config(id)
@@ -67,9 +62,7 @@ defmodule AthashaWeb.Socket.Screen do
     Bus.register!({:status, id})
     Bus.register!({:screen, id})
     Bus.register!({:version, id})
-    Bus.register!({:screen, :trend, self()})
-    initial = PubSub.Screen.list(id) |> Enum.map(&initial_input/1)
-    PubSub.Screen.request!(id)
+    initial = PubSub.Screen.initial!(id)
 
     args = %{
       id: id,
@@ -123,9 +116,5 @@ defmodule AthashaWeb.Socket.Screen do
   defp reply_text(resp, state) do
     json = Jason.encode!(resp)
     {:reply, :ok, {:text, json}, state}
-  end
-
-  defp initial_input({id, _, value}) do
-    %{id: id, value: value}
   end
 end

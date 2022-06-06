@@ -26,8 +26,9 @@ function reducer(state, { name, args, self }) {
       next.setts = args.config.setts
       next.controls = args.config.controls
       next.inputs = {}
-      args.initial.forEach(input => {
-        next.inputs[input.id] = input.value
+      Object.keys(args.initial).forEach(iid => {
+        const config = args.initial[iid]
+        next.inputs[iid] = config.value
       })
       return next
     }

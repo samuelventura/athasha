@@ -31,6 +31,12 @@ function Editor({ control, setProp, globals }) {
 
     return (
         <>
+            <FormEntry label={Initial.dlabels.sample}>
+                <InputGroup>
+                    <Form.Control type="number" {...fieldProps("samplePeriod")} min="1" />
+                    <Form.Control type="number" {...fieldProps("sampleLength")} min="1" />
+                </InputGroup>
+            </FormEntry>
             <FormEntry label={Initial.dlabels.inputRange}>
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("inputMin")} />

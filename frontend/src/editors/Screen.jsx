@@ -586,13 +586,13 @@ function Editor(props) {
                 const input = control.setts.input
                 const type = control.type
                 if (input.trim().length > 0) {
-                    const trend = inputs[input] || { period: Number.MAX_SAFE_INTEGER, length: 0, enabled: false }
+                    const config = inputs[input] || { period: Number.MAX_SAFE_INTEGER, length: 0, trend: false }
                     if (type == "Trend") {
-                        trend.enabled = true
-                        trend.length = Math.max(trend.length, control.data.sampleLength)
-                        trend.period = Math.min(trend.period, control.data.samplePeriod)
+                        config.trend = true
+                        config.length = Math.max(config.length, control.data.sampleLength)
+                        config.period = Math.min(config.period, control.data.samplePeriod)
                     }
-                    inputs[input] = trend
+                    inputs[input] = config
                 }
                 return inputs
             }, {})

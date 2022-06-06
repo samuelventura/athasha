@@ -24,7 +24,7 @@ function data() {
 }
 
 const dlabels = {
-    sample: "Sample Config",
+    sample: "Sampling",
     samplePeriod: "Sample Period (s)",
     sampleLength: "Sample Length (s)",
     inputRange: "Input Range",

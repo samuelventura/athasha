@@ -9,6 +9,13 @@ defmodule Athasha.Runner.Screen do
     File.rm(db_path(item.id))
   end
 
+  @sql_create "create table trend (dt INTEGER, input TEXT, value REAL)"
+  @sql_index_dt "create index trend_dt on trend (dt)"
+  @sql_index_input "create index trend_input on trend (input)"
+  @sql_insert "insert into trend (dt, input, value) values (?1, ?2, ?3)"
+  @sql_clean "delete from trend where input = ?1 and dt < ?2"
+  @sql_select "select dt, value from trend where input = ?1"
+
   def run(item) do
     id = item.id
     config = item.config
@@ -22,64 +29,53 @@ defmodule Athasha.Runner.Screen do
     {:ok, conn} = Exqlite.Sqlite3.open(dbpath)
 
     if !exists do
-      :ok =
-        Exqlite.Sqlite3.execute(
-          conn,
-          "create table trend (dt INTEGER, input TEXT, value REAL)"
-        )
-
-      :ok = Exqlite.Sqlite3.execute(conn, "create index trend_dt on trend (dt)")
-      :ok = Exqlite.Sqlite3.execute(conn, "create index trend_input on trend (input)")
+      :ok = Exqlite.Sqlite3.execute(conn, @sql_create)
+      :ok = Exqlite.Sqlite3.execute(conn, @sql_index_dt)
+      :ok = Exqlite.Sqlite3.execute(conn, @sql_index_input)
     end
 
-    {:ok, setter} =
-      Exqlite.Sqlite3.prepare(conn, "insert into trend (dt, input, value) values (?1, ?2, ?3)")
-
-    {:ok, cleaner} =
-      Exqlite.Sqlite3.prepare(
-        conn,
-        "delete from trend where input = ?1 and dt < ?2"
-      )
-
-    {:ok, getter} = Exqlite.Sqlite3.prepare(conn, "select dt, value from trend where input = ?1")
+    {:ok, setter} = Exqlite.Sqlite3.prepare(conn, @sql_insert)
+    {:ok, cleaner} = Exqlite.Sqlite3.prepare(conn, @sql_clean)
+    {:ok, getter} = Exqlite.Sqlite3.prepare(conn, @sql_select)
 
     now = DateTime.utc_now()
 
     inputs =
-      Enum.map(inputs, fn {input, trend} ->
+      Enum.map(inputs, fn {input, config} ->
         PubSub.Screen.register!(id, input)
-        enabled = trend["enabled"]
-        period = trend["period"]
-        length = trend["length"]
+        trend = config["trend"]
+        period = 1000 * config["period"]
+        length = 1000 * config["length"]
 
         values =
-          case enabled do
+          case trend do
             true ->
-              first = DateTime.add(now, -length, :second) |> DateTime.to_unix(:millisecond)
+              first = DateTime.add(now, -length, :second) |> millis()
               :ok = Exqlite.Sqlite3.bind(conn, cleaner, [input, first])
               :done = Exqlite.Sqlite3.step(conn, cleaner)
               :ok = Exqlite.Sqlite3.bind(conn, getter, [input])
               read_all(conn, getter)
 
             false ->
-              %{}
+              nil
           end
 
-        trend = %{
-          next: DateTime.utc_now() |> DateTime.to_unix(:millisecond),
-          enabled: enabled,
-          period: 1000 * period,
-          length: 1000 * length,
-          values: values
+        config = %{
+          next: DateTime.utc_now() |> millis(),
+          period: period,
+          length: length,
+          values: values,
+          trend: trend,
+          value: nil
         }
 
-        {input, trend}
+        {input, config}
       end)
 
     db = %{conn: conn, setter: setter, cleaner: cleaner}
 
     run_once(id, inputs, db)
-    Bus.register!({:screen, :trend, id})
+    Bus.register!({:screen, :initial, id})
     PubSub.Status.update!(item, :success, "Running")
     PubSub.Password.register!(item, password)
     Process.send_after(self(), :status, @status)
@@ -104,9 +100,9 @@ defmodule Athasha.Runner.Screen do
         Process.send_after(self(), :once, period)
         inputs
 
-      {{:screen, :trend, ^id}, nil, from} ->
-        data = Enum.into(inputs, %{})
-        PubSub.Screen.response!(from, data)
+      {{:screen, :initial, ^id}, nil, from} ->
+        initial = Enum.into(inputs, %{})
+        send(from, {:screen, :initial, initial})
         inputs
 
       other ->
@@ -115,7 +111,7 @@ defmodule Athasha.Runner.Screen do
   end
 
   defp run_once(id, inputs, db) do
-    Enum.map(inputs, fn {input, trend} ->
+    Enum.map(inputs, fn {input, config} ->
       value = PubSub.Input.get_value(input)
       PubSub.Screen.update!(id, input, value)
 
@@ -123,29 +119,30 @@ defmodule Athasha.Runner.Screen do
         Raise.error({:missing, input})
       end
 
-      dt = DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+      dt = DateTime.utc_now() |> millis()
 
-      trend =
-        case trend.enabled && dt > trend.next do
+      config =
+        case config.trend && dt > config.next do
           true ->
             :ok = Exqlite.Sqlite3.bind(db.conn, db.setter, [dt, input, value])
             :done = Exqlite.Sqlite3.step(db.conn, db.setter)
-            last = dt - trend.length
+            last = dt - config.length
             :ok = Exqlite.Sqlite3.bind(db.conn, db.cleaner, [input, last])
             :done = Exqlite.Sqlite3.step(db.conn, db.cleaner)
-            values = Map.filter(trend.values, fn {dt, _} -> dt > last end)
-            values = Map.put(values, dt, value)
-            next = dt + trend.period
-            Map.merge(trend, %{next: next, values: values})
+            values = Map.filter(config.values, fn {dt, _} -> dt > last end)
+            values = Map.put(values, dt, values)
+            next = dt + config.period
+            Map.merge(config, %{next: next, values: values, value: value})
 
           _ ->
-            trend
+            Map.put(config, :value, value)
         end
 
-      {input, trend}
+      {input, config}
     end)
   end
 
+  defp millis(dt), do: DateTime.to_unix(dt, :millisecond)
   defp db_path(id), do: Environ.file_path("screen_#{id}.db3")
 
   defp read_all(conn, getter, map \\ %{}) do

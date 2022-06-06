@@ -1,5 +1,6 @@
 defmodule Athasha.PubSub.Screen do
   alias Athasha.Store
+  alias Athasha.Raise
   alias Athasha.Bus
 
   @key :screen
@@ -24,13 +25,15 @@ defmodule Athasha.PubSub.Screen do
     end
   end
 
-  @trend :trend
+  def initial!(id) do
+    Bus.dispatch!({@key, :initial, id}, self())
 
-  def response!(from, inputs) do
-    Bus.dispatch!({@key, @trend, from}, inputs)
-  end
-
-  def request!(id) do
-    Bus.dispatch!({@key, @trend, id}, self())
+    receive do
+      {:screen, :initial, initial} ->
+        initial
+    after
+      2000 ->
+        Raise.error({:timeout, :initial})
+    end
   end
 end
