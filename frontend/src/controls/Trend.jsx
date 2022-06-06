@@ -6,6 +6,8 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
+// import "react-datepicker/dist/react-datepicker.css";
+// import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
 
 function Editor({ control, setProp, globals }) {
     const captured = globals.captured

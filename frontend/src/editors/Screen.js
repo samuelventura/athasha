@@ -1,5 +1,5 @@
 import Check from '../common/Check'
-import Merge from "../tools/Merge"
+import Merge from "../common/Merge"
 import Label from '../controls/Label.js'
 import Analog from '../controls/Analog.js'
 import Image from '../controls/Image.js'

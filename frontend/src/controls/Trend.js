@@ -1,5 +1,5 @@
 import Check from '../common/Check'
-import Merge from "../tools/Merge"
+import Merge from "../common/Merge"
 
 function merge(target) {
     const _initial = data()
@@ -9,7 +9,8 @@ function merge(target) {
 
 function data() {
     return {
-        timeSpan: "10",
+        samplePeriod: "1",
+        sampleLength: "60",
         inputMin: "0",
         inputMax: "10000",
         normalMin: "4000",
@@ -23,6 +24,9 @@ function data() {
 }
 
 const dlabels = {
+    sample: "Sample Config",
+    samplePeriod: "Sample Period (s)",
+    sampleLength: "Sample Length (s)",
     inputRange: "Input Range",
     inputMin: "Input Range Minimum",
     inputMax: "Input Range Maximum",
@@ -38,6 +42,8 @@ const dlabels = {
 }
 
 const dhints = {
+    samplePeriod: "Non empty integer > 0",
+    sampleLength: "Non empty integer > 0",
     barColor: "Non empty background color #RRGGBB",
     inputMin: "Non empty number (same as critical)",
     inputMax: "Non empty number (same as critical)",
@@ -51,6 +57,18 @@ const dhints = {
 }
 
 const dchecks = {
+    samplePeriod: function (value) {
+        Check.isString(value, dlabels.samplePeriod)
+        Check.notEmpty(value, dlabels.samplePeriod)
+        Check.isInteger(value, dlabels.samplePeriod)
+        Check.isGT(value, dlabels.samplePeriod, 0)
+    },
+    sampleLength: function (value) {
+        Check.isString(value, dlabels.sampleLength)
+        Check.notEmpty(value, dlabels.sampleLength)
+        Check.isInteger(value, dlabels.sampleLength)
+        Check.isGT(value, dlabels.sampleLength, 0)
+    },
     inputMin: function (value) {
         Check.isString(value, dlabels.inputMin)
         Check.notEmpty(value, dlabels.inputMin)

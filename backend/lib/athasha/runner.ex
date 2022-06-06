@@ -57,6 +57,7 @@ defmodule Athasha.Runner do
         item = state.items[id]
         stop_if(id, item.enabled)
         {_, state} = pop_in(state, [:items, id])
+        delete(item)
         state
 
       "enable" ->
@@ -116,18 +117,7 @@ defmodule Athasha.Runner do
   defp stop_if(_id, false), do: nil
 
   defp start(item) do
-    modu =
-      case item.type do
-        "Screen" -> Athasha.Runner.Screen
-        "Modbus" -> Athasha.Runner.Modbus
-        "Datalog" -> Athasha.Runner.Datalog
-        "Datalink" -> Athasha.Runner.Datalink
-        "Datafetch" -> Athasha.Runner.Datafetch
-        "Dataplot" -> Athasha.Runner.Dataplot
-        "Laurel" -> Athasha.Runner.Laurel
-        "Opto22" -> Athasha.Runner.Opto22
-      end
-
+    modu = module(item.type)
     id = item.id
     :ok = join_runner(id)
     spec = spec(modu, item)
@@ -137,6 +127,14 @@ defmodule Athasha.Runner do
   defp stop(id) do
     :ok = Runners.remove(id)
     :ok = join_runner(id)
+  end
+
+  defp delete(item) do
+    modu = module(item.type)
+
+    if function_exported?(modu, :clean, 1) do
+      modu.clean(item)
+    end
   end
 
   defp spec(modu, item) do
@@ -168,4 +166,17 @@ defmodule Athasha.Runner do
 
   defp assert_count(count, count), do: nil
   defp assert_count(c1, c2), do: Raise.error({:count, c1, c2})
+
+  defp module(type) do
+    case type do
+      "Screen" -> Athasha.Runner.Screen
+      "Modbus" -> Athasha.Runner.Modbus
+      "Datalog" -> Athasha.Runner.Datalog
+      "Datalink" -> Athasha.Runner.Datalink
+      "Datafetch" -> Athasha.Runner.Datafetch
+      "Dataplot" -> Athasha.Runner.Dataplot
+      "Laurel" -> Athasha.Runner.Laurel
+      "Opto22" -> Athasha.Runner.Opto22
+    end
+  end
 end

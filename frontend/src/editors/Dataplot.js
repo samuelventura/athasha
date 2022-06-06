@@ -1,5 +1,6 @@
 import Check from '../common/Check'
-import Merge from "../tools/Merge"
+import Merge from "../common/Merge"
+import Color from "../common/Color"
 
 function merge(target) {
     const _initial = config()
@@ -35,20 +36,10 @@ function setts() {
     }
 }
 
-function getUniqueColor(n) {
-    const rgb = [0, 0, 0];
-    for (let i = 0; i < 24; i++) {
-        rgb[i % 3] <<= 1;
-        rgb[i % 3] |= n & 0x01;
-        n >>= 1;
-    }
-    return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
-}
-
 function column(index) {
     index = index || 0
     const name = index ? `Column ${index + 1}` : "DateTime"
-    const color = getUniqueColor(index)
+    const color = Color.unique(index)
     return {
         name,
         color

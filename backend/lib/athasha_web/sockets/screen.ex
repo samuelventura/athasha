@@ -43,13 +43,19 @@ defmodule AthashaWeb.Socket.Screen do
   end
 
   def handle_info({{:screen, _id}, nil, {input, value}}, state) do
-    args = %{id: input, value: value}
+    dt = DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+    args = %{id: input, value: value, dt: dt}
     resp = %{name: "input", args: args}
     reply_text(resp, state)
   end
 
   def handle_info({{:status, _id}, nil, status}, state) do
     resp = %{name: "status", args: status}
+    reply_text(resp, state)
+  end
+
+  def handle_info({{:screen, :trend, _self}, nil, inputs}, state) do
+    resp = %{name: "trend", args: inputs}
     reply_text(resp, state)
   end
 
@@ -61,7 +67,9 @@ defmodule AthashaWeb.Socket.Screen do
     Bus.register!({:status, id})
     Bus.register!({:screen, id})
     Bus.register!({:version, id})
+    Bus.register!({:screen, :trend, self()})
     initial = PubSub.Screen.list(id) |> Enum.map(&initial_input/1)
+    PubSub.Screen.request!(id)
 
     args = %{
       id: id,

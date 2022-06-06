@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Filter from '../tools/Filter'
+import Filter from '../common/Filter'
 import { useApp } from '../App'
 
 function useItems() {

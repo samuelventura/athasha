@@ -23,4 +23,14 @@ defmodule Athasha.PubSub.Screen do
       Bus.dispatch!({@key, id}, {input, value})
     end
   end
+
+  @trend :trend
+
+  def response!(from, inputs) do
+    Bus.dispatch!({@key, @trend, from}, inputs)
+  end
+
+  def request!(id) do
+    Bus.dispatch!({@key, @trend, id}, self())
+  end
 end

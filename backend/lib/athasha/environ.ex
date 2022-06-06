@@ -31,9 +31,13 @@ defmodule Athasha.Environ do
     File.write!(password_file(), password)
   end
 
-  defp password_file() do
+  def file_path(filename) do
     root_path = Application.get_env(:athasha, :root_path)
-    Path.join(root_path, "athasha.config.pwd")
+    Path.join(root_path, filename)
+  end
+
+  def password_file() do
+    file_path("athasha.config.pwd")
   end
 
   def load_identity() do

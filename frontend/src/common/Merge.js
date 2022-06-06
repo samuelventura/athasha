@@ -1,4 +1,4 @@
-import Log from './Log'
+import Log from '../tools/Log'
 
 export default function (initial, target, check) {
     Object.keys(target).forEach(key => {
