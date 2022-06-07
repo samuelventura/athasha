@@ -6,7 +6,7 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
-import { CartesianGrid, ScatterChart, Scatter, XAxis, YAxis } from 'recharts';
+import { LineChart, Line, ReferenceLine, XAxis, YAxis } from 'recharts';
 
 function Renderer({ control, size, trend }) {
     const data = control.data
@@ -15,7 +15,6 @@ function Renderer({ control, size, trend }) {
     //local length with accumulated period
     const count = Math.trunc(1000 * data.sampleLength / config.period)
     const init = Math.max(0, full.length - count)
-    const values = full.slice(init, full.length)
     const xmin = Number(data.samplePeriod)
     const xmax = 0
     const ymin = Number(data.inputMin)
@@ -26,13 +25,27 @@ function Renderer({ control, size, trend }) {
     const wmax = Number(data.warningMax)
     const isNormal = (v) => v >= nmin && v <= nmax
     const isWarning = (v) => v >= wmin && v <= wmax
-    const normal = values.filter(e => isNormal(e.val))
-    const warning = values.filter(e => isWarning(e.val) && !isNormal(e.val))
-    const critical = values.filter(e => !isWarning(e.val) && !isNormal(e.val))
+    const values = full.slice(init, full.length).map(e => {
+        const normal = isNormal(e.val)
+        const warning = isWarning(e.val)
+        return {
+            del: e.del,
+            val: e.val,
+            nor: normal ? e.val : null,
+            war: warning && !normal ? e.val : null,
+            cri: !warning && !normal ? e.val : null,
+        }
+    })
+    const backColor = data.backColored ? data.backColor : "none"
+    const lineColor = data.lineColored ? data.lineColor : "none"
+    const gridColor = data.gridColored ? data.gridColor : "none"
     return <svg>
+        <rect width={size.width} height={size.height} fill={backColor}></rect>
         <foreignObject width={size.width} height={size.height}>
-            <ScatterChart width={size.width} height={size.height}>
+            <LineChart width={size.width} height={size.height} data={values}
+                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                 <XAxis
+                    hide={true}
                     type='number'
                     reversed={true}
                     dataKey="del"
@@ -40,23 +53,41 @@ function Renderer({ control, size, trend }) {
                     interval="preserveStartEnd"
                     tickFormatter={() => ""} />
                 <YAxis
-                    dataKey="val"
+                    hide={true}
                     domain={[ymin, ymax]}
                     tickFormatter={() => ""} />
-                <Scatter line shape="cross"
+                <Line
+                    dot={false}
+                    dataKey="val"
+                    strokeWidth={data.lineWidth}
                     isAnimationActive={false}
-                    data={normal}
-                    fill={data.normalColor} />)
-                <Scatter line shape="cross"
+                    stroke={lineColor} />)
+                <Line
+                    dot={false}
+                    dataKey="cri"
+                    strokeWidth={data.lineWidth}
                     isAnimationActive={false}
-                    data={warning}
-                    fill={data.warningColor} />)
-                <Scatter line shape="cross"
+                    fill={data.criticalColor}
+                    stroke={data.criticalColor} />)
+                <Line
+                    dot={false}
+                    dataKey="war"
+                    strokeWidth={data.lineWidth}
                     isAnimationActive={false}
-                    data={critical}
-                    fill={data.criticalColor} />)
-                <CartesianGrid strokeDasharray="1 1" />
-            </ScatterChart>
+                    fill={data.warningColor}
+                    stroke={data.warningColor} />)
+                <Line
+                    dot={false}
+                    dataKey="nor"
+                    strokeWidth={data.lineWidth}
+                    isAnimationActive={false}
+                    fill={data.normalColor}
+                    stroke={data.normalColor} />)
+                <ReferenceLine y={nmin} stroke={gridColor} />
+                <ReferenceLine y={nmax} stroke={gridColor} />
+                <ReferenceLine y={wmin} stroke={gridColor} />
+                <ReferenceLine y={wmax} stroke={gridColor} />
+            </LineChart>
         </foreignObject>
     </svg>
 }
@@ -123,6 +154,36 @@ function Editor({ control, setProp, globals }) {
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("normalColor")} />
                     <Form.Control type="text" {...fieldProps("normalColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.lineWidth}>
+                <Form.Control type="number" {...fieldProps("lineWidth")} min="0" step="1" />
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.lineColor}>
+                <InputGroup>
+                    <InputGroup.Checkbox checked={data.lineColored}
+                        onChange={e => setProp("lineColored", e.target.checked)}
+                        title={Initial.dlabels.lineColored} />
+                    <Form.Control type="color" {...fieldProps("lineColor")} />
+                    <Form.Control type="text" {...fieldProps("lineColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.gridColor}>
+                <InputGroup>
+                    <InputGroup.Checkbox checked={data.gridColored}
+                        onChange={e => setProp("gridColored", e.target.checked)}
+                        title={Initial.dlabels.gridColored} />
+                    <Form.Control type="color" {...fieldProps("gridColor")} />
+                    <Form.Control type="text" {...fieldProps("gridColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={Initial.dlabels.backColor}>
+                <InputGroup>
+                    <InputGroup.Checkbox checked={data.backColored}
+                        onChange={e => setProp("backColored", e.target.checked)}
+                        title={Initial.dlabels.backColored} />
+                    <Form.Control type="color" {...fieldProps("backColor")} />
+                    <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>
             </FormEntry>
         </>

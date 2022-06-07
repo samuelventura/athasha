@@ -20,6 +20,13 @@ function data() {
         normalColor: "#88B407",
         warningColor: "#FF9436",
         criticalColor: "#FC342A",
+        lineWidth: "1",
+        lineColored: false,
+        lineColor: "#f0f0f0",
+        gridColored: false,
+        gridColor: "#f0f0f0",
+        backColored: false,
+        backColor: "#ffffff",
     }
 }
 
@@ -39,6 +46,13 @@ const dlabels = {
     normalColor: "Normal Color",
     warningColor: "Warning Color",
     criticalColor: "Critical Color",
+    backColored: "Back Color Enabled",
+    backColor: "Back Color",
+    lineWidth: "Line Width",
+    lineColored: "Line Color Enabled",
+    lineColor: "Line Color",
+    gridColored: "Grid Color Enabled",
+    gridColor: "Grid Color",
 }
 
 const dhints = {
@@ -54,6 +68,13 @@ const dhints = {
     normalColor: "Non empty normal color #RRGGBB",
     warningColor: "Non empty warning color #RRGGBB",
     criticalColor: "Non empty critical color #RRGGBB",
+    backColored: "Uncheck for transparent back color",
+    backColor: "Non empty back color #RRGGBB",
+    lineWidth: "Non empty integer >= 0",
+    lineColored: "Uncheck for transparent line color",
+    lineColor: "Non empty line color #RRGGBB",
+    gridColored: "Uncheck for transparent grid color",
+    gridColor: "Non empty grid color #RRGGBB",
 }
 
 const dchecks = {
@@ -113,6 +134,36 @@ const dchecks = {
         Check.isString(value, dlabels.criticalColor)
         Check.notEmpty(value, dlabels.criticalColor)
         Check.isColor(value, dlabels.criticalColor)
+    },
+    backColored: function (value) {
+        Check.isBoolean(value, dlabels.backColored)
+    },
+    backColor: function (value) {
+        Check.isString(value, dlabels.backColor)
+        Check.notEmpty(value, dlabels.backColor)
+        Check.isColor(value, dlabels.backColor)
+    },
+    lineWidth: function (value) {
+        Check.isString(value, dlabels.lineWidth)
+        Check.notEmpty(value, dlabels.lineWidth)
+        Check.isInteger(value, dlabels.lineWidth)
+        Check.isGE(value, dlabels.lineWidth, 0)
+    },
+    lineColored: function (value) {
+        Check.isBoolean(value, dlabels.lineColored)
+    },
+    lineColor: function (value) {
+        Check.isString(value, dlabels.lineColor)
+        Check.notEmpty(value, dlabels.lineColor)
+        Check.isColor(value, dlabels.lineColor)
+    },
+    gridColored: function (value) {
+        Check.isBoolean(value, dlabels.gridColored)
+    },
+    gridColor: function (value) {
+        Check.isString(value, dlabels.gridColor)
+        Check.notEmpty(value, dlabels.gridColor)
+        Check.isColor(value, dlabels.gridColor)
     },
 }
 
