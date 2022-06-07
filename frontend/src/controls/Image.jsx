@@ -5,6 +5,7 @@ import { FormEntry } from './Tools'
 import Initial from "./Image.js"
 import Check from '../common/Check'
 import Files from '../tools/Files'
+import Clipboard from '../tools/Clipboard'
 
 const parser = new DOMParser()
 
@@ -12,6 +13,7 @@ function Editor({ control, setProp, globals }) {
     const captured = globals.captured
     const setCaptured = globals.setCaptured
     const data = control.data
+    const valid = !!data.filename
     function fieldProps(prop) {
         function setter(name) {
             return function (value) {
@@ -31,27 +33,47 @@ function Editor({ control, setProp, globals }) {
     const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
     //svg must have viewBox but not width/height just 
     //like svgs exported from google slide
-    function onClick() {
+    function onUpload() {
         Files.uploadText("svg", (txt, fn) => {
             const doc = parser.parseFromString(txt, "image/svg+xml")
             const hvb = doc.documentElement.hasAttribute("viewBox")
-            const w = doc.documentElement.getAttribute("width")
-            const h = doc.documentElement.getAttribute("height")
+            //some svgs have width/height trailed with units like mm/px/...
+            //parseFloat returns NaN for "", null, and undefined
+            const w = parseFloat(doc.documentElement.getAttribute("width"))
+            const h = parseFloat(doc.documentElement.getAttribute("height"))
             doc.documentElement.removeAttribute("width")
             doc.documentElement.removeAttribute("height")
-            if (!hvb && w && h) {
+            if (!hvb && isFinite(w) && isFinite(h)) {
                 doc.documentElement.setAttribute("viewBox", `0 0 ${w} ${h}`)
             }
             const vb = doc.documentElement.getAttribute("viewBox")
-            const svg = (new XMLSerializer()).serializeToString(doc)
-            setProp("content", svg)
-            setProp("filename", fn)
-            setProp("viewBox", vb)
+            if (vb) {
+                const svg = (new XMLSerializer()).serializeToString(doc)
+                setProp("content", svg)
+                setProp("filename", fn)
+                setProp("viewBox", vb)
+            }
         })
+    }
+    function onDownload() {
+        if (!valid) return
+        const fn = data.filename
+        const dot = fn.lastIndexOf('.')
+        const name = fn.slice(0, dot)
+        const ext = fn.slice(dot + 1)
+        Files.downloadText(data.content, name, ext)
+    }
+    function onCopy() {
+        if (!valid) return
+        Clipboard.copyText(data.content)
     }
     return (
         <>
-            <Button variant="link" onClick={onClick}>Select file...</Button>
+            <Button variant="link" onClick={onUpload}>Upload...</Button>
+            <Button variant="link" onClick={onDownload} disabled={!valid}
+                title={data.filename}>Download</Button>
+            <Button variant="link" onClick={onCopy} disabled={!valid}
+                title="Copy SVG Text to Clipboard">Copy</Button>
             <FormEntry label={Initial.dlabels.scale}>
                 <Form.Select {...fieldProps("scale")}>
                     {scaleOptions}

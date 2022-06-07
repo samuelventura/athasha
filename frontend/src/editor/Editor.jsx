@@ -29,7 +29,7 @@ function EditItem() {
                 break
             case "view": {
                 const page = item.type.toLowerCase()
-                window.open(`${page}.html?id=${id}`, '_blank').focus();
+                window.open(`${page}.html?id=${id}`, '_blank').focus()
                 break
             }
             case "save":

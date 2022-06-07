@@ -93,6 +93,8 @@ function csetts() {
         inputOffset: "0",
         outputFactor: "1",
         outputOffset: "0",
+        linkBlank: false,
+        linkURL: "",
     }
 }
 
@@ -144,6 +146,9 @@ const clabels = {
     outputScale: "Output Scale",
     outputFactor: "Output Scale Factor",
     outputOffset: "Output Scale Offset",
+    link: "Link",
+    linkBlank: "Open New Tab",
+    linkURL: "Link URL",
 }
 
 const chints = {
@@ -163,6 +168,8 @@ const chints = {
     inputOffset: "Non empty number b in f(x)=mx+b",
     outputFactor: "Non empty number m in f(x)=mx+b",
     outputOffset: "Non empty number b in f(x)=mx+b",
+    linkBlank: "Check to open link in new tab",
+    linkURL: "Optional URL string",
 }
 
 const cchecks = {
@@ -250,6 +257,12 @@ const cschecks = {
         Check.isString(value, clabels.outputOffset)
         Check.notEmpty(value, clabels.outputOffset)
         Check.isNumber(value, clabels.outputOffset)
+    },
+    linkURL: function (value) {
+        Check.isString(value, clabels.linkURL)
+    },
+    linkBlank: function (value) {
+        Check.isBoolean(value, clabels.linkBlank)
     },
 }
 

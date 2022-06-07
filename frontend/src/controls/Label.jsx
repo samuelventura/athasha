@@ -125,6 +125,15 @@ function Editor({ control, setProp, globals }) {
                             {alignOptions}
                         </Form.Select>
                     </FormEntry>
+                    <FormEntry label={Initial.dlabels.backColor}>
+                        <InputGroup>
+                            <InputGroup.Checkbox checked={data.backColored}
+                                onChange={e => setProp("backColored", e.target.checked)}
+                                title={Initial.dlabels.backColored} />
+                            <Form.Control type="color" {...fieldProps("backColor")} />
+                            <Form.Control type="text" {...fieldProps("backColor")} />
+                        </InputGroup>
+                    </FormEntry>
                     <FormEntry label={Initial.dlabels.fontSize}>
                         <Form.Control type="number" {...fieldProps("fontSize")} min="1" step="1" />
                     </FormEntry>
@@ -137,15 +146,6 @@ function Editor({ control, setProp, globals }) {
                         <InputGroup>
                             <Form.Control type="color" {...fieldProps("textColor")} />
                             <Form.Control type="text" {...fieldProps("textColor")} />
-                        </InputGroup>
-                    </FormEntry>
-                    <FormEntry label={Initial.dlabels.backColor}>
-                        <InputGroup>
-                            <InputGroup.Checkbox checked={data.backColored}
-                                onChange={e => setProp("backColored", e.target.checked)}
-                                title={Initial.dlabels.backColored} />
-                            <Form.Control type="color" {...fieldProps("backColor")} />
-                            <Form.Control type="text" {...fieldProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.borderColor}>

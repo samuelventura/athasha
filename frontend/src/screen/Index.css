@@ -5,6 +5,6 @@ svg text {
    user-select: none;
 }
 
-svg.output:hover {
+svg.click:hover {
     cursor: pointer;
 }

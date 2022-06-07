@@ -129,10 +129,12 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         const h = csetts.height * sy
         const size = { width: w, height: h }
         const output = csetts.output
+        const link = csetts.linkURL.trim()
+        const click = output || link
         const input = csetts.input
-        const hasHover = output && hover === index
+        const hasHover = click && hover === index
         const hoverColor = setts.hoverColor
-        const isPressed = output && pressed === index
+        const isPressed = click && pressed === index
         const controller = Controls.getController(control.type)
         const getter = () => { return Input.getter(csetts, inputs) }
         const scaler = (value) => {
@@ -159,18 +161,23 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
                 }
                 case "up": {
                     if (isPressed) {
-                        switch (csetts.click) {
-                            case "Fixed Value": {
-                                const name = output
-                                const value = scaler(control.setts.value)
-                                send({ name: "write", args: { name, value } })
-                                break
+                        if (output) {
+                            switch (csetts.click) {
+                                case "Fixed Value": {
+                                    const name = output
+                                    const value = scaler(control.setts.value)
+                                    send({ name: "write", args: { name, value } })
+                                    break
+                                }
+                                case "Value Prompt": {
+                                    const title = control.setts.prompt
+                                    dispatch({ name: "prompt", args: { output, title, scaler } })
+                                    break
+                                }
                             }
-                            case "Value Prompt": {
-                                const title = control.setts.prompt
-                                dispatch({ name: "prompt", args: { output, title, scaler } })
-                                break
-                            }
+                        } else if (link) {
+                            if (csetts.linkBlank) window.open(link, '_blank').focus()
+                            else window.location = link
                         }
                     }
                     setPressed(null)
@@ -179,7 +186,7 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
             }
         }
         const title = csetts.title
-        const classes = output ? "output" : ""
+        const classes = click ? "click" : ""
         const overlay = <Tooltip>{title}</Tooltip>
         const trigger = title ? ['hover', 'focus'] : []
         //no mouse event received after modal closes with pointer still within boudaries

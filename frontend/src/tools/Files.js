@@ -8,9 +8,9 @@ function downloadText(data, prefix, ext) {
     const element = document.createElement('a')
     const now = new Date()
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-    const filename = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
+    const timestamp = now.toISOString().replaceAll("-", "").replaceAll(":", "").replaceAll(".", "")
     element.setAttribute('href', 'data:text/plaincharset=utf-8,' + encodeURIComponent(data))
-    element.setAttribute('download', `${prefix}-${filename}.${ext}`)
+    element.setAttribute('download', `${prefix}-${timestamp}.${ext}`)
     element.style.display = 'none'
     element.click()
 }

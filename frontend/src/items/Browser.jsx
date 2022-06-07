@@ -19,7 +19,7 @@ function Browser() {
     function onAction(action) {
         switch (action) {
             case "open-views": {
-                window.open("views.html", '_blank').focus();
+                window.open("views.html", '_blank').focus()
                 break
             }
             case "disable-all": {

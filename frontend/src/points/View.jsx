@@ -19,11 +19,11 @@ function View() {
     }
     function onGetInput(point) {
         const id = btoa(point)
-        window.open(`api/input?id=${id}`, '_blank').focus();
+        window.open(`api/input?id=${id}`, '_blank').focus()
     }
     function onGetOutput(point) {
         const id = btoa(point)
-        window.open(`api/output?id=${id}`, '_blank').focus();
+        window.open(`api/output?id=${id}`, '_blank').focus()
     }
     function formatFloat(value) {
         if (value == null) return null; //for outputs

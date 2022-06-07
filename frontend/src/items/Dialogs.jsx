@@ -131,7 +131,7 @@ function ToolsButton() {
         switch (action) {
             case "buy-license": {
                 const id = app.state.identity
-                window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus();
+                window.open(`https://athasha.io/buy?id=${id}`, '_blank').focus()
                 break
             }
             case "copy-identity": {

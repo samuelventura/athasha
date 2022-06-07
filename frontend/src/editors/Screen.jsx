@@ -207,22 +207,26 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                 case "ArrowDown": {
                     if (event.altKey) actionControl(event.shiftKey ? 'bottom' : 'down', control)
                     else if (event.ctrlKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
+                    else if (event.metaKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
                     else actionControl(event.shiftKey ? 'yinc10' : 'yinc', control)
                     break
                 }
                 case "ArrowUp": {
                     if (event.altKey) actionControl(event.shiftKey ? 'top' : "up", control)
                     else if (event.ctrlKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
+                    else if (event.metaKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
                     else actionControl(event.shiftKey ? 'ydec10' : 'ydec', control)
                     break
                 }
                 case "ArrowLeft": {
                     if (event.ctrlKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
+                    else if (event.metaKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
                     else actionControl(event.shiftKey ? 'xdec10' : 'xdec', control)
                     break
                 }
                 case "ArrowRight": {
                     if (event.ctrlKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
+                    else if (event.metaKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
                     else actionControl(event.shiftKey ? 'xinc10' : 'xinc', control)
                     break
                 }
@@ -447,7 +451,14 @@ function ControlEditor({ setShow, selected, setCSetts, actionControl,
             </Form.Select>
         </FormEntry>
         {promptProp}
-    </> : null
+    </> : <FormEntry label={Initial.clabels.link}>
+        <InputGroup>
+            <InputGroup.Checkbox checked={setts.linkBlank}
+                onChange={e => setCSetts(control, "linkBlank", e.target.checked)}
+                title={Initial.clabels.linkBlank} />
+            <Form.Control type="text" {...settsProps("linkURL")} />
+        </InputGroup>
+    </FormEntry>
 
     return (
         <>

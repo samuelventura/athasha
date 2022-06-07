@@ -72,13 +72,13 @@ function Td({ item, status, upgraded }) {
 
 function onView(item) {
     const page = item.type.toLowerCase()
-    window.open(`${page}.html?id=${item.id}`, '_blank').focus();
+    window.open(`${page}.html?id=${item.id}`, '_blank').focus()
 }
 
 function onEdit(item) {
     const data = { id: item.id, type: item.type }
     const id = btoa(JSON.stringify(data))
-    window.open(`editor.html?id=${id}`, '_blank').focus();
+    window.open(`editor.html?id=${id}`, '_blank').focus()
 }
 
 function Upgraded(props) {
