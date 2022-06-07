@@ -100,8 +100,8 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     }
     const parent = { pw: cw, ph: ch }
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
-    const invertedBg = Color.invert(setts.backColor, true)
-    const invertedBgBw = Color.invert(setts.backColor, false)
+    const gridColor = Color.invert(setts.backColor, true)
+    const borderColor = Color.invert(setts.backColor, true)
     function controlRender(control, index) {
         const csetts = control.setts
         //always draw them inside
@@ -242,7 +242,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         const fillOpacity = isDragged ? "0.5" : "0"
         const controlBorder = !preview ? (
             <rect width="100%" height="100%" fill="white" fillOpacity={fillOpacity}
-                stroke={invertedBgBw} strokeWidth={strokeWidth} strokeOpacity="0.2" />) : null
+                stroke={borderColor} strokeWidth={strokeWidth} strokeOpacity="0.2" />) : null
         const controlEvents = index >= 0 ? {
             onPointerDown: (e) => onPointerDown(e, index, control),
             onPointerMove: (e) => onPointerMove(e),
@@ -275,7 +275,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
                     <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none"
-                        stroke={invertedBg} strokeWidth="1" />
+                        stroke={gridColor} strokeWidth="1" />
                 </pattern>
             </defs>
             <rect width={W} height={H} fill={setts.backColor} stroke="gray" strokeWidth="1" strokeOpacity="0.4" />

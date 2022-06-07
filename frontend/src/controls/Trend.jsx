@@ -17,8 +17,8 @@ function Renderer({ control, size, trend }) {
     //local length with accumulated period
     const count = Math.trunc(1000 * data.sampleLength / config.period)
     const init = Math.max(0, full.length - count)
-    const xmin = Number(data.samplePeriod)
-    const xmax = 0
+    const xmin = 0
+    const xmax = Number(data.sampleLength)
     const ymin = Number(data.inputMin)
     const ymax = Number(data.inputMax)
     const nmin = Number(data.normalMin)
