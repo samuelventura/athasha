@@ -6,34 +6,57 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
-import { CartesianGrid, LineChart, Line, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, ScatterChart, Scatter, XAxis, YAxis } from 'recharts';
 
 function Renderer({ control, size, trend }) {
     const data = control.data
+    const config = trend ? trend : {}
     const full = trend ? trend.values : []
     //local length with accumulated period
-    const count = Math.trunc(1000 * data.sampleLength / trend.period)
+    const count = Math.trunc(1000 * data.sampleLength / config.period)
     const init = Math.max(0, full.length - count)
     const values = full.slice(init, full.length)
+    const xmin = Number(data.samplePeriod)
+    const xmax = 0
     const ymin = Number(data.inputMin)
     const ymax = Number(data.inputMax)
-    // const nmin = Number(data.normalMin)
-    // const nmax = Number(data.normalMax)
-    // const normal = values.filter(e => e.val >= nmin && e.val <= nmax)
+    const nmin = Number(data.normalMin)
+    const nmax = Number(data.normalMax)
+    const wmin = Number(data.warningMin)
+    const wmax = Number(data.warningMax)
+    const isNormal = (v) => v >= nmin && v <= nmax
+    const isWarning = (v) => v >= wmin && v <= wmax
+    const normal = values.filter(e => isNormal(e.val))
+    const warning = values.filter(e => isWarning(e.val) && !isNormal(e.val))
+    const critical = values.filter(e => !isWarning(e.val) && !isNormal(e.val))
     return <svg>
         <foreignObject width={size.width} height={size.height}>
-            <LineChart width={size.width} height={size.height} data={values} fill="gray">
-                <XAxis dataKey="del" interval="preserveStartEnd"
+            <ScatterChart width={size.width} height={size.height}>
+                <XAxis
+                    type='number'
+                    reversed={true}
+                    dataKey="del"
+                    domain={[xmin, xmax]}
+                    interval="preserveStartEnd"
                     tickFormatter={() => ""} />
-                <YAxis domain={[ymin, ymax]}
-                    tickFormatter={() => ""} />
-                <Line type="monotone"
-                    dot={false}
-                    isAnimationActive={false}
+                <YAxis
                     dataKey="val"
-                    stroke="blue" />)
+                    domain={[ymin, ymax]}
+                    tickFormatter={() => ""} />
+                <Scatter line shape="cross"
+                    isAnimationActive={false}
+                    data={normal}
+                    fill={data.normalColor} />)
+                <Scatter line shape="cross"
+                    isAnimationActive={false}
+                    data={warning}
+                    fill={data.warningColor} />)
+                <Scatter line shape="cross"
+                    isAnimationActive={false}
+                    data={critical}
+                    fill={data.criticalColor} />)
                 <CartesianGrid strokeDasharray="1 1" />
-            </LineChart>
+            </ScatterChart>
         </foreignObject>
     </svg>
 }
