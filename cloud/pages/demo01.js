@@ -29,7 +29,10 @@ export default function Demo01() {
             <Image src="/demo01.png" alt="Athasha AllenBradley Micro850"
               layout="responsive" width={960} height={540} priority="lazy" />
           </Tab>
-          <Tab eventKey="live-screen-testing" title="Live Screen Testing">
+          <Tab eventKey="live-screen-testing" title="Live Screen Testing (New)">
+            <YoutubeEmbed embedId="5pvII-DN_-4" />
+          </Tab>
+          <Tab eventKey="live-screen-testing-io" title="Live Screen Testing (With IO)">
             <YoutubeEmbed embedId="Qwzs0qlyGEI" />
           </Tab>
         </Tabs>
