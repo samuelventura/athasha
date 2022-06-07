@@ -6,10 +6,12 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
+import Input from "../screen/Input"
 import { LineChart, Line, ReferenceLine, XAxis, YAxis } from 'recharts';
 
 function Renderer({ control, size, trend }) {
     const data = control.data
+    const setts = control.setts
     const config = trend ? trend : {}
     const full = trend ? trend.values : []
     //local length with accumulated period
@@ -26,14 +28,15 @@ function Renderer({ control, size, trend }) {
     const isNormal = (v) => v >= nmin && v <= nmax
     const isWarning = (v) => v >= wmin && v <= wmax
     const values = full.slice(init, full.length).map(e => {
-        const normal = isNormal(e.val)
-        const warning = isWarning(e.val)
+        const val = Input.scaler(setts, e.val)
+        const normal = isNormal(val)
+        const warning = isWarning(val)
         return {
             del: e.del,
-            val: e.val,
-            nor: normal ? e.val : null,
-            war: warning && !normal ? e.val : null,
-            cri: !warning && !normal ? e.val : null,
+            val: val,
+            nor: normal ? val : null,
+            war: warning && !normal ? val : null,
+            cri: !warning && !normal ? val : null,
         }
     })
     const backColor = data.backColored ? data.backColor : "none"
@@ -56,6 +59,10 @@ function Renderer({ control, size, trend }) {
                     hide={true}
                     domain={[ymin, ymax]}
                     tickFormatter={() => ""} />
+                <ReferenceLine y={nmin} stroke={gridColor} />
+                <ReferenceLine y={nmax} stroke={gridColor} />
+                <ReferenceLine y={wmin} stroke={gridColor} />
+                <ReferenceLine y={wmax} stroke={gridColor} />
                 <Line
                     dot={false}
                     dataKey="val"
@@ -83,10 +90,6 @@ function Renderer({ control, size, trend }) {
                     isAnimationActive={false}
                     fill={data.normalColor}
                     stroke={data.normalColor} />)
-                <ReferenceLine y={nmin} stroke={gridColor} />
-                <ReferenceLine y={nmax} stroke={gridColor} />
-                <ReferenceLine y={wmin} stroke={gridColor} />
-                <ReferenceLine y={wmax} stroke={gridColor} />
             </LineChart>
         </foreignObject>
     </svg>

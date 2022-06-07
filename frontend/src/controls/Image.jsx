@@ -34,8 +34,17 @@ function Editor({ control, setProp, globals }) {
     function onClick() {
         Files.uploadText("svg", (txt, fn) => {
             const doc = parser.parseFromString(txt, "image/svg+xml")
+            const hvb = doc.documentElement.hasAttribute("viewBox")
+            const w = doc.documentElement.getAttribute("width")
+            const h = doc.documentElement.getAttribute("height")
+            doc.documentElement.removeAttribute("width")
+            doc.documentElement.removeAttribute("height")
+            if (!hvb && w && h) {
+                doc.documentElement.setAttribute("viewBox", `0 0 ${w} ${h}`)
+            }
             const vb = doc.documentElement.getAttribute("viewBox")
-            setProp("content", txt)
+            const svg = (new XMLSerializer()).serializeToString(doc)
+            setProp("content", svg)
             setProp("filename", fn)
             setProp("viewBox", vb)
         })

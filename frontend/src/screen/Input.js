@@ -20,6 +20,11 @@ function getter(csetts, inputs) {
     return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
 }
 
+function scaler(csetts, value) {
+    return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
+}
+
 export default {
-    getter
+    getter,
+    scaler,
 }
