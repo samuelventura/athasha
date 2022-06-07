@@ -49,15 +49,17 @@ function DataPlot({ config, data, defs }) {
         //http://numeraljs.com/
         return numeral(v).format(config.setts.yformat)
     }
+    const ywidth = Number(config.setts.ywidth)
     return <ResponsiveContainer height='100%' width='100%'
         className="mt-2">
-        <LineChart width={800} height={400} data={list} fill="gray">
+        <LineChart width={800} height={400} data={list}>
             <Tooltip />
             <Legend />
-            <XAxis dataKey={cols[0].name} interval="preserveStartEnd"
+            <XAxis dataKey={cols[0].name}
+                interval="preserveStartEnd"
                 minTickGap={20}
                 tickFormatter={formatXTick} />
-            <YAxis domain={[ymin, ymax]}
+            <YAxis domain={[ymin, ymax]} width={ywidth}
                 tickFormatter={formatYTick} />
             {plotLines}
         </LineChart>

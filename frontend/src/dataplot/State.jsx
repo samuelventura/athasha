@@ -4,7 +4,7 @@ function initial() {
   return {
     id: "",
     name: "",
-    config: { setts: { ymin: 0, ymax: 100, lineWidth: 1 }, columns: [{ name: "" }] },
+    config: { setts: { ymin: 0, ymax: 100, lineWidth: 1, ywidth: 60 }, columns: [{ name: "" }] },
     status: {},
     data: [],
     version: 0,

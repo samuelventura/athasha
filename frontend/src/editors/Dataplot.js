@@ -32,6 +32,7 @@ function setts() {
         ymin: "0",
         ymax: "100",
         yformat: "0",
+        ywidth: "60",
         lineWidth: "1",
     }
 }
@@ -52,10 +53,11 @@ const labels = {
     password: "Access Password",
     connstr: "Connection String",
     command: "SQL Command",
-    ymin: "Plot Minimum Y Value",
-    ymax: "Plot Maximum Y Value",
-    yformat: "Axis Y Tick Format",
-    lineWidth: "Plot Line Width",
+    ymin: "Min Y Value",
+    ymax: "Max Y Value",
+    yformat: "Y Tick Format",
+    ywidth: "Y Width",
+    lineWidth: "Line Width",
     column: {
         name: "Column Name",
         color: "Column Color",
@@ -81,6 +83,7 @@ const hints = {
     ymin: "Non empty number",
     ymax: "Non empty number",
     yformat: "Use 0.00 for 2 decimal digits",
+    ywidth: "Non empty integer > 0",
     lineWidth: "Non empty integer > 0",
     columns: {
         name: () => "Non empty column name",
@@ -123,6 +126,12 @@ const checks = {
     yformat: function (value) {
         Check.isString(value, labels.yformat)
         Check.notEmpty(value, labels.yformat)
+    },
+    ywidth: function (value) {
+        Check.isString(value, labels.ywidth)
+        Check.notEmpty(value, labels.ywidth)
+        Check.isInteger(value, labels.ywidth)
+        Check.isGE(value, labels.ywidth, 0)
     },
     lineWidth: function (value) {
         Check.isString(value, labels.lineWidth)

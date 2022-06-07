@@ -183,6 +183,11 @@ function Editor(props) {
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
+                    <FloatingLabel label={Initial.labels.ywidth}>
+                        <Form.Control type="number"  {...settsProps("ywidth")} min="0" step="1" />
+                    </FloatingLabel>
+                </Col>
+                <Col xs={2}>
                     <FloatingLabel label={Initial.labels.lineWidth}>
                         <Form.Control type="number"  {...settsProps("lineWidth")} min="1" step="1" />
                     </FloatingLabel>

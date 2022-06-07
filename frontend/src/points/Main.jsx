@@ -45,7 +45,7 @@ function Main() {
         <Navbar bg="light" variant="light">
           <Container>
             <Navbar.Brand>
-              <img src={Logo} alt="Athasha" height="32"></img>
+              <img src={Logo} alt="Athasha" height="40"></img>
             </Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse className="justify-content-end">
