@@ -52,8 +52,11 @@ defmodule Athasha.Runner.Screen do
               nil
           end
 
+        dt = DateTime.utc_now() |> millis()
+
         config = %{
-          next: DateTime.utc_now() |> millis(),
+          dt: dt,
+          next: dt,
           period: period,
           length: length,
           values: values,
@@ -136,7 +139,8 @@ defmodule Athasha.Runner.Screen do
             values = Map.filter(config.values, fn {dt, _} -> dt > first end)
             values = Map.put(values, dt, value)
             next = dt + config.period
-            Map.merge(config, %{next: next, values: values, value: value})
+            PubSub.Screen.update!(id, input, value, dt)
+            Map.merge(config, %{next: next, values: values, value: value, dt: dt})
 
           _ ->
             Map.put(config, :value, value)

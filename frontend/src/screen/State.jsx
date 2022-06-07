@@ -8,6 +8,7 @@ function initial() {
     setts: {},
     controls: [],
     inputs: {},
+    trends: {},
     prompt: {},
   }
 }
@@ -27,10 +28,30 @@ function reducer(state, { name, args, self }) {
       next.controls = item.config.controls
       next.status = args.status
       next.inputs = {}
+      next.trends = {}
       const inputs = args.inputs
       Object.keys(inputs).forEach(iid => {
         const config = inputs[iid]
         next.inputs[iid] = config.value
+        if (config.trend) {
+          const values = Object.keys(config.values).map(key => {
+            const val = config.values[key]
+            const dt = Number(key)
+            const del = (config.dt - dt) / 1000
+            return { dt, val, del }
+          })
+          values.sort((v1, v2) => {
+            if (v1.dt < v2.dt) return -1
+            if (v1.dt > v2.dt) return +1
+            return 0
+          })
+          next.trends[iid] = {
+            dt: config.dt,
+            length: config.length,
+            period: config.period,
+            values: values,
+          }
+        }
       })
       return next
     }
@@ -42,6 +63,23 @@ function reducer(state, { name, args, self }) {
     case "input": {
       const next = clone_shallow(state)
       next.inputs[args.id] = args.value
+      const trend = next.trends[args.id]
+      //idempotency args.dt > trend.dt
+      if (trend && args.dt && args.dt > trend.dt) {
+        const dt = args.dt
+        const val = args.value
+        trend.dt = dt
+        trend.value = val
+        const values = trend.values
+        values.push({ dt, val })
+        values.forEach(e => {
+          e.del = (dt - e.dt) / 1000
+        })
+        const length = trend.length / 1000
+        while (values.length > 0 && values[0].del > length) {
+          values.shift()
+        }
+      }
       return next
     }
     case "prompt": {

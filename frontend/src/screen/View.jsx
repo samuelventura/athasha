@@ -11,9 +11,9 @@ import { useApp } from '../App'
 
 function calcAlign(align, d, D) {
     switch (align) {
-        case 'start': return 0
-        case 'center': return (D - d) / 2
-        case 'end': return (D - d)
+        case 'Start': return 0
+        case 'Center': return (D - d) / 2
+        case 'End': return (D - d)
     }
 }
 
@@ -35,7 +35,7 @@ function calcGeom(parent, setts) {
     let x = 0
     let y = 0
     switch (setts.scale) {
-        case 'fit': {
+        case 'Fit': {
             const wr = W / parent.pw
             const hr = H / parent.ph
             const r = wr > hr ? wr : hr
@@ -113,7 +113,7 @@ function PromptValue() {
     )
 }
 
-function SvgWindow({ setts, controls, inputs, send, dispatch }) {
+function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
     const [hover, setHover] = useState(null)
     const [pressed, setPressed] = useState(null)
     const { ref, width, height } = useResizeDetector()
@@ -128,7 +128,8 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
         const w = csetts.width * sx
         const h = csetts.height * sy
         const size = { width: w, height: h }
-        const output = control.setts.output
+        const output = csetts.output
+        const input = csetts.input
         const hasHover = output && hover === index
         const hoverColor = setts.hoverColor
         const isPressed = output && pressed === index
@@ -139,9 +140,9 @@ function SvgWindow({ setts, controls, inputs, send, dispatch }) {
             return Number(value) * Number(csetts.outputFactor) + Number(csetts.outputOffset)
         }
         const value = getter()
-        const controlInstance = controller.Renderer({ control, size, value, isPressed, hasHover, hoverColor, background })
+        const trend = input ? trends[input] : null
+        const controlInstance = controller.Renderer({ control, size, value, trend, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
-            console.log(action)
             switch (action) {
                 case "enter": {
                     setHover(index)
@@ -214,10 +215,12 @@ function View() {
     const app = useApp()
     const send = app.send
     const dispatch = app.dispatch
-    const setts = app.state.setts
-    const controls = app.state.controls
-    const inputs = app.state.inputs
-    const props = { setts, controls, inputs, send, dispatch }
+    const state = app.state
+    const setts = state.setts
+    const controls = state.controls
+    const inputs = state.inputs
+    const trends = state.trends
+    const props = { setts, controls, inputs, trends, send, dispatch }
     return <>
         <PromptValue />
         <SvgWindow {...props} />

@@ -43,7 +43,12 @@ defmodule AthashaWeb.Socket.Screen do
   end
 
   def handle_info({{:screen, _id}, nil, {input, value}}, state) do
-    dt = DateTime.utc_now() |> DateTime.to_unix(:millisecond)
+    args = %{id: input, value: value}
+    resp = %{name: "input", args: args}
+    reply_text(resp, state)
+  end
+
+  def handle_info({{:screen, _id}, nil, {input, value, dt}}, state) do
     args = %{id: input, value: value, dt: dt}
     resp = %{name: "input", args: args}
     reply_text(resp, state)

@@ -6,8 +6,37 @@ import "../fonts/Fonts.css"
 import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
-// import "react-datepicker/dist/react-datepicker.css";
-// import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, LineChart, Line, XAxis, YAxis } from 'recharts';
+
+function Renderer({ control, size, trend }) {
+    const data = control.data
+    const full = trend ? trend.values : []
+    //local length with accumulated period
+    const count = Math.trunc(1000 * data.sampleLength / trend.period)
+    const init = Math.max(0, full.length - count)
+    const values = full.slice(init, full.length)
+    const ymin = Number(data.inputMin)
+    const ymax = Number(data.inputMax)
+    // const nmin = Number(data.normalMin)
+    // const nmax = Number(data.normalMax)
+    // const normal = values.filter(e => e.val >= nmin && e.val <= nmax)
+    return <svg>
+        <foreignObject width={size.width} height={size.height}>
+            <LineChart width={size.width} height={size.height} data={values} fill="gray">
+                <XAxis dataKey="del" interval="preserveStartEnd"
+                    tickFormatter={() => ""} />
+                <YAxis domain={[ymin, ymax]}
+                    tickFormatter={() => ""} />
+                <Line type="monotone"
+                    dot={false}
+                    isAnimationActive={false}
+                    dataKey="val"
+                    stroke="blue" />)
+                <CartesianGrid strokeDasharray="1 1" />
+            </LineChart>
+        </foreignObject>
+    </svg>
+}
 
 function Editor({ control, setProp, globals }) {
     const captured = globals.captured
@@ -75,14 +104,6 @@ function Editor({ control, setProp, globals }) {
             </FormEntry>
         </>
     )
-}
-
-function Renderer() {
-    return <>
-        <svg>
-
-        </svg>
-    </>
 }
 
 const Type = Initial.type
