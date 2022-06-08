@@ -202,7 +202,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
     //puts am ugly shadow rectangle in non rounded labels
     //non passing a default background restricts the 
     //mouse action to the drawn paths instead of the whole area
-    let backColor = data.backColored ? data.backColor : "white"
+    let backColor = data.backColored ? data.backColor : "none"
 
     function evalCondition(cond, value) {
         const param1 = Number(cond.param1)
@@ -263,7 +263,8 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
     }
 
     //a white fill with zero opacity makes it hoverable
-    const backOpacity = data.backColored ? 1 : 0
+    const backOpacity = backColor == "none" ? 0 : 1
+    backColor = backColor == "none" ? "white" : backColor
     const font = data.fontFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     return (

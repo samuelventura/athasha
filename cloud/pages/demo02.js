@@ -29,7 +29,10 @@ export default function Demo02() {
             <Image src="/demo02.png" alt="Opto22 Learning Center"
               layout="responsive" width={960} height={540} priority="lazy" />
           </Tab>
-          <Tab eventKey="live-screen-testing" title="Live Screen Testing">
+          <Tab eventKey="live-screen-testing-new" title="Live Screen Testing (New)">
+            <YoutubeEmbed embedId="5ymwNVpsa64" />
+          </Tab>
+          <Tab eventKey="live-screen-testing-io" title="Live Screen Testing (With IO)">
             <YoutubeEmbed embedId="D04rBPwaCxk" />
           </Tab>
         </Tabs>
