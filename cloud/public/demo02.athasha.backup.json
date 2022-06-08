@@ -71,7 +71,7 @@
             "click": "Fixed Value",
             "defEnabled": false,
             "defValue": "0",
-            "height": "8",
+            "height": "4",
             "input": "",
             "inputFactor": "1",
             "inputOffset": "0",
@@ -96,15 +96,16 @@
             "criticalColor": "#FC342A",
             "gridColor": "#f0f0f0",
             "gridColored": true,
+            "gridWidth": "1",
             "inputMax": "100",
             "inputMin": "0",
             "lineColor": "#f0f0f0",
             "lineColored": true,
-            "lineWidth": "1",
+            "lineWidth": "2",
             "normalColor": "#88B407",
             "normalMax": "60",
             "normalMin": "40",
-            "sampleLength": "60",
+            "sampleLength": "120",
             "samplePeriod": "1",
             "warningColor": "#FF9436",
             "warningMax": "80",
@@ -1333,7 +1334,7 @@
           "trend": false
         },
         "1b56ecc9-4477-401e-976b-3d0180ee39ca Fuel Level": {
-          "length": 60,
+          "length": 120,
           "period": 1,
           "trend": true
         }
