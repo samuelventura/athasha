@@ -29,6 +29,7 @@ defmodule Athasha.Runner.Screen do
         trend = config["trend"]
         period = 1000 * config["period"]
         length = 1000 * config["length"]
+        half = 500 * config["period"]
 
         values =
           case trend do
@@ -57,6 +58,7 @@ defmodule Athasha.Runner.Screen do
         config = %{
           dt: dt,
           next: dt,
+          half: half,
           period: period,
           length: length,
           values: values,
@@ -132,7 +134,8 @@ defmodule Athasha.Runner.Screen do
       config =
         case config.trend && dt > config.next do
           true ->
-            first = dt - config.length
+            # keep one more since len=4 requires 5 points
+            first = dt - config.length - config.half
             args = %{dt: dt, first: first, input: input, value: value}
             true = Port.command(port, ["i", Jason.encode!(args)])
             wait_ack(port, :select)

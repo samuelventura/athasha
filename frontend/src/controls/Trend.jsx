@@ -7,8 +7,9 @@ import "../fonts/Fonts"
 import Initial from "./Trend.js"
 import Check from '../common/Check'
 import Input from "../screen/Input"
-import { LineChart, Line, ReferenceLine, XAxis, YAxis } from 'recharts';
 
+//to debug this reduce the number of points to 4
+//errors are very clear for small number of points
 function Renderer({ control, size, trend }) {
     const data = control.data
     const setts = control.setts
@@ -16,11 +17,11 @@ function Renderer({ control, size, trend }) {
     const full = trend ? trend.values : []
     //local length with accumulated period
     const count = Math.trunc(1000 * data.sampleLength / config.period)
-    const init = Math.max(0, full.length - count)
-    const xmin = 0
-    const xmax = Number(data.sampleLength)
+    const init = Math.max(0, full.length - count - 1) //one more required
+    const xspan = Number(data.sampleLength)
     const ymin = Number(data.inputMin)
     const ymax = Number(data.inputMax)
+    const yspan = ymax - ymin
     const nmin = Number(data.normalMin)
     const nmax = Number(data.normalMax)
     const wmin = Number(data.warningMin)
@@ -32,6 +33,7 @@ function Renderer({ control, size, trend }) {
         const normal = isNormal(val)
         const warning = isWarning(val)
         return {
+            dt: e.dt,
             del: e.del,
             val: val,
             nor: normal ? val : null,
@@ -39,59 +41,50 @@ function Renderer({ control, size, trend }) {
             cri: !warning && !normal ? val : null,
         }
     })
+    function reducer(list, prop) {
+        const im = list.length - 1
+        const r = list.reduce((p, c, i) => {
+            const t = c.del
+            const v = c[prop]
+            if (v !== null) {
+                if (p.b) p.b += ", "
+                p.b += `${xpos(t)} ${ypos(v)}`
+            }
+            if (v === null || i === im) {
+                if (p.b) p.s.push(p.b)
+                p.b = ""
+            }
+            return p
+        }, { b: "", s: [] })
+        return r.s
+    }
     const backColor = data.backColored ? data.backColor : "none"
     const lineColor = data.lineColored ? data.lineColor : "none"
     const gridColor = data.gridColored ? data.gridColor : "none"
+    function ypos(value) { return size.height * (1 - (value - ymin) / yspan) }
+    function xpos(value) { return size.width * (1 - value / xspan) }
+    const nminp = ypos(nmin)
+    const nmaxp = ypos(nmax)
+    const wminp = ypos(wmin)
+    const wmaxp = ypos(wmax)
+    const valPoints = reducer(values, "val")
+    const valPaths = valPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={lineColor} />)
+    const criPoints = reducer(values, "cri")
+    const criPaths = criPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.criticalColor} />)
+    const warPoints = reducer(values, "war")
+    const warPaths = warPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.warningColor} />)
+    const norPoints = reducer(values, "nor")
+    const norPaths = norPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.normalColor} />)
     return <svg>
         <rect width={size.width} height={size.height} fill={backColor}></rect>
-        <foreignObject width={size.width} height={size.height}>
-            <LineChart width={size.width} height={size.height} data={values}
-                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                <XAxis
-                    hide={true}
-                    type='number'
-                    reversed={true}
-                    dataKey="del"
-                    domain={[xmin, xmax]}
-                    interval="preserveStartEnd"
-                    tickFormatter={() => ""} />
-                <YAxis
-                    hide={true}
-                    domain={[ymin, ymax]}
-                    tickFormatter={() => ""} />
-                <ReferenceLine y={nmin} stroke={gridColor} />
-                <ReferenceLine y={nmax} stroke={gridColor} />
-                <ReferenceLine y={wmin} stroke={gridColor} />
-                <ReferenceLine y={wmax} stroke={gridColor} />
-                <Line
-                    dot={false}
-                    dataKey="val"
-                    strokeWidth={data.lineWidth}
-                    isAnimationActive={false}
-                    stroke={lineColor} />)
-                <Line
-                    dot={false}
-                    dataKey="cri"
-                    strokeWidth={data.lineWidth}
-                    isAnimationActive={false}
-                    fill={data.criticalColor}
-                    stroke={data.criticalColor} />)
-                <Line
-                    dot={false}
-                    dataKey="war"
-                    strokeWidth={data.lineWidth}
-                    isAnimationActive={false}
-                    fill={data.warningColor}
-                    stroke={data.warningColor} />)
-                <Line
-                    dot={false}
-                    dataKey="nor"
-                    strokeWidth={data.lineWidth}
-                    isAnimationActive={false}
-                    fill={data.normalColor}
-                    stroke={data.normalColor} />)
-            </LineChart>
-        </foreignObject>
+        <line x1={0} y1={wminp} x2={size.width} y2={wminp} stroke={gridColor} strokeWidth={data.gridWidth} />
+        <line x1={0} y1={wmaxp} x2={size.width} y2={wmaxp} stroke={gridColor} strokeWidth={data.gridWidth} />
+        <line x1={0} y1={nminp} x2={size.width} y2={nminp} stroke={gridColor} strokeWidth={data.gridWidth} />
+        <line x1={0} y1={nmaxp} x2={size.width} y2={nmaxp} stroke={gridColor} strokeWidth={data.gridWidth} />
+        {valPaths}
+        {criPaths}
+        {warPaths}
+        {norPaths}
     </svg>
 }
 
@@ -160,7 +153,10 @@ function Editor({ control, setProp, globals }) {
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.dlabels.lineWidth}>
-                <Form.Control type="number" {...fieldProps("lineWidth")} min="0" step="1" />
+                <InputGroup>
+                    <Form.Control type="number" {...fieldProps("lineWidth")} min="1" step="1" />
+                    <Form.Control type="number" {...fieldProps("gridWidth")} min="1" step="1" />
+                </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.dlabels.lineColor}>
                 <InputGroup>

@@ -75,7 +75,8 @@ function reducer(state, { name, args, self }) {
         values.forEach(e => {
           e.del = (dt - e.dt) / 1000
         })
-        const length = trend.length / 1000
+        //keep one more since len=4 requires 5 points
+        const length = trend.length / 1000 + 0.5
         while (values.length > 0 && values[0].del > length) {
           values.shift()
         }

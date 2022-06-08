@@ -23,6 +23,7 @@ function data() {
         lineWidth: "1",
         lineColored: false,
         lineColor: "#f0f0f0",
+        gridWidth: "1",
         gridColored: false,
         gridColor: "#f0f0f0",
         backColored: false,
@@ -51,6 +52,7 @@ const dlabels = {
     lineWidth: "Line Width",
     lineColored: "Line Color Enabled",
     lineColor: "Line Color",
+    gridWidth: "Grid Width",
     gridColored: "Grid Color Enabled",
     gridColor: "Grid Color",
 }
@@ -73,6 +75,7 @@ const dhints = {
     lineWidth: "Non empty integer >= 0",
     lineColored: "Uncheck for transparent line color",
     lineColor: "Non empty line color #RRGGBB",
+    gridWidth: "Non empty integer >= 0",
     gridColored: "Uncheck for transparent grid color",
     gridColor: "Non empty grid color #RRGGBB",
 }
@@ -147,7 +150,7 @@ const dchecks = {
         Check.isString(value, dlabels.lineWidth)
         Check.notEmpty(value, dlabels.lineWidth)
         Check.isInteger(value, dlabels.lineWidth)
-        Check.isGE(value, dlabels.lineWidth, 0)
+        Check.isGE(value, dlabels.lineWidth, 1)
     },
     lineColored: function (value) {
         Check.isBoolean(value, dlabels.lineColored)
@@ -156,6 +159,12 @@ const dchecks = {
         Check.isString(value, dlabels.lineColor)
         Check.notEmpty(value, dlabels.lineColor)
         Check.isColor(value, dlabels.lineColor)
+    },
+    gridWidth: function (value) {
+        Check.isString(value, dlabels.gridWidth)
+        Check.notEmpty(value, dlabels.gridWidth)
+        Check.isInteger(value, dlabels.gridWidth)
+        Check.isGE(value, dlabels.gridWidth, 1)
     },
     gridColored: function (value) {
         Check.isBoolean(value, dlabels.gridColored)
