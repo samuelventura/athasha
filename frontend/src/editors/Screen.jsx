@@ -96,6 +96,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     //generated size change events are still valuable
     const resize = useResizeDetector()
     const [dragged, setDragged] = useState(() => initialDragged())
+    const [multi, setMulti] = useState({})
     const ref = resize.ref
     //prevent false positive drags on resize event after control click
     useEffect(() => { dragged.cleanup() }, [resize.width, resize.height])
@@ -111,6 +112,153 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
     const gridColor = Color.invert(setts.backColor, true)
     const borderColor = Color.invert(setts.backColor, true)
+    function applyKeyDown(event, control) {
+        switch (event.code) {
+            case "Delete": {
+                actionControl('del', control)
+                break
+            }
+            case "ArrowDown": {
+                if (event.altKey) actionControl(event.shiftKey ? 'bottom' : 'down', control)
+                else if (event.ctrlKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
+                else if (event.metaKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
+                else actionControl(event.shiftKey ? 'yinc10' : 'yinc', control)
+                break
+            }
+            case "ArrowUp": {
+                if (event.altKey) actionControl(event.shiftKey ? 'top' : "up", control)
+                else if (event.ctrlKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
+                else if (event.metaKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
+                else actionControl(event.shiftKey ? 'ydec10' : 'ydec', control)
+                break
+            }
+            case "ArrowLeft": {
+                if (event.ctrlKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
+                else if (event.metaKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
+                else actionControl(event.shiftKey ? 'xdec10' : 'xdec', control)
+                break
+            }
+            case "ArrowRight": {
+                if (event.ctrlKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
+                else if (event.metaKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
+                else actionControl(event.shiftKey ? 'xinc10' : 'xinc', control)
+                break
+            }
+        }
+    }
+    function svgCoord(el, e, r, o) {
+        o = o || { x: 0, y: 0 }
+        r = r || { width: 0, height: 0 }
+        //unreliable to drag beyond the right and bottom edges
+        const maxX = gx - r.width
+        const maxY = gy - r.height
+        //mouse position pixel coordinates
+        const box = el.getBoundingClientRect()
+        const clientX = e.clientX - box.left
+        const clientY = e.clientY - box.top
+        //control top-left corner in SVG user coordinates
+        const svgX = vp.x + clientX * vp.w / cw
+        const svgY = vp.y + clientY * vp.h / ch
+        //control top-left corner in grid units
+        const posX = fixMinMax(Math.trunc(svgX / sx - o.x), 0, maxX)
+        const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
+        return { posX, posY }
+    }
+    function screenMove(event, final) {
+        const point = svgCoord(ref.current, event)
+        const box = {}
+        box.posX = Math.min(point.posX, dragged.point.posX)
+        box.posY = Math.min(point.posY, dragged.point.posY)
+        box.width = Math.abs(point.posX - dragged.point.posX)
+        box.height = Math.abs(point.posY - dragged.point.posY)
+        box.posX2 = box.posX + box.width
+        box.posY2 = box.posY + box.height
+        const rect = {}
+        rect.posX = `${box.posX}`
+        rect.posY = `${box.posY}`
+        rect.width = `${box.width}`
+        rect.height = `${box.height}`
+        const frame = dragged.frame
+        //strings required to pass fix validation above
+        frame.setts = { ...frame.setts, ...rect }
+        setDragged({ ...dragged, frame })
+        if (final) {
+            const next = {}
+            controls.forEach(c => {
+                const posX = Number(c.setts.posX)
+                const posY = Number(c.setts.posY)
+                const posX2 = posX + Number(c.setts.width)
+                const posY2 = posY + Number(c.setts.height)
+                const inter = Math.max(box.posX, posX) < Math.min(box.posX2, posX2) &&
+                    Math.max(box.posY, posY) < Math.min(box.posY2, posY2)
+                if (inter) next[c.id] = c
+            })
+            setMulti(next)
+        }
+    }
+    function backPointerDown(event) {
+        event.stopPropagation()
+        setSelected(Initial.selected())
+        setMulti({})
+    }
+    function screenPointerDown(event, type) {
+        event.stopPropagation()
+        setSelected(Initial.selected())
+        setMulti({})
+        //only on left button = 0
+        if (event.button) return
+        if (dragged.index >= 0) return //should except
+        const point = svgCoord(ref.current, event)
+        const cleanup = function () {
+            setDragged(initialDragged())
+            event.target.releasePointerCapture(event.pointerId)
+        }
+        const frame = Initial.control()
+        frame.setts.width = "1"
+        frame.setts.height = "1"
+        frame.setts.posX = `${point.posX}`
+        frame.setts.posY = `${point.posY}`
+        setDragged({ type, cleanup, frame, point })
+        event.target.setPointerCapture(event.pointerId)
+    }
+    function screenPointerMove(event) {
+        event.stopPropagation()
+        if (dragged.type) {
+            screenMove(event, false)
+        }
+    }
+    function screenPointerUp(event) {
+        event.stopPropagation()
+        if (dragged.type) {
+            screenMove(event, true)
+            dragged.cleanup()
+        }
+    }
+    //apple trackpads gestures generate capture losses
+    //that prevented dropping because up event never came
+    //when that happen, moves are received with index!=dragged.index
+    function screenLostPointerCapture(event) {
+        event.stopPropagation()
+        if (dragged.type) {
+            screenMove(event, true)
+            dragged.cleanup()
+        }
+    }
+    //onKeyPress wont receive arrows
+    function screenKeyDown(event) {
+        event.stopPropagation()
+        if (event.key === "Escape") setMulti({})
+        else Object.values(multi).forEach(c => applyKeyDown(event, c))
+    }
+    function screenEvents(type) {
+        return {
+            onLostPointerCapture: (e) => screenLostPointerCapture(e, type),
+            onPointerDown: (e) => screenPointerDown(e, type),
+            onPointerMove: (e) => screenPointerMove(e, type),
+            onPointerUp: (e) => screenPointerUp(e, type),
+            onKeyDown: (e) => screenKeyDown(e, type),
+        }
+    }
     function controlRender(control, index) {
         const csetts = control.setts
         //always draw them inside
@@ -123,60 +271,7 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         const y = csetts.posY * sy
         const w = csetts.width * sx
         const h = csetts.height * sy
-        //requires fill != "none" transparent bg achievable with fillOpacity="0"
-        function onClickControl(event) {
-            //prevent screen click and selection clear
-            event.stopPropagation()
-        }
-        function onPointerDown(event, type) {
-            event.stopPropagation()
-            //only on left button = 0
-            if (event.button) return
-            if (dragged.index >= 0) return //should except
-            const setts = control.setts
-            const posX = Number(setts.posX)
-            const posY = Number(setts.posY)
-            const width = Number(setts.width)
-            const height = Number(setts.height)
-            const posX2 = posX + width
-            const posY2 = posY + height
-            const rect = { posX, posY, width, height, posX2, posY2 }
-            const point = svgCoord(ref.current, event)
-            const offset = { x: point.posX - posX, y: point.posY - posY }
-            const cleanup = function () {
-                setDragged(initialDragged())
-                event.target.releasePointerCapture(event.pointerId)
-            }
-            const frame = JSON.parse(JSON.stringify(control))
-            setDragged({ type, index, control, cleanup, frame, point, offset, rect })
-            event.target.setPointerCapture(event.pointerId)
-
-            //firefox click never fires
-            //last change in control settings is applied
-            //to newly selected control if selected right away
-            //select on timeout to sync Checks.props blur
-            //do not select anywhere else
-            setTimeout(() => setSelected({ index, control }), 0)
-        }
-        function svgCoord(el, e, r, o) {
-            o = o || { x: 0, y: 0 }
-            r = r || { width: 0, height: 0 }
-            //unreliable to drag beyond the right and bottom edges
-            const maxX = gx - r.width
-            const maxY = gy - r.height
-            //mouse position pixel coordinates
-            const box = el.getBoundingClientRect()
-            const clientX = e.clientX - box.left
-            const clientY = e.clientY - box.top
-            //control top-left corner in SVG user coordinates
-            const svgX = vp.x + clientX * vp.w / cw
-            const svgY = vp.y + clientY * vp.h / ch
-            //control top-left corner in grid units
-            const posX = fixMinMax(Math.trunc(svgX / sx - o.x), 0, maxX)
-            const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
-            return { posX, posY }
-        }
-        function moveControl(event, final) {
+        function controlMove(event, final) {
             const type = dragged.type
             if (type == "move") {
                 const rect = dragged.rect
@@ -267,69 +362,72 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                 }
             }
         }
-        function onPointerMove(event) {
-            if (dragged.index >= 0) {
-                moveControl(event, false)
+        function controlPointerDown(event, type) {
+            event.stopPropagation()
+            setMulti({})
+            //only on left button = 0
+            if (event.button) return
+            if (dragged.index >= 0) return //should except
+            const setts = control.setts
+            const posX = Number(setts.posX)
+            const posY = Number(setts.posY)
+            const width = Number(setts.width)
+            const height = Number(setts.height)
+            const posX2 = posX + width
+            const posY2 = posY + height
+            const rect = { posX, posY, width, height, posX2, posY2 }
+            const point = svgCoord(ref.current, event)
+            const offset = { x: point.posX - posX, y: point.posY - posY }
+            const cleanup = function () {
+                setDragged(initialDragged())
+                event.target.releasePointerCapture(event.pointerId)
+            }
+            const frame = JSON.parse(JSON.stringify(control))
+            setDragged({ type, index, control, cleanup, frame, point, offset, rect })
+            event.target.setPointerCapture(event.pointerId)
+
+            //firefox click never fires
+            //last change in control settings is applied
+            //to newly selected control if selected right away
+            //select on timeout to sync Checks.props blur
+            //do not select anywhere else
+            setTimeout(() => setSelected({ index, control }), 0)
+        }
+        function controlPointerMove(event) {
+            event.stopPropagation()
+            if (dragged.type) {
+                controlMove(event, false)
             }
         }
-        function onPointerUp(event) {
-            if (dragged.index >= 0) {
-                moveControl(event, true)
+        function controlPointerUp(event) {
+            event.stopPropagation()
+            if (dragged.type) {
+                controlMove(event, true)
                 dragged.cleanup()
             }
         }
         //apple trackpads gestures generate capture losses
         //that prevented dropping because up event never came
         //when that happen, moves are received with index!=dragged.index
-        function onLostPointerCapture(event) {
-            if (dragged.index >= 0) {
-                moveControl(event, true)
+        function controlLostPointerCapture(event) {
+            event.stopPropagation()
+            if (dragged.type) {
+                controlMove(event, true)
                 dragged.cleanup()
             }
         }
         //onKeyPress wont receive arrows
-        function onKeyDown(event) {
-            switch (event.code) {
-                case "Delete": {
-                    actionControl('del', control)
-                    break
-                }
-                case "ArrowDown": {
-                    if (event.altKey) actionControl(event.shiftKey ? 'bottom' : 'down', control)
-                    else if (event.ctrlKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
-                    else if (event.metaKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
-                    else actionControl(event.shiftKey ? 'yinc10' : 'yinc', control)
-                    break
-                }
-                case "ArrowUp": {
-                    if (event.altKey) actionControl(event.shiftKey ? 'top' : "up", control)
-                    else if (event.ctrlKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
-                    else if (event.metaKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
-                    else actionControl(event.shiftKey ? 'ydec10' : 'ydec', control)
-                    break
-                }
-                case "ArrowLeft": {
-                    if (event.ctrlKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
-                    else if (event.metaKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
-                    else actionControl(event.shiftKey ? 'xdec10' : 'xdec', control)
-                    break
-                }
-                case "ArrowRight": {
-                    if (event.ctrlKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
-                    else if (event.metaKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
-                    else actionControl(event.shiftKey ? 'xinc10' : 'xinc', control)
-                    break
-                }
-            }
+        function controlKeyDown(event) {
+            event.stopPropagation()
+            applyKeyDown(event, control)
         }
-        function typedEvents(type, withClass) {
+        function controlEvents(type, withClass) {
             const events = {
-                onPointerDown: (e) => onPointerDown(e, type),
-                onPointerMove: (e) => onPointerMove(e, type),
-                onPointerUp: (e) => onPointerUp(e, type),
-                onClick: (e) => onClickControl(e, type),
-                onLostPointerCapture: (e) => onLostPointerCapture(e, type),
-                onKeyDown: (e) => onKeyDown(e, type),
+                onLostPointerCapture: (e) => controlLostPointerCapture(e, type),
+                onPointerDown: (e) => controlPointerDown(e, type),
+                onPointerMove: (e) => controlPointerMove(e, type),
+                onPointerUp: (e) => controlPointerUp(e, type),
+                onKeyDown: (e) => controlKeyDown(e, type),
             }
             if (withClass) events.className = type
             return events
@@ -337,50 +435,51 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         //white fill with 0 opacity to force css hover pointer
         const size = { width: w, height: h }
         const isSelected = selected.control === control
-        const strokeWidth = isSelected ? "6" : "2"
+        const tickBorder = isSelected || multi[control.id]
+        const strokeWidth = tickBorder ? "6" : "2"
         const controller = Controls.getController(control.type)
         const value = Input.getter(csetts, null)
         const controlInstance = controller.Renderer({ control, size, value })
-        const isDragged = dragged.index === index || index < 0
-        const fillOpacity = isDragged ? "0.5" : "0"
-        const borderOpacity = 0.2
+        const transpFrame = dragged.index === index || index < 0
+        const fillOpacity = transpFrame ? "0.5" : "0"
+        const borderOpacity = isSelected ? 0.1 : 0.2 //resize borders accumulate
         const { msx, msy } = { msx: Math.max(2, sx / 2), msy: Math.max(2, sy / 2) } //min=2 for grids > 1X00
+        const controlEdges = isSelected ? <>
+            <rect x={0} y={0} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeTop", true)} />
+            <rect x={0} y={h - msy} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeBottom", true)} />
+            <rect x={0} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeLeft", true)} />
+            <rect x={w - msx} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeRight", true)} />
+            <rect x={w - msx} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeTopRight", true)} />
+            <rect x={w - msx} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeBottomRight", true)} />
+            <rect x={0} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeTopLeft", true)} />
+            <rect x={0} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeBottomLeft", true)} />
+        </> : null
         const controlBorder = !preview ? (
             <>
                 <rect width="100%" height="100%" fill="white" fillOpacity={fillOpacity}
                     stroke={borderColor} strokeWidth={strokeWidth} strokeOpacity={borderOpacity} />
-                <rect x={0} y={0} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTop", true)} />
-                <rect x={0} y={h - msy} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottom", true)} />
-                <rect x={0} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeLeft", true)} />
-                <rect x={w - msx} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeRight", true)} />
-                <rect x={w - msx} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTopRight", true)} />
-                <rect x={w - msx} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottomRight", true)} />
-                <rect x={0} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTopLeft", true)} />
-                <rect x={0} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottomLeft", true)} />
+                {controlEdges}
             </>
         ) : null
-        const controlEvents = index >= 0 ? typedEvents("move") : {}
+        const moveEvents = index >= 0 ? controlEvents("move") : {}
         //setting tabIndex adds a selection border that extends to the inner contents
         //tabIndex required to receive keyboard events
         const key = control.id
         return (
             <svg key={key} x={x} y={y} tabIndex={index}
                 width={w} height={h} className="draggable"
-                {...controlEvents}>
+                {...moveEvents}>
                 {controlInstance}
                 {controlBorder}
             </svg>
         )
     }
     const controlList = controls.map(controlRender)
-    function onClickScreen() {
-        setSelected(Initial.selected())
-    }
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.1" />) : null
-    const dragFrame = dragged.index >= 0 ? controlRender(dragged.frame, -1) : null
-    return (<svg ref={ref} width="100%" height="100%" onClick={() => onClickScreen()}>
+    const dragFrame = dragged.type ? controlRender(dragged.frame, -1) : null
+    return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
-        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
+        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")} tabIndex={0}>
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
                     <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none"
