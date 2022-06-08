@@ -175,7 +175,7 @@ function Editor({ control, setProp, globals }) {
     )
 }
 
-function Renderer({ control, size, value, isPressed, hasHover, hoverColor, background }) {
+function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -202,7 +202,7 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
     //puts am ugly shadow rectangle in non rounded labels
     //non passing a default background restricts the 
     //mouse action to the drawn paths instead of the whole area
-    let backColor = data.backColored ? data.backColor : "none"
+    let backColor = data.backColored ? data.backColor : "white"
 
     function evalCondition(cond, value) {
         const param1 = Number(cond.param1)
@@ -262,13 +262,10 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
         }
     }
 
+    //a white fill with zero opacity makes it hoverable
+    const backOpacity = data.backColored ? 1 : 0
     const font = data.fontFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
-    const clickBg = data.backColored ? data.backColor : (background || "none")
-    const clickFt = isPressed ? "url(#pressed)" : "none"
-    const clickArea = data.output ? <rect x={halfBorder} y={halfBorder}
-        width={size.width - fullBorder} height={size.height - fullBorder}
-        fill={clickBg} strokeWidth={data.borderWidth} stroke="none" ry={radious} filter={clickFt} /> : null
     return (
         <svg>
             <filter id='hover' colorInterpolationFilters="sRGB">
@@ -277,9 +274,8 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor, backg
             <filter id='pressed' colorInterpolationFilters="sRGB">
                 <feOffset in="SourceGraphic" dx="1" dy="1" />
             </filter>
-            {clickArea}
             <rect x={halfBorder} y={halfBorder} width={size.width - fullBorder} height={size.height - fullBorder}
-                fill={backColor} strokeWidth={data.borderWidth} stroke={borderColor} ry={radious} filter={filter} />
+                fill={backColor} fillOpacity={backOpacity} strokeWidth={data.borderWidth} stroke={borderColor} ry={radious} filter={filter} />
             <text x={x} y="50%" dominantBaseline="central" fill={textColor} filter={filter}
                 textAnchor={textAnchor} fontSize={data.fontSize} fontFamily={font}>
                 {text}

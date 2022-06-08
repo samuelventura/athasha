@@ -21,3 +21,19 @@ svg:focus {
 .form-floating:not(:placeholder-shown) {
     color: silver !important;
 }
+
+.edgeTop, .edgeBottom {
+    cursor: ns-resize
+}
+
+.edgeLeft, .edgeRight {
+    cursor: ew-resize
+}
+
+.edgeTopRight, .edgeBottomLeft {
+    cursor: nesw-resize
+}
+
+.edgeTopLeft, .edgeBottomRight {
+    cursor: nwse-resize
+}

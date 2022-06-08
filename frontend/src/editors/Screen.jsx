@@ -37,6 +37,12 @@ function fixNum(v) {
     return isFinite(v) ? v : 0
 }
 
+function fixMinMax(p, min, max) {
+    if (p < min) return min
+    if (p > max) return max
+    return p
+}
+
 function calcGeom(parent, setts) {
     const align = setts.align
     const W = Number(setts.width)
@@ -72,10 +78,14 @@ function calcGeom(parent, setts) {
 
 function initialDragged() {
     return {
+        type: "",
         index: -1,
-        control: {},
-        cleanup: function () { },
         frame: {},
+        control: {},
+        offset: { x: 0, y: 0 },
+        point: { posX: 0, posY: 0 },
+        cleanup: function () { },
+        rect: { posX: 0, posY: 0, width: 0, height: 0 },
     }
 }
 
@@ -86,7 +96,6 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
     //generated size change events are still valuable
     const resize = useResizeDetector()
     const [dragged, setDragged] = useState(() => initialDragged())
-    const [offset, setOffset] = useState({ x: 0, y: 0 })
     const ref = resize.ref
     //prevent false positive drags on resize event after control click
     useEffect(() => { dragged.cleanup() }, [resize.width, resize.height])
@@ -119,23 +128,29 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
             //prevent screen click and selection clear
             event.stopPropagation()
         }
-        function onPointerDown(event, index, control) {
+        function onPointerDown(event, type) {
+            event.stopPropagation()
             //only on left button = 0
-            if (event.button) return;
+            if (event.button) return
+            if (dragged.index >= 0) return //should except
             const setts = control.setts
             const posX = Number(setts.posX)
             const posY = Number(setts.posY)
             const width = Number(setts.width)
             const height = Number(setts.height)
+            const posX2 = posX + width
+            const posY2 = posY + height
+            const rect = { posX, posY, width, height, posX2, posY2 }
             const point = svgCoord(ref.current, event)
-            setOffset({ x: point.posX - posX, y: point.posY - posY })
+            const offset = { x: point.posX - posX, y: point.posY - posY }
             const cleanup = function () {
                 setDragged(initialDragged())
                 event.target.releasePointerCapture(event.pointerId)
             }
             const frame = JSON.parse(JSON.stringify(control))
-            setDragged({ index, control, cleanup, frame, width, height })
+            setDragged({ type, index, control, cleanup, frame, point, offset, rect })
             event.target.setPointerCapture(event.pointerId)
+
             //firefox click never fires
             //last change in control settings is applied
             //to newly selected control if selected right away
@@ -143,38 +158,113 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
             //do not select anywhere else
             setTimeout(() => setSelected({ index, control }), 0)
         }
-        function fixMinMax(p, min, max) {
-            if (p < min) return min
-            if (p > max) return max
-            return p
-        }
-        function svgCoord(el, e, o) {
+        function svgCoord(el, e, r, o) {
             o = o || { x: 0, y: 0 }
+            r = r || { width: 0, height: 0 }
             //unreliable to drag beyond the right and bottom edges
-            const maxX = gx - dragged.width
-            const maxY = gy - dragged.height
+            const maxX = gx - r.width
+            const maxY = gy - r.height
+            //mouse position pixel coordinates
             const box = el.getBoundingClientRect()
             const clientX = e.clientX - box.left
             const clientY = e.clientY - box.top
+            //control top-left corner in SVG user coordinates
             const svgX = vp.x + clientX * vp.w / cw
             const svgY = vp.y + clientY * vp.h / ch
+            //control top-left corner in grid units
             const posX = fixMinMax(Math.trunc(svgX / sx - o.x), 0, maxX)
             const posY = fixMinMax(Math.trunc(svgY / sy - o.y), 0, maxY)
-            return { svgX, svgY, posX, posY }
+            return { posX, posY }
         }
         function moveControl(event, final) {
-            const point = svgCoord(ref.current, event, offset)
-            point.posX = `${point.posX}`
-            point.posY = `${point.posY}`
-            const frame = dragged.frame
-            //strings required to pass fix validation above
-            frame.setts = { ...frame.setts, ...point }
-            setDragged({ ...dragged, frame })
-            if (final) {
-                const control = dragged.control
-                //prevent unexpected updates
-                if (csetts.posX !== point.posX) setCSetts(control, 'posX', point.posX)
-                if (csetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
+            const type = dragged.type
+            if (type == "move") {
+                const rect = dragged.rect
+                const offset = dragged.offset
+                const point = svgCoord(ref.current, event, rect, offset)
+                point.posX = `${point.posX}`
+                point.posY = `${point.posY}`
+                const frame = dragged.frame
+                //strings required to pass fix validation above
+                frame.setts = { ...frame.setts, ...point }
+                setDragged({ ...dragged, frame })
+                if (final) {
+                    const control = dragged.control
+                    //prevent unexpected updates
+                    if (csetts.posX !== point.posX) setCSetts(control, 'posX', point.posX)
+                    if (csetts.posY !== point.posY) setCSetts(control, 'posY', point.posY)
+                }
+            } else {
+                const point = svgCoord(ref.current, event)
+                const rect = dragged.rect
+                const origin = dragged.point
+                const box = { ...dragged.rect }
+                const deltaX = point.posX - origin.posX
+                const deltaY = point.posY - origin.posY
+                switch (type) {
+                    case "edgeTop":
+                        box.posY += deltaY
+                        box.posY = fixMinMax(box.posY, 0, rect.posY2 - 1)
+                        box.height += rect.posY - box.posY
+                        break
+                    case "edgeLeft":
+                        box.posX += deltaX
+                        box.posX = fixMinMax(box.posX, 0, rect.posX2 - 1)
+                        box.width += rect.posX - box.posX
+                        break
+                    case "edgeBottom":
+                        box.height += deltaY
+                        box.height = fixMinMax(box.height, 1, gy - rect.posY)
+                        break
+                    case "edgeRight":
+                        box.width += deltaX
+                        box.width = fixMinMax(box.width, 1, gx - rect.posX)
+                        break
+                    case "edgeTopLeft":
+                        box.posY += deltaY
+                        box.posY = fixMinMax(box.posY, 0, rect.posY2 - 1)
+                        box.height += rect.posY - box.posY
+                        box.posX += deltaX
+                        box.posX = fixMinMax(box.posX, 0, rect.posX2 - 1)
+                        box.width += rect.posX - box.posX
+                        break
+                    case "edgeTopRight":
+                        box.posY += deltaY
+                        box.posY = fixMinMax(box.posY, 0, rect.posY2 - 1)
+                        box.height += rect.posY - box.posY
+                        box.width += deltaX
+                        box.width = fixMinMax(box.width, 1, gx - rect.posX)
+                        break
+                    case "edgeBottomLeft":
+                        box.height += deltaY
+                        box.height = fixMinMax(box.height, 1, gy - rect.posY)
+                        box.posX += deltaX
+                        box.posX = fixMinMax(box.posX, 0, rect.posX2 - 1)
+                        box.width += rect.posX - box.posX
+                        break
+                    case "edgeBottomRight":
+                        box.height += deltaY
+                        box.height = fixMinMax(box.height, 1, gy - rect.posY)
+                        box.width += deltaX
+                        box.width = fixMinMax(box.width, 1, gx - rect.posX)
+                        break
+                }
+                box.posX = `${box.posX}`
+                box.posY = `${box.posY}`
+                box.width = `${box.width}`
+                box.height = `${box.height}`
+                const frame = dragged.frame
+                //strings required to pass fix validation above
+                frame.setts = { ...frame.setts, ...box }
+                setDragged({ ...dragged, frame })
+                if (final) {
+                    const control = dragged.control
+                    //prevent unexpected updates
+                    if (csetts.posX !== box.posX) setCSetts(control, 'posX', box.posX)
+                    if (csetts.posY !== box.posY) setCSetts(control, 'posY', box.posY)
+                    if (csetts.width !== box.width) setCSetts(control, 'width', box.width)
+                    if (csetts.height !== box.height) setCSetts(control, 'height', box.height)
+                }
             }
         }
         function onPointerMove(event) {
@@ -232,6 +322,19 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
                 }
             }
         }
+        function typedEvents(type, withClass) {
+            const events = {
+                onPointerDown: (e) => onPointerDown(e, type),
+                onPointerMove: (e) => onPointerMove(e, type),
+                onPointerUp: (e) => onPointerUp(e, type),
+                onClick: (e) => onClickControl(e, type),
+                onLostPointerCapture: (e) => onLostPointerCapture(e, type),
+                onKeyDown: (e) => onKeyDown(e, type),
+            }
+            if (withClass) events.className = type
+            return events
+        }
+        //white fill with 0 opacity to force css hover pointer
         const size = { width: w, height: h }
         const isSelected = selected.control === control
         const strokeWidth = isSelected ? "6" : "2"
@@ -240,17 +343,23 @@ function SvgWindow({ setts, controls, selected, setSelected, setCSetts, preview,
         const controlInstance = controller.Renderer({ control, size, value })
         const isDragged = dragged.index === index || index < 0
         const fillOpacity = isDragged ? "0.5" : "0"
+        const borderOpacity = 0.2
+        const { msx, msy } = { msx: Math.max(2, sx / 2), msy: Math.max(2, sy / 2) } //min=2 for grids > 1X00
         const controlBorder = !preview ? (
-            <rect width="100%" height="100%" fill="white" fillOpacity={fillOpacity}
-                stroke={borderColor} strokeWidth={strokeWidth} strokeOpacity="0.2" />) : null
-        const controlEvents = index >= 0 ? {
-            onPointerDown: (e) => onPointerDown(e, index, control),
-            onPointerMove: (e) => onPointerMove(e),
-            onPointerUp: (e) => onPointerUp(e),
-            onClick: (e) => onClickControl(e, index, control),
-            onLostPointerCapture: (e) => onLostPointerCapture(e),
-            onKeyDown: (e) => onKeyDown(e),
-        } : {}
+            <>
+                <rect width="100%" height="100%" fill="white" fillOpacity={fillOpacity}
+                    stroke={borderColor} strokeWidth={strokeWidth} strokeOpacity={borderOpacity} />
+                <rect x={0} y={0} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTop", true)} />
+                <rect x={0} y={h - msy} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottom", true)} />
+                <rect x={0} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeLeft", true)} />
+                <rect x={w - msx} y={0} width={msx} height={h} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeRight", true)} />
+                <rect x={w - msx} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTopRight", true)} />
+                <rect x={w - msx} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottomRight", true)} />
+                <rect x={0} y={0} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeTopLeft", true)} />
+                <rect x={0} y={h - msy} width={msx} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...typedEvents("edgeBottomLeft", true)} />
+            </>
+        ) : null
+        const controlEvents = index >= 0 ? typedEvents("move") : {}
         //setting tabIndex adds a selection border that extends to the inner contents
         //tabIndex required to receive keyboard events
         const key = control.id
