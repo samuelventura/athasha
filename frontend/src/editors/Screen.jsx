@@ -91,16 +91,13 @@ function initialDragged() {
     }
 }
 
-
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
 function SvgWindow({ ctx, preview }) {
     const setts = ctx.state.setts
     const controls = ctx.state.controls
-    const actionControl = (action, control) => State.actionControl(ctx, control.id, action)
-    const setControlSetts = (control, name, value) => State.setControlSetts(ctx, control.id, name, value)
-    const setSelected = (id) => State.setSelected(ctx, id)
-    const setMulti = (ids) => State.setMulti(ctx, ids)
+    const buffered = ctx.buffered
+    const immediate = ctx.immediate
     const multi = ctx.state.multi.reduce((map, id) => {
         const index = ctx.state.indexes[id]
         map[id] = controls[index]
@@ -126,36 +123,37 @@ function SvgWindow({ ctx, preview }) {
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
     const gridColor = Color.invert(setts.backColor, true)
     const borderColor = Color.invert(setts.backColor, true)
-    function applyKeyDown(event, control) {
+    function applyKeyDown(event, mutator, id) {
+        console.log("applyKeyDown", event.code, id)
         switch (event.code) {
             case "Delete": {
-                actionControl('del', control)
+                mutator.actionControl(id, 'del')
                 break
             }
             case "ArrowDown": {
-                if (event.altKey) actionControl(event.shiftKey ? 'bottom' : 'down', control)
-                else if (event.ctrlKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
-                else if (event.metaKey) actionControl(event.shiftKey ? 'hinc10' : 'hinc', control)
-                else actionControl(event.shiftKey ? 'yinc10' : 'yinc', control)
+                if (event.altKey) mutator.actionControl(id, event.shiftKey ? 'bottom' : 'down')
+                else if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'hinc10' : 'hinc')
+                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'hinc10' : 'hinc')
+                else mutator.actionControl(id, event.shiftKey ? 'yinc10' : 'yinc')
                 break
             }
             case "ArrowUp": {
-                if (event.altKey) actionControl(event.shiftKey ? 'top' : "up", control)
-                else if (event.ctrlKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
-                else if (event.metaKey) actionControl(event.shiftKey ? 'hdec10' : 'hdec', control)
-                else actionControl(event.shiftKey ? 'ydec10' : 'ydec', control)
+                if (event.altKey) mutator.actionControl(id, event.shiftKey ? 'top' : "up")
+                else if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'hdec10' : 'hdec')
+                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'hdec10' : 'hdec')
+                else mutator.actionControl(id, event.shiftKey ? 'ydec10' : 'ydec')
                 break
             }
             case "ArrowLeft": {
-                if (event.ctrlKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
-                else if (event.metaKey) actionControl(event.shiftKey ? 'wdec10' : 'wdec', control)
-                else actionControl(event.shiftKey ? 'xdec10' : 'xdec', control)
+                if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'wdec10' : 'wdec')
+                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'wdec10' : 'wdec')
+                else mutator.actionControl(id, event.shiftKey ? 'xdec10' : 'xdec')
                 break
             }
             case "ArrowRight": {
-                if (event.ctrlKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
-                else if (event.metaKey) actionControl(event.shiftKey ? 'winc10' : 'winc', control)
-                else actionControl(event.shiftKey ? 'xinc10' : 'xinc', control)
+                if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'winc10' : 'winc')
+                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'winc10' : 'winc')
+                else mutator.actionControl(id, event.shiftKey ? 'xinc10' : 'xinc')
                 break
             }
         }
@@ -185,17 +183,21 @@ function SvgWindow({ ctx, preview }) {
     }
     function applyPoint(control, point) {
         const setts = control.setts
+        const id = control.id
         point = pointToString(point)
-        if (setts.posX !== point.posX) setControlSetts(control, 'posX', point.posX)
-        if (setts.posY !== point.posY) setControlSetts(control, 'posY', point.posY)
+        if (setts.posX !== point.posX) buffered.setControlSetts(id, 'posX', point.posX)
+        if (setts.posY !== point.posY) buffered.setControlSetts(id, 'posY', point.posY)
+        buffered.apply()
     }
     function applyRect(control, rect) {
         const setts = control.setts
+        const id = control.id
         rect = rectToString(rect)
-        if (setts.posX !== rect.posX) setControlSetts(control, 'posX', rect.posX)
-        if (setts.posY !== rect.posY) setControlSetts(control, 'posY', rect.posY)
-        if (setts.width !== rect.width) setControlSetts(control, 'width', rect.width)
-        if (setts.height !== rect.height) setControlSetts(control, 'height', rect.height)
+        if (setts.posX !== rect.posX) buffered.setControlSetts(id, 'posX', rect.posX)
+        if (setts.posY !== rect.posY) buffered.setControlSetts(id, 'posY', rect.posY)
+        if (setts.width !== rect.width) buffered.setControlSetts(id, 'width', rect.width)
+        if (setts.height !== rect.height) buffered.setControlSetts(id, 'height', rect.height)
+        buffered.apply()
     }
     //calculates the location of a dragged rect within the bounds of the viewport
     function rectLocation(el, e, r, o) {
@@ -238,18 +240,21 @@ function SvgWindow({ ctx, preview }) {
                     Math.max(box.posY, r.posY) < Math.min(box.posY2, r.posY2)
                 if (inter) next.push(c.id)
             })
-            setMulti(next)
+            immediate.setMulti(next)
         }
+    }
+    function clearSelection() {
+        buffered.setSelected()
+        buffered.setMulti()
+        buffered.apply()
     }
     function backPointerDown(event) {
         event.stopPropagation()
-        setSelected()
-        setMulti()
+        clearSelection()
     }
     function screenPointerDown(event, type) {
         event.stopPropagation()
-        setSelected()
-        setMulti()
+        clearSelection()
         //only on left button = 0
         if (event.button) return
         if (dragged.index >= 0) return //should except
@@ -292,13 +297,11 @@ function SvgWindow({ ctx, preview }) {
     //onKeyPress wont receive arrows
     function screenKeyDown(event) {
         event.stopPropagation()
-        if (event.key === "Escape") setMulti()
-        else Object.values(multi).forEach(c => {
-            //only last controls is modified
-            //since each application starts from
-            //the full original controls list
-            applyKeyDown(event, c)
-        })
+        if (event.key === "Escape") immediate.setMulti()
+        else {
+            ctx.state.multi.forEach(id => applyKeyDown(event, buffered, id))
+            buffered.apply()
+        }
     }
     function screenEvents(type) {
         return {
@@ -402,7 +405,7 @@ function SvgWindow({ ctx, preview }) {
         }
         function controlPointerDown(event, type) {
             event.stopPropagation()
-            setMulti()
+            immediate.setMulti()
             //only on left button = 0
             if (event.button) return
             if (dragged.index >= 0) return //should except
@@ -422,7 +425,7 @@ function SvgWindow({ ctx, preview }) {
             //to newly selected control if selected right away
             //select on timeout to sync Checks.props blur
             //do not select anywhere else
-            setTimeout(() => setSelected(control.id), 0)
+            setTimeout(() => immediate.setSelected(control.id), 0)
         }
         function controlPointerMove(event) {
             event.stopPropagation()
@@ -450,7 +453,7 @@ function SvgWindow({ ctx, preview }) {
         //onKeyPress wont receive arrows
         function controlKeyDown(event) {
             event.stopPropagation()
-            applyKeyDown(event, control)
+            applyKeyDown(event, immediate, control.id)
         }
         function controlEvents(type, withClass) {
             const events = {
@@ -530,6 +533,7 @@ function SvgWindow({ ctx, preview }) {
 function LeftPanel({ ctx }) {
     const state = ctx.state
     const setts = state.setts
+    const immediate = ctx.immediate
     function addControl(controller) {
         const control = Initial.control()
         control.setts.width = Math.max(1, Math.trunc(setts.gridX / 10)).toString()
@@ -538,7 +542,7 @@ function LeftPanel({ ctx }) {
         if (controller.Init) {
             control.data = controller.Init()
         }
-        State.addControl(ctx, control)
+        immediate.addControl(control)
     }
     const controlList = Controls.registeredMapper((controller, index) => {
         return (<ListGroup.Item action key={index}
@@ -569,10 +573,11 @@ function ScreenEditor({ ctx, previewControl }) {
     const globals = ctx.globals
     const captured = globals.captured
     const setCaptured = globals.setCaptured
+    const immediate = ctx.immediate
     function settsProps(prop) {
         function setter(name) {
             return function (value) {
-                State.setSetts(ctx, name, value)
+                immediate.setSetts(name, value)
             }
         }
         const args = { captured, setCaptured }
@@ -651,7 +656,8 @@ function ControlEditor({ ctx, previewControl }) {
     const captured = globals.captured
     const setCaptured = globals.setCaptured
     const controller = Controls.getController(control.type)
-    const setProp = (name, value) => State.setControlData(ctx, selected, name, value)
+    const immediate = ctx.immediate
+    const setProp = (name, value) => immediate.setControlData(selected, name, value)
     //needs full setts path to avoid capturing local vars
     const getControl = () => {
         const state = ctx.state
@@ -673,7 +679,7 @@ function ControlEditor({ ctx, previewControl }) {
     function settsProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
-                State.setControlSetts(ctx, selected, name, value)
+                immediate.setControlSetts(selected, name, value)
             }
         }
         const args = { captured, setCaptured }
@@ -722,7 +728,7 @@ function ControlEditor({ ctx, previewControl }) {
             <Form.Control type="text" {...settsProps("linkURL")} />
         </InputGroup>
     </FormEntry>
-    const actionControl = (action) => State.actionControl(ctx, selected, action)
+    const actionControl = (action) => immediate.actionControl(selected, action)
     return (
         <>
             <Card>
@@ -850,6 +856,8 @@ function Editor(props) {
     ctx.left = left
     ctx.setLeft = setLeft
     ctx.globals = props.globals
+    ctx.buffered = State.mutator(ctx, true)
+    ctx.immediate = State.mutator(ctx)
     useEffect(() => {
         //editor passes valid initial config in props
         //event before init is received from server
@@ -857,7 +865,7 @@ function Editor(props) {
         const config = props.config
         const setts = config.setts
         const controls = config.controls
-        State.init(ctx, setts, controls)
+        ctx.immediate.init(setts, controls)
     }, [props.id])
     useEffect(() => {
         if (props.id) {
