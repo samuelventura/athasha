@@ -546,18 +546,24 @@ function SvgWindow({ ctx, preview }) {
     }
     const controlList = controls.map(controlRender)
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.1" />) : null
+    const renderSide = (side) => { return !dragged.type.includes("edge") || dragged.type.includes(side) }
     const renderDrag = () => {
         const frame = dragged.frame
+        if (dragged.type === "multi") return controlRender(frame, -1)
         const dragControl = controlRender(frame, -1)
         const rect = controlRect(frame)
         const [tick, opa, dotted] = [1, 0.4, "2 2"] //low opacity hard to see on dark backgrounds
         const [x1, y1, x2, y2] = [rect.posX * sx, rect.posY * sy, rect.posX2 * sx, rect.posY2 * sy]
+        const left = <line x1={x1} x2={x1} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+        const right = <line x1={x2} x2={x2} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+        const top = <line x1={0} x2={W} y1={y1} y2={y1} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+        const bottom = <line x1={0} x2={W} y1={y2} y2={y2} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
         return <>
             {dragControl}
-            <line x1={x1} x2={x1} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-            <line x1={x2} x2={x2} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-            <line x1={0} x2={W} y1={y1} y2={y1} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-            <line x1={0} x2={W} y1={y2} y2={y2} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+            {renderSide("Left") ? left : null}
+            {renderSide("Right") ? right : null}
+            {renderSide("Top") ? top : null}
+            {renderSide("Bottom") ? bottom : null}
         </>
     }
     const dragFrame = dragged.type ? renderDrag() : null
