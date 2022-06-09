@@ -18,9 +18,20 @@ defmodule Athasha.Runner.Screen do
     inputs = config["inputs"]
     period = String.to_integer(setts["period"])
 
-    dbpath = db_path(id)
-    port = connect_port(dbpath)
-    wait_ack(port, :connect)
+    trends = Enum.count(inputs, fn {_input, config} -> config["trend"] end)
+
+    port =
+      cond do
+        trends > 0 ->
+          dbpath = db_path(id)
+          port = connect_port(dbpath)
+          wait_ack(port, :connect)
+          port
+
+        true ->
+          nil
+      end
+
     now = DateTime.utc_now()
 
     inputs =

@@ -130,7 +130,7 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         const size = { width: w, height: h }
         const output = csetts.output
         const link = csetts.linkURL.trim()
-        const click = output || link
+        const click = !!(output || link)
         const input = csetts.input
         const hasHover = click && hover === index
         const hoverColor = setts.hoverColor
@@ -143,7 +143,7 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         }
         const value = getter()
         const trend = input ? trends[input] : null
-        const controlInstance = controller.Renderer({ control, size, value, trend, isPressed, hasHover, hoverColor, background })
+        const controlInstance = controller.Renderer({ control, size, value, trend, click, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
             switch (action) {
                 case "enter": {

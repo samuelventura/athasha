@@ -106,15 +106,20 @@ function aspectRatio(scale, align) {
     }
 }
 
-function Renderer({ control }) {
+function Renderer({ control, size, click }) {
     const data = control.data
     const valid = !!data.viewBox
     const aspect = aspectRatio(data.scale, data.align)
     const svg = valid ? data.content : "<svg viewBox='0 0 100 100'></svg>"
     const vb = valid ? data.viewBox : '0 0 100 100'
+    console.log(click)
+    const clickBack = click ? <rect width={size.width} height={size.height} fill="white" fillOpacity="0" /> : null
     return (
-        <svg dangerouslySetInnerHTML={{ __html: svg }}
-            preserveAspectRatio={aspect} viewBox={vb}>
+        <svg>
+            {clickBack}
+            <svg dangerouslySetInnerHTML={{ __html: svg }}
+                preserveAspectRatio={aspect} viewBox={vb}>
+            </svg>
         </svg>
     )
 }
