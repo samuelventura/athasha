@@ -7,10 +7,10 @@ function merge(target) {
     checks.cond2 = () => { }
     checks.cond3 = () => { }
     const _initial = data()
-    Merge(_initial, target, (name, value) => checks[name](value))
-    Merge(_initial.cond1, target.cond1, (name, value) => cchecks[name](value))
-    Merge(_initial.cond2, target.cond2, (name, value) => cchecks[name](value))
-    Merge(_initial.cond3, target.cond3, (name, value) => cchecks[name](value))
+    Merge.apply(_initial, target, (name, value) => checks[name](value))
+    Merge.apply(_initial.cond1, target.cond1, (name, value) => cchecks[name](value))
+    Merge.apply(_initial.cond2, target.cond2, (name, value) => cchecks[name](value))
+    Merge.apply(_initial.cond3, target.cond3, (name, value) => cchecks[name](value))
     return target
 }
 

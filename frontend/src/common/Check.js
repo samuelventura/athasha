@@ -43,14 +43,6 @@ function notEmpty(value, label) {
     }
 }
 
-function isPointId(value, label) {
-    checkLabel(label)
-    const index = value.indexOf(" ")
-    if (index !== 36) {
-        throw `${label} ${value} is not point id ${index}`
-    }
-}
-
 function inList(value, label, list) {
     checkLabel(label)
     if (!list.includes(value)) {
@@ -238,7 +230,6 @@ function props({ checkbox, captured, setCaptured, label, hint, defval, getter, s
 
 export default {
     props,
-    isPointId,
     isBoolean,
     isString,
     isArray,

@@ -4,11 +4,11 @@ import Color from "../common/Color"
 
 function merge(target) {
     const _initial = config()
-    Merge(_initial, target)
-    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    Merge.apply(_initial, target)
+    Merge.apply(_initial.setts, target.setts, (name, value) => checks[name](value))
     target.columns.forEach((target, index) => {
         const _initial = column(index)
-        Merge(_initial, target, (name, value) => checks.columns[name](index, value))
+        Merge.apply(_initial, target, (name, value) => checks.columns[name](index, value))
     })
     return target
 }

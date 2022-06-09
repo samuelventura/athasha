@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Initials from '../common/Initials'
 import Types from '../common/Types'
+import Merge from '../common/Merge'
 import Item from "../common/Item"
 import Editors from './Editors'
 import Files from '../tools/Files'
@@ -65,11 +66,11 @@ function EditItem() {
         state.config = isActive() ? cloned() : Initials(type).config()
         state.id = isActive() ? item.id : ""
         state.setter = isActive() ? (next) => {
-            const json1 = JSON.stringify(next)
-            const cloned = JSON.parse(json1)
-            const merged = Initials(type).merge(cloned)
-            const json2 = JSON.stringify(merged)
-            setValid(json1 === json2)
+            Merge.clear()
+            const cloned = Clone.deep(next)
+            Initials(type).merge(cloned)
+            const errors = Merge.get()
+            setValid(errors.total === 0)
             setConfig(next)
         } : () => { }
         return Editors(type)(state)

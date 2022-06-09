@@ -3,15 +3,15 @@ import Merge from "../common/Merge"
 
 function merge(target) {
     const _initial = config()
-    Merge(_initial, target)
-    Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
+    Merge.apply(_initial, target)
+    Merge.apply(_initial.setts, target.setts, (name, value) => checks[name](value))
     target.inputs.forEach((target, index) => {
         const _initial = input(index)
-        Merge(_initial, target, (name, value) => checks.inputs[name](index, value))
+        Merge.apply(_initial, target, (name, value) => checks.inputs[name](index, value))
     })
     target.outputs.forEach((target, index) => {
         const _initial = output(index)
-        Merge(_initial, target, (name, value) => checks.outputs[name](index, value))
+        Merge.apply(_initial, target, (name, value) => checks.outputs[name](index, value))
     })
     return target
 }
