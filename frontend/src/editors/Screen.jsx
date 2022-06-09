@@ -546,7 +546,21 @@ function SvgWindow({ ctx, preview }) {
     }
     const controlList = controls.map(controlRender)
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.1" />) : null
-    const dragFrame = dragged.type ? controlRender(dragged.frame, -1) : null
+    const renderDrag = () => {
+        const frame = dragged.frame
+        const dragControl = controlRender(frame, -1)
+        const rect = controlRect(frame)
+        const [tick, opa, dotted] = [1, 0.4, "2 2"] //low opacity hard to see on dark backgrounds
+        const [x1, y1, x2, y2] = [rect.posX * sx, rect.posY * sy, rect.posX2 * sx, rect.posY2 * sy]
+        return <>
+            {dragControl}
+            <line x1={x1} x2={x1} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+            <line x1={x2} x2={x2} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+            <line x1={0} x2={W} y1={y1} y2={y1} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+            <line x1={0} x2={W} y1={y2} y2={y2} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+        </>
+    }
+    const dragFrame = dragged.type ? renderDrag() : null
     return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")} tabIndex={0}>
