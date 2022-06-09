@@ -124,7 +124,6 @@ function SvgWindow({ ctx, preview }) {
     const gridColor = Color.invert(setts.backColor, true)
     const borderColor = Color.invert(setts.backColor, true)
     function applyKeyDown(event, mutator, id) {
-        console.log("applyKeyDown", event.code, id)
         switch (event.code) {
             case "Delete": {
                 mutator.actionControl(id, 'del')

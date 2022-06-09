@@ -22,12 +22,17 @@ function config() {
     }
 }
 
+//connstr and command defaults for two reasons
+//1. default should provide a working demo
+//2. non-empty required for merge to fail validaiton
+//Encrypt=false
+//TrustServerCertificate=True
 function setts() {
     return {
         database: databases[0],
+        connstr: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+        command: "SELECT DT, COL1 FROM dataplot WHERE DT>=@FROM AND DT<=@TO",
         dbpass: "",
-        connstr: "",
-        command: "",
         password: "",
         ymin: "0",
         ymax: "100",

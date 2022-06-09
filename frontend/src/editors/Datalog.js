@@ -22,10 +22,15 @@ function config() {
     }
 }
 
+//connstr and command defaults for two reasons
+//1. default should provide a working demo
+//2. non-empty required for merge to fail validaiton
+//Encrypt=false
+//TrustServerCertificate=True
 function setts() {
     return {
-        connstr: "",
-        command: "",
+        connstr: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+        command: "INSERT INTO dataplot (COL1) VALUES (@1)",
         database: databases[0],
         dbpass: "",
         period: "1",

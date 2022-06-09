@@ -45,7 +45,6 @@ function moduleIndex(state, index) {
 }
 
 function reducer(state, { name, args }) {
-    console.log("reducer", name, args)
     args = Clone.deep(args)
     state = Clone.deep(state)
     return mutate(state, { name, args })
@@ -54,7 +53,7 @@ function reducer(state, { name, args }) {
 function mutate(state, { name, args }) {
     const version = state.version
     const mut = { version, name, args }
-    Log.log("mutate", version, name, args)
+    // Log.log("mutate", version, name, args)
     switch (name) {
         case "set": {
             state = args.state
@@ -202,7 +201,6 @@ const mutator = (ctx, buffered) => {
         const state = ctx.state
         const setts = state.setts
         const index = state.indexes[id]
-        console.log("getSetts", id, index)
         const control = state.controls[index]
         const csetts = control.setts
         return { setts, csetts }
@@ -211,7 +209,6 @@ const mutator = (ctx, buffered) => {
         if (buffered) {
             buffer.push(mut)
         } else {
-            console.log("apply", mut)
             ctx.dispatch(mut)
         }
         return self
@@ -229,7 +226,6 @@ const mutator = (ctx, buffered) => {
     self.setControlData = (id, name, value) => apply({ name: "control-data", args: { id, name, value } })
     self.addControl = (control) => apply({ name: "control-add", args: { control } })
     self.actionControl = (id, action) => {
-        console.log("actionControl", action, id)
         switch (action) {
             case "clone": {
                 const control = getControl(id)

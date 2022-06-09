@@ -2,6 +2,7 @@ import Check from '../common/Check'
 import Merge from "../common/Merge"
 
 function merge(target) {
+    console.log("merge", target)
     const _initial = config()
     Merge(_initial, target)
     Merge(_initial.setts, target.setts, (name, value) => checks[name](value))
@@ -22,12 +23,17 @@ function config() {
 const databases = ["SQL Server"]
 const units = ["Second(s)", "Minute(s)"]
 
+//connstr and command defaults for two reasons
+//1. default should provide a working demo
+//2. non-empty required for merge to fail validaiton
+//Encrypt=false
+//TrustServerCertificate=True
 function setts() {
     return {
         database: databases[0],
+        connstr: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+        command: "SELECT PROP1 FROM datafetch WHERE MODEL='Model1'",
         dbpass: "",
-        connstr: "",
-        command: "",
         password: "",
         period: "1",
         unit: units[0],
