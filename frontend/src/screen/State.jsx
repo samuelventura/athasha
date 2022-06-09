@@ -27,6 +27,7 @@ function reducer(state, { name, args, self }) {
       next.setts = item.config.setts
       next.controls = item.config.controls
       next.status = args.status
+      //idempotency: start from empty each time
       next.inputs = {}
       next.trends = {}
       const inputs = args.inputs
@@ -64,7 +65,7 @@ function reducer(state, { name, args, self }) {
       const next = clone_shallow(state)
       next.inputs[args.id] = args.value
       const trend = next.trends[args.id]
-      //idempotency args.dt > trend.dt
+      //idempotency: args.dt > trend.dt
       if (trend && args.dt && args.dt > trend.dt) {
         const dt = args.dt
         const val = args.value

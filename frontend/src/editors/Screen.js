@@ -68,13 +68,6 @@ function control() {
     }
 }
 
-function selected() {
-    return {
-        index: -1,
-        control: {},
-    }
-}
-
 function csetts() {
     return {
         posX: '0',
@@ -326,7 +319,6 @@ const checks = {
 export default {
     id,
     merge,
-    selected,
     config,
     setts,
     control,
