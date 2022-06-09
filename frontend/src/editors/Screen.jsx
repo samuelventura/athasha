@@ -157,6 +157,19 @@ function SvgWindow({ ctx, preview }) {
             }
         }
     }
+    function multiRect(multi) {
+        const next = { posX: gx, posY: gy, posX2: 0, posY2: 0 }
+        Object.values(multi).forEach(control => {
+            const rect = controlRect(control)
+            if (next.posX > rect.posX) next.posX = rect.posX
+            if (next.posY > rect.posY) next.posY = rect.posY
+            if (next.posX2 < rect.posX2) next.posX2 = rect.posX2
+            if (next.posY2 < rect.posY2) next.posY2 = rect.posY2
+        })
+        next.width = next.posX2 - next.posX
+        next.height = next.posY2 - next.posY
+        return next
+    }
     function controlRect(control) {
         const setts = control.setts
         const next = {}
@@ -180,23 +193,23 @@ function SvgWindow({ ctx, preview }) {
         next.height = `${rect.height}`
         return next
     }
-    function applyPoint(control, point) {
+    function applyPoint(control, mutator, point) {
         const setts = control.setts
         const id = control.id
+        //strings required to pass validation
         point = pointToString(point)
-        if (setts.posX !== point.posX) buffered.setControlSetts(id, 'posX', point.posX)
-        if (setts.posY !== point.posY) buffered.setControlSetts(id, 'posY', point.posY)
-        buffered.apply()
+        if (setts.posX !== point.posX) mutator.setControlSetts(id, 'posX', point.posX)
+        if (setts.posY !== point.posY) mutator.setControlSetts(id, 'posY', point.posY)
     }
-    function applyRect(control, rect) {
+    function applyRect(control, mutator, rect) {
         const setts = control.setts
         const id = control.id
+        //strings required to pass validation
         rect = rectToString(rect)
-        if (setts.posX !== rect.posX) buffered.setControlSetts(id, 'posX', rect.posX)
-        if (setts.posY !== rect.posY) buffered.setControlSetts(id, 'posY', rect.posY)
-        if (setts.width !== rect.width) buffered.setControlSetts(id, 'width', rect.width)
-        if (setts.height !== rect.height) buffered.setControlSetts(id, 'height', rect.height)
-        buffered.apply()
+        if (setts.posX !== rect.posX) mutator.setControlSetts(id, 'posX', rect.posX)
+        if (setts.posY !== rect.posY) mutator.setControlSetts(id, 'posY', rect.posY)
+        if (setts.width !== rect.width) mutator.setControlSetts(id, 'width', rect.width)
+        if (setts.height !== rect.height) mutator.setControlSetts(id, 'height', rect.height)
     }
     //calculates the location of a dragged rect within the bounds of the viewport
     function rectLocation(el, e, r, o) {
@@ -326,16 +339,31 @@ function SvgWindow({ ctx, preview }) {
         function controlMove(event, final) {
             const type = dragged.type
             if (type == "move") {
-                const rect = dragged.rect
-                const offset = dragged.offset
+                const group = dragged.group
+                const rect = group ? group.gbox : dragged.rect
+                const offset = group ? group.goff : dragged.offset
                 const point = rectLocation(ref.current, event, rect, offset)
                 const frame = dragged.frame
-                //strings required to pass fix validation above
+                if (group) point.posX += group.gdel.x
+                if (group) point.posY += group.gdel.y
                 frame.setts = { ...frame.setts, ...point }
                 setDragged({ ...dragged, frame })
                 if (final) {
-                    const control = dragged.control
-                    applyPoint(control, point)
+                    if (group) {
+                        const deltaX = point.posX - dragged.rect.posX
+                        const deltaY = point.posY - dragged.rect.posY
+                        Object.values(group.multi).forEach(control => {
+                            const rect = controlRect(control)
+                            rect.posX += deltaX
+                            rect.posY += deltaY
+                            applyPoint(control, buffered, rect)
+                        })
+                        buffered.apply()
+                    } else {
+                        const control = dragged.control
+                        applyPoint(control, buffered, point)
+                        buffered.apply()
+                    }
                 }
             } else {
                 const point = rectLocation(ref.current, event)
@@ -393,30 +421,37 @@ function SvgWindow({ ctx, preview }) {
                         break
                 }
                 const frame = dragged.frame
-                //strings required to pass fix validation above
                 frame.setts = { ...frame.setts, ...box }
                 setDragged({ ...dragged, frame })
                 if (final) {
                     const control = dragged.control
-                    applyRect(control, box)
+                    applyRect(control, buffered, box)
+                    buffered.apply()
                 }
             }
         }
         function controlPointerDown(event, type) {
             event.stopPropagation()
-            immediate.setMulti()
+            //keep multi selection for multi d&d
+            //clear multi only if non member control
+            const isMulti = type == "move" && multi[control.id]
+            if (!isMulti) immediate.setMulti()
             //only on left button = 0
             if (event.button) return
             if (dragged.index >= 0) return //should except
             const rect = controlRect(control)
             const point = rectLocation(ref.current, event)
             const offset = { x: point.posX - rect.posX, y: point.posY - rect.posY }
+            const gbox = multiRect(multi)
+            const goff = { x: point.posX - gbox.posX, y: point.posY - gbox.posY }
+            const gdel = { x: rect.posX - gbox.posX, y: rect.posY - gbox.posY }
+            const group = isMulti ? { gbox, goff, gdel, multi } : null
             const cleanup = function () {
                 setDragged(initialDragged())
                 event.target.releasePointerCapture(event.pointerId)
             }
             const frame = Clone.deep(control)
-            setDragged({ type, index, control, cleanup, frame, point, offset, rect })
+            setDragged({ type, index, control, cleanup, frame, point, offset, rect, group })
             event.target.setPointerCapture(event.pointerId)
 
             //firefox click never fires
@@ -424,7 +459,9 @@ function SvgWindow({ ctx, preview }) {
             //to newly selected control if selected right away
             //select on timeout to sync Checks.props blur
             //do not select anywhere else
-            setTimeout(() => immediate.setSelected(control.id), 0)
+            //setTimeout(() => immediate.setSelected(control.id), 0)
+            //timeout not needed after adding tabIndex to controls
+            immediate.setSelected(control.id)
         }
         function controlPointerMove(event) {
             event.stopPropagation()
@@ -568,7 +605,6 @@ function LeftPanel({ ctx }) {
 }
 
 function ScreenEditor({ ctx, previewControl }) {
-    const setts = ctx.state.setts
     const globals = ctx.globals
     const captured = globals.captured
     const setCaptured = globals.setCaptured
@@ -582,7 +618,7 @@ function ScreenEditor({ ctx, previewControl }) {
         const args = { captured, setCaptured }
         args.label = Initial.labels[prop]
         args.hint = Initial.hints[prop]
-        args.getter = () => setts[prop]
+        args.getter = () => ctx.state.setts[prop]
         args.setter = setter(prop)
         args.check = Initial.checks[prop]
         args.defval = Initial.setts()[prop]
