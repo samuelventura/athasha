@@ -6,6 +6,7 @@ import Types from '../common/Types'
 import Item from "../common/Item"
 import Editors from './Editors'
 import Files from '../tools/Files'
+import Clone from '../tools/Clone'
 import { useApp } from '../App'
 
 function EditItem() {
@@ -51,7 +52,7 @@ function EditItem() {
         }
     }
     function cloned() {
-        return JSON.parse(JSON.stringify(item.config))
+        return Clone.deep(item.config)
     }
     function itemEditor() {
         const state = {

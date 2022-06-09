@@ -9,12 +9,13 @@ import Clipboard from '../tools/Clipboard'
 
 const parser = new DOMParser()
 
-function Editor({ control, setProp, globals }) {
+function Editor({ getControl, setProp, globals }) {
     const captured = globals.captured
     const setCaptured = globals.setCaptured
+    const control = getControl()
     const data = control.data
     const valid = !!data.filename
-    function fieldProps(prop) {
+    function fieldProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
                 setProp(name, value)
@@ -23,10 +24,11 @@ function Editor({ control, setProp, globals }) {
         const args = { captured, setCaptured }
         args.label = Initial.dlabels[prop]
         args.hint = Initial.dhints[prop]
-        args.getter = () => data[prop]
+        args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
         args.check = Initial.dchecks[prop]
         args.defval = Initial.data()[prop]
+        args.checkbox = checkbox
         return Check.props(args)
     }
     const scaleOptions = Initial.scales.map(v => <option key={v} value={v}>{v}</option>)

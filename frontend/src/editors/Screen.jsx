@@ -24,6 +24,7 @@ import Check from '../common/Check'
 import Input from "../screen/Input"
 import Color from "../common/Color"
 import State from "./screen/State"
+import Clone from "../tools/Clone"
 
 function calcAlign(align, d, D) {
     switch (align) {
@@ -90,9 +91,6 @@ function initialDragged() {
     }
 }
 
-function clone_deep(obj) {
-    return JSON.parse(JSON.stringify(obj))
-}
 
 //mouser scroll conflicts with align setting, 
 //better to provide a separate window preview link
@@ -129,7 +127,6 @@ function SvgWindow({ ctx, preview }) {
     const gridColor = Color.invert(setts.backColor, true)
     const borderColor = Color.invert(setts.backColor, true)
     function applyKeyDown(event, control) {
-        console.log(event.code, control.id)
         switch (event.code) {
             case "Delete": {
                 actionControl('del', control)
@@ -416,7 +413,7 @@ function SvgWindow({ ctx, preview }) {
                 setDragged(initialDragged())
                 event.target.releasePointerCapture(event.pointerId)
             }
-            const frame = clone_deep(control)
+            const frame = Clone.deep(control)
             setDragged({ type, index, control, cleanup, frame, point, offset, rect })
             event.target.setPointerCapture(event.pointerId)
 
@@ -533,7 +530,7 @@ function SvgWindow({ ctx, preview }) {
 function LeftPanel({ ctx }) {
     const state = ctx.state
     const setts = state.setts
-    function addControl(state, controller) {
+    function addControl(controller) {
         const control = Initial.control()
         control.setts.width = Math.max(1, Math.trunc(setts.gridX / 10)).toString()
         control.setts.height = Math.max(1, Math.trunc(setts.gridY / 10)).toString()
@@ -541,12 +538,12 @@ function LeftPanel({ ctx }) {
         if (controller.Init) {
             control.data = controller.Init()
         }
-        state.localDispatch({ name: "add-control", args: { control, select: true } })
+        State.addControl(ctx, control)
     }
     const controlList = Controls.registeredMapper((controller, index) => {
         return (<ListGroup.Item action key={index}
             title={`Add new ${controller.Type}`}
-            onClick={() => addControl(state, controller)}>
+            onClick={() => addControl(controller)}>
             {controller.Type}</ListGroup.Item>)
     })
     return ctx.left ? (
@@ -649,14 +646,20 @@ function ControlEditor({ ctx, previewControl }) {
     const selected = state.selected
     const index = state.indexes[selected]
     const control = state.controls[index]
-    console.log("ControlEditor", selected, index, state.indexes, control)
     const setts = control.setts
     const globals = ctx.globals
     const captured = globals.captured
     const setCaptured = globals.setCaptured
     const controller = Controls.getController(control.type)
     const setProp = (name, value) => State.setControlData(ctx, selected, name, value)
-    const editor = controller.Editor ? controller.Editor({ control, setProp, globals }) : null
+    //needs full setts path to avoid capturing local vars
+    const getControl = () => {
+        const state = ctx.state
+        const selected = state.selected
+        const index = state.indexes[selected]
+        return state.controls[index]
+    }
+    const editor = controller.Editor ? controller.Editor({ getControl, setProp, globals }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -667,7 +670,7 @@ function ControlEditor({ ctx, previewControl }) {
         <Card.Header>{control.type}</Card.Header>
         {controlProps}
     </Card>)
-    function settsProps(prop) {
+    function settsProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
                 State.setControlSetts(ctx, selected, name, value)
@@ -676,10 +679,11 @@ function ControlEditor({ ctx, previewControl }) {
         const args = { captured, setCaptured }
         args.label = Initial.clabels[prop]
         args.hint = Initial.chints[prop]
-        args.getter = () => setts[prop]
+        args.getter = () => getControl().setts[prop]
         args.setter = setter(prop)
         args.check = Initial.cschecks[prop]
         args.defval = Initial.csetts()[prop]
+        args.checkbox = checkbox
         return Check.props(args)
     }
     const inputProps = setts.input || setts.defEnabled ? <>
@@ -714,7 +718,7 @@ function ControlEditor({ ctx, previewControl }) {
         {promptProp}
     </> : <FormEntry label={Initial.clabels.link}>
         <InputGroup>
-            <InputGroup.Checkbox {...settsProps("linkBlank")} />
+            <InputGroup.Checkbox {...settsProps("linkBlank", true)} />
             <Form.Control type="text" {...settsProps("linkURL")} />
         </InputGroup>
     </FormEntry>
@@ -781,7 +785,7 @@ function ControlEditor({ ctx, previewControl }) {
                         </FormEntry>
                         <FormEntry label={Initial.clabels.defValue}>
                             <InputGroup>
-                                <InputGroup.Checkbox {...settsProps("defEnabled")} />
+                                <InputGroup.Checkbox {...settsProps("defEnabled", true)} />
                                 <Form.Control type="number" {...settsProps("defValue")} />
                             </InputGroup>
                         </FormEntry>
@@ -827,32 +831,36 @@ function PreviewControl({ preview, setPreview }) {
     </span>)
 }
 
+//context needs to be same object between calls
+//otherwise getter passed to Check.props captures 
+//it and reports stalled property values
+const ctx = {}
 
 function Editor(props) {
     const [state, dispatch] = useReducer(State.reducer, State.initial())
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
-    const globals = props.globals
-    const ctx = {
-        state,
-        dispatch,
-        preview,
-        setPreview,
-        right,
-        setRight,
-        left,
-        setLeft,
-        globals,
-    }
+    ctx.state = state
+    ctx.dispatch = dispatch
+    ctx.preview = preview
+    ctx.setPreview = setPreview
+    ctx.right = right
+    ctx.setRight = setRight
+    ctx.left = left
+    ctx.setLeft = setLeft
+    ctx.globals = props.globals
     useEffect(() => {
+        //editor passes valid initial config in props
+        //event before init is received from server
+        //no need to check for props.id here
         const config = props.config
         const setts = config.setts
         const controls = config.controls
         State.init(ctx, setts, controls)
     }, [props.id])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
+        if (props.id) {
             const inputs = state.controls.reduce((inputs, control) => {
                 const input = control.setts.input
                 const type = control.type

@@ -158,7 +158,8 @@ function debounce(func, wait) {
     return { apply, exit }
 }
 
-function props({ captured, setCaptured, label, hint, defval, getter, setter, check }) {
+function props({ checkbox, captured, setCaptured, label, hint, defval, getter, setter, check }) {
+    function getCurrent(e) { return checkbox ? e.target.checked : e.target.value }
     function getValue() { return captured.value }
     function getDebounced() { return captured.debounced }
     function capture(value, debounced) {
@@ -186,30 +187,32 @@ function props({ captured, setCaptured, label, hint, defval, getter, setter, che
             return false
         }
     }
-    return {
-        value: getter(),
+    const inputProps = {
         title: `${label}\n${hint}`,
         placeholder: label,
         onFocus: function (e) {
             if (captured.value != null) {
                 throw `Not null captured ${captured}`
             }
+            if ((!!checkbox) !== (e.target.type === "checkbox")) {
+                throw `Checkbox mismatch ${!!checkbox} ${e.target.type}`
+            }
             const debounced = e.target.type === "color" ? debounce(apply, 100) : {
                 apply, exit: () => { }
             }
             capture(e.target.value, debounced)
-            debounced.apply(e, e.target.value)
+            debounced.apply(e, getCurrent(e))
         },
         onKeyPress: function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault()
                 const debounced = getDebounced()
-                debounced.apply(e, e.target.value)
+                debounced.apply(e, getCurrent(e))
             }
         },
         onChange: function (e) {
             const debounced = getDebounced()
-            debounced.apply(e, e.target.value)
+            debounced.apply(e, getCurrent(e))
         },
         onBlur: function (e) {
             const debounced = getDebounced()
@@ -220,38 +223,12 @@ function props({ captured, setCaptured, label, hint, defval, getter, setter, che
             release()
         },
     }
-}
-
-// function time(action) {
-//     const start = new Date();
-//     action()
-//     const end = new Date();
-//     const diff = end.getTime() - start.getTime()
-//     Log.log("elapsed", diff)
-// }
-
-function run(action) {
-    try {
-        action()
-        Log.log("Check: Pass")
-        return true
-    }
-    catch (ex) {
-        Log.log("Check:", ex)
-        return false
-    }
-}
-
-function validate(values, inits, checks, label) {
-    Object.keys(inits).forEach((prop) => {
-        hasProp(values, label, prop)
-        checks[prop](values[prop])
-    })
+    const valueProp = checkbox ? "checked" : "value"
+    inputProps[valueProp] = getter()
+    return inputProps
 }
 
 export default {
-    validate,
-    run,
     props,
     isBoolean,
     isString,

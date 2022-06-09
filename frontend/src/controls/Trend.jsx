@@ -88,11 +88,10 @@ function Renderer({ control, size, trend }) {
     </svg>
 }
 
-function Editor({ control, setProp, globals }) {
+function Editor({ getControl, setProp, globals }) {
     const captured = globals.captured
     const setCaptured = globals.setCaptured
-    const data = control.data
-    function fieldProps(prop) {
+    function fieldProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
                 setProp(name, value)
@@ -101,10 +100,11 @@ function Editor({ control, setProp, globals }) {
         const args = { captured, setCaptured }
         args.label = Initial.dlabels[prop]
         args.hint = Initial.dhints[prop]
-        args.getter = () => data[prop]
+        args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
         args.check = Initial.dchecks[prop]
         args.defval = Initial.data()[prop]
+        args.checkbox = checkbox
         return Check.props(args)
     }
 
@@ -160,27 +160,21 @@ function Editor({ control, setProp, globals }) {
             </FormEntry>
             <FormEntry label={Initial.dlabels.lineColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={data.lineColored}
-                        onChange={e => setProp("lineColored", e.target.checked)}
-                        title={Initial.dlabels.lineColored} />
+                    <InputGroup.Checkbox {...fieldProps("lineColored", true)} />
                     <Form.Control type="color" {...fieldProps("lineColor")} />
                     <Form.Control type="text" {...fieldProps("lineColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.dlabels.gridColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={data.gridColored}
-                        onChange={e => setProp("gridColored", e.target.checked)}
-                        title={Initial.dlabels.gridColored} />
+                    <InputGroup.Checkbox {...fieldProps("gridColored", true)} />
                     <Form.Control type="color" {...fieldProps("gridColor")} />
                     <Form.Control type="text" {...fieldProps("gridColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.dlabels.backColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={data.backColored}
-                        onChange={e => setProp("backColored", e.target.checked)}
-                        title={Initial.dlabels.backColored} />
+                    <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                     <Form.Control type="color" {...fieldProps("backColor")} />
                     <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>

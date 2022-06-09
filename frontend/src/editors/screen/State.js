@@ -1,4 +1,5 @@
 import Log from "../../tools/Log"
+import Clone from "../../tools/Clone"
 import { v4 as uuidv4 } from 'uuid'
 
 function initial() {
@@ -12,12 +13,8 @@ function initial() {
     }
 }
 
-function clone_deep(obj) {
-    return structuredClone(obj)
-}
-
 function clone_state(obj) {
-    return clone_deep(obj)
+    return Clone.deep(obj)
 }
 
 function update_indexes(next) {
@@ -31,6 +28,9 @@ function version_check(next, cmd) {
     const clen = next.controls.length
     const ilen = Object.keys(next.indexes).length
     if (clen !== ilen) throw `Length mismatch ${clen} ${ilen} after ${cmd}`
+    next.multi.forEach(id => {
+        if (!(id in next.indexes)) throw `Missing index for multi id ${id}`
+    })
     next.version++
 }
 
@@ -47,12 +47,15 @@ function rangeValue(curr, inc, min, max, size) {
 }
 
 function reducer(state, { name, args }) {
-    console.log("reducer", name, args)
+    console.log("reducer", state.version, name, args)
     const cmd = { name, args }
-    args = clone_deep(args)
+    args = Clone.deep(args)
     switch (name) {
         case "init": {
             const next = initial()
+            //version preservation is critical to
+            //correctly handle initial transients
+            next.version = state.version
             next.controls = args.controls
             next.setts = args.setts
             update_indexes(next)
@@ -118,9 +121,9 @@ function reducer(state, { name, args }) {
             const next = clone_state(state)
             const index = next.indexes[args.id]
             const control = next.controls[index]
-            next.controls.splice(index, 1)
             const module = moduleIndex(next, index + 1)
-            next.splice(module, 0, control)
+            next.controls.splice(index, 1)
+            next.controls.splice(module, 0, control)
             update_indexes(next)
             version_check(next, cmd)
             return next
@@ -129,9 +132,9 @@ function reducer(state, { name, args }) {
             const next = clone_state(state)
             const index = next.indexes[args.id]
             const control = next.controls[index]
-            next.controls.splice(index, 1)
             const module = moduleIndex(next, index - 1)
-            next.splice(module, 0, control)
+            next.controls.splice(index, 1)
+            next.controls.splice(module, 0, control)
             update_indexes(next)
             version_check(next, cmd)
             return next
@@ -142,7 +145,7 @@ function reducer(state, { name, args }) {
             const control = next.controls[index]
             const length = next.controls.length
             next.controls.splice(index, 1)
-            next.splice(length, 0, control)
+            next.controls.splice(length, 0, control)
             update_indexes(next)
             version_check(next, cmd)
             return next
@@ -152,7 +155,7 @@ function reducer(state, { name, args }) {
             const index = next.indexes[args.id]
             const control = next.controls[index]
             next.controls.splice(index, 1)
-            next.splice(0, 0, control)
+            next.controls.splice(0, 0, control)
             update_indexes(next)
             version_check(next, cmd)
             return next
@@ -169,7 +172,7 @@ const setSelected = (ctx, id) => ctx.dispatch({ name: "select", args: { id } })
 const setSetts = (ctx, name, value) => ctx.dispatch({ name: "setts", args: { name, value } })
 const setControlSetts = (ctx, id, name, value) => ctx.dispatch({ name: "control-setts", args: { id, name, value } })
 const setControlData = (ctx, id, name, value) => ctx.dispatch({ name: "control-data", args: { id, name, value } })
-const addControl = (ctx, control, select) => ctx.dispatch({ name: "control-add", args: { control, select } })
+const addControl = (ctx, control) => ctx.dispatch({ name: "control-add", args: { control } })
 const actionControl = (ctx, id, action) => {
     const state = ctx.state
     const setts = state.setts
@@ -178,7 +181,7 @@ const actionControl = (ctx, id, action) => {
     const csetts = control.setts
     switch (action) {
         case "clone": {
-            const clone = clone_deep(control)
+            const clone = Clone.deep(control)
             clone.id = uuidv4()
             ctx.dispatch({ name: "control-add", args: { control: clone } })
             break

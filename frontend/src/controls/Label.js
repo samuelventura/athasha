@@ -113,6 +113,13 @@ const dhints = {
     borderRadius: "Non empty number [0,1]",
 }
 
+function validate(values, inits, checks, label) {
+    Object.keys(inits).forEach((prop) => {
+        Check.hasProp(values, label, prop)
+        checks[prop](values[prop])
+    })
+}
+
 const dchecks = {
     text: function (value) {
         Check.isString(value, dlabels.text)
@@ -165,13 +172,13 @@ const dchecks = {
         Check.isLE(value, dlabels.borderRadius, 1)
     },
     cond1: function (value) {
-        Check.validate(value, cond(), cchecks, "cond1")
+        validate(value, cond(), cchecks, "cond1")
     },
     cond2: function (value) {
-        Check.validate(value, cond(), cchecks, "cond2")
+        validate(value, cond(), cchecks, "cond2")
     },
     cond3: function (value) {
-        Check.validate(value, cond(), cchecks, "cond3")
+        validate(value, cond(), cchecks, "cond3")
     },
 }
 

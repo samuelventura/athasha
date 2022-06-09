@@ -1,6 +1,7 @@
 import Router from "../tools/Router"
 import Extractor from "./Extractor"
 import Initials from "../common/Initials"
+import Clone from "../tools/Clone"
 import Log from "../tools/Log"
 
 function initial() {
@@ -22,16 +23,6 @@ function initial() {
 
 function build_status({ type, msg }) {
   return { msg, type }
-}
-
-function clone_shallow(object) {
-  return Object.assign({}, object)
-}
-
-function clone_deep(object) {
-  if (object === null) return null
-  if (object === undefined) return undefined
-  return JSON.parse(JSON.stringify(object))
 }
 
 function version_state(next) {
@@ -76,10 +67,10 @@ function upgrade_config(next, item) {
 function reducer(state, { name, args, self }) {
   //this is being called twice by react
   //deep clone required for idempotency
-  args = clone_deep(args)
+  args = Clone.deep(args)
   switch (name) {
     case "init": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items = {}
       next.status = {}
       next.upgrades = {}
@@ -94,7 +85,7 @@ function reducer(state, { name, args, self }) {
       return version_state(next)
     }
     case "create": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id] = args
       next.status[args.id] = {}
       upgrade_config(next, args)
@@ -102,7 +93,7 @@ function reducer(state, { name, args, self }) {
       return version_state(next)
     }
     case "delete": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       delete next.status[args.id]
       delete next.items[args.id]
       delete next.upgrades[args.id]
@@ -110,7 +101,7 @@ function reducer(state, { name, args, self }) {
       return version_state(next)
     }
     case "edit": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       const item = next.items[args.id]
       item.config = args.config
       upgrade_config(next, item)
@@ -123,25 +114,25 @@ function reducer(state, { name, args, self }) {
     }
     case "rename": {
       if (args.id !== state.id) return state
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id].name = args.name
       return version_state(next)
     }
     case "enable": {
       if (args.id !== state.id) return state
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id].enabled = args.enabled
       next.status[args.id] = {}
       return version_state(next)
     }
     case "status": {
       if (args.id !== state.id) return state
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.status = build_status(args)
       return version_state(next)
     }
     case "target": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.targeted = args
       return version_state(next)
     }

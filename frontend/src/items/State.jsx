@@ -1,4 +1,5 @@
 import Log from "../tools/Log"
+import Clone from "../tools/Clone"
 import Initials from "../common/Initials"
 
 function initial() {
@@ -18,16 +19,6 @@ function initial() {
 
 function build_status({ type, msg }) {
   return { msg, type }
-}
-
-function clone_shallow(object) {
-  return Object.assign({}, object)
-}
-
-function clone_deep(object) {
-  if (object === null) return null
-  if (object === undefined) return undefined
-  return JSON.parse(JSON.stringify(object))
 }
 
 function version_state(next) {
@@ -52,10 +43,10 @@ function upgrade_config(next, item) {
 function reducer(state, { name, args, self }) {
   //this is being called twice by react
   //deep clone required for idempotency
-  args = clone_deep(args)
+  args = Clone.deep(args)
   switch (name) {
     case "init": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items = {}
       next.status = {}
       next.upgrades = {}
@@ -74,7 +65,7 @@ function reducer(state, { name, args, self }) {
       return version_state(next)
     }
     case "create": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id] = args.item
       next.status[args.id] = {}
       if (self) {
@@ -84,43 +75,43 @@ function reducer(state, { name, args, self }) {
       return version_state(next)
     }
     case "edit": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id] = args.item
       upgrade_config(next, args.item)
       return version_state(next)
     }
     case "rename": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id] = args.item
       return version_state(next)
     }
     case "enable": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.items[args.id] = args.item
       next.status[args.id] = {}
       return version_state(next)
     }
     case "delete": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       delete next.status[args.id]
       delete next.items[args.id]
       delete next.upgrades[args.id]
       return version_state(next)
     }
     case "status": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       if (next.items[args.id]) {
         next.status[args.id] = build_status(args)
       }
       return version_state(next)
     }
     case "select": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.selected = args
       return version_state(next)
     }
     case "target": {
-      const next = clone_shallow(state)
+      const next = Clone.shallow(state)
       next.targeted = args
       return version_state(next)
     }

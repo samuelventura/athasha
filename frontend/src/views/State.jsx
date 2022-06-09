@@ -1,4 +1,5 @@
 import Log from "../tools/Log"
+import Clone from "../tools/Clone"
 
 function initial() {
   return {
@@ -20,7 +21,7 @@ function clone_shallow(object) {
 function clone_deep(object) {
   if (object === null) return null
   if (object === undefined) return undefined
-  return JSON.parse(JSON.stringify(object))
+  return Clone.deep(object)
 }
 
 function version_state(next) {

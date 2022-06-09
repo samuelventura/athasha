@@ -10,8 +10,8 @@ import "../fonts/Fonts"
 import Initial from "./Label.js"
 import Check from '../common/Check'
 
-function CondEditor({ cond, setProp, captured, setCaptured }) {
-    function fieldProps(prop) {
+function CondEditor({ getCond, setProp, captured, setCaptured }) {
+    function fieldProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
                 setProp(name, value)
@@ -20,10 +20,11 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         const args = { captured, setCaptured }
         args.label = Initial.clabels[prop]
         args.hint = Initial.chints[prop]
-        args.getter = () => cond[prop]
+        args.getter = () => getCond()[prop]
         args.setter = setter(prop)
         args.check = Initial.cchecks[prop]
         args.defval = Initial.cond()[prop]
+        args.checkbox = checkbox
         return Check.props(args)
     }
     const condTypeOptions = Initial.condTypes.map(v => <option key={v} value={v}>{v}</option>)
@@ -37,9 +38,7 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
             </FormEntry>
             <FormEntry label={Initial.clabels.param}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.negate}
-                        onChange={e => setProp("negate", e.target.checked)}
-                        title={Initial.clabels.negate + "\n" + Initial.chints.negate} />
+                    <InputGroup.Checkbox {...fieldProps("negate", true)} />
                     <Form.Control type="number" {...fieldProps("param1")} />
                     <Form.Control type="number" {...fieldProps("param2")} />
                 </InputGroup>
@@ -56,27 +55,21 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
             </FormEntry>
             <FormEntry label={Initial.clabels.textColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.textColored}
-                        onChange={e => setProp("textColored", e.target.checked)}
-                        title={Initial.clabels.textColored} />
+                    <InputGroup.Checkbox {...fieldProps("textColored", true)} />
                     <Form.Control type="color" {...fieldProps("textColor")} />
                     <Form.Control type="text" {...fieldProps("textColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.clabels.backColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.backColored}
-                        onChange={e => setProp("backColored", e.target.checked)}
-                        title={Initial.clabels.backColored} />
+                    <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                     <Form.Control type="color" {...fieldProps("backColor")} />
                     <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={Initial.clabels.borderColor}>
                 <InputGroup>
-                    <InputGroup.Checkbox checked={cond.borderColored}
-                        onChange={e => setProp("borderColored", e.target.checked)}
-                        title={Initial.clabels.borderColored} />
+                    <InputGroup.Checkbox {...fieldProps("borderColored", true)} />
                     <Form.Control type="color" {...fieldProps("borderColor")} />
                     <Form.Control type="text" {...fieldProps("borderColor")} />
                 </InputGroup>
@@ -85,10 +78,12 @@ function CondEditor({ cond, setProp, captured, setCaptured }) {
         </>)
 }
 
-function Editor({ control, setProp, globals }) {
+function Editor({ getControl, setProp, globals }) {
     const captured = globals.captured
     const setCaptured = globals.setCaptured
+    const control = getControl()
     const data = control.data
+    const getCond = (cond) => getControl().data[cond]
     function setCondProp(cond) {
         return function (name, value) {
             const next = { ...data[cond] }
@@ -96,7 +91,7 @@ function Editor({ control, setProp, globals }) {
             setProp(cond, next)
         }
     }
-    function fieldProps(prop) {
+    function fieldProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
                 setProp(name, value)
@@ -105,10 +100,11 @@ function Editor({ control, setProp, globals }) {
         const args = { captured, setCaptured }
         args.label = Initial.dlabels[prop]
         args.hint = Initial.dhints[prop]
-        args.getter = () => data[prop]
+        args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
         args.check = Initial.dchecks[prop]
         args.defval = Initial.data()[prop]
+        args.checkbox = checkbox
         return Check.props(args)
     }
     const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
@@ -127,9 +123,7 @@ function Editor({ control, setProp, globals }) {
                     </FormEntry>
                     <FormEntry label={Initial.dlabels.backColor}>
                         <InputGroup>
-                            <InputGroup.Checkbox checked={data.backColored}
-                                onChange={e => setProp("backColored", e.target.checked)}
-                                title={Initial.dlabels.backColored} />
+                            <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                             <Form.Control type="color" {...fieldProps("backColor")} />
                             <Form.Control type="text" {...fieldProps("backColor")} />
                         </InputGroup>
@@ -162,13 +156,13 @@ function Editor({ control, setProp, globals }) {
                     </FormEntry>
                 </Tab>
                 <Tab eventKey="condition1" title="Cond 1" tabAttrs={{ title: "Overrides Default" }}>
-                    <CondEditor cond={data.cond1} setProp={setCondProp("cond1")} captured={captured} setCaptured={setCaptured} />
+                    <CondEditor getCond={() => getCond("cond1")} setProp={setCondProp("cond1")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
                 <Tab eventKey="condition2" title="Cond 2" tabAttrs={{ title: "Overrides Cond 1" }}>
-                    <CondEditor cond={data.cond2} setProp={setCondProp("cond2")} captured={captured} setCaptured={setCaptured} />
+                    <CondEditor getCond={() => getCond("cond2")} setProp={setCondProp("cond2")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
                 <Tab eventKey="condition3" title="Cond 3" tabAttrs={{ title: "Overrides Cond 2" }}>
-                    <CondEditor cond={data.cond3} setProp={setCondProp("cond3")} captured={captured} setCaptured={setCaptured} />
+                    <CondEditor getCond={() => getCond("cond3")} setProp={setCondProp("cond3")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
             </Tabs>
         </>
@@ -199,9 +193,10 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
     let borderColor = data.borderColor
     let textColor = data.textColor
     //passing background as default instead of none
-    //puts am ugly shadow rectangle in non rounded labels
+    //puts an ugly shadow rectangle in non rounded labels
     //non passing a default background restricts the 
     //mouse action to the drawn paths instead of the whole area
+    //solved by using a white background with 0 opacity below
     let backColor = data.backColored ? data.backColor : "none"
 
     function evalCondition(cond, value) {
