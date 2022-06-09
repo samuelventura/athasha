@@ -109,6 +109,7 @@ const checks = {
         id: function (index, value) {
             Check.isString(value, labels.inputs.id(index))
             Check.notEmpty(value, labels.inputs.id(index))
+            Check.isPointId(value, labels.inputs.id(index))
         },
     }
 }
