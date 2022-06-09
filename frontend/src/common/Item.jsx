@@ -89,8 +89,17 @@ function Upgraded(props) {
     ) : null
 }
 
+function Invalid(props) {
+    return props.errors.total.length ? (
+        <Badge pill bg="warning" title={props.errors.total.join("\n")} className='ms-2 user-select-none'>
+            Invalid
+        </Badge>
+    ) : null
+}
+
 const exports = {
     Upgraded,
+    Invalid,
     Status,
     Entry,
     Name,

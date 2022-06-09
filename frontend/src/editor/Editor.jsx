@@ -18,6 +18,8 @@ function EditItem() {
     const upgraded = app.state.upgraded
     function isActive() { return !!item.id }
     const [valid, setValid] = useState(false)
+    const [disabled, setDisabled] = useState(true)
+    const [errors, setErrors] = useState(Merge.init())
     const [config, setConfig] = useState({})
     const [captured, setCaptured] = useState({})
     function onButton(action) {
@@ -70,7 +72,9 @@ function EditItem() {
             const cloned = Clone.deep(next)
             Initials(type).merge(cloned)
             const errors = Merge.get()
-            setValid(errors.total === 0)
+            setValid(errors.total.length === 0)
+            setDisabled(false)
+            setErrors(errors)
             setConfig(next)
         } : () => { }
         return Editors(type)(state)
@@ -88,6 +92,7 @@ function EditItem() {
                     <Item.Name item={item} />
                     <Item.Status item={item} status={status} />
                     <Item.Upgraded upgraded={upgraded} />
+                    <Item.Invalid errors={errors} />
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -116,11 +121,11 @@ function EditItem() {
                     Disable
                 </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save")}
-                    title="Save changes but do not apply them yet">
+                    disabled={disabled} title="Save changes but do not apply them yet">
                     Save
                 </Button>
                 <Button variant={valid ? "primary" : "secondary"} onClick={() => onButton("save-enable")}
-                    title="Save and apply changes by re-enable the item">
+                    disabled={disabled} title="Save and apply changes by re-enable the item">
                     Save and Enable
                 </Button>
             </Modal.Footer>
