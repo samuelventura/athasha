@@ -189,6 +189,8 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         const classes = click ? "click" : ""
         const overlay = <Tooltip>{title}</Tooltip>
         const trigger = title ? ['hover', 'focus'] : []
+        //it would be ideal to draw the transparent click background here but
+        //that would be rectangular and overriding of any border rounding
         //no mouse event received after modal closes with pointer still within boudaries
         return (
             <OverlayTrigger

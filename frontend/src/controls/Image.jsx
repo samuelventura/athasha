@@ -112,7 +112,6 @@ function Renderer({ control, size, click }) {
     const aspect = aspectRatio(data.scale, data.align)
     const svg = valid ? data.content : "<svg viewBox='0 0 100 100'></svg>"
     const vb = valid ? data.viewBox : '0 0 100 100'
-    console.log(click)
     const clickBack = click ? <rect width={size.width} height={size.height} fill="white" fillOpacity="0" /> : null
     return (
         <svg>

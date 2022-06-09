@@ -169,7 +169,7 @@ function Editor({ getControl, setProp, globals }) {
     )
 }
 
-function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
+function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -258,8 +258,9 @@ function Renderer({ control, size, value, isPressed, hasHover, hoverColor }) {
     }
 
     //a white fill with zero opacity makes it hoverable
-    const backOpacity = backColor == "none" ? 0 : 1
-    backColor = backColor == "none" ? "white" : backColor
+    const backNone = backColor == "none"
+    const backOpacity = backNone ? 0 : 1
+    backColor = backNone && click ? "white" : backColor
     const font = data.fontFamily.replace(/\s/g, '') //remove spaces
     const filter = isPressed ? "url(#pressed)" : (hasHover ? "url(#hover)" : "none")
     return (
