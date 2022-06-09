@@ -533,7 +533,7 @@ function SvgWindow({ ctx, preview }) {
         ) : null
         const moveEvents = index >= 0 ? controlEvents("move") : {}
         //setting tabIndex adds a selection border that extends to the inner contents
-        //tabIndex required to receive keyboard events
+        //tabIndex to receive keyboard events and avoid delaying selection
         const key = control.id
         return (
             <svg key={key} x={x} y={y} tabIndex={index}
@@ -545,25 +545,26 @@ function SvgWindow({ ctx, preview }) {
         )
     }
     const controlList = controls.map(controlRender)
+    const [guideWidth, guideOpacity, guideLine] = [1, 0.4, "2 2"] //low opacity hard to see on dark backgrounds
     const gridRect = !preview ? (<rect width={W} height={H} fill="url(#grid)" fillOpacity="0.1" />) : null
-    const renderSide = (side) => { return !dragged.type.includes("edge") || dragged.type.includes(side) }
     const renderDrag = () => {
         const frame = dragged.frame
-        if (dragged.type === "multi") return controlRender(frame, -1)
+        const type = dragged.type
+        if (type === "multi") return controlRender(frame, -1)
+        const edge = type.includes("edge")
         const dragControl = controlRender(frame, -1)
         const rect = controlRect(frame)
-        const [tick, opa, dotted] = [1, 0.4, "2 2"] //low opacity hard to see on dark backgrounds
         const [x1, y1, x2, y2] = [rect.posX * sx, rect.posY * sy, rect.posX2 * sx, rect.posY2 * sy]
-        const left = <line x1={x1} x2={x1} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-        const right = <line x1={x2} x2={x2} y1={0} y2={H} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-        const top = <line x1={0} x2={W} y1={y1} y2={y1} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
-        const bottom = <line x1={0} x2={W} y1={y2} y2={y2} stroke={borderColor} strokeOpacity={opa} strokeWidth={tick} strokeDasharray={dotted} />
+        const left = <line x1={x1} x2={x1} y1={0} y2={H} stroke={borderColor} strokeOpacity={guideOpacity} strokeWidth={guideWidth} strokeDasharray={guideLine} />
+        const right = <line x1={x2} x2={x2} y1={0} y2={H} stroke={borderColor} strokeOpacity={guideOpacity} strokeWidth={guideWidth} strokeDasharray={guideLine} />
+        const top = <line x1={0} x2={W} y1={y1} y2={y1} stroke={borderColor} strokeOpacity={guideOpacity} strokeWidth={guideWidth} strokeDasharray={guideLine} />
+        const bottom = <line x1={0} x2={W} y1={y2} y2={y2} stroke={borderColor} strokeOpacity={guideOpacity} strokeWidth={guideWidth} strokeDasharray={guideLine} />
         return <>
             {dragControl}
-            {renderSide("Left") ? left : null}
-            {renderSide("Right") ? right : null}
-            {renderSide("Top") ? top : null}
-            {renderSide("Bottom") ? bottom : null}
+            {!edge || type.includes("Left") ? left : null}
+            {!edge || type.includes("Right") ? right : null}
+            {!edge || type.includes("Top") ? top : null}
+            {!edge || type.includes("Bottom") ? bottom : null}
         </>
     }
     const dragFrame = dragged.type ? renderDrag() : null
