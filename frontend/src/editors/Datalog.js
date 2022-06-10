@@ -1,10 +1,7 @@
 import Check from '../common/Check'
+import Bases from '../common/Bases'
 
-const databases = () => ["SQL Server"]
-const units = () => ["Second(s)", "Minute(s)"]
-
-const $databases = databases()
-const $units = units()
+const units = ["Second(s)", "Minute(s)"]
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -41,11 +38,11 @@ function schema() {
                 },
             },
             database: {
-                value: $databases[0],
+                value: Bases.databases[0],
                 label: "Database",
                 help: "Select the database type from the list",
                 check: function (value, label) {
-                    Check.inList(value, label, $databases)
+                    Check.inList(value, label, Bases.databases)
                 },
             },
             dbpass: {
@@ -66,11 +63,11 @@ function schema() {
                 },
             },
             unit: {
-                value: $units[0],
+                value: units[0],
                 label: "Unit",
                 help: "Select time unit from the list",
                 check: function (value, label) {
-                    Check.inList(value, label, $units)
+                    Check.inList(value, label, units)
                 },
             },
         },
@@ -91,7 +88,6 @@ function schema() {
 }
 
 export default {
-    databases,
     units,
     schema,
 }

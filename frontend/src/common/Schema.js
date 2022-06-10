@@ -54,6 +54,9 @@ const $merge = (p, t, n, i) => {
             return t
         }
         default: {
+            if (!p.label) throw `ALERT: ${n} ${i} label not defined`
+            if (!p.help) throw `ALERT: ${n} ${i} help not defined`
+            if (i !== undefined && !p.header) throw `ALERT: ${n} ${i} header not defined`
             const $l = p.label
             const l = $fun($l) ? $l(i, n) : $l
             try {

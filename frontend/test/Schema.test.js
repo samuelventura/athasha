@@ -31,6 +31,7 @@ const schema = {
             label: "ItemId",
             value: "ItemValue",
             help: "ItemHelp",
+            header: "ItemHeader",
             check: function (value, label) {
                 Check.notEmpty(value, label)
             },
@@ -47,6 +48,7 @@ const schema = {
             label: (index, name) => `ItemId:${index + 0}:${name}`,
             value: (index, name) => `ItemValue:${index + 0}:${name}`,
             help: "ItemHelp",
+            header: "ItemHeader",
             check: function (value, label) {
                 Check.isNumber(value, label)
             },

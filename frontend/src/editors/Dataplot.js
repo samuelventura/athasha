@@ -1,9 +1,6 @@
 import Check from '../common/Check'
 import Color from "../common/Color"
-
-const databases = () => ["SQL Server"]
-
-const $databases = databases()
+import Bases from '../common/Bases'
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -16,11 +13,11 @@ function schema() {
         setts: {
             $type: "object",
             database: {
-                value: $databases[0],
+                value: Bases.databases[0],
                 label: "Database",
                 help: "Select the database type from the list",
                 check: function (value, label) {
-                    Check.inList(value, label, $databases)
+                    Check.inList(value, label, Bases.databases)
                 },
             },
             connstr: {
@@ -131,6 +128,5 @@ function schema() {
 }
 
 export default {
-    databases,
     schema,
 }
