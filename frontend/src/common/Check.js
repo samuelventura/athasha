@@ -1,123 +1,139 @@
 import Log from '../tools/Log'
 
-function checkLabel(label) {
-    if (label === undefined) {
-        Log.log("ALERT: Label is undefined")
-        return
-    }
-    if (label === null) {
-        Log.log("ALERT: Label is null")
-        return
-    }
-    if (label.trim() === "") Log.log("ALERT: Label is empty")
-}
-
-function isString(value, label) {
-    checkLabel(label)
-    const typeof_value = typeof value
-    if (!(typeof_value === 'string' || value instanceof String)) {
-        throw `${label} is not string: ${typeof_value} ${value}`
-    }
+function $checkLabel(label) {
+    if (label === undefined) throw "ALERT: Label is undefined"
+    if (label === null) throw "ALERT: Label is null"
+    if (label.trim().length === 0) throw "ALERT: Label is empty"
 }
 
 function isBoolean(value, label) {
-    checkLabel(label)
+    $checkLabel(label)
     const typeof_value = typeof value
     if (!(typeof_value === 'boolean')) {
         throw `${label} is not boolean: ${typeof_value} ${value}`
     }
 }
 
+function inList(value, label, list) {
+    isString(value, label)
+    if (!list.includes(value)) {
+        throw `${label} is not in [${list}]`
+    }
+}
+
 function isArray(value, label) {
-    checkLabel(label)
+    $checkLabel(label)
     const typeof_value = typeof value
     if (!Array.isArray(value)) {
-        throw `${label} is not array: ${typeof_value}`
+        throw `${label} is not array: ${typeof_value} ${value}`
+    }
+    return value
+}
+
+function notEmptyArray(value, label) {
+    const array = isArray(value, label)
+    if (array.length === 0) {
+        throw `${label} has zero length`
+    }
+}
+
+function isString(value, label) {
+    $checkLabel(label)
+    const typeof_value = typeof value
+    if (!(typeof_value === 'string' || value instanceof String)) {
+        throw `${label} is not string: ${typeof_value} ${value}`
     }
 }
 
 function notEmpty(value, label) {
-    checkLabel(label)
+    isString(value, label)
     if (value.trim().length == 0) {
         throw `${label} is empty`
     }
 }
 
-function inList(value, label, list) {
-    checkLabel(label)
-    if (!list.includes(value)) {
-        throw `${label} is not in ${list}`
-    }
-}
-
 function isInteger(value, label) {
-    checkLabel(label)
-    const num = Number(value)
-    if (!Number.isInteger(num)) {
-        throw `${label} is not an integer`
+    notEmpty(value, label)
+    if (!value.match(/^\d+$/)) {
+        throw `${label} is not integer: ${value}`
     }
 }
 
 function isNumber(value, label) {
-    checkLabel(label)
+    notEmpty(value, label)
     const num = Number(value)
     if (!Number.isFinite(num)) {
-        throw `${label} is not a number`
+        throw `${label} is not number: ${value}`
     }
+    return num
 }
 
 function isGT(value, label, limit) {
-    checkLabel(label)
-    const num = Number(value)
+    const num = isNumber(value, label)
     if (num <= limit) {
-        throw `${label} is not > ${limit}`
+        throw `${label} is not > ${limit}: ${value}`
+    }
+}
+
+function isLT(value, label, limit) {
+    const num = isNumber(value, label)
+    if (num >= limit) {
+        throw `${label} is not < ${limit}: ${value}`
     }
 }
 
 function isGE(value, label, limit) {
-    checkLabel(label)
-    const num = Number(value)
+    const num = isNumber(value, label)
     if (num < limit) {
-        throw `${label} is not >= ${limit}`
+        throw `${label} is not >= ${limit}: ${value}`
     }
 }
 
 function isLE(value, label, limit) {
-    checkLabel(label)
-    const num = Number(value)
+    const num = isNumber(value, label)
     if (num > limit) {
-        throw `${label} is not <= ${limit}`
+        throw `${label} is not <= ${limit}: ${value}`
     }
 }
 
 function notZero(value, label) {
-    checkLabel(label)
-    const num = Number(value)
+    const num = isNumber(value, label)
     if (num === 0) {
-        throw `${label} is cannot be 0`
+        throw `${label} cannot be 0: ${value}`
     }
 }
 
 function isColor(value, label) {
-    checkLabel(label)
+    notEmpty(value, label)
     const re = /^#[0-9a-f]{6}/i
     if (!re.test(value)) {
-        throw `${label} is not a color #RRGGBB`
+        throw `${label} is not a color #RRGGBB: ${value}`
     }
 }
 
-function nonZeroLength(value, label) {
-    checkLabel(label)
-    if (value.length === 0) {
-        throw `${label} has zero length`
+
+function isObject(value, label) {
+    $checkLabel(label)
+    if (Array.isArray(value)) {
+        throw `${label} is not object: array`
+    }
+    const typeof_value = typeof value
+    if (typeof_value !== "object") {
+        throw `${label} is not object: ${typeof_value}`
     }
 }
 
 function hasProp(value, label, prop) {
-    checkLabel(label)
-    //hasOwnProperties fails with proxy objects?
-    if (!Object.keys(value).includes(prop)) {
-        throw `${label} has no property: ${prop}`
+    isObject(value, label)
+    if (!(prop in value)) {
+        throw `${label} has no property ${prop}`
+    }
+    const prop_value = value[prop]
+    if (prop_value === null) {
+        throw `${label} has no property ${prop}: null`
+    }
+    if (prop_value === undefined) {
+        throw `${label} has no property ${prop}: undefined`
     }
 }
 
@@ -229,19 +245,22 @@ function props({ checkbox, captured, setCaptured, label, hint, defval, getter, s
 }
 
 export default {
+    $checkLabel,
     props,
     isBoolean,
     isString,
-    isArray,
     notEmpty,
-    inList,
-    nonZeroLength,
+    isArray,
+    notEmptyArray,
+    isObject,
     hasProp,
+    inList,
+    isColor,
     notZero,
     isInteger,
     isNumber,
-    isColor,
     isGT,
+    isLT,
     isGE,
     isLE,
 }

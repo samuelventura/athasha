@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "test": "vitest",
     "build": "vite build",
     "preview": "vite preview",
+    "coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "dependencies": {
@@ -32,7 +34,9 @@
     "@vitejs/plugin-react": "^1.3.0",
     "eslint": "^8.16.0",
     "eslint-plugin-react": "^7.30.0",
+    "happy-dom": "^5.2.0",
     "vite": "^2.9.5",
-    "vite-plugin-eslint": "^1.6.1"
+    "vite-plugin-eslint": "^1.6.1",
+    "vitest": "^0.14.1"
   }
 }
