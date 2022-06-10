@@ -4,7 +4,7 @@ const databases = () => ["SQL Server"]
 const units = () => ["Second(s)", "Minute(s)"]
 
 const $units = units()
-const $database = databases()
+const $databases = databases()
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -75,7 +75,7 @@ function schema() {
                 label: "Unit",
                 value: $units[0],
                 help: "Select time unit from the list",
-                check: function (value) {
+                check: function (value, label) {
                     Check.inList(value, label, $units)
                 },
             },
@@ -84,8 +84,9 @@ function schema() {
             $type: "array",
             $value: (value) => [value(0)],
             name: {
-                label: "Input Name",
-                value: (index) => `Input ${(index || 0) + 1} Name`,
+                value: "",
+                header: "Input Name",
+                label: (index) => `Input ${index + 1} Name`,
                 help: "Non empty input name",
                 check: function (value, label) {
                     Check.notEmpty(value, label)

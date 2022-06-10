@@ -16,6 +16,7 @@ const schema = {
         },
     },
     calculated: {
+        //index expected undefined here
         label: (index, name) => `CalculatedLabel:${index}:${name}`,
         value: (index, name) => `CalculatedValue:${index}:${name}`,
         help: "CalculatedHelp",
@@ -42,8 +43,9 @@ const schema = {
             Check.notEmptyArray(value, label)
         },
         id: {
-            label: (index, name) => `ItemId:${index}:${name}`,
-            value: (index, name) => `ItemValue:${index}:${name}`,
+            //+0 to ensure index is received as integer
+            label: (index, name) => `ItemId:${index + 0}:${name}`,
+            value: (index, name) => `ItemValue:${index + 0}:${name}`,
             help: "ItemHelp",
             check: function (value, label) {
                 Check.isNumber(value, label)

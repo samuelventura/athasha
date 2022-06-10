@@ -1,114 +1,91 @@
 import Check from '../common/Check'
-import Merge from "../common/Merge"
 
-function merge(target) {
-    const _initial = config()
-    Merge.apply(_initial, target)
-    Merge.apply(_initial.setts, target.setts, (name, value) => checks[name](value))
-    target.inputs.forEach((target, index) => {
-        const _initial = input(index)
-        Merge.apply(_initial, target, (name, value) => checks.inputs[name](index, value))
-    })
-    return target
-}
+const databases = () => ["SQL Server"]
+const units = () => ["Second(s)", "Minute(s)"]
 
-const databases = ["SQL Server"]
-const units = ["Second(s)", "Minute(s)"]
-
-function config() {
-    return {
-        setts: setts(),
-        inputs: [input()],
-    }
-}
+const $databases = databases()
+const $units = units()
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
 //2. non-empty required for merge to fail validaiton
 //Encrypt=false
 //TrustServerCertificate=True
-function setts() {
+function schema() {
     return {
-        connstr: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
-        command: "INSERT INTO dataplot (COL1) VALUES (@1)",
-        database: databases[0],
-        dbpass: "",
-        period: "1",
-        unit: units[0],
-    }
-}
+        $type: "object",
+        setts: {
+            $type: "object",
+            connstr: {
+                value: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                label: "Connection String",
+                help: "Non empty connection string for your DB"
+                    + "\nUse ${PASSWORD} to insert the Database Password"
+                    + "\nConsult your IT specialist"
+                    + "\nSee https://www.connectionstrings.com/",
+                check: function (value, label) {
+                    Check.isString(value, label)
+                    Check.notEmpty(value, label)
+                },
+            },
+            command: {
+                value: "INSERT INTO dataplot (COL1) VALUES (@1)",
+                label: "SQL Command",
+                help: "An SQL insert command, function or store procedure call"
+                    + "\nUse @n to reference the nth input"
+                    + "\nFor instance @1 references input 1"
+                    + "\nConsult your IT specialist",
+                check: function (value, label) {
+                    Check.isString(value, label)
+                    Check.notEmpty(value, label)
+                },
+            },
+            database: {
+                value: $databases[0],
+                label: "Database",
+                help: "Select the database type from the list",
+                check: function (value, label) {
+                    Check.inList(value, label, $databases)
+                },
+            },
+            dbpass: {
+                value: "",
+                label: "Database Password",
+                help: "Optional database password",
+                check: function (value, label) {
+                    Check.isString(value, label)
+                },
 
-function input() {
-    return {
-        id: "",
-    }
-}
-
-const labels = {
-    database: "Database",
-    dbpass: "Database Password",
-    period: "Period",
-    unit: "Unit",
-    connstr: "Connection String",
-    command: "SQL Command",
-    input: {
-        id: "Input Name",
-    },
-    inputs: {
-        id: (i) => `Input ${i + 1}`,
-    }
-}
-
-const hints = {
-    database: "Select the database type from the list",
-    dbpass: "Optional database password",
-    period: "Non empty integer insert period > 0",
-    unit: "Select time unit from the list",
-    connstr: "Non empty connection string for your DB"
-        + "\nUse ${PASSWORD} to insert the Database Password"
-        + "\nConsult your IT specialist"
-        + "\nSee https://www.connectionstrings.com/",
-    command: "An SQL insert command, function or store procedure call"
-        + "\nUse @n to reference the nth input"
-        + "\nFor instance @1 references input 1"
-        + "\nConsult your IT specialist",
-    inputs: {
-        id: () => "Select the input name from the list",
-    }
-}
-
-const checks = {
-    database: function (value) {
-        Check.isString(value, labels.database)
-        Check.notEmpty(value, labels.database)
-        Check.inList(value, labels.database, databases)
-    },
-    dbpass: function (value) {
-        Check.isString(value, labels.dbpass)
-        //Check.notEmpty(value, labels.dbpass)
-    },
-    period: function (value) {
-        Check.isString(value, labels.period)
-        Check.notEmpty(value, labels.period)
-        Check.isInteger(value, labels.period)
-        Check.isGE(value, labels.period, 1)
-    },
-    unit: function (value) {
-        Check.isString(value, labels.unit)
-        Check.inList(value, labels.unit, units)
-    },
-    connstr: function (value) {
-        Check.isString(value, labels.connstr)
-        Check.notEmpty(value, labels.connstr)
-    },
-    command: function (value) {
-        Check.isString(value, labels.command)
-        Check.notEmpty(value, labels.command)
-    },
-    inputs: {
-        id: function (index, value) {
-            Check.isString(value, labels.inputs.id(index))
-            Check.notEmpty(value, labels.inputs.id(index))
+            },
+            period: {
+                value: "1",
+                label: "Period",
+                help: "Non empty integer insert period > 0",
+                check: function (value, label) {
+                    Check.isGE(value, label, 1)
+                },
+            },
+            unit: {
+                value: $units[0],
+                label: "Unit",
+                help: "Select time unit from the list",
+                check: function (value, label) {
+                    Check.inList(value, label, $units)
+                },
+            },
+        },
+        inputs: {
+            $type: "array",
+            $value: (value) => [value(0)],
+            id: {
+                value: "",
+                header: "Input Name",
+                label: (index) => `Input ${index + 1}`,
+                help: "Select the input name from the list",
+                check: function (value, label) {
+                    Check.notEmpty(value, label)
+                },
+            }
         },
     }
 }
@@ -116,11 +93,5 @@ const checks = {
 export default {
     databases,
     units,
-    merge,
-    config,
-    setts,
-    input,
-    labels,
-    hints,
-    checks,
+    schema,
 }

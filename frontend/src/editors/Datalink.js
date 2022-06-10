@@ -1,101 +1,62 @@
 import Check from '../common/Check'
-import Merge from "../common/Merge"
 
-function merge(target) {
-    const _initial = config()
-    Merge.apply(_initial, target)
-    Merge.apply(_initial.setts, target.setts, (name, value) => checks[name](value))
-    target.links.forEach((target, index) => {
-        const _initial = link(index)
-        Merge.apply(_initial, target, (name, value) => checks.links[name](index, value))
-    })
-    return target
-}
-
-function config() {
+function schema() {
     return {
-        setts: setts(),
-        links: [link()],
-    }
-}
-
-function setts() {
-    return {
-        period: "25",
-    }
-}
-
-function link() {
-    return {
-        input: "",
-        output: "",
-        factor: "1",
-        offset: "0",
-    }
-}
-
-const labels = {
-    period: "Period (ms)",
-    link: {
-        input: "Input Name",
-        output: "Output Name",
-        factor: "Value Factor",
-        offset: "Value Offset",
-    },
-    links: {
-        input: (i) => `Input ${i + 1}`,
-        output: (i) => `Output ${i + 1}`,
-        factor: (i) => `Link ${i + 1} Factor`,
-        offset: (i) => `Link ${i + 1} Offset`,
-    }
-}
-
-const hints = {
-    period: "Non empty integer period > 0",
-    links: {
-        input: () => "Select the input name from the list",
-        output: () => "Select the output name from the list",
-        factor: () => "Non zero number m in f(x)=m*x+b",
-        offset: () => "Non empty number b in f(x)=m*x+b",
-    }
-}
-
-const checks = {
-    period: function (value) {
-        Check.isString(value, labels.period)
-        Check.notEmpty(value, labels.period)
-        Check.isInteger(value, labels.period)
-        Check.isGE(value, labels.period, 1)
-    },
-    links: {
-        input: function (index, value) {
-            Check.isString(value, labels.links.input(index))
-            Check.notEmpty(value, labels.links.input(index))
+        $type: "object",
+        setts: {
+            $type: "object",
+            period: {
+                value: "25",
+                label: "Period (ms)",
+                help: "Non empty integer period > 0",
+                check: function (value, label) {
+                    Check.isGE(value, label, 1)
+                }
+            },
         },
-        output: function (index, value) {
-            Check.isString(value, labels.links.output(index))
-            Check.notEmpty(value, labels.links.output(index))
-        },
-        factor: function (index, value) {
-            Check.isString(value, labels.links.factor(index))
-            Check.notEmpty(value, labels.links.factor(index))
-            Check.isNumber(value, labels.links.factor(index))
-            Check.notZero(value, labels.links.factor(index))
-        },
-        offset: function (index, value) {
-            Check.isString(value, labels.links.offset(index))
-            Check.notEmpty(value, labels.links.offset(index))
-            Check.isNumber(value, labels.links.offset(index))
+        links: {
+            $type: "array",
+            $value: (value) => [value(0)],
+            input: {
+                value: "",
+                header: "Input Name",
+                input: (index) => `Input ${index + 1}`,
+                help: "Select the input name from the list",
+                check: function (value, label) {
+                    Check.notEmpty(value, label)
+                },
+            },
+            output: {
+                value: "",
+                header: "Output Name",
+                label: (index) => `Output ${index + 1}`,
+                help: "Select the output name from the list",
+                check: function (value, label) {
+                    Check.notEmpty(value, label)
+                },
+            },
+            factor: {
+                value: "1",
+                header: "Value Factor",
+                label: (index) => `Link ${index + 1} Factor`,
+                help: "Non zero number m in f(x)=m*x+b",
+                check: function (value, label) {
+                    Check.notZero(value, label)
+                },
+            },
+            offset: {
+                value: "0",
+                header: "Value Offset",
+                label: (index) => `Link ${index + 1} Offset`,
+                help: "Non empty number b in f(x)=m*x+b",
+                check: function (value, label) {
+                    Check.isNumber(value, label)
+                },
+            },
         },
     }
 }
 
 export default {
-    merge,
-    config,
-    setts,
-    link,
-    labels,
-    hints,
-    checks,
+    schema,
 }
