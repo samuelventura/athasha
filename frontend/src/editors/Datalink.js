@@ -20,7 +20,7 @@ function schema() {
             input: {
                 value: "",
                 header: "Input Name",
-                input: (index) => `Input ${index + 1}`,
+                label: (index) => `Input ${index + 1}`,
                 help: "Select the input name from the list",
                 check: function (value, label) {
                     Check.notEmpty(value, label)

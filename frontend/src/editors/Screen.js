@@ -27,7 +27,7 @@ function schema() {
                 value: "",
                 label: "Access Password",
                 help: "Optional access password",
-                password: function (value, label) {
+                check: function (value, label) {
                     Check.isString(value, label)
                 },
             },
@@ -35,7 +35,7 @@ function schema() {
                 value: "25",
                 label: "Period (ms)",
                 help: "Non empty integer update period > 0",
-                period: function (value, label) {
+                check: function (value, label) {
                     Check.isInteger(value, label)
                     Check.isGE(value, label, 1)
                 },
@@ -44,7 +44,7 @@ function schema() {
                 value: scales[0],
                 label: "Scale",
                 help: "Select scale from list",
-                scale: function (value, label) {
+                check: function (value, label) {
                     Check.inList(value, label, scales)
                 },
             },
@@ -52,7 +52,7 @@ function schema() {
                 value: aligns[0],
                 label: "Align",
                 help: "Select alignment from list",
-                align: function (value, label) {
+                check: function (value, label) {
                     Check.inList(value, label, aligns)
                 },
             },
@@ -60,7 +60,7 @@ function schema() {
                 value: '640',
                 label: "Width",
                 help: "Non empty integer > 0",
-                width: function (value, label) {
+                check: function (value, label) {
                     Check.isInteger(value, label)
                     Check.isGE(value, label, 1)
                 },
@@ -69,7 +69,7 @@ function schema() {
                 value: '480',
                 label: "Height",
                 help: "Non empty integer > 0",
-                height: function (value, label) {
+                check: function (value, label) {
                     Check.isInteger(value, label)
                     Check.isGE(value, label, 1)
                 },
@@ -78,7 +78,7 @@ function schema() {
                 value: '160',
                 label: "Grid X",
                 help: "Non empty integer > 0",
-                gridX: function (value, label) {
+                check: function (value, label) {
                     Check.isInteger(value, label)
                     Check.isGE(value, label, 1)
                 },
@@ -87,7 +87,7 @@ function schema() {
                 value: '120',
                 label: "Grid Y",
                 help: "Non empty integer > 0",
-                gridY: function (value, label) {
+                check: function (value, label) {
                     Check.isInteger(value, label)
                     Check.isGE(value, label, 1)
                 },
@@ -96,7 +96,7 @@ function schema() {
                 value: "#ffffff",
                 label: "Back Color",
                 help: "Non empty backgroung color #RRGGBB",
-                backColor: function (value, label) {
+                check: function (value, label) {
                     Check.isColor(value, label)
                 },
             },
@@ -104,7 +104,7 @@ function schema() {
                 value: "#808080",
                 label: "Hover Color",
                 help: "Non empty hover color #RRGGBB",
-                hoverColor: function (value, label) {
+                check: function (value, label) {
                     Check.isColor(value, label)
                 },
             },

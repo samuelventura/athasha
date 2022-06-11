@@ -1,72 +1,59 @@
 import Check from '../common/Check'
-import Merge from "../common/Merge"
-
-function merge(target) {
-    const _initial = data()
-    Merge.apply(_initial, target, (name, value) => dchecks[name](value))
-    return target
-}
 
 const scales = ["Fit", "Stretch"]
 const aligns = ["Center", "Start", "End"]
 
-function data() {
+function schema() {
     return {
-        viewBox: "",
-        content: "",
-        filename: "",
-        scale: scales[0],
-        align: aligns[0],
+        $type: "object",
+        viewBox: {
+            value: "",
+            label: "viewBox",
+            help: "viewBox",
+            check: function (value, label) {
+                Check.notEmpty(value, label)
+            },
+        },
+        content: {
+            value: "",
+            label: "Content",
+            help: "Content",
+            check: function (value, label) {
+                Check.notEmpty(value, label)
+            },
+        },
+        filename: {
+            value: "",
+            label: "Filename",
+            help: "Filename",
+            check: function (value, label) {
+                Check.notEmpty(value, label)
+            },
+        },
+        scale: {
+            value: scales[0],
+            label: "Scale",
+            help: "Select scale from list",
+            check: function (value, label) {
+                Check.inList(value, label, scales)
+            },
+        },
+        align: {
+            value: aligns[0],
+            label: "Align",
+            help: "Select alignment from list",
+            check: function (value, label) {
+                Check.inList(value, label, aligns)
+            },
+        },
     }
-}
-
-const dlabels = {
-    viewBox: "viewBox",
-    content: "Content",
-    filename: "Filename",
-    scale: "Scale",
-    align: "Align",
-}
-
-const dhints = {
-    viewBox: "viewBox",
-    content: "Content",
-    filename: "Filename",
-    scale: "Select scale from list",
-    align: "Select alignment from lis",
-}
-
-const dchecks = {
-    viewBox: function (value) {
-        Check.isString(value, dlabels.viewBox)
-    },
-    content: function (value) {
-        Check.isString(value, dlabels.content)
-    },
-    filename: function (value) {
-        Check.isString(value, dlabels.filename)
-    },
-    scale: function (value) {
-        Check.isString(value, dlabels.scale)
-        Check.notEmpty(value, dlabels.scale)
-        Check.inList(value, dlabels.scale, scales)
-    },
-    align: function (value) {
-        Check.isString(value, dlabels.align)
-        Check.notEmpty(value, dlabels.align)
-        Check.inList(value, dlabels.align, aligns)
-    },
 }
 
 const type = "Image"
 
 export default {
     type,
-    merge,
-    data,
-    dlabels,
-    dchecks,
-    dhints,
+    schema,
     aligns,
     scales,
 }

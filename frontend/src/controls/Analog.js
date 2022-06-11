@@ -1,203 +1,176 @@
 import Check from '../common/Check'
-import Merge from "../common/Merge"
-
-function merge(target) {
-    const _initial = data()
-    Merge.apply(_initial, target, (name, value) => dchecks[name](value))
-    return target
-}
 
 const orientations = ["Circular", "Vertical", "Horizontal"]
 const styles = ["Custom", "Standard"]
 
-function data() {
+function schema() {
     return {
-        orientation: orientations[0],
-        style: styles[0],
-        barZero: "0",
-        barSpan: "180",
-        barWidth: "10",
-        barRatio: "1",
-        barOpacity: "0.5",
-        barGrayscale: "0",
-        barColored: false,
-        barColor: "#c0c0c0",
-        inputMin: "0",
-        inputMax: "10000",
-        normalMin: "4000",
-        normalMax: "6000",
-        warningMin: "2000",
-        warningMax: "8000",
-        normalColor: "#88B407",
-        warningColor: "#FF9436",
-        criticalColor: "#FC342A",
+        $type: "object",
+        orientation: {
+            value: orientations[0],
+            label: "Orientation",
+            help: "Bar orientation",
+            check: function (value, label) {
+                Check.inList(value, label, orientations)
+            },
+        },
+        style: {
+            value: styles[0],
+            label: "Look & Feel",
+            help: "Alert handling style",
+            check: function (value, label) {
+                Check.inList(value, label, styles)
+            },
+        },
+        barZero: {
+            value: "0",
+            label: "Bar Zero",
+            help: "Non empty number [-180, 180]",
+            check: function (value, label) {
+                Check.isGE(value, label, -180)
+                Check.isLE(value, label, +180)
+            },
+        },
+        barSpan: {
+            value: "180",
+            label: "Bar Span",
+            help: "Non empty number (0, 360]",
+            check: function (value, label) {
+                Check.isGT(value, label, 0)
+                Check.isLE(value, label, 360)
+            },
+        },
+        barWidth: {
+            value: "10",
+            label: "Bar Width",
+            help: "Non empty number > 0",
+            check: function (value, label) {
+                Check.isGT(value, label, 0)
+            },
+        },
+        barRatio: {
+            value: "1",
+            label: "Bar Ratio",
+            help: "Non empty number (0, 1]",
+            check: function (value, label) {
+                Check.isGT(value, label, 0)
+                Check.isLE(value, label, 1)
+            },
+        },
+        barOpacity: {
+            value: "0.5",
+            label: "Bar Opacity",
+            help: "Non empty number (0, 1]",
+            check: function (value, label) {
+                Check.isGT(value, label, 0)
+                Check.isLE(value, label, 1)
+            },
+        },
+        barGrayscale: {
+            value: "0",
+            label: "Bar Grayscale",
+            help: "Non empty number [0, 1]",
+            check: function (value, label) {
+                Check.isGE(value, label, 0)
+                Check.isLE(value, label, 1)
+            },
+        },
+        barColored: {
+            value: false,
+            label: "Bar Color Enabled",
+            help: "Uncheck for transparent background",
+            check: function (value, label) {
+                Check.isBoolean(value, label)
+            },
+        },
+        barColor: {
+            value: "#c0c0c0",
+            label: "Bar Color",
+            help: "Non empty background color #RRGGBB",
+            check: function (value, label) {
+                Check.isColor(value, label)
+            },
+        },
+        inputMin: {
+            value: "0",
+            label: "Input Range Minimum",
+            help: "Non empty number (same as critical)",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        inputMax: {
+            value: "10000",
+            label: "Input Range Maximum",
+            help: "Non empty number (same as critical)",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        normalMin: {
+            value: "4000",
+            label: "Normal Range Minimum",
+            help: "Non empty number",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        normalMax: {
+            value: "6000",
+            label: "Normal Range Maximum",
+            help: "Non empty number",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        warningMin: {
+            value: "2000",
+            label: "Warning Range Minimum",
+            help: "Non empty number",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        warningMax: {
+            value: "8000",
+            label: "Warning Range Maximum",
+            help: "Non empty number",
+            check: function (value, label) {
+                Check.isNumber(value, label)
+            },
+        },
+        normalColor: {
+            value: "#88B407",
+            label: "Normal Color",
+            help: "Non empty normal color #RRGGBB",
+            check: function (value, label) {
+                Check.isColor(value, label)
+            },
+        },
+        warningColor: {
+            value: "#FF9436",
+            label: "Warning Color",
+            help: "Non empty warning color #RRGGBB",
+            check: function (value, label) {
+                Check.isColor(value, label)
+            },
+        },
+        criticalColor: {
+            value: "#FC342A",
+            label: "Critical Color",
+            help: "Non empty critical color #RRGGBB",
+            check: function (value, label) {
+                Check.isColor(value, label)
+            },
+        },
     }
-}
-
-const dlabels = {
-    orientation: "Orientation",
-    style: "Look & Feel",
-    barConfig: "Bar Config",
-    barZero: "Bar Zero",
-    barSpan: "Bar Span",
-    barWidth: "Bar Width",
-    barParams: "Bar Params",
-    barRatio: "Bar Ratio",
-    barOpacity: "Bar Opacity",
-    barGrayscale: "Bar Grayscale",
-    barColored: "Bar Color Enabled",
-    barColor: "Bar Color",
-    inputRange: "Input Range",
-    inputMin: "Input Range Minimum",
-    inputMax: "Input Range Maximum",
-    normalRange: "Normal Range",
-    normalMin: "Normal Range Minimum",
-    normalMax: "Normal Range Maximum",
-    warningRange: "Warning Range",
-    warningMin: "Warning Range Minimum",
-    warningMax: "Warning Range Maximum",
-    normalColor: "Normal Color",
-    warningColor: "Warning Color",
-    criticalColor: "Critical Color",
-}
-
-const dhints = {
-    orientation: "Bar orientation",
-    barZero: "Non empty number [-180, 180]",
-    barSpan: "Non empty number (0, 360]",
-    barWidth: "Non empty number > 0",
-    barRatio: "Non empty number (0, 1]",
-    barOpacity: "Non empty number (0, 1]",
-    barGrayscale: "Non empty number [0, 1]",
-    barColored: "Uncheck for transparent background",
-    barColor: "Non empty background color #RRGGBB",
-    inputMin: "Non empty number (same as critical)",
-    inputMax: "Non empty number (same as critical)",
-    normalMin: "Non empty number",
-    normalMax: "Non empty number",
-    warningMin: "Non empty number",
-    warningMax: "Non empty number",
-    normalColor: "Non empty normal color #RRGGBB",
-    warningColor: "Non empty warning color #RRGGBB",
-    criticalColor: "Non empty critical color #RRGGBB",
-}
-
-const dchecks = {
-    orientation: function (value) {
-        Check.isString(value, dlabels.orientation)
-        Check.notEmpty(value, dlabels.orientation)
-        Check.inList(value, dlabels.orientation, orientations)
-    },
-    style: function (value) {
-        Check.isString(value, dlabels.style)
-        Check.notEmpty(value, dlabels.style)
-        Check.inList(value, dlabels.style, styles)
-    },
-    barZero: function (value) {
-        Check.isString(value, dlabels.barZero)
-        Check.notEmpty(value, dlabels.barZero)
-        Check.isNumber(value, dlabels.barZero)
-        Check.isGE(value, dlabels.barZero, -180)
-        Check.isLE(value, dlabels.barZero, +180)
-    },
-    barSpan: function (value) {
-        Check.isString(value, dlabels.barSpan)
-        Check.notEmpty(value, dlabels.barSpan)
-        Check.isNumber(value, dlabels.barSpan)
-        Check.isGT(value, dlabels.barSpan, 0)
-        Check.isLE(value, dlabels.barSpan, 360)
-    },
-    barWidth: function (value) {
-        Check.isString(value, dlabels.barWidth)
-        Check.notEmpty(value, dlabels.barWidth)
-        Check.isNumber(value, dlabels.barWidth)
-        Check.isGT(value, dlabels.barWidth, 0)
-    },
-    barRatio: function (value) {
-        Check.isString(value, dlabels.barRatio)
-        Check.notEmpty(value, dlabels.barRatio)
-        Check.isNumber(value, dlabels.barRatio)
-        Check.isGT(value, dlabels.barRatio, 0)
-        Check.isLE(value, dlabels.barRatio, 1)
-    },
-    barOpacity: function (value) {
-        Check.isString(value, dlabels.barOpacity)
-        Check.notEmpty(value, dlabels.barOpacity)
-        Check.isNumber(value, dlabels.barOpacity)
-        Check.isGT(value, dlabels.barOpacity, 0)
-        Check.isLE(value, dlabels.barOpacity, 1)
-    },
-    barGrayscale: function (value) {
-        Check.isString(value, dlabels.barGrayscale)
-        Check.notEmpty(value, dlabels.barGrayscale)
-        Check.isNumber(value, dlabels.barGrayscale)
-        Check.isGE(value, dlabels.barGrayscale, 0)
-        Check.isLE(value, dlabels.barGrayscale, 1)
-    },
-    barColored: function (value) {
-        Check.isBoolean(value, dlabels.barColored)
-    },
-    barColor: function (value) {
-        Check.isString(value, dlabels.barColor)
-        Check.notEmpty(value, dlabels.barColor)
-        Check.isColor(value, dlabels.barColor)
-    },
-    inputMin: function (value) {
-        Check.isString(value, dlabels.inputMin)
-        Check.notEmpty(value, dlabels.inputMin)
-        Check.isNumber(value, dlabels.inputMin)
-    },
-    inputMax: function (value) {
-        Check.isString(value, dlabels.inputMax)
-        Check.notEmpty(value, dlabels.inputMax)
-        Check.isNumber(value, dlabels.inputMax)
-    },
-    normalMin: function (value) {
-        Check.isString(value, dlabels.normalMin)
-        Check.notEmpty(value, dlabels.normalMin)
-        Check.isNumber(value, dlabels.normalMin)
-    },
-    normalMax: function (value) {
-        Check.isString(value, dlabels.normalMax)
-        Check.notEmpty(value, dlabels.normalMax)
-        Check.isNumber(value, dlabels.normalMax)
-    },
-    warningMin: function (value) {
-        Check.isString(value, dlabels.warningMin)
-        Check.notEmpty(value, dlabels.warningMin)
-        Check.isNumber(value, dlabels.warningMin)
-    },
-    warningMax: function (value) {
-        Check.isString(value, dlabels.warningMax)
-        Check.notEmpty(value, dlabels.warningMax)
-        Check.isNumber(value, dlabels.warningMax)
-    },
-    normalColor: function (value) {
-        Check.isString(value, dlabels.normalColor)
-        Check.notEmpty(value, dlabels.normalColor)
-        Check.isColor(value, dlabels.normalColor)
-    },
-    warningColor: function (value) {
-        Check.isString(value, dlabels.warningColor)
-        Check.notEmpty(value, dlabels.warningColor)
-        Check.isColor(value, dlabels.warningColor)
-    },
-    criticalColor: function (value) {
-        Check.isString(value, dlabels.criticalColor)
-        Check.notEmpty(value, dlabels.criticalColor)
-        Check.isColor(value, dlabels.criticalColor)
-    },
 }
 
 const type = "Analog"
 
 export default {
     type,
-    merge,
-    data,
-    dlabels,
-    dchecks,
-    dhints,
+    schema,
     orientations,
     styles,
 }

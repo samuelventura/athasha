@@ -2,6 +2,11 @@
 
 import { expect, test } from 'vitest'
 
+test('exceptions', () => {
+    expect(() => { throw "error xyz" }).toThrow("error xyz")
+    expect(() => { throw "error xyz" }).toThrow(/^error xyz$/)
+})
+
 test('typeof', () => {
     expect(typeof []).toEqual("object")
     expect(typeof {}).toEqual("object")

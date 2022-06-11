@@ -5,6 +5,18 @@ import Check from './Check';
 const $fun = (v) => typeof v === 'function'
 const $set = (o, n, v) => { o[n] = v; return o }
 const $props = (o) => Object.keys(o).filter(n => !n.startsWith("$"))
+const $try = (fn) => { try { fn() } catch (e) { return e } }
+
+//header, like help are is not validation related at all
+//but it does good to have everything grouped in same location
+const $check = (p, n, i) => {
+    if (!("value" in p)) throw `ALERT: ${n} ${i} value not defined`
+    if (!("label" in p)) throw `ALERT: ${n} ${i} label not defined`
+    if (!("help" in p)) throw `ALERT: ${n} ${i} help not defined`
+    if (!("check" in p)) throw `ALERT: ${n} ${i} check not defined`
+    if (i !== undefined && !("header" in p)) throw `ALERT: ${n} ${i} header not defined`
+}
+
 const $value = (p, n, i) => {
     switch (p.$type) {
         case "object": {
@@ -16,6 +28,7 @@ const $value = (p, n, i) => {
             return $fun($v) ? $v(v) : $v
         }
         default: {
+            $check(p, n, i)
             const v = p.value
             return $fun(v) ? v(i, n) : v
         }
@@ -25,10 +38,8 @@ const $value = (p, n, i) => {
 const $merge = (p, t, n, i) => {
     switch (p.$type) {
         case "object": {
-            try {
-                Check.isObject(t, n)
-            }
-            catch (e) {
+            const e = $try(() => Check.isObject(t, n))
+            if (e) {
                 addInvalid(`${e}`)
                 return $value(p, n, i)
             }
@@ -44,8 +55,8 @@ const $merge = (p, t, n, i) => {
             return t
         }
         case "array": {
-            try { p.$check ? p.$check(t, n) : Check.isArray(t, n) }
-            catch (e) {
+            const e = $try(() => { p.$check ? p.$check(t, n) : Check.isArray(t, n) })
+            if (e) {
                 addInvalid(`${e}`)
                 return $value(p, n, i)
             }
@@ -54,18 +65,15 @@ const $merge = (p, t, n, i) => {
             return t
         }
         default: {
-            if (!p.label) throw `ALERT: ${n} ${i} label not defined`
-            if (!p.help) throw `ALERT: ${n} ${i} help not defined`
-            if (i !== undefined && !p.header) throw `ALERT: ${n} ${i} header not defined`
+            $check(p, n, i)
             const $l = p.label
             const l = $fun($l) ? $l(i, n) : $l
-            try {
-                p.check(t, l)
-                return t
-            } catch (e) {
+            const e = $try(() => p.check(t, l))
+            if (e) {
                 addInvalid(`${e}`)
                 return $value(p, n, i)
             }
+            return t
         }
     }
 }
