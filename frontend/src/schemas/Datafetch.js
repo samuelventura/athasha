@@ -1,7 +1,9 @@
 import Check from '../common/Check'
 import Bases from '../common/Bases'
+import Schema from '../common/Schema'
 
 const units = ["Second(s)", "Minute(s)"]
+const databases = Bases.databases
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -15,11 +17,11 @@ function schema() {
             $type: "object",
             database: {
                 label: "Database",
-                value: Bases.databases[0],
+                value: databases[0],
                 help: "Select the database type from the list",
                 check: function (value, label) {
                     Check.notEmpty(value, label)
-                    Check.inList(value, label, Bases.databases)
+                    Check.inList(value, label, databases)
                 },
             },
             connstr: {
@@ -81,7 +83,7 @@ function schema() {
             $type: "array",
             $value: (value) => [value(0)],
             name: {
-                value: "",
+                value: (index) => `Input ${index + 1}`,
                 header: "Input Name",
                 label: (index) => `Input ${index + 1} Name`,
                 help: "Non empty input name",
@@ -93,7 +95,15 @@ function schema() {
     }
 }
 
+function input(index) {
+    const $type = "object"
+    const prop = { ...schema().inputs, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
-    units,
     schema,
+    units,
+    databases,
+    input,
 }

@@ -19,7 +19,7 @@ const get = (type) => {
     }
 }
 
-const getters = Object.keys(controls).map(c => get(c.type))
+const getters = Object.keys(controls).reduce((m, c) => { m[c.type] = get(c.type); return m }, {})
 
 const exports = {
     get,

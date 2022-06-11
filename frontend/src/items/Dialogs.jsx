@@ -10,7 +10,6 @@ import { v4 as uuidv4 } from 'uuid'
 import Clipboard from "../tools/Clipboard"
 import Log from "../tools/Log"
 import Files from '../tools/Files'
-import Schema from "../common/Schema"
 import Type from "../common/Type"
 import { useApp } from '../App'
 
@@ -74,7 +73,7 @@ function NewItem() {
     }
     function onAccept() {
         if (isValid()) {
-            const args = Schema.item(type)
+            const args = Type.get(type).item(name)
             app.dispatch({ name: "target", args: {} })
             app.send({ name: "create", args })
         }

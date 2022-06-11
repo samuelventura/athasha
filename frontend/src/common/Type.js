@@ -26,28 +26,26 @@ const views = ["Screen", "Datafetch", "Dataplot", "Modbus", "Opto22", "Laurel"]
 const get = (type) => {
     const $type = types[type]
     return {
+        item: (name) => item(type, name),
         config: () => Schema.value($type.schema()),
         merge: (config) => Schema.merge($type.schema(), config),
         ...$type,
     }
 }
 
-const item = (type) => {
-    return {
-        id: uuidv4(),
-        type: type,
-        config: Schema.value(types[type].schema()),
-        enabled: false,
-    }
+const item = (type, name) => {
+    const id = uuidv4()
+    const config = Schema.value(types[type].schema())
+    const enabled = false
+    return { id, name, type, config, enabled }
 }
 
-const getters = names.map(n => get(n))
+const getters = names.reduce((m, n) => { m[n] = get(n); return m }, {})
 
 const exports = {
     names,
     views,
     get,
-    item,
     ...getters,
 }
 

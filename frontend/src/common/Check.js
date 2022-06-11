@@ -174,7 +174,7 @@ function debounce(func, wait) {
     return { apply, exit }
 }
 
-function props({ checkbox, captured, setCaptured, label, hint, defval, getter, setter, check }) {
+function props({ checkbox, captured, setCaptured, label, help, defval, getter, setter, check }) {
     function getCurrent(e) { return checkbox ? e.target.checked : e.target.value }
     function getValue() { return captured.value }
     function getDebounced() { return captured.debounced }
@@ -204,7 +204,7 @@ function props({ checkbox, captured, setCaptured, label, hint, defval, getter, s
         }
     }
     const inputProps = {
-        title: `${label}\n${hint}`,
+        title: `${label}\n${help}`,
         placeholder: label,
         onFocus: function (e) {
             if (captured.value != null) {
@@ -244,8 +244,18 @@ function props({ checkbox, captured, setCaptured, label, hint, defval, getter, s
     return inputProps
 }
 
+function fillProp(args, prop, name, index) {
+    const $fun = (v) => typeof v === 'function'
+    const $apply = (fv) => $fun(fv) ? fv(index, name) : fv
+    args.label = $apply(prop.label)
+    args.help = $apply(prop.help)
+    args.defval = $apply(prop.value)
+    args.check = (value) => prop.check(value, args.label)
+}
+
 export default {
     $checkLabel,
+    fillProp,
     props,
     isBoolean,
     isString,

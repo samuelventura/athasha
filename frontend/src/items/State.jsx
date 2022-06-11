@@ -32,7 +32,6 @@ function version_state(state) {
 }
 
 function upgrade_config(state, item) {
-  console.log(item.type, item.id)
   const json1 = JSON.stringify(item.config)
   item.config = Type.get(item.type).merge(item.config)
   const json2 = JSON.stringify(item.config)

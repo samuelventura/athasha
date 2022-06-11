@@ -8,20 +8,27 @@ import Files from '../tools/Files'
 import Clone from '../tools/Clone'
 import Type from '../common/Type'
 import Icon from '../common/Icon'
+import State from './State'
 import { useApp } from '../App'
+import { useEffect } from 'react'
+
+const $type = State.$type
+const $editor = State.$editor
 
 function EditItem() {
     const app = useApp()
-    const type = app.state.type
-    const item = app.state.item
+    const active = app.state.init
     const status = app.state.status
-    const upgraded = app.state.upgraded
-    function isActive() { return !!item.id }
+    const item = app.state.items[$editor.id]
+    const upgraded = app.state.upgrades[$editor.id]
     const [valid, setValid] = useState(false)
     const [disabled, setDisabled] = useState(true)
     const [errors, setErrors] = useState(Schema.errors.get())
     const [config, setConfig] = useState({})
     const [captured, setCaptured] = useState({})
+    useEffect(() => {
+        document.title = `Athasha ${item.type} Editor - ${item.name}`
+    }, [item.name])
     function onButton(action) {
         const id = item.id
         switch (action) {
@@ -54,9 +61,6 @@ function EditItem() {
                 break
         }
     }
-    function cloned() {
-        return Clone.deep(item.config)
-    }
     function itemEditor() {
         const state = {
             globals: {
@@ -65,24 +69,24 @@ function EditItem() {
                 outputs: app.state.outputs
             }
         }
-        state.config = isActive() ? cloned() : Type.config(type)
-        state.id = isActive() ? item.id : ""
-        state.setter = isActive() ? (next) => {
-            Type.merge(type, Clone.deep(next))
+        state.id = item.id
+        state.config = Clone.deep(item.config)
+        state.setter = active ? (next) => {
+            $type.merge(Clone.deep(next))
             const errors = Schema.errors.get()
             setValid(errors.total.length === 0)
             setDisabled(false)
             setErrors(errors)
             setConfig(next)
         } : () => { }
-        return Editors.get(type)(state)
+        return Editors.get(item.type)(state)
     }
     function itemIcon() {
-        return isActive() ? <img className="align-middle me-2" src={Icon.get(item.type)} width="24"
+        return active ? <img className="align-middle me-2" src={Icon.get(item.type)} width="24"
             alt={item.type} /> : null
     }
     return (
-        <Modal show={isActive()} onHide={() => onButton("close")} backdrop="static"
+        <Modal show={active} onHide={() => onButton("close")} backdrop="static"
             centered dialogClassName="EditorModal" fullscreen keyboard={false}>
             <Modal.Header closeButton>
                 <Modal.Title>

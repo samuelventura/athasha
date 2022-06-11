@@ -16,6 +16,7 @@ import Type from '../common/Type'
 import { useApp } from '../App'
 
 const $type = Type.Datafetch
+const $schema = $type.schema()
 const $config = $type.config()
 
 function Editor(props) {
@@ -30,10 +31,8 @@ function Editor(props) {
         setInputs(config.inputs)
     }, [props.id])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, inputs }
-            props.setter(config)
-        }
+        const config = { setts, inputs }
+        props.setter(config)
     }, [setts, inputs])
     function addInput() {
         const next = [...inputs]
@@ -61,12 +60,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -78,12 +74,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.inputs[prop](index)
-        args.hint = $type.hints.inputs[prop](index)
+        Check.fillProp(args, $schema.inputs[prop], prop, index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.inputs[prop](index, value)
-        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     const rows = inputs.map((input, index) =>
@@ -122,24 +115,24 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.database}>
+                    <FloatingLabel label={$schema.setts.database.label}>
                         <Form.Select {...settsProps("database")}>
                             {databaseOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.dbpass}>
+                    <FloatingLabel label={$schema.setts.dbpass.label}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={1}>
-                    <FloatingLabel label={$type.labels.period}>
+                    <FloatingLabel label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.unit}>
+                    <FloatingLabel label={$schema.setts.unit.label}>
                         <Form.Select {...settsProps("unit")} >
                             {unitOptions}
                         </Form.Select>
@@ -152,21 +145,21 @@ function Editor(props) {
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.password}>
+                    <FloatingLabel label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={$type.labels.connstr}>
+                    <FloatingLabel label={$schema.setts.connstr.label}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={$type.labels.command}>
+                    <FloatingLabel label={$schema.setts.command.label}>
                         <Form.Control type="text" as="textarea"
                             value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
@@ -176,8 +169,7 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{$type.labels.input.name}</th>
-                        <th>{$type.labels.input.color}</th>
+                        <th>{$schema.inputs.name.header}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput} title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />

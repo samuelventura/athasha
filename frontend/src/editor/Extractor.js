@@ -1,4 +1,4 @@
-const inputExtractor = {
+const inputs = {
     Modbus: function (item, add) {
         item.config.inputs.forEach(point => {
             if (point.name.trim().length > 0) {
@@ -43,7 +43,7 @@ const inputExtractor = {
     },
 }
 
-const outputExtractor = {
+const outputs = {
     Modbus: function (item, add) {
         item.config.outputs.forEach(point => {
             if (point.name.trim().length > 0) {
@@ -80,13 +80,15 @@ const outputExtractor = {
 
 function nop() { }
 
-const Extractor = {
-    inputExtractor: function (type) {
-        return inputExtractor[type] || nop
+const exports = {
+    inputs: function (item, add) {
+        const extractor = inputs[item.type] || nop
+        extractor(item, add)
     },
-    outputExtractor: function (type) {
-        return outputExtractor[type] || nop
+    outputs: function (item, add) {
+        const extractor = outputs[item.type] || nop
+        extractor(item, add)
     },
 }
 
-export default Extractor
+export default exports

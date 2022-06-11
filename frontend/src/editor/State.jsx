@@ -4,16 +4,22 @@ import Clone from "../tools/Clone"
 import Type from "../common/Type"
 import Log from "../tools/Log"
 
+const $editor = Router.getEditorData()
+const $type = Type.get($editor.type)
+
 function initial() {
-  const editor = Router.getEditorData()
+  const id = $editor.id
+  const upgrades = {}
+  upgrades[id] = false
+  const item = $type.item(id)
+  item.id = item
+  const items = {}
+  items[id] = item
   return {
-    id: editor.id,
-    type: editor.type,
-    item: Type.item(editor.type),
-    upgraded: false,
-    upgrades: {},
+    init: false,
+    items: items,
+    upgrades: upgrades,
     targeted: {},
-    items: {},
     status: {},
     inputs: [],
     outputs: [],
@@ -25,119 +31,99 @@ function build_status({ type, msg }) {
   return { msg, type }
 }
 
-function version_state(next) {
-  const upgrades = Object.keys(next.upgrades).length
-  const items = Object.keys(next.items).length
+function check_version(state) {
+  const upgrades = Object.keys(state.upgrades).length
+  const items = Object.keys(state.items).length
   if (upgrades !== items) throw `Sync error items:${items} upgrades:${upgrades}`
-  next.version++
-  return next
+  state.version++
+  return state
 }
 
-function update_points(next) {
+function update_points(state) {
   const inputs = []
   const outputs = []
   const addInput = (point) => inputs.push(point)
   const addOutput = (point) => outputs.push(point)
-  Object.values(next.items).forEach((item) => {
-    Extractor.inputExtractor(item.type)(item, addInput)
-    Extractor.outputExtractor(item.type)(item, addOutput)
+  Object.values(state.items).forEach((item) => {
+    Extractor.inputs(item, addInput)
+    Extractor.outputs(item, addOutput)
   })
-  next.inputs = inputs
-  next.outputs = outputs
+  state.inputs = inputs
+  state.outputs = outputs
 }
 
-function setup_editor(next) {
-  const item = next.items[next.id]
-  if (item) {
-    next.item = item
-    next.upgraded = next.upgrades[next.id]
-    document.title = `Athasha ${item.type} Editor - ${item.name}`
-  }
-}
-
-function upgrade_config(next, item) {
+function upgrade_config(state, item) {
   //point extraction requires to ensure valid schema
   const json1 = JSON.stringify(item.config)
-  item.config = Type.merge(item.type, item.config)
+  item.config = Type.get(item.type).merge(item.config)
   const json2 = JSON.stringify(item.config)
-  next.upgrades[item.id] = json1 !== json2
-  Log.log(item.id, "upgraded", next.upgrades[item.id], item.type, item.name)
+  state.upgrades[item.id] = json1 !== json2
+  Log.log(item.id, "upgraded", state.upgrades[item.id], item.type, item.name)
 }
 
 function reducer(state, { name, args, self }) {
-  //this is being called twice by react
-  //deep clone required for idempotency
+  const version = state.version
+  state = Clone.deep(state)
   args = Clone.deep(args)
   switch (name) {
     case "init": {
-      const next = Clone.shallow(state)
-      next.items = {}
-      next.status = {}
-      next.upgrades = {}
+      state = initial()
+      state.version = version
+      state.init = true
       args.items.forEach(item => {
-        next.status[item.id] = {}
-        next.items[item.id] = item
-        upgrade_config(next, item)
+        state.status[item.id] = {}
+        state.items[item.id] = item
+        upgrade_config(state, item)
       })
-      next.status = build_status(args.status)
-      setup_editor(next)
-      update_points(next)
-      return version_state(next)
+      state.status = build_status(args.status)
+      update_points(state)
+      return check_version(state)
     }
     case "create": {
-      const next = Clone.shallow(state)
-      next.items[args.id] = args
-      next.status[args.id] = {}
-      upgrade_config(next, args)
-      update_points(next)
-      return version_state(next)
+      state.items[args.id] = args
+      state.status[args.id] = {}
+      upgrade_config(state, args)
+      update_points(state)
+      return check_version(state)
     }
     case "delete": {
-      const next = Clone.shallow(state)
-      delete next.status[args.id]
-      delete next.items[args.id]
-      delete next.upgrades[args.id]
-      update_points(next)
-      return version_state(next)
+      delete state.status[args.id]
+      delete state.items[args.id]
+      delete state.upgrades[args.id]
+      update_points(state)
+      return check_version(state)
     }
     case "edit": {
-      const next = Clone.shallow(state)
-      const item = next.items[args.id]
+      const item = state.items[args.id]
       item.config = args.config
-      upgrade_config(next, item)
-      update_points(next)
-      if (self && args.id === next.id) {
-        //remove upgraded badge on save
-        next.upgraded = next.upgrades[next.id]
-      }
-      return version_state(next)
+      upgrade_config(state, item)
+      update_points(state)
+      return check_version(state)
     }
     case "rename": {
-      if (args.id !== state.id) return state
-      const next = Clone.shallow(state)
-      next.items[args.id].name = args.name
-      return version_state(next)
+      if (args.id !== $editor.id) return state
+      state.items[args.id].name = args.name
+      return check_version(state)
     }
     case "enable": {
-      if (args.id !== state.id) return state
-      const next = Clone.shallow(state)
-      next.items[args.id].enabled = args.enabled
-      next.status[args.id] = {}
-      return version_state(next)
+      if (args.id !== $editor.id) return state
+      state.items[args.id].enabled = args.enabled
+      state.status[args.id] = {}
+      return check_version(state)
     }
     case "status": {
-      if (args.id !== state.id) return state
-      const next = Clone.shallow(state)
-      next.status = build_status(args)
-      return version_state(next)
+      if (args.id !== $editor.id) return state
+      state.status = build_status(args)
+      return check_version(state)
     }
     case "target": {
-      const next = Clone.shallow(state)
-      next.targeted = args
-      return version_state(next)
+      state.targeted = args
+      return check_version(state)
     }
     case "close": {
-      return initial()
+      state = initial()
+      state.version = version
+      return check_version(state)
     }
     default:
       Log.log("Unknown mutation", name, args, self)
@@ -145,6 +131,6 @@ function reducer(state, { name, args, self }) {
   }
 }
 
-const exports = { initial, reducer }
+const exports = { initial, reducer, $editor, $type }
 
 export default exports

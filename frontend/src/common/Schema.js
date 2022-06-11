@@ -117,8 +117,8 @@ function addInvalid(error) {
     Log.log(error)
 }
 
-function value(schema) {
-    return $value(schema)
+function value(schema, index) {
+    return $value(schema, undefined, index)
 }
 
 function merge(schema, target) {
