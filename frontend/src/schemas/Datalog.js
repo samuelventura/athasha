@@ -1,7 +1,9 @@
 import Check from '../common/Check'
 import Bases from '../common/Bases'
+import Schema from '../common/Schema'
 
 const units = ["Second(s)", "Minute(s)"]
+const databases = Bases.databases
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -87,7 +89,15 @@ function schema() {
     }
 }
 
+function input(index) {
+    const $type = "object"
+    const prop = { ...schema().inputs, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
-    units,
     schema,
+    input,
+    units,
+    databases,
 }
