@@ -8,6 +8,7 @@ import Datalog from '../src/editors/Datalog.js'
 import Dataplot from '../src/editors/Dataplot.js'
 import Laurel from '../src/editors/Laurel.js'
 import Modbus from '../src/editors/Modbus.js'
+import Opto22 from '../src/editors/Opto22.js'
 
 test('Datafetch merge vs initial', () => {
     const merged = Schema.merge(Datafetch.schema(), {})
@@ -42,5 +43,11 @@ test('Laurel merge vs initial', () => {
 test('Modbus merge vs initial', () => {
     const merged = Schema.merge(Modbus.schema(), {})
     const initial = Schema.value(Modbus.schema())
+    expect(merged).toEqual(initial)
+})
+
+test('Opto22 merge vs initial', () => {
+    const merged = Schema.merge(Opto22.schema(), {})
+    const initial = Schema.value(Opto22.schema())
     expect(merged).toEqual(initial)
 })
