@@ -11,23 +11,25 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Dataplot.js'
-import Check from '../common/Check'
 import Tools from '../editor/Tools'
+import Check from '../common/Check'
+import Type from '../common/Type'
 import { useApp } from '../App'
+
+const $type = Type.Dataplot
+const $config = $type.config()
 
 function Editor(props) {
     const app = useApp()
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [columns, setColumns] = useState(Initial.config().columns)
+    const [setts, setSetts] = useState($config.setts)
+    const [columns, setColumns] = useState($config.columns)
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setColumns(config.columns || init.columns)
-    }, [props.id]) //primitive type required
+        setSetts(config.setts)
+        setColumns(config.columns)
+    }, [props.id])
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, columns }
@@ -37,7 +39,7 @@ function Editor(props) {
     function addColumn() {
         if (columns.length > 6) return
         const next = [...columns]
-        const column = Initial.column(next.length)
+        const column = $type.column(next.length)
         next.push(column)
         setColumns(next)
     }
@@ -62,12 +64,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function columnProps(index, prop) {
@@ -79,12 +81,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.columns[prop](index)
-        args.hint = Initial.hints.columns[prop](index)
+        args.label = $type.labels.columns[prop](index)
+        args.hint = $type.hints.columns[prop](index)
         args.getter = () => columns[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.columns[prop](index, value)
-        args.defval = Initial.column()[prop]
+        args.check = (value) => $type.checks.columns[prop](index, value)
+        args.defval = $type.column()[prop]
         return Check.props(args)
     }
     const rows = columns.map((column, index) =>
@@ -123,19 +125,19 @@ function Editor(props) {
         function done() { e.target.disabled = false }
         Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
-    const databaseOptions = Initial.databases.map(v => <option key={v} value={v}>{v}</option>)
+    const databaseOptions = $type.databases.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.database}>
+                    <FloatingLabel label={$type.labels.database}>
                         <Form.Select {...settsProps("database")}>
                             {databaseOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.dbpass}>
+                    <FloatingLabel label={$type.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
@@ -146,21 +148,21 @@ function Editor(props) {
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.password}>
+                    <FloatingLabel label={$type.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={Initial.labels.connstr}>
+                    <FloatingLabel label={$type.labels.connstr}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={Initial.labels.command}>
+                    <FloatingLabel label={$type.labels.command}>
                         <Form.Control type="text" as="textarea"
                             value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
@@ -168,27 +170,27 @@ function Editor(props) {
             </Row>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.ymin}>
+                    <FloatingLabel label={$type.labels.ymin}>
                         <Form.Control type="number" {...settsProps("ymin")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.ymax}>
+                    <FloatingLabel label={$type.labels.ymax}>
                         <Form.Control type="number"  {...settsProps("ymax")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.yformat}>
+                    <FloatingLabel label={$type.labels.yformat}>
                         <Form.Control type="text"  {...settsProps("yformat")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.ywidth}>
+                    <FloatingLabel label={$type.labels.ywidth}>
                         <Form.Control type="number"  {...settsProps("ywidth")} min="0" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.lineWidth}>
+                    <FloatingLabel label={$type.labels.lineWidth}>
                         <Form.Control type="number"  {...settsProps("lineWidth")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -197,8 +199,8 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{Initial.labels.column.name}</th>
-                        <th>{Initial.labels.column.color}</th>
+                        <th>{$type.labels.column.name}</th>
+                        <th>{$type.labels.column.color}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addColumn}
                                 disabled={columns.length > 6} title="Add Column">

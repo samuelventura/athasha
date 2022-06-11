@@ -53,6 +53,19 @@ const schema = {
                 Check.isNumber(value, label)
             },
         },
+        sub: {
+            $type: "object",
+            id: {
+                //should not receive index here
+                label: (index, name) => `ItemId:${index}:${name}`,
+                value: (index, name) => `ItemValue:${index}:${name}`,
+                help: "ItemHelp",
+                header: "ItemHeader",
+                check: function (value, label) {
+                    Check.isNumber(value, label)
+                },
+            },
+        },
     },
 }
 
@@ -67,7 +80,8 @@ test('value', () => {
         fixed: "FixedValue",
         calculated: "CalculatedValue:undefined:calculated",
         fixedList: [{ id: "FixedValue" }],
-        calculatedList: [{ id: "ItemValue:0:id" }, { id: "ItemValue:1:id" }],
+        calculatedList: [{ id: "ItemValue:0:id", sub: { id: "ItemValue:0:id" } },
+        { id: "ItemValue:1:id", sub: { id: "ItemValue:1:id" } }],
     })
 })
 
@@ -87,14 +101,15 @@ const target = {
     fixed: "a",
     calculated: "b",
     fixedList: [{ id: "c" }, { id: "" }],
-    calculatedList: [{ id: "1" }, { id: "" }],
+    calculatedList: [{ id: "1", sub: { id: "1" } }, { id: "" }],
 }
 
 function check_result(result) {
     expect(result.fixed).toEqual("a")
     expect(result.calculated).toEqual("b")
     expect(result.fixedList).toEqual([{ id: "c" }, { id: "ItemValue" }])
-    expect(result.calculatedList).toEqual([{ id: "1" }, { id: "ItemValue:1:id" }])
+    expect(result.calculatedList).toEqual([{ id: "1", sub: { id: "1" } },
+    { id: "ItemValue:1:id", sub: { id: "ItemValue:1:id" } }])
 }
 
 test('merge simple', () => {

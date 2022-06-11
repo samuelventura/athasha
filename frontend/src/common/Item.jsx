@@ -1,7 +1,7 @@
 import React from 'react'
 import Badge from 'react-bootstrap/Badge'
 import Clipboard from "../tools/Clipboard"
-import Types from './Types'
+import Icon from './Icon'
 
 function statusTitle(item, status) {
     if (!item.enabled) {
@@ -56,7 +56,7 @@ function Name({ item }) {
 
 function Entry({ item, status, upgraded }) {
     return <>
-        <img src={Types.icon(item.type)} width="20"
+        <img src={Icon.get(item.type)} width="20"
             alt={item.type} className='me-2' />
         <Name item={item} />
         <Status item={item} status={status} />

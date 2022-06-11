@@ -12,21 +12,23 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Opto22.js'
 import Check from '../common/Check'
+import Type from '../common/Type'
+
+const $type = Type.Opto22
+const $config = $type.config()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [inputs, setInputs] = useState(Initial.config().inputs)
-    const [outputs, setOutputs] = useState(Initial.config().outputs)
+    const [setts, setSetts] = useState($config.setts)
+    const [inputs, setInputs] = useState($config.inputs)
+    const [outputs, setOutputs] = useState($config.outputs)
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setInputs(config.inputs || init.inputs)
-        setOutputs(config.outputs || init.outputs)
+        setSetts(config.setts)
+        setInputs(config.inputs)
+        setOutputs(config.outputs)
     }, [props.id]) //primitive type required
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
@@ -36,7 +38,7 @@ function Editor(props) {
     }, [setts, inputs, outputs])
     function addInput() {
         const next = [...inputs]
-        const input = Initial.input(next.length)
+        const input = $type.input(next.length)
         next.push(input)
         setInputs(next)
     }
@@ -59,7 +61,7 @@ function Editor(props) {
     }
     function addOutput() {
         const next = [...outputs]
-        const output = Initial.output(next.length)
+        const output = $type.output(next.length)
         next.push(output)
         setOutputs(next)
     }
@@ -88,12 +90,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -103,12 +105,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.inputs[prop](index)
-        args.hint = Initial.hints.inputs[prop](index)
+        args.label = $type.labels.inputs[prop](index)
+        args.hint = $type.hints.inputs[prop](index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.inputs[prop](index, value)
-        args.defval = Initial.input()[prop]
+        args.check = (value) => $type.checks.inputs[prop](index, value)
+        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(index, prop) {
@@ -118,15 +120,15 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.outputs[prop](index)
-        args.hint = Initial.hints.outputs[prop](index)
+        args.label = $type.labels.outputs[prop](index)
+        args.hint = $type.hints.outputs[prop](index)
         args.getter = () => outputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.outputs[prop](index, value)
-        args.defval = Initial.output()[prop]
+        args.check = (value) => $type.checks.outputs[prop](index, value)
+        args.defval = $type.output()[prop]
         return Check.props(args)
     }
-    const inputOptions = Initial.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const inputOptions = $type.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const inputRows = inputs.map((input, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
@@ -161,7 +163,7 @@ function Editor(props) {
             </td>
         </tr >
     )
-    const outputOptions = Initial.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const outputOptions = $type.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const outputRows = outputs.map((output, index) =>
         < tr key={index} className='align-middle' >
             <td >{index + 1}</td>
@@ -196,42 +198,42 @@ function Editor(props) {
             </td>
         </tr >
     )
-    const typeOptions = Initial.types.map(v => <option key={v} value={v}>{v}</option>)
+    const typeOptions = $type.types.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={Initial.labels.host}>
+                    <FloatingLabel label={$type.labels.host}>
                         <Form.Control type="text" {...settsProps("host")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.port}>
+                    <FloatingLabel label={$type.labels.port}>
                         <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.period}>
+                    <FloatingLabel label={$type.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.password}>
+                    <FloatingLabel label={$type.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.type}>
+                    <FloatingLabel label={$type.labels.type}>
                         <Form.Select {...settsProps("type")}>
                             {typeOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.slave}>
+                    <FloatingLabel label={$type.labels.slave}>
                         <Form.Control type="number" {...settsProps("slave")} min="0" max="255" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -243,10 +245,10 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{Initial.labels.input.code}</th>
-                                <th>{Initial.labels.input.module}</th>
-                                <th>{Initial.labels.input.number}</th>
-                                <th>{Initial.labels.input.name}</th>
+                                <th>{$type.labels.input.code}</th>
+                                <th>{$type.labels.input.module}</th>
+                                <th>{$type.labels.input.number}</th>
+                                <th>{$type.labels.input.name}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addInput}
                                         title="Add Input">
@@ -265,10 +267,10 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{Initial.labels.output.code}</th>
-                                <th>{Initial.labels.output.module}</th>
-                                <th>{Initial.labels.output.number}</th>
-                                <th>{Initial.labels.output.name}</th>
+                                <th>{$type.labels.output.code}</th>
+                                <th>{$type.labels.output.module}</th>
+                                <th>{$type.labels.output.number}</th>
+                                <th>{$type.labels.output.name}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addOutput}
                                         title="Add Output">

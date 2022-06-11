@@ -10,7 +10,8 @@ import { v4 as uuidv4 } from 'uuid'
 import Clipboard from "../tools/Clipboard"
 import Log from "../tools/Log"
 import Files from '../tools/Files'
-import Types from "../common/Types"
+import Schema from "../common/Schema"
+import Type from "../common/Type"
 import { useApp } from '../App'
 
 function DeleteItem() {
@@ -73,8 +74,7 @@ function NewItem() {
     }
     function onAccept() {
         if (isValid()) {
-            const config = Types.initial(type).config()
-            const args = { name, type, config, enabled: false }
+            const args = Schema.item(type)
             app.dispatch({ name: "target", args: {} })
             app.send({ name: "create", args })
         }
@@ -91,7 +91,7 @@ function NewItem() {
         setName(value + " " + token.substring(0, 6))
     }
     function options() {
-        return Types.names.map(v => <option key={v} value={v}>{v}</option>)
+        return Type.names.map(v => <option key={v} value={v}>{v}</option>)
     }
     return (
         <Modal show={isActive()} onHide={onCancel} centered>

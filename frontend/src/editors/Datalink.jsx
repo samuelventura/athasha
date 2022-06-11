@@ -11,20 +11,22 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../common/Points'
-import Initial from './Datalink.js'
 import Check from '../common/Check'
+import Type from '../common/Type'
+
+const $type = Type.Datalink
+const $config = $type.config()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [links, setLinks] = useState(Initial.config().links)
+    const [setts, setSetts] = useState($config.setts)
+    const [links, setLinks] = useState($config.links)
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setLinks(config.links || init.links)
-    }, [props.id]) //primitive type required
+        setSetts(config.setts)
+        setLinks(config.links)
+    }, [props.id])
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, links }
@@ -33,7 +35,7 @@ function Editor(props) {
     }, [setts, links])
     function addLink() {
         const next = [...links]
-        const link = Initial.link()
+        const link = $type.link()
         next.push(link)
         setLinks(next)
     }
@@ -57,12 +59,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function linkProps(index, prop) {
@@ -74,12 +76,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.links[prop](index)
-        args.hint = Initial.hints.links[prop](index)
+        args.label = $type.labels.links[prop](index)
+        args.hint = $type.hints.links[prop](index)
         args.getter = () => links[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.links[prop](index, value)
-        args.defval = Initial.link()[prop]
+        args.check = (value) => $type.checks.links[prop](index, value)
+        args.defval = $type.link()[prop]
         return Check.props(args)
     }
     const rows = links.map((link, index) =>
@@ -126,7 +128,7 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.period}>
+                    <FloatingLabel label={$type.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -136,10 +138,10 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{Initial.labels.link.input}</th>
-                        <th>{Initial.labels.link.factor}</th>
-                        <th>{Initial.labels.link.offset}</th>
-                        <th>{Initial.labels.link.output}</th>
+                        <th>{$type.labels.link.input}</th>
+                        <th>{$type.labels.link.factor}</th>
+                        <th>{$type.labels.link.offset}</th>
+                        <th>{$type.labels.link.output}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addLink}
                                 title="Add Link">

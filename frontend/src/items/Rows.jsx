@@ -8,7 +8,7 @@ import { DeleteItem } from "./Dialogs"
 import { DeleteAllItems } from "./Dialogs"
 import { RenameItem } from "../Dialogs"
 import Clipboard from "../tools/Clipboard"
-import Types from "../common/Types"
+import Type from "../common/Type"
 import Item from "../common/Item"
 
 function Rows(props) {
@@ -76,7 +76,7 @@ function Rows(props) {
         const viewAction = (
             <Button variant="link" onClick={() => onAction('view', item)}
                 onDoubleClick={(e) => onDoubleClick(e)}
-                disabled={!Types.withView.includes(item.type)}>View</Button>
+                disabled={!Type.views.includes(item.type)}>View</Button>
         )
         return (<tr key={item.id} id={"item_" + item.id}
             onClick={() => handleSelect(item)}

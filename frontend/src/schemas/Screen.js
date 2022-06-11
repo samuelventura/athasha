@@ -1,8 +1,8 @@
 import Check from '../common/Check'
-import Label from '../controls/Label.js'
-import Analog from '../controls/Analog.js'
-import Image from '../controls/Image.js'
-import Trend from '../controls/Trend.js'
+import Label from './Label.js'
+import Analog from './Analog.js'
+import Image from './Image.js'
+import Trend from './Trend.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const controls = {}
@@ -116,6 +116,7 @@ function schema() {
                 value: () => id(),
                 label: "Control ID",
                 help: "Control ID",
+                header: "Control ID",
                 check: function (value, label) {
                     Check.notEmpty(value, label)
                 },
@@ -124,6 +125,7 @@ function schema() {
                 value: "",
                 label: "Control Type",
                 help: "Control Type",
+                header: "Control Type",
                 check: function (value, label) {
                     Check.inList(value, label, types)
                 },
@@ -178,7 +180,7 @@ function schema() {
                     value: "",
                     label: "Input",
                     help: "Select optional input from list",
-                    input: function (value, label) {
+                    check: function (value, label) {
                         Check.isString(value, label.input)
                     },
                 },
@@ -267,7 +269,7 @@ function schema() {
                     label: "Open New Tab",
                     help: "Check to open link in new tab",
                     check: function (value, label) {
-                        Check.isString(value, label)
+                        Check.isBoolean(value, label)
                     },
                 },
                 linkURL: {
@@ -275,7 +277,7 @@ function schema() {
                     label: "Link URL",
                     help: "Optional URL string",
                     check: function (value, label) {
-                        Check.isBoolean(value, label)
+                        Check.isString(value, label)
                     },
                 },
             },

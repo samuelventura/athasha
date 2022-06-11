@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import Initials from '../common/Initials'
-import Types from '../common/Types'
-import Merge from '../common/Merge'
+import Schema from '../common/Schema'
 import Item from "../common/Item"
 import Editors from './Editors'
 import Files from '../tools/Files'
 import Clone from '../tools/Clone'
+import Type from '../common/Type'
+import Icon from '../common/Icon'
 import { useApp } from '../App'
 
 function EditItem() {
@@ -19,7 +19,7 @@ function EditItem() {
     function isActive() { return !!item.id }
     const [valid, setValid] = useState(false)
     const [disabled, setDisabled] = useState(true)
-    const [errors, setErrors] = useState(Merge.init())
+    const [errors, setErrors] = useState(Schema.errors.get())
     const [config, setConfig] = useState({})
     const [captured, setCaptured] = useState({})
     function onButton(action) {
@@ -65,22 +65,20 @@ function EditItem() {
                 outputs: app.state.outputs
             }
         }
-        state.config = isActive() ? cloned() : Initials(type).config()
+        state.config = isActive() ? cloned() : Type.config(type)
         state.id = isActive() ? item.id : ""
         state.setter = isActive() ? (next) => {
-            Merge.clear()
-            const cloned = Clone.deep(next)
-            Initials(type).merge(cloned)
-            const errors = Merge.get()
+            Type.merge(type, Clone.deep(next))
+            const errors = Schema.errors.get()
             setValid(errors.total.length === 0)
             setDisabled(false)
             setErrors(errors)
             setConfig(next)
         } : () => { }
-        return Editors(type)(state)
+        return Editors.get(type)(state)
     }
     function itemIcon() {
-        return isActive() ? <img className="align-middle me-2" src={Types.icon(item.type)} width="24"
+        return isActive() ? <img className="align-middle me-2" src={Icon.get(item.type)} width="24"
             alt={item.type} /> : null
     }
     return (
@@ -104,7 +102,7 @@ function EditItem() {
                     Close
                 </Button>
                 <Button variant="secondary" onClick={() => onButton("view")}
-                    disabled={!Types.withView.includes(item.type)}
+                    disabled={!Type.views.includes(item.type)}
                     title="Launch item viewer">
                     View
                 </Button>

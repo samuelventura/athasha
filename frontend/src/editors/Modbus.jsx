@@ -12,31 +12,34 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Modbus.js'
-import Serial from "./Serial"
 import Check from '../common/Check'
+import Type from '../common/Type'
+import Comm from "../common/Comm"
+import Api from "../common/Api"
+
+const $type = Type.Modbus
+const $config = $type.config()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [inputs, setInputs] = useState(Initial.config().inputs)
-    const [outputs, setOutputs] = useState(Initial.config().outputs)
+    const [setts, setSetts] = useState($config.setts)
+    const [inputs, setInputs] = useState($config.inputs)
+    const [outputs, setOutputs] = useState($config.outputs)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
-            Serial.fetchSerials(setSerials)
+            Api.fetchSerials(setSerials)
         }
     }, [trigger])
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setInputs(config.inputs || init.inputs)
-        setOutputs(config.outputs || init.outputs)
-    }, [props.id]) //primitive type required
+        setSetts(config.setts)
+        setInputs(config.inputs)
+        setOutputs(config.outputs)
+    }, [props.id])
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, inputs, outputs }
@@ -45,7 +48,7 @@ function Editor(props) {
     }, [setts, inputs, outputs])
     function addInput() {
         const next = [...inputs]
-        const input = Initial.input(next.length)
+        const input = $type.input(next.length)
         next.push(input)
         setInputs(next)
     }
@@ -63,7 +66,7 @@ function Editor(props) {
     }
     function addOutput() {
         const next = [...outputs]
-        const output = Initial.output(next.length)
+        const output = $type.output(next.length)
         next.push(output)
         setOutputs(next)
     }
@@ -87,12 +90,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -104,12 +107,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.inputs[prop](index)
-        args.hint = Initial.hints.inputs[prop](index)
+        args.label = $type.labels.inputs[prop](index)
+        args.hint = $type.hints.inputs[prop](index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.inputs[prop](index, value)
-        args.defval = Initial.input()[prop]
+        args.check = (value) => $type.checks.inputs[prop](index, value)
+        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(index, prop) {
@@ -121,18 +124,18 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.outputs[prop](index)
-        args.hint = Initial.hints.outputs[prop](index)
+        args.label = $type.labels.outputs[prop](index)
+        args.hint = $type.hints.outputs[prop](index)
         args.getter = () => outputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.outputs[prop](index, value)
-        args.defval = Initial.output()[prop]
+        args.check = (value) => $type.checks.outputs[prop](index, value)
+        args.defval = $type.output()[prop]
         return Check.props(args)
     }
 
-    const configOptions = Serial.configList.map(v => <option key={v} value={v}>{v}</option>)
+    const configOptions = Comm.serialConfigs.map(v => <option key={v} value={v}>{v}</option>)
     const serialOptions = serials.map(v => <option key={v} value={v}>{v}</option>)
-    const inputOptions = Initial.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const inputOptions = $type.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const inputRows = inputs.map((input, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
@@ -173,7 +176,7 @@ function Editor(props) {
             </td>
         </tr>
     )
-    const outputOptions = Initial.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const outputOptions = $type.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
     const outputRows = outputs.map((output, index) =>
         <tr key={index} className='align-middle'>
             <td >{index + 1}</td>
@@ -217,12 +220,12 @@ function Editor(props) {
 
     const transSocket = (<Row>
         <Col xs={4}>
-            <FloatingLabel label={Initial.labels.host}>
+            <FloatingLabel label={$type.labels.host}>
                 <Form.Control type="text" {...settsProps("host")} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={Initial.labels.port}>
+            <FloatingLabel label={$type.labels.port}>
                 <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
             </FloatingLabel>
         </Col>
@@ -232,7 +235,7 @@ function Editor(props) {
     //keyPress not emitting, onFocus replaces by check props
     const transSerial = (<Row>
         <Col xs={4}>
-            <FloatingLabel label={Initial.labels.tty}>
+            <FloatingLabel label={$type.labels.tty}>
                 <Form.Control type="text" list="serialList"
                     onClick={() => setTrigger(true)}
                     onKeyDown={e => setTrigger(e.key === 'Enter')}
@@ -243,12 +246,12 @@ function Editor(props) {
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={Initial.labels.speed}>
+            <FloatingLabel label={$type.labels.speed}>
                 <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={Initial.labels.dbpsb}>
+            <FloatingLabel label={$type.labels.dbpsb}>
                 <Form.Select {...settsProps("dbpsb")}>
                     {configOptions}
                 </Form.Select>
@@ -258,34 +261,34 @@ function Editor(props) {
     </Row >)
 
     const transEditor = setts.trans === "Serial" ? transSerial : transSocket
-    const transportOptions = Initial.transports.map(v => <option key={v} value={v}>{v}</option>)
-    const protocolOptions = Initial.protocols.map(v => <option key={v} value={v}>{v}</option>)
+    const transportOptions = $type.transports.map(v => <option key={v} value={v}>{v}</option>)
+    const protocolOptions = $type.protocols.map(v => <option key={v} value={v}>{v}</option>)
 
     return (
         <Form>
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={Initial.labels.trans}>
+                    <FloatingLabel label={$type.labels.trans}>
                         <Form.Select {...settsProps("trans")}>
                             {transportOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.proto}>
+                    <FloatingLabel label={$type.labels.proto}>
                         <Form.Select {...settsProps("proto")}>
                             {protocolOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.period}>
+                    <FloatingLabel label={$type.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.password}>
+                    <FloatingLabel label={$type.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
@@ -297,12 +300,12 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{Initial.labels.input.slave}</th>
-                                <th className='col-2'>{Initial.labels.input.code}</th>
-                                <th>{Initial.labels.input.address}</th>
-                                <th className='col-2'>{Initial.labels.input.name}</th>
-                                <th>{Initial.labels.input.factor}</th>
-                                <th>{Initial.labels.input.offset}</th>
+                                <th>{$type.labels.input.slave}</th>
+                                <th className='col-2'>{$type.labels.input.code}</th>
+                                <th>{$type.labels.input.address}</th>
+                                <th className='col-2'>{$type.labels.input.name}</th>
+                                <th>{$type.labels.input.factor}</th>
+                                <th>{$type.labels.input.offset}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addInput}
                                         title="Add Input">
@@ -321,12 +324,12 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{Initial.labels.output.slave}</th>
-                                <th className='col-2'>{Initial.labels.output.code}</th>
-                                <th>{Initial.labels.output.address}</th>
-                                <th className='col-2'>{Initial.labels.output.name}</th>
-                                <th>{Initial.labels.output.factor}</th>
-                                <th>{Initial.labels.output.offset}</th>
+                                <th>{$type.labels.output.slave}</th>
+                                <th className='col-2'>{$type.labels.output.code}</th>
+                                <th>{$type.labels.output.address}</th>
+                                <th className='col-2'>{$type.labels.output.name}</th>
+                                <th>{$type.labels.output.factor}</th>
+                                <th>{$type.labels.output.offset}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addOutput}
                                         title="Add Output">

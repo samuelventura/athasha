@@ -18,6 +18,6 @@ const editors = {
     Opto22,
 }
 
-export default function (type) {
-    return editors[type]
+export default {
+    get: (type) => editors[type],
 }

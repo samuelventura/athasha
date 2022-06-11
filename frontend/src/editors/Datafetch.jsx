@@ -10,23 +10,25 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Datafetch.js'
-import Check from '../common/Check'
 import Tools from '../editor/Tools'
+import Check from '../common/Check'
+import Type from '../common/Type'
 import { useApp } from '../App'
+
+const $type = Type.Datafetch
+const $config = $type.config()
 
 function Editor(props) {
     const app = useApp()
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [inputs, setInputs] = useState(Initial.config().inputs)
+    const [setts, setSetts] = useState($config.setts)
+    const [inputs, setInputs] = useState($config.inputs)
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setInputs(config.inputs || init.inputs)
-    }, [props.id]) //primitive type required
+        setSetts(config.setts)
+        setInputs(config.inputs)
+    }, [props.id])
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, inputs }
@@ -35,7 +37,7 @@ function Editor(props) {
     }, [setts, inputs])
     function addInput() {
         const next = [...inputs]
-        const input = Initial.input(next.length)
+        const input = $type.input(next.length)
         next.push(input)
         setInputs(next)
     }
@@ -59,12 +61,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -76,12 +78,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.inputs[prop](index)
-        args.hint = Initial.hints.inputs[prop](index)
+        args.label = $type.labels.inputs[prop](index)
+        args.hint = $type.hints.inputs[prop](index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.inputs[prop](index, value)
-        args.defval = Initial.input()[prop]
+        args.check = (value) => $type.checks.inputs[prop](index, value)
+        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     const rows = inputs.map((input, index) =>
@@ -114,30 +116,30 @@ function Editor(props) {
         function done() { e.target.disabled = false }
         Tools.testConnectionString(app, setts.database, setts.connstr, setts.dbpass, done)
     }
-    const databaseOptions = Initial.databases.map(v => <option key={v} value={v}>{v}</option>)
-    const unitOptions = Initial.units.map(v => <option key={v} value={v}>{v}</option>)
+    const databaseOptions = $type.databases.map(v => <option key={v} value={v}>{v}</option>)
+    const unitOptions = $type.units.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.database}>
+                    <FloatingLabel label={$type.labels.database}>
                         <Form.Select {...settsProps("database")}>
                             {databaseOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.dbpass}>
+                    <FloatingLabel label={$type.labels.dbpass}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={1}>
-                    <FloatingLabel label={Initial.labels.period}>
+                    <FloatingLabel label={$type.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.unit}>
+                    <FloatingLabel label={$type.labels.unit}>
                         <Form.Select {...settsProps("unit")} >
                             {unitOptions}
                         </Form.Select>
@@ -150,21 +152,21 @@ function Editor(props) {
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.password}>
+                    <FloatingLabel label={$type.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={Initial.labels.connstr}>
+                    <FloatingLabel label={$type.labels.connstr}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={Initial.labels.command}>
+                    <FloatingLabel label={$type.labels.command}>
                         <Form.Control type="text" as="textarea"
                             value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
@@ -174,8 +176,8 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{Initial.labels.input.name}</th>
-                        <th>{Initial.labels.input.color}</th>
+                        <th>{$type.labels.input.name}</th>
+                        <th>{$type.labels.input.color}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addInput} title="Add Input">
                                 <FontAwesomeIcon icon={faPlus} />

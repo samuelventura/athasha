@@ -1,6 +1,6 @@
 import Log from "../tools/Log"
 import Clone from "../tools/Clone"
-import Initials from "../common/Initials"
+import Type from "../common/Type"
 
 function initial() {
   return {
@@ -21,99 +21,89 @@ function build_status({ type, msg }) {
   return { msg, type }
 }
 
-function version_state(next) {
-  const upgrades = Object.keys(next.upgrades).length
-  const status = Object.keys(next.status).length
-  const items = Object.keys(next.items).length
+function version_state(state) {
+  const upgrades = Object.keys(state.upgrades).length
+  const status = Object.keys(state.status).length
+  const items = Object.keys(state.items).length
   if (status !== items) throw `Sync error items:${items} status:${status}`
   if (upgrades !== items) throw `Sync error items:${items} upgrades:${upgrades}`
-  next.version++
-  return next
+  state.version++
+  return state
 }
 
-function upgrade_config(next, item) {
-  //point extraction requires to ensure valid schema
+function upgrade_config(state, item) {
+  console.log(item.type, item.id)
   const json1 = JSON.stringify(item.config)
-  item.config = Initials(item.type).merge(item.config)
+  item.config = Type.get(item.type).merge(item.config)
   const json2 = JSON.stringify(item.config)
-  next.upgrades[item.id] = json1 !== json2
-  Log.log(item.id, "upgraded", next.upgrades[item.id], item.type, item.name)
+  state.upgrades[item.id] = json1 !== json2
+  Log.log(item.id, "upgraded", state.upgrades[item.id], item.type, item.name)
 }
 
 function reducer(state, { name, args, self }) {
-  //this is being called twice by react
-  //deep clone required for idempotency
+  state = Clone.deep(state)
   args = Clone.deep(args)
   switch (name) {
     case "init": {
-      const next = Clone.shallow(state)
-      next.items = {}
-      next.status = {}
-      next.upgrades = {}
-      next.hostname = args.hostname
-      next.identity = args.identity
-      next.licenses = args.licenses
-      next.addresses = args.addresses
+      state.items = {}
+      state.status = {}
+      state.upgrades = {}
+      state.hostname = args.hostname
+      state.identity = args.identity
+      state.licenses = args.licenses
+      state.addresses = args.addresses
       args.items.forEach(item => {
-        next.status[item.id] = {}
-        next.items[item.id] = item
-        upgrade_config(next, item)
+        state.status[item.id] = {}
+        state.items[item.id] = item
+        upgrade_config(state, item)
       })
       args.status.forEach(status => {
-        next.status[status.id] = build_status(status)
+        state.status[status.id] = build_status(status)
       })
-      return version_state(next)
+      return version_state(state)
     }
     case "create": {
-      const next = Clone.shallow(state)
-      next.items[args.id] = args.item
-      next.status[args.id] = {}
+      state.items[args.id] = args.item
+      state.status[args.id] = {}
       if (self) {
-        next.selected = args.item
+        state.selected = args.item
       }
-      upgrade_config(next, args.item)
-      return version_state(next)
+      upgrade_config(state, args.item)
+      return version_state(state)
     }
     case "edit": {
-      const next = Clone.shallow(state)
-      next.items[args.id] = args.item
-      upgrade_config(next, args.item)
-      return version_state(next)
+      state.items[args.id] = args.item
+      upgrade_config(state, args.item)
+      return version_state(state)
     }
     case "rename": {
-      const next = Clone.shallow(state)
-      next.items[args.id] = args.item
-      return version_state(next)
+      state.items[args.id] = args.item
+      return version_state(state)
     }
     case "enable": {
-      const next = Clone.shallow(state)
-      next.items[args.id] = args.item
-      next.status[args.id] = {}
-      return version_state(next)
+      state.items[args.id] = args.item
+      state.status[args.id] = {}
+      return version_state(state)
     }
     case "delete": {
-      const next = Clone.shallow(state)
-      delete next.status[args.id]
-      delete next.items[args.id]
-      delete next.upgrades[args.id]
-      return version_state(next)
+      delete state.status[args.id]
+      delete state.items[args.id]
+      delete state.upgrades[args.id]
+      return version_state(state)
     }
     case "status": {
-      const next = Clone.shallow(state)
-      if (next.items[args.id]) {
-        next.status[args.id] = build_status(args)
+      if (state.items[args.id]) {
+        state.status[args.id] = build_status(args)
       }
-      return version_state(next)
+      return version_state(state)
     }
     case "select": {
-      const next = Clone.shallow(state)
-      next.selected = args
-      return version_state(next)
+      state.selected = args
+      return version_state(state)
     }
     case "target": {
-      const next = Clone.shallow(state)
-      next.targeted = args
-      return version_state(next)
+      state.targeted = args
+      return version_state(state)
     }
     case "close": {
       return initial()

@@ -1,7 +1,7 @@
 import Router from "../tools/Router"
 import Extractor from "./Extractor"
-import Initials from "../common/Initials"
 import Clone from "../tools/Clone"
+import Type from "../common/Type"
 import Log from "../tools/Log"
 
 function initial() {
@@ -9,10 +9,10 @@ function initial() {
   return {
     id: editor.id,
     type: editor.type,
+    item: Type.item(editor.type),
     upgraded: false,
     upgrades: {},
     targeted: {},
-    item: {},
     items: {},
     status: {},
     inputs: [],
@@ -58,7 +58,7 @@ function setup_editor(next) {
 function upgrade_config(next, item) {
   //point extraction requires to ensure valid schema
   const json1 = JSON.stringify(item.config)
-  item.config = Initials(item.type).merge(item.config)
+  item.config = Type.merge(item.type, item.config)
   const json2 = JSON.stringify(item.config)
   next.upgrades[item.id] = json1 !== json2
   Log.log(item.id, "upgraded", next.upgrades[item.id], item.type, item.name)

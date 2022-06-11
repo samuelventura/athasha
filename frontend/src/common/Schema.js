@@ -7,23 +7,29 @@ const $set = (o, n, v) => { o[n] = v; return o }
 const $props = (o) => Object.keys(o).filter(n => !n.startsWith("$"))
 const $try = (fn) => { try { fn() } catch (e) { return e } }
 
+//
 //header, like help are is not validation related at all
 //but it does good to have everything grouped in same location
-const $check = (p, n, i) => {
+//
+//since it is hard to pass i only to next generation than `a` is 
+//introduced exclusively to flag the header check for array children
+//`i` should be passed to next generations until next array changes it
+//
+const $check = (p, n, i, a) => {
     if (!("value" in p)) throw `ALERT: ${n} ${i} value not defined`
     if (!("label" in p)) throw `ALERT: ${n} ${i} label not defined`
     if (!("help" in p)) throw `ALERT: ${n} ${i} help not defined`
     if (!("check" in p)) throw `ALERT: ${n} ${i} check not defined`
-    if (i !== undefined && !("header" in p)) throw `ALERT: ${n} ${i} header not defined`
+    if (a && !("header" in p)) throw `ALERT: ${n} ${i} header not defined`
 }
 
 const $value = (p, n, i) => {
     switch (p.$type) {
         case "object": {
-            return $props(p).reduce((o, n) => $set(o, n, $value(p[n], n)), {})
+            return $props(p).reduce((o, n) => $set(o, n, $value(p[n], n, i)), {})
         }
         case "array": {
-            const v = (i) => $props(p).reduce((o, n) => $set(o, n, $value(p[n], n, i)), {})
+            const v = (i) => $props(p).reduce((o, n) => $set(o, n, $value(p[n], n, i, true)), {})
             const $v = p.$value
             return $fun($v) ? $v(v) : $v
         }

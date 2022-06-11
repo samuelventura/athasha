@@ -12,30 +12,33 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import Initial from './Laurel.js'
-import Serial from "./Serial"
 import Check from '../common/Check'
+import Type from '../common/Type'
+import Comm from "../common/Comm"
+import Api from "../common/Api"
+
+const $type = Type.Laurel
+const $config = $type.config()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState(Initial.config().setts)
-    const [slaves, setSlaves] = useState(Initial.config().slaves)
+    const [setts, setSetts] = useState($config.setts)
+    const [slaves, setSlaves] = useState($config.slaves)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     const [tab, setTab] = useState("tab0")
     useEffect(() => {
         if (trigger) {
             setTrigger(false)
-            Serial.fetchSerials(setSerials)
+            Api.fetchSerials(setSerials)
         }
     }, [trigger])
     useEffect(() => {
-        const init = Initial.config()
         const config = props.config
-        setSetts(config.setts || init.setts)
-        setSlaves(config.slaves || init.slaves)
-    }, [props.id]) //primitive type required
+        setSetts(config.setts)
+        setSlaves(config.slaves)
+    }, [props.id])
     useEffect(() => {
         if (props.id) { //required to prevent closing validations
             const config = { setts, slaves }
@@ -44,7 +47,7 @@ function Editor(props) {
     }, [setts, slaves])
     function addSlave() {
         const next = [...slaves]
-        const slave = Initial.slave(next.length)
+        const slave = $type.slave(next.length)
         next.push(slave)
         setTab("tab" + slaves.length)
         setSlaves(next)
@@ -63,7 +66,7 @@ function Editor(props) {
     function addInput(sindex) {
         const slave = slaves[sindex]
         const next = [...slave.inputs]
-        const input = Initial.input(next.length)
+        const input = $type.input(next.length)
         next.push(input)
         setSlaveProp(sindex, "inputs", next)
     }
@@ -90,7 +93,7 @@ function Editor(props) {
     function addOutput(sindex) {
         const slave = slaves[sindex]
         const next = [...slave.outputs]
-        const output = Initial.output(next.length)
+        const output = $type.output(next.length)
         next.push(output)
         setSlaveProp(sindex, "outputs", next)
     }
@@ -122,12 +125,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels[prop]
-        args.hint = Initial.hints[prop]
+        args.label = $type.labels[prop]
+        args.hint = $type.hints[prop]
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = Initial.checks[prop]
-        args.defval = Initial.setts()[prop]
+        args.check = $type.checks[prop]
+        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function slaveProps(sindex, prop) {
@@ -137,12 +140,12 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.labels.slaves[prop](sindex)
-        args.hint = Initial.hints.slaves[prop](sindex)
+        args.label = $type.labels.slaves[prop](sindex)
+        args.hint = $type.hints.slaves[prop](sindex)
         args.getter = () => slaves[sindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.slaves[prop](sindex, value)
-        args.defval = Initial.slave()[prop]
+        args.check = (value) => $type.checks.slaves[prop](sindex, value)
+        args.defval = $type.slave()[prop]
         return Check.props(args)
     }
     function inputProps(sindex, pindex, prop) {
@@ -153,12 +156,12 @@ function Editor(props) {
         }
         const slave = slaves[sindex]
         const args = { captured, setCaptured }
-        args.label = Initial.labels.inputs[prop](pindex)
-        args.hint = Initial.hints.inputs[prop](pindex)
+        args.label = $type.labels.inputs[prop](pindex)
+        args.hint = $type.hints.inputs[prop](pindex)
         args.getter = () => slave.inputs[pindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.inputs[prop](pindex, value)
-        args.defval = Initial.input()[prop]
+        args.check = (value) => $type.checks.inputs[prop](pindex, value)
+        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(sindex, pindex, prop) {
@@ -169,44 +172,44 @@ function Editor(props) {
         }
         const slave = slaves[sindex]
         const args = { captured, setCaptured }
-        args.label = Initial.labels.outputs[prop](pindex)
-        args.hint = Initial.hints.outputs[prop](pindex)
+        args.label = $type.labels.outputs[prop](pindex)
+        args.hint = $type.hints.outputs[prop](pindex)
         args.getter = () => slave.outputs[pindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => Initial.checks.outputs[prop](pindex, value)
-        args.defval = Initial.output()[prop]
+        args.check = (value) => $type.checks.outputs[prop](pindex, value)
+        args.defval = $type.output()[prop]
         return Check.props(args)
     }
 
-    const configOptions = Serial.configList.map(v => <option key={v} value={v}>{v}</option>)
+    const configOptions = Comm.serialConfigs.map(v => <option key={v} value={v}>{v}</option>)
     const serialOptions = serials.map(v => <option key={v} value={v}>{v}</option>)
-    const transportOptions = Initial.transports.map(v => <option key={v} value={v}>{v}</option>)
-    const protocolOptions = Initial.protocols.map(v => <option key={v} value={v}>{v}</option>)
+    const transportOptions = $type.transports.map(v => <option key={v} value={v}>{v}</option>)
+    const protocolOptions = $type.protocols.map(v => <option key={v} value={v}>{v}</option>)
     function subHeaderEditor() {
         return (
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={Initial.labels.trans}>
+                    <FloatingLabel label={$type.labels.trans}>
                         <Form.Select {...settsProps("trans")}>
                             {transportOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.proto}>
+                    <FloatingLabel label={$type.labels.proto}>
                         <Form.Select {...settsProps("proto")}>
                             {protocolOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.period}>
+                    <FloatingLabel label={$type.labels.period}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={Initial.labels.password}>
+                    <FloatingLabel label={$type.labels.password}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
@@ -217,12 +220,12 @@ function Editor(props) {
     function socketTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label={Initial.labels.host}>
+                <FloatingLabel label={$type.labels.host}>
                     <Form.Control type="text" {...settsProps("host")} />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={Initial.labels.port}>
+                <FloatingLabel label={$type.labels.port}>
                     <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                 </FloatingLabel>
             </Col>
@@ -234,7 +237,7 @@ function Editor(props) {
     function serialTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label={Initial.labels.tty}>
+                <FloatingLabel label={$type.labels.tty}>
                     <Form.Control type="text" list="serialList"
                         onClick={() => setTrigger(true)}
                         onKeyDown={e => setTrigger(e.key === 'Enter')}
@@ -245,12 +248,12 @@ function Editor(props) {
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={Initial.labels.speed}>
+                <FloatingLabel label={$type.labels.speed}>
                     <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={Initial.labels.dbpsb}>
+                <FloatingLabel label={$type.labels.dbpsb}>
                     <Form.Select {...settsProps("dbpsb")}>
                         {configOptions}
                     </Form.Select>
@@ -274,8 +277,8 @@ function Editor(props) {
         </>
     }
 
-    const inputOptions = Initial.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
-    const outputOptions = Initial.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const inputOptions = $type.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
+    const outputOptions = $type.outputCodes.map(v => <option key={v} value={v}>{v}</option>)
     function slaveEditor({ sindex, slave }) {
         const inputRows = slave.inputs.map((input, pindex) =>
             <tr key={pindex} className='align-middle'>
@@ -337,12 +340,12 @@ function Editor(props) {
             <Tab key={sindex} eventKey={"tab" + sindex} title={"Slave " + slave.address}>
                 <Row>
                     <Col xs={2}>
-                        <FloatingLabel label={Initial.labels.slave.address}>
+                        <FloatingLabel label={$type.labels.slave.address}>
                             <Form.Control type="number" {...slaveProps(sindex, "address")} min="0" max="255" step="1" />
                         </FloatingLabel>
                     </Col>
                     <Col xs={2}>
-                        <FloatingLabel label={Initial.labels.slave.decimals}>
+                        <FloatingLabel label={$type.labels.slave.decimals}>
                             <Form.Control type="number"  {...slaveProps(sindex, "decimals")} min="0" max="6" step="1" />
                         </FloatingLabel>
                     </Col>
@@ -360,8 +363,8 @@ function Editor(props) {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>{Initial.labels.input.code}</th>
-                                    <th>{Initial.labels.input.name}</th>
+                                    <th>{$type.labels.input.code}</th>
+                                    <th>{$type.labels.input.name}</th>
                                     <th>
                                         <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
                                             title="Add Input">
@@ -380,8 +383,8 @@ function Editor(props) {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>{Initial.labels.output.code}</th>
-                                    <th>{Initial.labels.output.name}</th>
+                                    <th>{$type.labels.output.code}</th>
+                                    <th>{$type.labels.output.name}</th>
                                     <th>
                                         <Button variant='outline-primary' size="sm" onClick={() => addOutput(sindex)}
                                             title="Add Output">
