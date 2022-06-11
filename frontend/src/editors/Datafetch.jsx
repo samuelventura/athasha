@@ -17,19 +17,18 @@ import { useApp } from '../App'
 
 const $type = Type.Datafetch
 const $schema = $type.schema()
-const $config = $type.config()
 
 function Editor(props) {
     const app = useApp()
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [inputs, setInputs] = useState($config.inputs)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [inputs, setInputs] = useState(props.config.inputs)
     useEffect(() => {
         const config = props.config
         setSetts(config.setts)
         setInputs(config.inputs)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
         const config = { setts, inputs }
         props.setter(config)

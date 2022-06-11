@@ -1,6 +1,6 @@
 import Log from "../../tools/Log"
 import Clone from "../../tools/Clone"
-import { v4 as uuidv4 } from 'uuid'
+import UUID from '../../tools/UUID.js'
 
 function initial() {
     return {
@@ -230,7 +230,7 @@ const mutator = (ctx, buffered) => {
             case "clone": {
                 const control = getControl(id)
                 const clone = Clone.deep(control)
-                clone.id = uuidv4()
+                clone.id = UUID.v4()
                 return apply({ name: "control-add", args: { control: clone } })
             }
             case "del": {

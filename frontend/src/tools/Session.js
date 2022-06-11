@@ -1,14 +1,7 @@
-import sha1 from 'sync-sha1/rawSha1'
-import { v4 as uuidv4 } from 'uuid'
+import Encode from "./Encode"
+import UUID from "./UUID"
 
 function initial() { return { token: "", proof: "" } }
-
-function encode(message) {
-    const msgUint8 = new TextEncoder().encode(message);
-    const hashBuffer = sha1(msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 function api(key) {
     key = "athasha." + key
@@ -22,8 +15,8 @@ function api(key) {
     }
 
     function create(password) {
-        const token = uuidv4();
-        const proof = encode(`${token}:${password}`);
+        const token = UUID.v4()
+        const proof = Encode.SHA1(`${token}:${password}`)
         const session = { token, proof }
         localStorage.setItem(key, JSON.stringify(session))
         return session

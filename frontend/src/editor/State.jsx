@@ -3,32 +3,31 @@ import Extractor from "./Extractor"
 import Clone from "../tools/Clone"
 import Type from "../common/Type"
 import Log from "../tools/Log"
+import Encode from "../tools/Encode"
+import stringify from 'json-stable-stringify'
 
 const $editor = Router.getEditorData()
 const $type = Type.get($editor.type)
 
+function hash(config) {
+  return Encode.SHA1(stringify(config))
+}
+
 function initial() {
-  const id = $editor.id
-  const upgrades = {}
-  upgrades[id] = false
-  const item = $type.item(id)
-  item.id = item
-  const items = {}
-  items[id] = item
+  const item = $type.item("Default")
+  item.id = $editor.id
   return {
     init: false,
-    items: items,
-    upgrades: upgrades,
-    targeted: {},
+    item: item,
+    dirty: false,
+    items: {},
+    upgrades: {},
     status: {},
     inputs: [],
     outputs: [],
+    targeted: {},
     version: 0,
   }
-}
-
-function build_status({ type, msg }) {
-  return { msg, type }
 }
 
 function check_version(state) {
@@ -71,23 +70,22 @@ function reducer(state, { name, args, self }) {
       state.version = version
       state.init = true
       args.items.forEach(item => {
-        state.status[item.id] = {}
         state.items[item.id] = item
         upgrade_config(state, item)
+        if (item.id === $editor.id) {
+          state.item = Clone.deep(item)
+        }
       })
-      state.status = build_status(args.status)
       update_points(state)
       return check_version(state)
     }
     case "create": {
       state.items[args.id] = args
-      state.status[args.id] = {}
       upgrade_config(state, args)
       update_points(state)
       return check_version(state)
     }
     case "delete": {
-      delete state.status[args.id]
       delete state.items[args.id]
       delete state.upgrades[args.id]
       update_points(state)
@@ -97,23 +95,29 @@ function reducer(state, { name, args, self }) {
       const item = state.items[args.id]
       item.config = args.config
       upgrade_config(state, item)
+      //to remove dirty flag
+      if (args.id === $editor.id) {
+        if (self) {
+          const config = Clone.deep(args.config)
+          state.item.config = config
+        }
+      }
       update_points(state)
       return check_version(state)
     }
     case "rename": {
       if (args.id !== $editor.id) return state
-      state.items[args.id].name = args.name
+      state.item.name = args.name
       return check_version(state)
     }
     case "enable": {
       if (args.id !== $editor.id) return state
-      state.items[args.id].enabled = args.enabled
-      state.status[args.id] = {}
+      state.item.enabled = args.enabled
       return check_version(state)
     }
     case "status": {
       if (args.id !== $editor.id) return state
-      state.status = build_status(args)
+      state.status = args
       return check_version(state)
     }
     case "target": {
@@ -131,6 +135,6 @@ function reducer(state, { name, args, self }) {
   }
 }
 
-const exports = { initial, reducer, $editor, $type }
+const exports = { initial, reducer, hash, $editor, $type }
 
 export default exports

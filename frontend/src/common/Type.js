@@ -7,7 +7,7 @@ import Dataplot from '../schemas/Dataplot.js'
 import Laurel from '../schemas/Laurel.js'
 import Opto22 from '../schemas/Opto22.js'
 import Schema from '../common/Schema.js'
-import { v4 as uuidv4 } from 'uuid'
+import UUID from '../tools/UUID.js'
 
 const types = {
     Datalog,
@@ -34,7 +34,7 @@ const get = (type) => {
 }
 
 const item = (type, name) => {
-    const id = uuidv4()
+    const id = UUID.v4()
     const config = Schema.value(types[type].schema())
     const enabled = false
     return { id, name, type, config, enabled }

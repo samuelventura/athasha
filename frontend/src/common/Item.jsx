@@ -4,32 +4,31 @@ import Clipboard from "../tools/Clipboard"
 import Icon from './Icon'
 
 function statusTitle(item, status) {
-    if (!item.enabled) {
-        return "Disabled"
-    }
-    if (!status.type) {
-        return "Enabled"
-    }
+    if (status.force) return status.title
+    if (!item.enabled) return "Disabled"
+    if (!status.type) return "Enabled" //empty
     return status.msg
 }
 
-function statusMsg(item) {
-    if (!item.enabled) {
-        return "Disabled"
-    }
+function statusMsg(item, status) {
+    if (status.force) return status.msg
+    if (!item.enabled) return "Disabled"
     return "Enabled"
 }
 
-function statusBg(item, status) {
-    if (!item.enabled) {
-        return "secondary"
-    }
-    switch (status.type) {
+function typeSeverity(type) {
+    switch (type) {
         case "success": return "success"
         case "warn": return "warning"
         case "error": return "danger"
-        default: return "primary"
+        default: return "primary" //empty
     }
+}
+
+function statusBg(item, status) {
+    if (status.force) return typeSeverity(status.type)
+    if (!item.enabled) return "secondary"
+    return typeSeverity(status.type)
 }
 
 function statusOnClick(status) {
@@ -40,7 +39,7 @@ function Status({ item, status }) {
     return (
         <Badge pill bg={statusBg(item, status)} title={statusTitle(item, status)}
             onClick={() => statusOnClick(status)} className='ms-2 user-select-none'>
-            {statusMsg(item)}
+            {statusMsg(item, status)}
         </Badge>
     )
 }
@@ -97,10 +96,19 @@ function Invalid(props) {
     ) : null
 }
 
+function Dirty(props) {
+    return props.dirty ? (
+        <Badge pill bg="warning" title="Item has been modified" className='ms-2 user-select-none'>
+            Modified
+        </Badge>
+    ) : null
+}
+
 const exports = {
     Upgraded,
     Invalid,
     Status,
+    Dirty,
     Entry,
     Name,
     Td,

@@ -3,7 +3,7 @@ import Label from './Label.js'
 import Analog from './Analog.js'
 import Image from './Image.js'
 import Trend from './Trend.js'
-import { v4 as uuidv4 } from 'uuid'
+import UUID from '../tools/UUID.js'
 
 const controls = {}
 controls[Label.type] = Label.schema()
@@ -11,7 +11,7 @@ controls[Image.type] = Image.schema()
 controls[Analog.type] = Analog.schema()
 controls[Trend.type] = Trend.schema()
 
-function id() { return uuidv4() }
+function id() { return UUID.v4() }
 
 const scales = ["Fit", "Stretch"]
 const aligns = ["Center", "Start", "End"]
