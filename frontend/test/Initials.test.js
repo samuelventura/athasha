@@ -7,6 +7,7 @@ import Datalink from '../src/editors/Datalink.js'
 import Datalog from '../src/editors/Datalog.js'
 import Dataplot from '../src/editors/Dataplot.js'
 import Laurel from '../src/editors/Laurel.js'
+import Modbus from '../src/editors/Modbus.js'
 
 test('Datafetch merge vs initial', () => {
     const merged = Schema.merge(Datafetch.schema(), {})
@@ -35,5 +36,11 @@ test('Dataplot merge vs initial', () => {
 test('Laurel merge vs initial', () => {
     const merged = Schema.merge(Laurel.schema(), {})
     const initial = Schema.value(Laurel.schema())
+    expect(merged).toEqual(initial)
+})
+
+test('Modbus merge vs initial', () => {
+    const merged = Schema.merge(Modbus.schema(), {})
+    const initial = Schema.value(Modbus.schema())
     expect(merged).toEqual(initial)
 })

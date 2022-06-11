@@ -27,21 +27,21 @@ const $merge = (p, t, n, i) => {
         case "object": {
             try {
                 Check.isObject(t, n)
-                Object.keys(t).forEach(k => {
-                    if (k.startsWith("$") || !(k in p)) {
-                        delete t[k]
-                        addUnknown(`Prop ${k}: Unknown`)
-                    }
-                })
-                $props(p).forEach((n) => {
-                    t[n] = $merge(p[n], t[n], n, i)
-                })
-                return t
             }
             catch (e) {
                 addInvalid(`${e}`)
                 return $value(p, n, i)
             }
+            Object.keys(t).forEach(k => {
+                if (k.startsWith("$") || !(k in p)) {
+                    delete t[k]
+                    addUnknown(`Prop ${k}: Unknown`)
+                }
+            })
+            $props(p).forEach((n) => {
+                t[n] = $merge(p[n], t[n], n, i)
+            })
+            return t
         }
         case "array": {
             try { p.$check ? p.$check(t, n) : Check.isArray(t, n) }
