@@ -62,20 +62,26 @@ function upgrade_config(state, item) {
 
 function reducer(state, { name, args, self }) {
   const version = state.version
+  const current = state.item
+  const init = state.init
   state = Clone.deep(state)
   args = Clone.deep(args)
   switch (name) {
     case "init": {
       state = initial()
       state.version = version
-      state.init = true
+      state.item = current
       args.items.forEach(item => {
         state.items[item.id] = item
         upgrade_config(state, item)
         if (item.id === $editor.id) {
-          state.item = Clone.deep(item)
+          state.status = args.status
+          if (!init) {
+            state.item = Clone.deep(item)
+          }
         }
       })
+      state.init = true //after loop
       update_points(state)
       return check_version(state)
     }
@@ -127,6 +133,7 @@ function reducer(state, { name, args, self }) {
     case "close": {
       state = initial()
       state.version = version
+      state.item = current
       return check_version(state)
     }
     default:
