@@ -17,24 +17,22 @@ import Type from '../common/Type'
 import { useApp } from '../App'
 
 const $type = Type.Dataplot
-const $config = $type.config()
+const $schema = $type.schema()
 
 function Editor(props) {
     const app = useApp()
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [columns, setColumns] = useState($config.columns)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [columns, setColumns] = useState(props.config.columns)
     useEffect(() => {
         const config = props.config
         setSetts(config.setts)
         setColumns(config.columns)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, columns }
-            props.setter(config)
-        }
+        const config = { setts, columns }
+        props.setter(config)
     }, [setts, columns])
     function addColumn() {
         if (columns.length > 6) return
@@ -64,12 +62,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function columnProps(index, prop) {
@@ -81,12 +76,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.columns[prop](index)
-        args.hint = $type.hints.columns[prop](index)
+        Check.fillProp(args, $schema.columns[prop], prop, index)
         args.getter = () => columns[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.columns[prop](index, value)
-        args.defval = $type.column()[prop]
         return Check.props(args)
     }
     const rows = columns.map((column, index) =>
@@ -130,14 +122,14 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.database}>
+                    <FloatingLabel label={$schema.setts.database.label}>
                         <Form.Select {...settsProps("database")}>
                             {databaseOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.dbpass}>
+                    <FloatingLabel label={$schema.setts.dbpass.label}>
                         <Form.Control type="password" {...settsProps("dbpass")} />
                     </FloatingLabel>
                 </Col>
@@ -148,21 +140,21 @@ function Editor(props) {
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.password}>
+                    <FloatingLabel label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={$type.labels.connstr}>
+                    <FloatingLabel label={$schema.setts.connstr.label}>
                         <Form.Control type="text" as="textarea" {...settsProps("connstr")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <FloatingLabel label={$type.labels.command}>
+                    <FloatingLabel label={$schema.setts.command.label}>
                         <Form.Control type="text" as="textarea"
                             value={setts.command} {...settsProps("command")} />
                     </FloatingLabel>
@@ -170,27 +162,27 @@ function Editor(props) {
             </Row>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.ymin}>
+                    <FloatingLabel label={$schema.setts.ymin.label}>
                         <Form.Control type="number" {...settsProps("ymin")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.ymax}>
+                    <FloatingLabel label={$schema.setts.ymax.label}>
                         <Form.Control type="number"  {...settsProps("ymax")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.yformat}>
+                    <FloatingLabel label={$schema.setts.yformat.label}>
                         <Form.Control type="text"  {...settsProps("yformat")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.ywidth}>
+                    <FloatingLabel label={$schema.setts.ywidth.label}>
                         <Form.Control type="number"  {...settsProps("ywidth")} min="0" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.lineWidth}>
+                    <FloatingLabel label={$schema.setts.lineWidth.label}>
                         <Form.Control type="number"  {...settsProps("lineWidth")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -199,8 +191,8 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{$type.labels.column.name}</th>
-                        <th>{$type.labels.column.color}</th>
+                        <th>{$schema.columns.name.header}</th>
+                        <th>{$schema.columns.color.header}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addColumn}
                                 disabled={columns.length > 6} title="Add Column">

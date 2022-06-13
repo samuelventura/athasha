@@ -1,6 +1,9 @@
 import Check from '../common/Check'
 import Color from "../common/Color"
 import Bases from '../common/Bases'
+import Schema from '../common/Schema'
+
+const databases = Bases.databases
 
 //connstr and command defaults for two reasons
 //1. default should provide a working demo
@@ -13,15 +16,15 @@ function schema() {
         setts: {
             $type: "object",
             database: {
-                value: Bases.databases[0],
+                value: databases[0],
                 label: "Database",
                 help: "Select the database type from the list",
                 check: function (value, label) {
-                    Check.inList(value, label, Bases.databases)
+                    Check.inList(value, label, databases)
                 },
             },
             connstr: {
-                value: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                value: "Server=10.77.3.211;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
                 label: "Connection String",
                 help: "Non empty connection string for your DB"
                     + "\nUse ${PASSWORD} to insert the Database Password"
@@ -32,7 +35,7 @@ function schema() {
                 },
             },
             command: {
-                value: "SELECT DT, COL1 FROM dataplot WHERE DT>=@FROM AND DT<=@TO",
+                value: "SELECT DT, FuelLevel FROM Datalog WHERE DT>=@FROM AND DT<=@TO",
                 label: "SQL Command",
                 help: "An SQL select command, function or store procedure call"
                     + "\nUse @FROM and @TO to reference the start and end of the date range"
@@ -67,7 +70,7 @@ function schema() {
                 },
             },
             ymax: {
-                value: "100",
+                value: "10000",
                 label: "Max Y Value",
                 help: "Non empty number",
                 check: function (value, label) {
@@ -75,7 +78,7 @@ function schema() {
                 },
             },
             yformat: {
-                value: "0",
+                value: "0,0",
                 label: "Y Tick Format",
                 help: "Use 0.00 for 2 decimal digits",
                 check: function (value, label) {
@@ -83,7 +86,7 @@ function schema() {
                 },
             },
             ywidth: {
-                value: "60",
+                value: "80",
                 label: "Y Width",
                 help: "Non empty integer > 0",
                 check: function (value, label) {
@@ -91,7 +94,7 @@ function schema() {
                 },
             },
             lineWidth: {
-                value: "1",
+                value: "2",
                 label: "Line Width",
                 help: "Non empty integer > 0",
                 check: function (value, label) {
@@ -101,7 +104,7 @@ function schema() {
         },
         columns: {
             $type: "array",
-            $value: (value) => [value(0), value(1)],
+            $value: (value) => [value(0), { name: "Fuel Level", color: Color.unique(1) }],
             $check: function (value, label) {
                 Check.notEmptyArray(value, label)
             },
@@ -127,6 +130,14 @@ function schema() {
     }
 }
 
+function column(index) {
+    const $type = "object"
+    const prop = { ...schema().columns, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
     schema,
+    databases,
+    column,
 }

@@ -1,4 +1,5 @@
 
+//https://jsfiddle.net/smeans/6sok87y0/37/
 function unique(n) {
     const rgb = [0, 0, 0];
     for (let i = 0; i < 24; i++) {

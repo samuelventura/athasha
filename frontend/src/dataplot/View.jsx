@@ -38,8 +38,10 @@ function DataPlot({ config, data, defs }) {
         defs.forEach((dp) => list.push(dp))
     }
     const plotLines = cols.filter((c, i) => i > 0).map((c, i) =>
-        <Line key={i} type="monotone" strokeWidth={lineWidth} dot={false}
+        <Line key={i} type="monotone"
+            strokeWidth={lineWidth} dot={false}
             dataKey={cols[i + 1].name}
+            isAnimationActive={false}
             stroke={cols[i + 1].color} />)
     function formatXTick(v) {
         v = new Date(v)

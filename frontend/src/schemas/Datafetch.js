@@ -26,7 +26,7 @@ function schema() {
             },
             connstr: {
                 label: "Connection String",
-                value: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                value: "Server=10.77.3.211;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
                 help: "Non empty connection string for your DB"
                     + "\nUse ${PASSWORD} to insert the Database Password"
                     + "\nConsult your IT specialist"
@@ -37,7 +37,7 @@ function schema() {
             },
             command: {
                 label: "SQL Command",
-                value: "SELECT PROP1 FROM datafetch WHERE MODEL='Model1'",
+                value: "SELECT UpperLimit FROM Datafetch WHERE PartNumber='PN001'",
                 help: "An SQL select command, function or store procedure call"
                     + "\nQuery must return equal number of columns as added inputs"
                     + "\nConsult your IT specialist",
@@ -81,7 +81,7 @@ function schema() {
         },
         inputs: {
             $type: "array",
-            $value: (value) => [value(0)],
+            $value: [{ name: "Upper Limit" }],
             name: {
                 value: (index) => `Input ${index + 1}`,
                 header: "Input Name",
