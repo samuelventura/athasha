@@ -16,25 +16,23 @@ import Check from '../common/Check'
 import Type from '../common/Type'
 
 const $type = Type.Opto22
-const $config = $type.config()
+const $schema = $type.schema()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [inputs, setInputs] = useState($config.inputs)
-    const [outputs, setOutputs] = useState($config.outputs)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [inputs, setInputs] = useState(props.config.inputs)
+    const [outputs, setOutputs] = useState(props.config.outputs)
     useEffect(() => {
         const config = props.config
         setSetts(config.setts)
         setInputs(config.inputs)
         setOutputs(config.outputs)
-    }, [props.id]) //primitive type required
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, inputs, outputs }
-            props.setter(config)
-        }
+        const config = { setts, inputs, outputs }
+        props.setter(config)
     }, [setts, inputs, outputs])
     function addInput() {
         const next = [...inputs]
@@ -90,12 +88,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -105,12 +100,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.inputs[prop](index)
-        args.hint = $type.hints.inputs[prop](index)
+        Check.fillProp(args, $schema.inputs[prop], prop, index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.inputs[prop](index, value)
-        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(index, prop) {
@@ -120,12 +112,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.outputs[prop](index)
-        args.hint = $type.hints.outputs[prop](index)
+        Check.fillProp(args, $schema.outputs[prop], prop, index)
         args.getter = () => outputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.outputs[prop](index, value)
-        args.defval = $type.output()[prop]
         return Check.props(args)
     }
     const inputOptions = $type.inputCodes.map(v => <option key={v} value={v}>{v}</option>)
@@ -203,37 +192,37 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={$type.labels.host}>
+                    <FloatingLabel label={$schema.setts.host.label}>
                         <Form.Control type="text" {...settsProps("host")} />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.port}>
+                    <FloatingLabel label={$schema.setts.port.label}>
                         <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.period}>
+                    <FloatingLabel label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.password}>
+                    <FloatingLabel label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
             </Row>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.type}>
+                    <FloatingLabel label={$schema.setts.type.label}>
                         <Form.Select {...settsProps("type")}>
                             {typeOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.slave}>
+                    <FloatingLabel label={$schema.setts.slave.label}>
                         <Form.Control type="number" {...settsProps("slave")} min="0" max="255" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -245,10 +234,10 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{$type.labels.input.code}</th>
-                                <th>{$type.labels.input.module}</th>
-                                <th>{$type.labels.input.number}</th>
-                                <th>{$type.labels.input.name}</th>
+                                <th>{$schema.inputs.code.header}</th>
+                                <th>{$schema.inputs.module.header}</th>
+                                <th>{$schema.inputs.number.header}</th>
+                                <th>{$schema.inputs.name.header}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addInput}
                                         title="Add Input">
@@ -267,10 +256,10 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{$type.labels.output.code}</th>
-                                <th>{$type.labels.output.module}</th>
-                                <th>{$type.labels.output.number}</th>
-                                <th>{$type.labels.output.name}</th>
+                                <th>{$schema.outputs.code.header}</th>
+                                <th>{$schema.outputs.module.header}</th>
+                                <th>{$schema.outputs.number.header}</th>
+                                <th>{$schema.outputs.name.header}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addOutput}
                                         title="Add Output">

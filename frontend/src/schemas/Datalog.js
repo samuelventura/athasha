@@ -16,7 +16,7 @@ function schema() {
         setts: {
             $type: "object",
             connstr: {
-                value: "Server=10.77.3.211;Database=datalog;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                value: "Server=10.77.3.211;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
                 label: "Connection String",
                 help: "Non empty connection string for your DB"
                     + "\nUse ${PASSWORD} to insert the Database Password"
@@ -28,7 +28,7 @@ function schema() {
                 },
             },
             command: {
-                value: "INSERT INTO dataplot (COL1) VALUES (@1)",
+                value: "INSERT INTO Datalog (DT, FuelLevel) VALUES (getdate(), @1)",
                 label: "SQL Command",
                 help: "An SQL insert command, function or store procedure call"
                     + "\nUse @n to reference the nth input"

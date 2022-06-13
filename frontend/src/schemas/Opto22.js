@@ -1,4 +1,5 @@
 import Check from '../common/Check'
+import Schema from '../common/Schema'
 
 const types = ["Snap"]
 const inputCodes = ["4ch Digital", "4ch Analog"]
@@ -18,7 +19,7 @@ function schema() {
                 },
             },
             host: {
-                value: "127.0.0.1",
+                value: "10.77.0.10",
                 label: "Hostname/IP Address",
                 help: "Non empty hostname or IP address",
                 check: function (value, label) {
@@ -64,7 +65,32 @@ function schema() {
         },
         inputs: {
             $type: "array",
-            $value: (value) => [value(0)],
+            $value: [
+                {
+                    code: "4ch Digital",
+                    module: "0",
+                    number: "1",
+                    name: "Emergency",
+                },
+                {
+                    code: "4ch Digital",
+                    module: "1",
+                    number: "1",
+                    name: "Alarm",
+                },
+                {
+                    code: "4ch Analog",
+                    module: "2",
+                    number: "1",
+                    name: "Fuel Display",
+                },
+                {
+                    code: "4ch Analog",
+                    module: "4",
+                    number: "1",
+                    name: "Fuel Level",
+                },
+            ],
             code: {
                 value: inputCodes[0],
                 header: "Input Type",
@@ -106,7 +132,20 @@ function schema() {
         },
         outputs: {
             $type: "array",
-            $value: [],
+            $value: [
+                {
+                    code: "4ch Digital",
+                    module: "1",
+                    number: "1",
+                    name: "Alarm",
+                },
+                {
+                    code: "4ch Analog",
+                    module: "2",
+                    number: "1",
+                    name: "Fuel Display",
+                },
+            ],
             code: {
                 value: outputCodes[0],
                 header: "Output Type",
@@ -149,9 +188,23 @@ function schema() {
     }
 }
 
+function input(index) {
+    const $type = "object"
+    const prop = { ...schema().inputs, $type }
+    return Schema.value(prop, index)
+}
+
+function output(index) {
+    const $type = "object"
+    const prop = { ...schema().outputs, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
     types,
     inputCodes,
     outputCodes,
+    input,
+    output,
     schema,
 }
