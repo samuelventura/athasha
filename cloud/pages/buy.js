@@ -9,14 +9,16 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { useEffect, useState } from 'react'
 import numeral from 'numeral'
 import Jumbo from '../components/jumbo'
+import Cost from '../tools/cost'
 
 export default function Buy() {
   const router = useRouter()
-  const cost = "58"
+  const cost = Cost.current
   const [id, setId] = useState("")
+  const [email, setEmail] = useState("")
   const [qty, setQty] = useState("0")
   const [ro, setRo] = useState(false)
-  const disabled = qty <= 0 || id.trim().length == 0
+  const disabled = qty <= 0 || id.trim().length == 0 || email.trim().length == 0
   function total() {
     return numeral(cost * qty).format('0,0.00')
   }
@@ -26,7 +28,7 @@ export default function Buy() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ qty, id }),
+      body: JSON.stringify({ qty, id, email }),
     })
       .then(r => r.json())
       .then(r => { window.location.href = r.url })
@@ -38,6 +40,9 @@ export default function Buy() {
     }
     if (router.query.qty) {
       setQty(router.query.qty)
+    }
+    if (router.query.email) {
+      setEmail(router.query.email)
     }
   }, [router.query])
   function fixQty(value) {
@@ -72,6 +77,15 @@ export default function Buy() {
           <Col sm="7">
             <Form.Control type="text" placeholder="Type or Paste your Identity Here"
               value={id} onChange={(e) => setId(e.target.value)} disabled={ro} required />
+          </Col>
+        </Form.Group>
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm="1">
+            Email
+          </Form.Label>
+          <Col sm="7">
+            <Form.Control type="email" placeholder="Type or Paste your Email Here"
+              value={email} onChange={(e) => setEmail(e.target.value)} required />
           </Col>
         </Form.Group>
         <Form.Group as={Row} className="mb-3">
