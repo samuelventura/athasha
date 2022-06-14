@@ -15,23 +15,21 @@ import Check from '../common/Check'
 import Type from '../common/Type'
 
 const $type = Type.Datalink
-const $config = $type.config()
+const $schema = $type.schema()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [links, setLinks] = useState($config.links)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [links, setLinks] = useState(props.config.links)
     useEffect(() => {
         const config = props.config
         setSetts(config.setts)
         setLinks(config.links)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, links }
-            props.setter(config)
-        }
+        const config = { setts, links }
+        props.setter(config)
     }, [setts, links])
     function addLink() {
         const next = [...links]
@@ -59,12 +57,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function linkProps(index, prop) {
@@ -76,12 +71,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.links[prop](index)
-        args.hint = $type.hints.links[prop](index)
+        Check.fillProp(args, $schema.links[prop], prop, index)
         args.getter = () => links[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.links[prop](index, value)
-        args.defval = $type.link()[prop]
         return Check.props(args)
     }
     const rows = links.map((link, index) =>
@@ -128,7 +120,7 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.period}>
+                    <FloatingLabel label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
@@ -138,10 +130,10 @@ function Editor(props) {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{$type.labels.link.input}</th>
-                        <th>{$type.labels.link.factor}</th>
-                        <th>{$type.labels.link.offset}</th>
-                        <th>{$type.labels.link.output}</th>
+                        <th>{$schema.links.input.header}</th>
+                        <th>{$schema.links.factor.header}</th>
+                        <th>{$schema.links.offset.header}</th>
+                        <th>{$schema.links.output.header}</th>
                         <th>
                             <Button variant='outline-primary' size="sm" onClick={addLink}
                                 title="Add Link">

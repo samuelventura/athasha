@@ -1,4 +1,5 @@
 import Check from '../common/Check'
+import Schema from '../common/Schema'
 
 function schema() {
     return {
@@ -57,6 +58,13 @@ function schema() {
     }
 }
 
+function link(index) {
+    const $type = "object"
+    const prop = { ...schema().links, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
     schema,
+    link,
 }
