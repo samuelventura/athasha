@@ -18,14 +18,14 @@ import Comm from "../common/Comm"
 import Api from "../common/Api"
 
 const $type = Type.Modbus
-const $config = $type.config()
+const $schema = $type.schema()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [inputs, setInputs] = useState($config.inputs)
-    const [outputs, setOutputs] = useState($config.outputs)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [inputs, setInputs] = useState(props.config.inputs)
+    const [outputs, setOutputs] = useState(props.config.outputs)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     useEffect(() => {
@@ -39,12 +39,10 @@ function Editor(props) {
         setSetts(config.setts)
         setInputs(config.inputs)
         setOutputs(config.outputs)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, inputs, outputs }
-            props.setter(config)
-        }
+        const config = { setts, inputs, outputs }
+        props.setter(config)
     }, [setts, inputs, outputs])
     function addInput() {
         const next = [...inputs]
@@ -90,12 +88,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function inputProps(index, prop) {
@@ -107,12 +102,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.inputs[prop](index)
-        args.hint = $type.hints.inputs[prop](index)
+        Check.fillProp(args, $schema.inputs[prop], prop, index)
         args.getter = () => inputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.inputs[prop](index, value)
-        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(index, prop) {
@@ -124,12 +116,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.outputs[prop](index)
-        args.hint = $type.hints.outputs[prop](index)
+        Check.fillProp(args, $schema.outputs[prop], prop, index)
         args.getter = () => outputs[index][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.outputs[prop](index, value)
-        args.defval = $type.output()[prop]
         return Check.props(args)
     }
 
@@ -220,12 +209,12 @@ function Editor(props) {
 
     const transSocket = (<Row>
         <Col xs={4}>
-            <FloatingLabel label={$type.labels.host}>
+            <FloatingLabel label={$schema.setts.host.label}>
                 <Form.Control type="text" {...settsProps("host")} />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={$type.labels.port}>
+            <FloatingLabel label={$schema.setts.port.label}>
                 <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
             </FloatingLabel>
         </Col>
@@ -235,7 +224,7 @@ function Editor(props) {
     //keyPress not emitting, onFocus replaces by check props
     const transSerial = (<Row>
         <Col xs={4}>
-            <FloatingLabel label={$type.labels.tty}>
+            <FloatingLabel label={$schema.setts.tty.label}>
                 <Form.Control type="text" list="serialList"
                     onClick={() => setTrigger(true)}
                     onKeyDown={e => setTrigger(e.key === 'Enter')}
@@ -246,12 +235,12 @@ function Editor(props) {
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={$type.labels.speed}>
+            <FloatingLabel label={$schema.setts.speed.label}>
                 <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
             </FloatingLabel>
         </Col>
         <Col xs={2}>
-            <FloatingLabel label={$type.labels.dbpsb}>
+            <FloatingLabel label={$schema.setts.dbpsb.label}>
                 <Form.Select {...settsProps("dbpsb")}>
                     {configOptions}
                 </Form.Select>
@@ -268,27 +257,27 @@ function Editor(props) {
         <Form>
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={$type.labels.trans}>
+                    <FloatingLabel label={$schema.setts.trans.label}>
                         <Form.Select {...settsProps("trans")}>
                             {transportOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.proto}>
+                    <FloatingLabel label={$schema.setts.proto.label}>
                         <Form.Select {...settsProps("proto")}>
                             {protocolOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.period}>
+                    <FloatingLabel label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.password}>
+                    <FloatingLabel label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
@@ -300,12 +289,12 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{$type.labels.input.slave}</th>
-                                <th className='col-2'>{$type.labels.input.code}</th>
-                                <th>{$type.labels.input.address}</th>
-                                <th className='col-2'>{$type.labels.input.name}</th>
-                                <th>{$type.labels.input.factor}</th>
-                                <th>{$type.labels.input.offset}</th>
+                                <th>{$schema.inputs.slave.header}</th>
+                                <th className='col-2'>{$schema.inputs.code.header}</th>
+                                <th>{$schema.inputs.address.header}</th>
+                                <th className='col-2'>{$schema.inputs.name.header}</th>
+                                <th>{$schema.inputs.factor.header}</th>
+                                <th>{$schema.inputs.offset.header}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addInput}
                                         title="Add Input">
@@ -324,12 +313,12 @@ function Editor(props) {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{$type.labels.output.slave}</th>
-                                <th className='col-2'>{$type.labels.output.code}</th>
-                                <th>{$type.labels.output.address}</th>
-                                <th className='col-2'>{$type.labels.output.name}</th>
-                                <th>{$type.labels.output.factor}</th>
-                                <th>{$type.labels.output.offset}</th>
+                                <th>{$schema.outputs.slave.header}</th>
+                                <th className='col-2'>{$schema.outputs.code.header}</th>
+                                <th>{$schema.outputs.address.header}</th>
+                                <th className='col-2'>{$schema.outputs.name.header}</th>
+                                <th>{$schema.outputs.factor.header}</th>
+                                <th>{$schema.outputs.offset.header}</th>
                                 <th>
                                     <Button variant='outline-primary' size="sm" onClick={addOutput}
                                         title="Add Output">

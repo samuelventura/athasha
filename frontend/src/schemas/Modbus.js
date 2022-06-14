@@ -1,5 +1,6 @@
 import Check from '../common/Check'
 import Comm from '../common/Comm'
+import Schema from '../common/Schema'
 
 const inputCodes = [
     "01 Coil",
@@ -34,25 +35,29 @@ const outputCodes = [
     "16 F32LER",
 ]
 
+const protocols = Comm.protocols
+const transports = Comm.transports
+const serialConfigs = Comm.serialConfigs
+
 function schema() {
     return {
         $type: "object",
         setts: {
             $type: "object",
             proto: {
-                value: Comm.protocols[0],
+                value: protocols[0],
                 label: "Protocol",
                 help: "Select protocol from list",
                 check: function (value, label) {
-                    Check.inList(value, label, Comm.protocols)
+                    Check.inList(value, label, protocols)
                 },
             },
             trans: {
-                value: Comm.transports[0],
+                value: transports[0],
                 label: "Transport",
                 help: "Select transport from list",
                 check: function (value, label) {
-                    Check.inList(value, label, Comm.transports)
+                    Check.inList(value, label, transports)
                 },
             },
             host: {
@@ -260,8 +265,25 @@ function schema() {
     }
 }
 
+function input(index) {
+    const $type = "object"
+    const prop = { ...schema().inputs, $type }
+    return Schema.value(prop, index)
+}
+
+function output(index) {
+    const $type = "object"
+    const prop = { ...schema().outputs, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
+    schema,
     inputCodes,
     outputCodes,
-    schema,
+    transports,
+    protocols,
+    serialConfigs,
+    input,
+    output,
 }
