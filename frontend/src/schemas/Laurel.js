@@ -1,5 +1,6 @@
 import Check from '../common/Check'
 import Comm from '../common/Comm'
+import Schema from '../common/Schema'
 
 const inputCodes = [
     "Item 1",
@@ -39,25 +40,29 @@ const outputCodes = [
     // "Force Alarm 4",
 ]
 
+const protocols = Comm.protocols
+const transports = Comm.transports
+const serialConfigs = Comm.serialConfigs
+
 function schema() {
     return {
         $type: "object",
         setts: {
             $type: "object",
             proto: {
-                value: Comm.protocols[0],
+                value: protocols[0],
                 label: "Protocol",
                 help: "Select protocol from list",
                 check: function (value, label) {
-                    Check.inList(value, label, Comm.protocols)
+                    Check.inList(value, label, protocols)
                 },
             },
             trans: {
-                value: Comm.transports[0],
+                value: transports[0],
                 label: "Transport",
                 help: "Select transport from list",
                 check: function (value, label) {
-                    Check.inList(value, label, Comm.transports)
+                    Check.inList(value, label, transports)
                 },
             },
             host: {
@@ -96,11 +101,11 @@ function schema() {
                 },
             },
             dbpsb: {
-                value: Comm.serialConfigs[0],
+                value: serialConfigs[0],
                 label: "Config",
                 help: "Select config from list",
                 check: function (value, label) {
-                    Check.inList(value, label, Comm.serialConfigs)
+                    Check.inList(value, label, serialConfigs)
                 },
             },
             period: {
@@ -126,7 +131,7 @@ function schema() {
             address: {
                 value: (index) => `${index + 1}`,
                 header: "Slave Address",
-                label: (index) => `Slave ${index + 1} Address`,
+                label: "Slave Address",
                 help: "Non empty integer [0-255]",
                 check: function (value, label) {
                     Check.isGE(value, label, 0)
@@ -136,7 +141,7 @@ function schema() {
             decimals: {
                 value: "0",
                 header: "Decimal Digits",
-                label: (index) => `Slave ${index + 1} Decimal Digits`,
+                label: "Decimal Digits",
                 help: "Non empty integer [0-16]",
                 check: function (value, label) {
                     Check.isGE(value, label, 0)
@@ -191,8 +196,32 @@ function schema() {
     }
 }
 
+function slave(index) {
+    const $type = "object"
+    const prop = { ...schema().slaves, $type }
+    return Schema.value(prop, index)
+}
+
+function input(index) {
+    const $type = "object"
+    const prop = { ...schema().slaves.inputs, $type }
+    return Schema.value(prop, index)
+}
+
+function output(index) {
+    const $type = "object"
+    const prop = { ...schema().slaves.outputs, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
+    schema,
     inputCodes,
     outputCodes,
-    schema,
+    transports,
+    protocols,
+    serialConfigs,
+    slave,
+    input,
+    output,
 }

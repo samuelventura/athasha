@@ -18,13 +18,13 @@ import Comm from "../common/Comm"
 import Api from "../common/Api"
 
 const $type = Type.Laurel
-const $config = $type.config()
+const $schema = $type.schema()
 
 function Editor(props) {
     const captured = props.globals.captured
     const setCaptured = props.globals.setCaptured
-    const [setts, setSetts] = useState($config.setts)
-    const [slaves, setSlaves] = useState($config.slaves)
+    const [setts, setSetts] = useState(props.config.setts)
+    const [slaves, setSlaves] = useState(props.config.slaves)
     const [trigger, setTrigger] = useState(0)
     const [serials, setSerials] = useState([])
     const [tab, setTab] = useState("tab0")
@@ -38,12 +38,10 @@ function Editor(props) {
         const config = props.config
         setSetts(config.setts)
         setSlaves(config.slaves)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) { //required to prevent closing validations
-            const config = { setts, slaves }
-            props.setter(config)
-        }
+        const config = { setts, slaves }
+        props.setter(config)
     }, [setts, slaves])
     function addSlave() {
         const next = [...slaves]
@@ -125,12 +123,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     function slaveProps(sindex, prop) {
@@ -140,12 +135,9 @@ function Editor(props) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels.slaves[prop](sindex)
-        args.hint = $type.hints.slaves[prop](sindex)
+        Check.fillProp(args, $schema.slaves[prop], prop, sindex)
         args.getter = () => slaves[sindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.slaves[prop](sindex, value)
-        args.defval = $type.slave()[prop]
         return Check.props(args)
     }
     function inputProps(sindex, pindex, prop) {
@@ -156,12 +148,9 @@ function Editor(props) {
         }
         const slave = slaves[sindex]
         const args = { captured, setCaptured }
-        args.label = $type.labels.inputs[prop](pindex)
-        args.hint = $type.hints.inputs[prop](pindex)
+        Check.fillProp(args, $schema.slaves.inputs[prop], prop, pindex)
         args.getter = () => slave.inputs[pindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.inputs[prop](pindex, value)
-        args.defval = $type.input()[prop]
         return Check.props(args)
     }
     function outputProps(sindex, pindex, prop) {
@@ -172,12 +161,9 @@ function Editor(props) {
         }
         const slave = slaves[sindex]
         const args = { captured, setCaptured }
-        args.label = $type.labels.outputs[prop](pindex)
-        args.hint = $type.hints.outputs[prop](pindex)
+        Check.fillProp(args, $schema.slaves.inputs[prop], prop, pindex)
         args.getter = () => slave.outputs[pindex][prop]
         args.setter = setter(prop)
-        args.check = (value) => $type.checks.outputs[prop](pindex, value)
-        args.defval = $type.output()[prop]
         return Check.props(args)
     }
 
@@ -189,27 +175,27 @@ function Editor(props) {
         return (
             <Row>
                 <Col xs={4}>
-                    <FloatingLabel label={$type.labels.trans}>
+                    <FloatingLabel label={$schema.setts.trans.label}>
                         <Form.Select {...settsProps("trans")}>
                             {transportOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.proto}>
+                    <FloatingLabel label={$schema.setts.proto.label}>
                         <Form.Select {...settsProps("proto")}>
                             {protocolOptions}
                         </Form.Select>
                     </FloatingLabel>
                 </Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.period}>
+                    <FloatingLabel label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FloatingLabel>
                 </Col>
                 <Col></Col>
                 <Col xs={2}>
-                    <FloatingLabel label={$type.labels.password}>
+                    <FloatingLabel label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FloatingLabel>
                 </Col>
@@ -220,24 +206,24 @@ function Editor(props) {
     function socketTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label={$type.labels.host}>
+                <FloatingLabel label={$schema.setts.host.label}>
                     <Form.Control type="text" {...settsProps("host")} />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={$type.labels.port}>
+                <FloatingLabel label={$schema.setts.port.label}>
                     <Form.Control type="number" {...settsProps("port")} min="0" max="65535" step="1" />
                 </FloatingLabel>
             </Col>
         </Row>)
     }
 
-    //autocomplete wont shot on empty input, start typing beginning of port name...
+    //autocomplete wont show on empty input, start typing beginning of port name...
     //keyPress not emitting, onFocus replaces by check props
     function serialTransportEditor() {
         return (<Row>
             <Col xs={4}>
-                <FloatingLabel label={$type.labels.tty}>
+                <FloatingLabel label={$schema.setts.tty.label}>
                     <Form.Control type="text" list="serialList"
                         onClick={() => setTrigger(true)}
                         onKeyDown={e => setTrigger(e.key === 'Enter')}
@@ -248,12 +234,12 @@ function Editor(props) {
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={$type.labels.speed}>
+                <FloatingLabel label={$schema.setts.speed.label}>
                     <Form.Control type="number" {...settsProps("speed")} min="1" step="1" />
                 </FloatingLabel>
             </Col>
             <Col xs={2}>
-                <FloatingLabel label={$type.labels.dbpsb}>
+                <FloatingLabel label={$schema.setts.dbpsb.label}>
                     <Form.Select {...settsProps("dbpsb")}>
                         {configOptions}
                     </Form.Select>
@@ -340,12 +326,12 @@ function Editor(props) {
             <Tab key={sindex} eventKey={"tab" + sindex} title={"Slave " + slave.address}>
                 <Row>
                     <Col xs={2}>
-                        <FloatingLabel label={$type.labels.slave.address}>
+                        <FloatingLabel label={$schema.slaves.address.label}>
                             <Form.Control type="number" {...slaveProps(sindex, "address")} min="0" max="255" step="1" />
                         </FloatingLabel>
                     </Col>
                     <Col xs={2}>
-                        <FloatingLabel label={$type.labels.slave.decimals}>
+                        <FloatingLabel label={$schema.slaves.decimals.label}>
                             <Form.Control type="number"  {...slaveProps(sindex, "decimals")} min="0" max="6" step="1" />
                         </FloatingLabel>
                     </Col>
@@ -363,8 +349,8 @@ function Editor(props) {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>{$type.labels.input.code}</th>
-                                    <th>{$type.labels.input.name}</th>
+                                    <th>{$schema.slaves.inputs.code.header}</th>
+                                    <th>{$schema.slaves.inputs.name.header}</th>
                                     <th>
                                         <Button variant='outline-primary' size="sm" onClick={() => addInput(sindex)}
                                             title="Add Input">
@@ -383,8 +369,8 @@ function Editor(props) {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>{$type.labels.output.code}</th>
-                                    <th>{$type.labels.output.name}</th>
+                                    <th>{$schema.slaves.outputs.code.header}</th>
+                                    <th>{$schema.slaves.outputs.name.header}</th>
                                     <th>
                                         <Button variant='outline-primary' size="sm" onClick={() => addOutput(sindex)}
                                             title="Add Output">
