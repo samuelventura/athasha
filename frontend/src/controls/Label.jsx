@@ -7,8 +7,12 @@ import Tab from 'react-bootstrap/Tab'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
-import Initial from "./Label.js"
+import Control from "../common/Control"
 import Check from '../common/Check'
+
+const $control = Control.Label
+const $schema = $control.schema()
+const $cond = $control.cond()
 
 function CondEditor({ getCond, setProp, captured, setCaptured }) {
     function fieldProps(prop, checkbox) {
@@ -18,56 +22,53 @@ function CondEditor({ getCond, setProp, captured, setCaptured }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.clabels[prop]
-        args.hint = Initial.chints[prop]
+        Check.fillProp(args, $cond[prop], prop)
         args.getter = () => getCond()[prop]
         args.setter = setter(prop)
-        args.check = Initial.cchecks[prop]
-        args.defval = Initial.cond()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
-    const condTypeOptions = Initial.condTypes.map(v => <option key={v} value={v}>{v}</option>)
-    const txTypeOptions = Initial.textActions.map(v => <option key={v} value={v}>{v}</option>)
+    const condTypeOptions = $control.condTypes.map(v => <option key={v} value={v}>{v}</option>)
+    const txTypeOptions = $control.textActions.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
-            <FormEntry label={Initial.clabels.type}>
+            <FormEntry label={$cond.type.label}>
                 <Form.Select {...fieldProps("type")}>
                     {condTypeOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.clabels.param}>
+            <FormEntry label="Params">
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("negate", true)} />
                     <Form.Control type="number" {...fieldProps("param1")} />
                     <Form.Control type="number" {...fieldProps("param2")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.textAction}>
+            <FormEntry label={$cond.textAction.label}>
                 <Form.Select {...fieldProps("textAction")}>
                     {txTypeOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.clabels.textParam}>
+            <FormEntry label={$cond.textParam.label}>
                 <InputGroup>
                     <Form.Control type="text" {...fieldProps("textParam")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.textColor}>
+            <FormEntry label={$cond.textColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("textColored", true)} />
                     <Form.Control type="color" {...fieldProps("textColor")} />
                     <Form.Control type="text" {...fieldProps("textColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.backColor}>
+            <FormEntry label={$cond.backColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                     <Form.Control type="color" {...fieldProps("backColor")} />
                     <Form.Control type="text" {...fieldProps("backColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.clabels.borderColor}>
+            <FormEntry label={$cond.borderColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("borderColored", true)} />
                     <Form.Control type="color" {...fieldProps("borderColor")} />
@@ -98,60 +99,57 @@ function Editor({ getControl, setProp, globals }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.dlabels[prop]
-        args.hint = Initial.dhints[prop]
+        Check.fillProp(args, $schema[prop], prop)
         args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
-        args.check = Initial.dchecks[prop]
-        args.defval = Initial.data()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
-    const alignOptions = Initial.aligns.map(v => <option key={v} value={v}>{v}</option>)
-    const ftFamilyOptions = Initial.fontFamilies.map(v => <option key={v} value={v}>{v}</option>)
+    const alignOptions = $control.aligns.map(v => <option key={v} value={v}>{v}</option>)
+    const ftFamilyOptions = $control.fontFamilies.map(v => <option key={v} value={v}>{v}</option>)
     return (
         <>
             <Tabs defaultActiveKey="default">
                 <Tab eventKey="default" title="Default">
-                    <FormEntry label={Initial.dlabels.text}>
+                    <FormEntry label={$schema.text.label}>
                         <Form.Control type="text" {...fieldProps("text")} />
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.align}>
+                    <FormEntry label={$schema.align.label}>
                         <Form.Select {...fieldProps("align")}>
                             {alignOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.backColor}>
+                    <FormEntry label={$schema.backColor.label}>
                         <InputGroup>
                             <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                             <Form.Control type="color" {...fieldProps("backColor")} />
                             <Form.Control type="text" {...fieldProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.fontSize}>
+                    <FormEntry label={$schema.fontSize.label}>
                         <Form.Control type="number" {...fieldProps("fontSize")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.fontFamily}>
+                    <FormEntry label={$schema.fontFamily.label}>
                         <Form.Select {...fieldProps("fontFamily")}>
                             {ftFamilyOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.textColor}>
+                    <FormEntry label={$schema.textColor.label}>
                         <InputGroup>
                             <Form.Control type="color" {...fieldProps("textColor")} />
                             <Form.Control type="text" {...fieldProps("textColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.borderColor}>
+                    <FormEntry label={$schema.borderColor.label}>
                         <InputGroup>
                             <Form.Control type="color" {...fieldProps("borderColor")} />
                             <Form.Control type="text" {...fieldProps("borderColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.borderWidth}>
+                    <FormEntry label={$schema.borderWidth.label}>
                         <Form.Control type="number" {...fieldProps("borderWidth")} min="0" step="1" />
                     </FormEntry>
-                    <FormEntry label={Initial.dlabels.borderRadius}>
+                    <FormEntry label={$schema.borderRadius.label}>
                         <Form.Control type="number" {...fieldProps("borderRadius")} min="0" max="1" step="0.1" />
                     </FormEntry>
                 </Tab>
@@ -281,10 +279,6 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
     )
 }
 
-const Type = Initial.type
-const Init = Initial.data
-const Merge = Initial.merge
-
-const Label = { Type, Init, Editor, Renderer, Merge }
+const Label = { $control, Editor, Renderer }
 
 export default Label

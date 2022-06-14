@@ -4,9 +4,12 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
-import Initial from "./Trend.js"
+import Initial from "../schemas/Trend.js"
 import Check from '../common/Check'
 import Input from "../screen/Input"
+import Control from "../common/Control"
+
+const $control = Control.Trend
 
 //to debug this reduce the number of points to 4
 //errors are very clear for small number of points
@@ -183,10 +186,6 @@ function Editor({ getControl, setProp, globals }) {
     )
 }
 
-const Type = Initial.type
-const Init = Initial.data
-const Merge = Initial.merge
-
-const Label = { Type, Init, Editor, Renderer, Merge }
+const Label = { $control, Editor, Renderer }
 
 export default Label

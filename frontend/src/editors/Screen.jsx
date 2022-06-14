@@ -17,16 +17,17 @@ import { faAnglesDown } from '@fortawesome/free-solid-svg-icons'
 import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
+import Controller from "../common/Controller"
 import Points from '../common/Points'
 import Check from '../common/Check'
 import Color from "../common/Color"
 import Type from "../common/Type"
-import Control from "../common/Control"
 import Clone from "../tools/Clone"
 import Input from "../screen/Input"
 import State from "./screen/State"
 
 const $type = Type.Screen
+const $schema = $type.schema()
 
 function calcAlign(align, d, D) {
     switch (align) {
@@ -509,9 +510,9 @@ function SvgWindow({ ctx, preview }) {
         const isSelected = selected === control.id
         const tickBorder = isSelected || multi[control.id]
         const strokeWidth = tickBorder ? "6" : "2"
-        const $control = Control.get(control.type)
+        const controller = Controller.get(control.type)
         const value = Input.getter(csetts, null)
-        const controlInstance = $control.Renderer({ control, size, value })
+        const controlInstance = controller.Renderer({ control, size, value })
         const transpFrame = dragged.index === index || index < 0
         const fillOpacity = transpFrame ? "0.5" : "0"
         const borderOpacity = isSelected ? 0.1 : 0.2 //resize borders accumulate
@@ -587,27 +588,27 @@ function SvgWindow({ ctx, preview }) {
     </svg >)
 }
 
-
-
 function LeftPanel({ ctx }) {
     const state = ctx.state
     const setts = state.setts
     const immediate = ctx.immediate
     function addControl(controller) {
         const control = $type.control()
+        const $control = controller.$control
         control.setts.width = Math.max(1, Math.trunc(setts.gridX / 10)).toString()
         control.setts.height = Math.max(1, Math.trunc(setts.gridY / 10)).toString()
-        control.type = controller.Type
-        if (controller.Init) {
-            control.data = controller.Init()
+        control.type = $control.type
+        if ($control.data) {
+            control.data = $control.data()
         }
         immediate.addControl(control)
     }
-    const controlList = Control.list().forEach((controller, index) => {
+    const controlList = Controller.list().map((controller, index) => {
+        const $control = controller.$control
         return (<ListGroup.Item action key={index}
-            title={`Add new ${controller.Type}`}
+            title={`Add new ${$control.type}`}
             onClick={() => addControl(controller)}>
-            {controller.Type}</ListGroup.Item>)
+            {$control.type}</ListGroup.Item>)
     })
     return ctx.left ? (
         <Card>
@@ -639,12 +640,9 @@ function ScreenEditor({ ctx, previewControl }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.labels[prop]
-        args.hint = $type.hints[prop]
+        Check.fillProp(args, $schema.setts[prop], prop)
         args.getter = () => ctx.state.setts[prop]
         args.setter = setter(prop)
-        args.check = $type.checks[prop]
-        args.defval = $type.setts()[prop]
         return Check.props(args)
     }
     const scaleOptions = $type.scales.map(v => <option key={v} value={v}>{v}</option>)
@@ -659,41 +657,41 @@ function ScreenEditor({ ctx, previewControl }) {
             </Card.Header>
             <ListGroup variant="flush">
                 <ListGroup.Item>
-                    <FormEntry label={$type.labels.password}>
+                    <FormEntry label={$schema.setts.password.label}>
                         <Form.Control type="password" {...settsProps("password")} />
                     </FormEntry>
-                    <FormEntry label={$type.labels.period}>
+                    <FormEntry label={$schema.setts.period.label}>
                         <Form.Control type="number" {...settsProps("period")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={$type.labels.scale}>
+                    <FormEntry label={$schema.setts.scale.label}>
                         <Form.Select {...settsProps("scale")}>
                             {scaleOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={$type.labels.align}>
+                    <FormEntry label={$schema.setts.align.label}>
                         <Form.Select {...settsProps("align")}>
                             {alignOptions}
                         </Form.Select>
                     </FormEntry>
-                    <FormEntry label={$type.labels.width}>
+                    <FormEntry label={$schema.setts.width.label}>
                         <Form.Control type="number" {...settsProps("width")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={$type.labels.height}>
+                    <FormEntry label={$schema.setts.height.label}>
                         <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={$type.labels.gridX}>
+                    <FormEntry label={$schema.setts.gridX.label}>
                         <Form.Control type="number" {...settsProps("gridX")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={$type.labels.gridY}>
+                    <FormEntry label={$schema.setts.gridY.label}>
                         <Form.Control type="number" {...settsProps("gridY")} min="1" step="1" />
                     </FormEntry>
-                    <FormEntry label={$type.labels.backColor}>
+                    <FormEntry label={$schema.setts.backColor.label}>
                         <InputGroup>
                             <Form.Control type="color" {...settsProps("backColor")} />
                             <Form.Control type="text" {...settsProps("backColor")} />
                         </InputGroup>
                     </FormEntry>
-                    <FormEntry label={$type.labels.hoverColor}>
+                    <FormEntry label={$schema.setts.hoverColor.label}>
                         <InputGroup>
                             <Form.Control type="color" {...settsProps("hoverColor")} />
                             <Form.Control type="text" {...settsProps("hoverColor")} />
@@ -713,7 +711,8 @@ function ControlEditor({ ctx, previewControl }) {
     const globals = ctx.globals
     const captured = globals.captured
     const setCaptured = globals.setCaptured
-    const $control = Control.get(control.type)
+    const controller = Controller.get(control.type)
+    const $setts = $schema.controls.setts
     const immediate = ctx.immediate
     const setProp = (name, value) => immediate.setControlData(selected, name, value)
     //needs full setts path to avoid capturing local vars
@@ -723,7 +722,7 @@ function ControlEditor({ ctx, previewControl }) {
         const index = state.indexes[selected]
         return state.controls[index]
     }
-    const editor = $control.Editor ? $control.Editor({ getControl, setProp, globals }) : null
+    const editor = controller.Editor ? controller.Editor({ getControl, setProp, globals }) : null
     const controlProps = editor ? (
         <ListGroup variant="flush">
             <ListGroup.Item>
@@ -741,17 +740,14 @@ function ControlEditor({ ctx, previewControl }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = $type.clabels[prop]
-        args.hint = $type.chints[prop]
+        Check.fillProp(args, $setts[prop], prop)
         args.getter = () => getControl().setts[prop]
         args.setter = setter(prop)
-        args.check = $type.cschecks[prop]
-        args.defval = $type.csetts()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
     const inputProps = setts.input || setts.defEnabled ? <>
-        <FormEntry label={$type.clabels.inputScale}>
+        <FormEntry label={$setts.inputScale.label}>
             <InputGroup>
                 <Form.Control type="number" {...settsProps("inputFactor")} />
                 <Form.Control type="number" {...settsProps("inputOffset")} />
@@ -759,28 +755,28 @@ function ControlEditor({ ctx, previewControl }) {
         </FormEntry>
     </> : null
 
-    const promptProp = setts.click === "Value Prompt" ? <FormEntry label={$type.clabels.prompt}>
+    const promptProp = setts.click === "Value Prompt" ? <FormEntry label={$setts.prompt.label}>
         <Form.Control type="text" {...settsProps("prompt")} />
-    </FormEntry> : <FormEntry label={$type.clabels.value}>
+    </FormEntry> : <FormEntry label={$setts.value.label}>
         <Form.Control type="number" {...settsProps("value")} />
     </FormEntry>
 
     const clickOptions = $type.clicks.map(v => <option key={v} value={v}>{v}</option>)
 
     const outputProps = setts.output ? <>
-        <FormEntry label={$type.clabels.outputScale}>
+        <FormEntry label={$setts.outputScale.label}>
             <InputGroup>
                 <Form.Control type="number" {...settsProps("outputFactor")} />
                 <Form.Control type="number" {...settsProps("outputOffset")} />
             </InputGroup>
         </FormEntry>
-        <FormEntry label={$type.clabels.click}>
+        <FormEntry label={$setts.click.label}>
             <Form.Select {...settsProps("click")} >
                 {clickOptions}
             </Form.Select>
         </FormEntry>
         {promptProp}
-    </> : <FormEntry label={$type.clabels.link}>
+    </> : <FormEntry label="Link">
         <InputGroup>
             <InputGroup.Checkbox {...settsProps("linkBlank", true)} />
             <Form.Control type="text" {...settsProps("linkURL")} />
@@ -826,35 +822,35 @@ function ControlEditor({ ctx, previewControl }) {
                         </Button>
                     </ListGroup.Item>
                     <ListGroup.Item>
-                        <FormEntry label={$type.clabels.position}>
+                        <FormEntry label="Position">
                             <InputGroup>
                                 <Form.Control type="number" {...settsProps("posX")} min="0" step="1" />
                                 <Form.Control type="number" {...settsProps("posY")} min="0" step="1" />
                             </InputGroup>
                         </FormEntry>
-                        <FormEntry label={$type.clabels.dimensions}>
+                        <FormEntry label="Dimensions">
                             <InputGroup>
                                 <Form.Control type="number" {...settsProps("width")} min="1" step="1" />
                                 <Form.Control type="number" {...settsProps("height")} min="1" step="1" />
                             </InputGroup>
                         </FormEntry>
-                        <FormEntry label={$type.clabels.title}>
+                        <FormEntry label={$setts.title.label}>
                             <Form.Control type="text" {...settsProps("title")} />
                         </FormEntry>
-                        <FormEntry label={$type.clabels.input}>
+                        <FormEntry label={$setts.input.label}>
                             <Form.Select {...settsProps("input")} >
                                 <option value=""></option>
                                 {Points.options(globals.inputs)}
                             </Form.Select>
                         </FormEntry>
-                        <FormEntry label={$type.clabels.defValue}>
+                        <FormEntry label={$setts.defValue.label}>
                             <InputGroup>
                                 <InputGroup.Checkbox {...settsProps("defEnabled", true)} />
                                 <Form.Control type="number" {...settsProps("defValue")} />
                             </InputGroup>
                         </FormEntry>
                         {inputProps}
-                        <FormEntry label={$type.clabels.output}>
+                        <FormEntry label={$setts.output.label}>
                             <Form.Select {...settsProps("output")} >
                                 <option value=""></option>
                                 {Points.options(globals.outputs)}

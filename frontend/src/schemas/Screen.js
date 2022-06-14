@@ -4,6 +4,7 @@ import Analog from './Analog.js'
 import Image from './Image.js'
 import Trend from './Trend.js'
 import UUID from '../tools/UUID.js'
+import Schema from '../common/Schema'
 
 const controls = {}
 controls[Label.type] = Label.schema()
@@ -298,6 +299,12 @@ function schema() {
     }
 }
 
+function control(index) {
+    const $type = "object"
+    const prop = { ...schema().controls, $type }
+    return Schema.value(prop, index)
+}
+
 export default {
     id,
     scales,
@@ -305,4 +312,5 @@ export default {
     clicks,
     types,
     schema,
+    control,
 }

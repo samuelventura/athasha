@@ -161,7 +161,7 @@ function Editor(props) {
         }
         const slave = slaves[sindex]
         const args = { captured, setCaptured }
-        Check.fillProp(args, $schema.slaves.inputs[prop], prop, pindex)
+        Check.fillProp(args, $schema.slaves.outputs[prop], prop, pindex)
         args.getter = () => slave.outputs[pindex][prop]
         args.setter = setter(prop)
         return Check.props(args)

@@ -236,6 +236,7 @@ const type = "Label"
 
 export default {
     type,
+    cond,
     schema,
     aligns,
     condTypes,

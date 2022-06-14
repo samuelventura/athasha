@@ -4,8 +4,12 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Tools'
 import "../fonts/Fonts.css"
 import "../fonts/Fonts"
-import Initial from "./Analog.js"
+import Initial from "../schemas/Analog.js"
+import Control from "../common/Control"
 import Check from '../common/Check'
+
+const $control = Control.Analog
+//const $schema = $control.schema()
 
 function Editor({ getControl, setProp, globals }) {
     const captured = globals.captured
@@ -374,10 +378,6 @@ function Renderer({ size, control, value }) {
     }
 }
 
-const Type = Initial.type
-const Init = Initial.data
-const Merge = Initial.merge
-
-const Label = { Type, Init, Editor, Renderer, Merge }
+const Label = { $control, Editor, Renderer }
 
 export default Label

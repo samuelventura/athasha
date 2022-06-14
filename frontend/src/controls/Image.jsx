@@ -2,10 +2,13 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { FormEntry } from './Tools'
-import Initial from "./Image.js"
+import Initial from "../schemas/Image.js"
 import Check from '../common/Check'
 import Files from '../tools/Files'
 import Clipboard from '../tools/Clipboard'
+import Control from "../common/Control"
+
+const $control = Control.Image
 
 const parser = new DOMParser()
 
@@ -123,10 +126,6 @@ function Renderer({ control, size, click }) {
     )
 }
 
-const Type = Initial.type
-const Init = Initial.data
-const Merge = Initial.merge
-
-const Label = { Type, Init, Editor, Renderer, Merge }
+const Label = { $control, Editor, Renderer }
 
 export default Label
