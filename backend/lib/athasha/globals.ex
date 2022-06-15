@@ -17,6 +17,7 @@ defmodule Athasha.Globals do
 
   def init(_initial) do
     all = load_all()
+    register!(:version, all.version)
     register!(:identity, all.identity)
     register!(:licenses, all.licenses)
     register!(:hostname, all.hostname)
@@ -26,6 +27,7 @@ defmodule Athasha.Globals do
 
   def handle_call(:update, _from, _state) do
     all = load_all()
+    update!(:version, all.version)
     update!(:identity, all.identity)
     update!(:licenses, all.licenses)
     update!(:hostname, all.hostname)
@@ -43,6 +45,7 @@ defmodule Athasha.Globals do
     %{
       identity: identity,
       licenses: Auth.count_licenses(identity),
+      version: Environ.load_version(),
       hostname: Environ.load_hostname(),
       addresses: Environ.load_addresses()
     }
@@ -50,6 +53,7 @@ defmodule Athasha.Globals do
 
   def find_all() do
     %{
+      version: find_version(),
       identity: find_identity(),
       licenses: find_licenses(),
       hostname: find_hostname(),
@@ -57,6 +61,7 @@ defmodule Athasha.Globals do
     }
   end
 
+  def find_version(), do: find(:version)
   def find_identity(), do: find(:identity)
   def find_licenses(), do: find(:licenses)
   def find_hostname(), do: find(:hostname)

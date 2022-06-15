@@ -170,5 +170,5 @@ defmodule Athasha.Runner.Screen do
   end
 
   defp millis(dt), do: DateTime.to_unix(dt, :millisecond)
-  defp db_path(id), do: Environ.file_path("screen_#{id}.db3")
+  defp db_path(id), do: Environ.data_path("screen_#{id}.db3")
 end

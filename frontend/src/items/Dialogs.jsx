@@ -189,12 +189,13 @@ function ToolsButton() {
 
 function InfoButton() {
     const app = useApp()
+    const appver = app.state.appver
     const identity = app.state.identity
     const licenses = app.state.licenses
     const hostname = app.state.hostname
     const items = Object.values(app.state.items).length
     const addresses = app.state.addresses.join(" ")
-    const tooltip = `Identity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}\nItems: ${items}`
+    const tooltip = `Version: ${appver}\nIdentity: ${identity}\nIPs: ${addresses}\nHostname: ${hostname}\nLicenses: ${licenses}\nItems: ${items}`
     const handleOnClick = () => {
         Clipboard.copyText(tooltip)
     }

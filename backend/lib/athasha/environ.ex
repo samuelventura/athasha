@@ -27,6 +27,13 @@ defmodule Athasha.Environ do
     end
   end
 
+  def load_version() do
+    case File.read(version_file()) do
+      {:ok, data} -> String.trim(data)
+      _ -> ""
+    end
+  end
+
   def save_password(password) do
     File.write!(password_file(), password)
   end
@@ -36,8 +43,18 @@ defmodule Athasha.Environ do
     Path.join(root_path, filename)
   end
 
+  def data_path(filename) do
+    data_path = file_path("data")
+    File.mkdir_p!(data_path)
+    Path.join(data_path, filename)
+  end
+
   def password_file() do
     file_path("athasha.config.pwd")
+  end
+
+  def version_file() do
+    file_path("version.txt")
   end
 
   def load_identity() do

@@ -10,6 +10,7 @@ function initial() {
     selected: {},
     targeted: {},
     version: 0,
+    appver: "",
     hostname: "",
     identity: "",
     licenses: 0,
@@ -48,6 +49,7 @@ function reducer(state, { name, args, self }) {
       state.items = {}
       state.status = {}
       state.upgrades = {}
+      state.appver = args.version
       state.hostname = args.hostname
       state.identity = args.identity
       state.licenses = args.licenses
