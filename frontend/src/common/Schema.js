@@ -15,26 +15,35 @@ const $try = (fn) => { try { fn() } catch (e) { return e } }
 //introduced exclusively to flag the header check for array children
 //`i` should be passed to next generations until next array changes it
 //
+
+const stack = () => `${new Error().stack}`
+
 const $check = (p, n, i, a) => {
-    if (!("value" in p)) throw `ALERT: ${n} ${i} value not defined`
-    if (!("label" in p)) throw `ALERT: ${n} ${i} label not defined`
-    if (!("help" in p)) throw `ALERT: ${n} ${i} help not defined`
-    if (!("check" in p)) throw `ALERT: ${n} ${i} check not defined`
-    if (a && !("header" in p)) throw `ALERT: ${n} ${i} header not defined`
+    if (!("value" in p)) throw `ALERT: ${n} ${i} value not defined\n${stack()}`
+    if (!("label" in p)) throw `ALERT: ${n} ${i} label not defined\n${stack()}`
+    if (!("help" in p)) throw `ALERT: ${n} ${i} help not defined\n${stack()}`
+    if (!("check" in p)) throw `ALERT: ${n} ${i} check not defined\n${stack()}`
+    if (a && !("header" in p)) throw `ALERT: ${n} ${i} header not defined\n${stack()}`
 }
 
 const $value = (p, n, i) => {
     switch (p.$type) {
         case "object": {
-            return $props(p).reduce((o, n) => $set(o, n, $value(p[n], n, i)), {})
+            return $props(p).reduce((o, n) => {
+                const v = $value(p[n], n, i)
+                return $set(o, n, v)
+            }, {})
         }
         case "array": {
-            const v = (i) => $props(p).reduce((o, n) => $set(o, n, $value(p[n], n, i, true)), {})
+            const v = (i) => $props(p).reduce((o, n) => {
+                const v = $value(p[n], n, i, true)
+                return $set(o, n, v)
+            }, {})
             const $v = p.$value
             return $fun($v) ? $v(v) : $v
         }
         default: {
-            $check(p, n, i)
+            if (!$fun(p.$schema)) $check(p, n, i)
             const v = p.value
             return $fun(v) ? v(i, n) : v
         }
@@ -56,7 +65,9 @@ const $merge = (p, t, n, i) => {
                 }
             })
             $props(p).forEach((n) => {
-                t[n] = $merge(p[n], t[n], n, i)
+                const pn = p[n]
+                const pf = $fun(pn.$schema) ? pn.$schema(t) : pn
+                t[n] = $merge(pf, t[n], n, i)
             })
             return t
         }

@@ -4,9 +4,9 @@ import { expect, test } from 'vitest'
 import Check from "../src/common/Check"
 
 test('checkLabel', () => {
-    expect(() => Check.$checkLabel()).toThrow(/^ALERT: Label is undefined$/)
-    expect(() => Check.$checkLabel(null)).toThrow(/^ALERT: Label is null$/)
-    expect(() => Check.$checkLabel(" ")).toThrow(/^ALERT: Label is empty$/)
+    expect(() => Check.$checkLabel()).toThrow(/^ALERT: Label is undefined/)
+    expect(() => Check.$checkLabel(null)).toThrow(/^ALERT: Label is null/)
+    expect(() => Check.$checkLabel(" ")).toThrow(/^ALERT: Label is empty/)
 })
 
 //checkbox inputs value are booleans

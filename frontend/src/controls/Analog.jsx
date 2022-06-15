@@ -2,14 +2,11 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Tools'
-import "../fonts/Fonts.css"
-import "../fonts/Fonts"
-import Initial from "../schemas/Analog.js"
 import Control from "../common/Control"
 import Check from '../common/Check'
 
 const $control = Control.Analog
-//const $schema = $control.schema()
+const $schema = $control.schema()
 
 function Editor({ getControl, setProp, globals }) {
     const captured = globals.captured
@@ -23,19 +20,16 @@ function Editor({ getControl, setProp, globals }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.dlabels[prop]
-        args.hint = Initial.dhints[prop]
+        Check.fillProp(args, $schema[prop], prop)
         args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
-        args.check = Initial.dchecks[prop]
-        args.defval = Initial.data()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
     const custom = data.style === "Custom"
     const circular = data.orientation === "Circular"
     const customProps = custom ? <>
-        <FormEntry label={Initial.dlabels.barColor}>
+        <FormEntry label={$schema.barColor.label}>
             <InputGroup>
                 <InputGroup.Checkbox {...fieldProps("barColored", true)} />
                 <Form.Control type="color" {...fieldProps("barColor")} />
@@ -44,7 +38,7 @@ function Editor({ getControl, setProp, globals }) {
         </FormEntry>
     </> : null
     const circularProps = circular ? <>
-        <FormEntry label={Initial.dlabels.barConfig}>
+        <FormEntry label="Bar Config">
             <InputGroup>
                 <Form.Control type="number" {...fieldProps("barZero")} min="-180" max="180" />
                 <Form.Control type="number" {...fieldProps("barSpan")} min="0" max="360" />
@@ -53,40 +47,40 @@ function Editor({ getControl, setProp, globals }) {
         </FormEntry>
     </> : null
 
-    const orientationOptions = Initial.orientations.map(v => <option key={v} value={v}>{v}</option>)
-    const styleOptions = Initial.styles.map(v => <option key={v} value={v}>{v}</option>)
+    const orientationOptions = $control.orientations.map(v => <option key={v} value={v}>{v}</option>)
+    const styleOptions = $control.styles.map(v => <option key={v} value={v}>{v}</option>)
 
     return (
         <>
-            <FormEntry label={Initial.dlabels.orientation}>
+            <FormEntry label={$schema.orientation.label}>
                 <Form.Select {...fieldProps("orientation")}>
                     {orientationOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.style}>
+            <FormEntry label={$schema.style.label}>
                 <Form.Select {...fieldProps("style")}>
                     {styleOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.inputRange}>
+            <FormEntry label="Input Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("inputMin")} />
                     <Form.Control type="number" {...fieldProps("inputMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.normalRange}>
+            <FormEntry label="Normal Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("normalMin")} />
                     <Form.Control type="number" {...fieldProps("normalMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.warningRange}>
+            <FormEntry label="Warning Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("warningMin")} />
                     <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.barParams}>
+            <FormEntry label="Bar Params">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
                     <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" />
@@ -95,19 +89,19 @@ function Editor({ getControl, setProp, globals }) {
             </FormEntry>
             {circularProps}
             {customProps}
-            <FormEntry label={Initial.dlabels.criticalColor}>
+            <FormEntry label={$schema.criticalColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("criticalColor")} />
                     <Form.Control type="text" {...fieldProps("criticalColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.warningColor}>
+            <FormEntry label={$schema.warningColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("warningColor")} />
                     <Form.Control type="text" {...fieldProps("warningColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.normalColor}>
+            <FormEntry label={$schema.normalColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("normalColor")} />
                     <Form.Control type="text" {...fieldProps("normalColor")} />

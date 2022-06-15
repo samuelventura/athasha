@@ -2,16 +2,14 @@ import React from 'react'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import { FormEntry } from './Tools'
-import "../fonts/Fonts.css"
-import "../fonts/Fonts"
-import Initial from "../schemas/Trend.js"
 import Check from '../common/Check'
 import Input from "../screen/Input"
 import Control from "../common/Control"
 
 const $control = Control.Trend
+const $schema = $control.schema()
 
-//to debug this reduce the number of points to 4
+//to debug this, reduce the number of points to 4
 //errors are very clear for small number of points
 function Renderer({ control, size, trend }) {
     const data = control.data
@@ -101,81 +99,78 @@ function Editor({ getControl, setProp, globals }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.dlabels[prop]
-        args.hint = Initial.dhints[prop]
+        Check.fillProp(args, $schema[prop], prop)
         args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
-        args.check = Initial.dchecks[prop]
-        args.defval = Initial.data()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
 
     return (
         <>
-            <FormEntry label={Initial.dlabels.sample}>
+            <FormEntry label="Sampling">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("samplePeriod")} min="1" />
                     <Form.Control type="number" {...fieldProps("sampleLength")} min="1" />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.inputRange}>
+            <FormEntry label="Input Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("inputMin")} />
                     <Form.Control type="number" {...fieldProps("inputMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.normalRange}>
+            <FormEntry label="Normal Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("normalMin")} />
                     <Form.Control type="number" {...fieldProps("normalMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.warningRange}>
+            <FormEntry label="Warning Range">
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("warningMin")} />
                     <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.criticalColor}>
+            <FormEntry label={$schema.criticalColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("criticalColor")} />
                     <Form.Control type="text" {...fieldProps("criticalColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.warningColor}>
+            <FormEntry label={$schema.warningColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("warningColor")} />
                     <Form.Control type="text" {...fieldProps("warningColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.normalColor}>
+            <FormEntry label={$schema.normalColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("normalColor")} />
                     <Form.Control type="text" {...fieldProps("normalColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.lineWidth}>
+            <FormEntry label={$schema.lineWidth.label}>
                 <InputGroup>
                     <Form.Control type="number" {...fieldProps("lineWidth")} min="1" step="1" />
                     <Form.Control type="number" {...fieldProps("gridWidth")} min="1" step="1" />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.lineColor}>
+            <FormEntry label={$schema.lineColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("lineColored", true)} />
                     <Form.Control type="color" {...fieldProps("lineColor")} />
                     <Form.Control type="text" {...fieldProps("lineColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.gridColor}>
+            <FormEntry label={$schema.gridColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("gridColored", true)} />
                     <Form.Control type="color" {...fieldProps("gridColor")} />
                     <Form.Control type="text" {...fieldProps("gridColor")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.backColor}>
+            <FormEntry label={$schema.backColor.label}>
                 <InputGroup>
                     <InputGroup.Checkbox {...fieldProps("backColored", true)} />
                     <Form.Control type="color" {...fieldProps("backColor")} />

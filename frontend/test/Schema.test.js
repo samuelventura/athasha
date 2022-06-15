@@ -70,7 +70,7 @@ const schema = {
 }
 
 test('empty', () => {
-    expect(() => Schema.value({})).toThrow(/^ALERT: undefined undefined value not defined$/)
+    expect(() => Schema.value({})).toThrow(/^ALERT: undefined undefined value not defined/)
     expect(Schema.value({ $type: "object" })).toEqual({})
     expect(Schema.merge({ $type: "object" }, {})).toEqual({})
 })

@@ -40,6 +40,7 @@
             "criticalColor": "#FC342A",
             "gridColor": "#f0f0f0",
             "gridColored": true,
+            "gridWidth": "1",
             "inputMax": "100",
             "inputMin": "0",
             "lineColor": "#f0f0f0",
@@ -1702,7 +1703,7 @@
       ],
       "setts": {
         "dbpsb": "8N1",
-        "host": "10.77.3.215",
+        "host": "10.77.4.10",
         "password": "",
         "period": "10",
         "port": "502",

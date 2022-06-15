@@ -2,13 +2,13 @@ import Log from "../../tools/Log"
 import Clone from "../../tools/Clone"
 import UUID from '../../tools/UUID.js'
 
-function initial() {
+function initial(config) {
     return {
         version: 0,
         selected: null,
-        controls: [],
+        controls: config.controls,
+        setts: config.setts,
         indexes: {},
-        setts: {},
         multi: [],
     }
 }
@@ -65,7 +65,7 @@ function mutate(state, { name, args }) {
             return state
         }
         case "init": {
-            state = initial()
+            state = initial({})
             //version preservation is critical to
             //correctly handle initial transients
             state.version = version

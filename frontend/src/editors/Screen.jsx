@@ -715,7 +715,6 @@ function ControlEditor({ ctx, previewControl }) {
     const $setts = $schema.controls.setts
     const immediate = ctx.immediate
     const setProp = (name, value) => immediate.setControlData(selected, name, value)
-    //needs full setts path to avoid capturing local vars
     const getControl = () => {
         const state = ctx.state
         const selected = state.selected
@@ -747,7 +746,7 @@ function ControlEditor({ ctx, previewControl }) {
         return Check.props(args)
     }
     const inputProps = setts.input || setts.defEnabled ? <>
-        <FormEntry label={$setts.inputScale.label}>
+        <FormEntry label="Input Scale">
             <InputGroup>
                 <Form.Control type="number" {...settsProps("inputFactor")} />
                 <Form.Control type="number" {...settsProps("inputOffset")} />
@@ -764,7 +763,7 @@ function ControlEditor({ ctx, previewControl }) {
     const clickOptions = $type.clicks.map(v => <option key={v} value={v}>{v}</option>)
 
     const outputProps = setts.output ? <>
-        <FormEntry label={$setts.outputScale.label}>
+        <FormEntry label="Output Scale">
             <InputGroup>
                 <Form.Control type="number" {...settsProps("outputFactor")} />
                 <Form.Control type="number" {...settsProps("outputOffset")} />
@@ -897,7 +896,7 @@ function PreviewControl({ preview, setPreview }) {
 const ctx = {}
 
 function Editor(props) {
-    const [state, dispatch] = useReducer(State.reducer, State.initial())
+    const [state, dispatch] = useReducer(State.reducer, State.initial(props.config))
     const [preview, setPreview] = useState(false)
     const [right, setRight] = useState(true)
     const [left, setLeft] = useState(true)
@@ -917,29 +916,27 @@ function Editor(props) {
         const setts = config.setts
         const controls = config.controls
         ctx.immediate.init(setts, controls)
-    }, [props.id])
+    }, [props.hash])
     useEffect(() => {
-        if (props.id) {
-            const inputs = state.controls.reduce((inputs, control) => {
-                const input = control.setts.input
-                const type = control.type
-                if (input.trim().length > 0) {
-                    const init = { period: Number.MAX_SAFE_INTEGER, length: 0, trend: false }
-                    const config = inputs[input] || init
-                    if (type == "Trend") {
-                        config.trend = true
-                        config.length = Math.max(config.length, control.data.sampleLength)
-                        config.period = Math.min(config.period, control.data.samplePeriod)
-                    }
-                    inputs[input] = config
+        const inputs = state.controls.reduce((inputs, control) => {
+            const input = control.setts.input
+            const type = control.type
+            if (input.trim().length > 0) {
+                const init = { period: Number.MAX_SAFE_INTEGER, length: 0, trend: false }
+                const config = inputs[input] || init
+                if (type == "Trend") {
+                    config.trend = true
+                    config.length = Math.max(config.length, control.data.sampleLength)
+                    config.period = Math.min(config.period, control.data.samplePeriod)
                 }
-                return inputs
-            }, {})
-            const setts = state.setts
-            const controls = state.controls
-            const config = { setts, controls, inputs }
-            props.setter(config)
-        }
+                inputs[input] = config
+            }
+            return inputs
+        }, {})
+        const setts = state.setts
+        const controls = state.controls
+        const config = { setts, controls, inputs }
+        props.setter(config)
     }, [state.version])
     const rightStyle = right ? { flex: "0 0 32em", overflowY: "auto" } : {}
     const leftStyle = left ? { flex: "0 0 12em", overflowY: "auto" } : {}

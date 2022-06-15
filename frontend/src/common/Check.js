@@ -1,9 +1,11 @@
 import Log from '../tools/Log'
 
+const stack = () => `${new Error().stack}`
+
 function $checkLabel(label) {
-    if (label === undefined) throw "ALERT: Label is undefined"
-    if (label === null) throw "ALERT: Label is null"
-    if (label.trim().length === 0) throw "ALERT: Label is empty"
+    if (label === undefined) throw `ALERT: Label is undefined\n${stack()}`
+    if (label === null) throw `ALERT: Label is null\n${stack()}`
+    if (label.trim().length === 0) throw `ALERT: Label is empty\n${stack()}`
 }
 
 function isBoolean(value, label) {
@@ -175,6 +177,7 @@ function debounce(func, wait) {
 }
 
 function props({ checkbox, captured, setCaptured, label, help, defval, getter, setter, check }) {
+    checkbox = !!checkbox
     function getCurrent(e) { return checkbox ? e.target.checked : e.target.value }
     function getValue() { return captured.value }
     function getDebounced() { return captured.debounced }
@@ -210,8 +213,8 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
             if (captured.value != null) {
                 throw `Not null captured ${captured}`
             }
-            if ((!!checkbox) !== (e.target.type === "checkbox")) {
-                throw `Checkbox mismatch ${!!checkbox} ${e.target.type}`
+            if ((checkbox) !== (e.target.type === "checkbox")) {
+                throw `Checkbox mismatch ${checkbox} ${e.target.type}`
             }
             const debounced = e.target.type === "color" ? debounce(apply, 100) : {
                 apply, exit: () => { }

@@ -5,7 +5,7 @@ import Tooltip from 'react-bootstrap/Tooltip'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
-import Controls from '../editors/Controls'
+import Controller from '../common/Controller'
 import Input from './Input'
 import { useApp } from '../App'
 
@@ -135,7 +135,7 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         const hasHover = click && hover === index
         const hoverColor = setts.hoverColor
         const isPressed = click && pressed === index
-        const controller = Controls.getController(control.type)
+        const controller = Controller.get(control.type)
         const getter = () => { return Input.getter(csetts, inputs) }
         const scaler = (value) => {
             //Number(x) conversion supports 0xFF from prompt modal

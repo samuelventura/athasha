@@ -2,17 +2,17 @@
 
 import { expect, test } from 'vitest'
 import Schema from "../src/common/Schema"
-import Datafetch from '../src/editors/Datafetch.js'
-import Datalink from '../src/editors/Datalink.js'
-import Datalog from '../src/editors/Datalog.js'
-import Dataplot from '../src/editors/Dataplot.js'
-import Laurel from '../src/editors/Laurel.js'
-import Modbus from '../src/editors/Modbus.js'
-import Opto22 from '../src/editors/Opto22.js'
-import Screen from '../src/editors/Screen.js'
-import Analog from '../src/controls/Analog.js'
-import Image from '../src/controls/Image.js'
-import Trend from '../src/controls/Trend.js'
+import Datafetch from '../src/schemas/Datafetch.js'
+import Datalink from '../src/schemas/Datalink.js'
+import Datalog from '../src/schemas/Datalog.js'
+import Dataplot from '../src/schemas/Dataplot.js'
+import Laurel from '../src/schemas/Laurel.js'
+import Modbus from '../src/schemas/Modbus.js'
+import Opto22 from '../src/schemas/Opto22.js'
+import Screen from '../src/schemas/Screen.js'
+import Analog from '../src/schemas/Analog.js'
+import Image from '../src/schemas/Image.js'
+import Trend from '../src/schemas/Trend.js'
 
 test('Datafetch merge vs initial', () => {
     const merged = Schema.merge(Datafetch.schema(), {})

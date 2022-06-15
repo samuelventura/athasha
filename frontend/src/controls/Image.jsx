@@ -9,6 +9,7 @@ import Clipboard from '../tools/Clipboard'
 import Control from "../common/Control"
 
 const $control = Control.Image
+const $schema = $control.schema()
 
 const parser = new DOMParser()
 
@@ -25,12 +26,9 @@ function Editor({ getControl, setProp, globals }) {
             }
         }
         const args = { captured, setCaptured }
-        args.label = Initial.dlabels[prop]
-        args.hint = Initial.dhints[prop]
+        Check.fillProp(args, $schema[prop], prop)
         args.getter = () => getControl().data[prop]
         args.setter = setter(prop)
-        args.check = Initial.dchecks[prop]
-        args.defval = Initial.data()[prop]
         args.checkbox = checkbox
         return Check.props(args)
     }
@@ -79,12 +77,12 @@ function Editor({ getControl, setProp, globals }) {
                 title={data.filename}>Download</Button>
             <Button variant="link" onClick={onCopy} disabled={!valid}
                 title="Copy SVG Text to Clipboard">Copy</Button>
-            <FormEntry label={Initial.dlabels.scale}>
+            <FormEntry label={$schema.scale.label}>
                 <Form.Select {...fieldProps("scale")}>
                     {scaleOptions}
                 </Form.Select>
             </FormEntry>
-            <FormEntry label={Initial.dlabels.align}>
+            <FormEntry label={$schema.align.label}>
                 <Form.Select {...fieldProps("align")}>
                     {alignOptions}
                 </Form.Select>

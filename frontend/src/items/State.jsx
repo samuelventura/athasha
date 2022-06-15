@@ -35,8 +35,9 @@ function upgrade_config(state, item) {
   const json1 = JSON.stringify(item.config)
   item.config = Type.get(item.type).merge(item.config)
   const json2 = JSON.stringify(item.config)
-  state.upgrades[item.id] = json1 !== json2
-  Log.log(item.id, "upgraded", state.upgrades[item.id], item.type, item.name)
+  const upgraded = json1 !== json2
+  state.upgrades[item.id] = upgraded
+  Log.log(item.id, "upgraded", upgraded, item.type, item.name)
 }
 
 function reducer(state, { name, args, self }) {

@@ -1,23 +1,14 @@
 import Check from '../common/Check'
-import Label from './Label.js'
-import Analog from './Analog.js'
-import Image from './Image.js'
-import Trend from './Trend.js'
 import UUID from '../tools/UUID.js'
 import Schema from '../common/Schema'
-
-const controls = {}
-controls[Label.type] = Label.schema()
-controls[Image.type] = Image.schema()
-controls[Analog.type] = Analog.schema()
-controls[Trend.type] = Trend.schema()
+import Control from '../common/Control'
 
 function id() { return UUID.v4() }
 
 const scales = ["Fit", "Stretch"]
 const aligns = ["Center", "Start", "End"]
 const clicks = ["Fixed Value", "Value Prompt"]
-const types = Object.keys(controls)
+const types = Control.types
 
 function schema() {
     return {
@@ -182,7 +173,7 @@ function schema() {
                     label: "Input",
                     help: "Select optional input from list",
                     check: function (value, label) {
-                        Check.isString(value, label.input)
+                        Check.isString(value, label)
                     },
                 },
                 defValue: {
@@ -283,8 +274,8 @@ function schema() {
                 },
             },
             data: {
-                $type: "object",
-                $schema: (control) => controls[control.type],
+                value: {},
+                $schema: (control) => Control.get(control.type).schema(),
             },
         },
         inputs: {
