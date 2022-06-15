@@ -69,6 +69,14 @@ function schema() {
                 Check.isNumber(value, label)
             },
         },
+        normalColored: {
+            value: true,
+            label: "Normal Color Enabled",
+            help: "Uncheck for transparent normal color",
+            check: function (value, label) {
+                Check.isBoolean(value, label)
+            },
+        },
         normalColor: {
             value: "#88B407",
             label: "Normal Color",
@@ -77,12 +85,28 @@ function schema() {
                 Check.isColor(value, label)
             },
         },
+        warningColored: {
+            value: true,
+            label: "Warning Color Enabled",
+            help: "Uncheck for transparent warning color",
+            check: function (value, label) {
+                Check.isBoolean(value, label)
+            },
+        },
         warningColor: {
             value: "#FF9436",
             label: "Warning Color",
             help: "Non empty warning color #RRGGBB",
             check: function (value, label) {
                 Check.isColor(value, label)
+            },
+        },
+        criticalColored: {
+            value: true,
+            label: "Critical Color Enabled",
+            help: "Uncheck for transparent critical color",
+            check: function (value, label) {
+                Check.isBoolean(value, label)
             },
         },
         criticalColor: {
@@ -103,7 +127,7 @@ function schema() {
             },
         },
         lineColored: {
-            value: false,
+            value: true,
             label: "Line Color Enabled",
             help: "Uncheck for transparent line color",
             check: function (value, label) {
@@ -128,7 +152,7 @@ function schema() {
             },
         },
         gridColored: {
-            value: false,
+            value: true,
             label: "Grid Color Enabled",
             help: "Uncheck for transparent grid color",
             check: function (value, label) {

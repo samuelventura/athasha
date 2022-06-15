@@ -70,12 +70,12 @@ function Renderer({ control, size, trend }) {
     const wmaxp = ypos(wmax)
     const valPoints = reducer(values, "val")
     const valPaths = valPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={lineColor} />)
-    const criPoints = reducer(values, "cri")
-    const criPaths = criPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.criticalColor} />)
-    const warPoints = reducer(values, "war")
-    const warPaths = warPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.warningColor} />)
-    const norPoints = reducer(values, "nor")
-    const norPaths = norPoints.map((p, i) => <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.normalColor} />)
+    const criPaths = data.criticalColored ? reducer(values, "cri").map((p, i) =>
+        <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.criticalColor} />) : null
+    const warPaths = data.warningColored ? reducer(values, "war").map((p, i) =>
+        <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.warningColor} />) : null
+    const norPaths = data.normalColored ? reducer(values, "nor").map((p, i) =>
+        <polyline key={i} points={p} fill="none" strokeWidth={data.lineWidth} stroke={data.normalColor} />) : null
     return <svg>
         <rect width={size.width} height={size.height} fill={backColor}></rect>
         <line x1={0} y1={wminp} x2={size.width} y2={wminp} stroke={gridColor} strokeWidth={data.gridWidth} />
@@ -134,18 +134,21 @@ function Editor({ getControl, setProp, globals }) {
             </FormEntry>
             <FormEntry label={$schema.criticalColor.label}>
                 <InputGroup>
+                    <InputGroup.Checkbox {...fieldProps("criticalColored", true)} />
                     <Form.Control type="color" {...fieldProps("criticalColor")} />
                     <Form.Control type="text" {...fieldProps("criticalColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={$schema.warningColor.label}>
                 <InputGroup>
+                    <InputGroup.Checkbox {...fieldProps("warningColored", true)} />
                     <Form.Control type="color" {...fieldProps("warningColor")} />
                     <Form.Control type="text" {...fieldProps("warningColor")} />
                 </InputGroup>
             </FormEntry>
             <FormEntry label={$schema.normalColor.label}>
                 <InputGroup>
+                    <InputGroup.Checkbox {...fieldProps("normalColored", true)} />
                     <Form.Control type="color" {...fieldProps("normalColor")} />
                     <Form.Control type="text" {...fieldProps("normalColor")} />
                 </InputGroup>
