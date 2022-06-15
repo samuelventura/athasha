@@ -31,7 +31,7 @@ const outputCodes = [
     "Blank Display",
     "Activate External Input A", //responds with meters, not sure what it does
     "Activate External Input B", //responds with meters, not sure what it does
-    // "Display Data",
+    "Display Data",
     // "Data to Item3",
     // "Data to Both",
     // "Force Alarm 1",

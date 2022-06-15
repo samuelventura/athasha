@@ -38,6 +38,11 @@ defmodule Athasha.Number do
   def to_sint16(value) when is_integer(value), do: value
   def to_sint16(value) when is_float(value), do: round(value) |> trunc
 
+  def to_sint32(value) when value > 2_147_483_647, do: 2_147_483_647
+  def to_sint32(value) when value < -2_147_483_648, do: -2_147_483_648
+  def to_sint32(value) when is_integer(value), do: value
+  def to_sint32(value) when is_float(value), do: round(value) |> trunc
+
   def to_bit(0), do: 0
   def to_bit(0.0), do: 0
   def to_bit(_), do: 1

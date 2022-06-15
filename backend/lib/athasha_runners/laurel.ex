@@ -243,6 +243,7 @@ defmodule Athasha.Runner.Laurel do
       "Blank Display" -> fn master, value -> write_bool(master, slave, 14, value) end
       "Activate External Input A" -> fn master, value -> write_bool(master, slave, 15, value) end
       "Activate External Input B" -> fn master, value -> write_bool(master, slave, 16, value) end
+      "Display Data" -> fn master, value -> write_decimal(master, slave, 105, value) end
     end
   end
 
@@ -250,6 +251,17 @@ defmodule Athasha.Runner.Laurel do
     value = Number.to_bit(value)
 
     case Master.exec(master, {:fc, slave, address, value}) do
+      :ok -> {:ok, value}
+      any -> any
+    end
+  end
+
+  defp write_decimal(master, slave, address, value) do
+    value = Number.to_sint32(value)
+    <<w0::16, w1::16>> = <<value::signed-integer-big-32>>
+    IO.inspect({w0, w1, value})
+
+    case Master.exec(master, {:phr, slave, address, [w0, w1]}) do
       :ok -> {:ok, value}
       any -> any
     end
