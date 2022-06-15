@@ -26,7 +26,7 @@ function schema() {
             },
             connstr: {
                 label: "Connection String",
-                value: "Server=10.77.3.211;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                value: "Server=10.77.4.250;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
                 help: "Non empty connection string for your DB"
                     + "\nUse ${PASSWORD} to insert the Database Password"
                     + "\nConsult your IT specialist"

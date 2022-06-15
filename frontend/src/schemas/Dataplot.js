@@ -24,7 +24,7 @@ function schema() {
                 },
             },
             connstr: {
-                value: "Server=10.77.3.211;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
+                value: "Server=10.77.4.250;Database=AthashaDemos;User Id=sa;Password=${PASSWORD};Encrypt=false;Connection Timeout=2;",
                 label: "Connection String",
                 help: "Non empty connection string for your DB"
                     + "\nUse ${PASSWORD} to insert the Database Password"
@@ -94,7 +94,7 @@ function schema() {
                 },
             },
             lineWidth: {
-                value: "2",
+                value: "4",
                 label: "Line Width",
                 help: "Non empty integer > 0",
                 check: function (value, label) {
@@ -104,7 +104,7 @@ function schema() {
         },
         columns: {
             $type: "array",
-            $value: (value) => [value(0), { name: "Fuel Level", color: Color.unique(1) }],
+            $value: (value) => [value(0), { name: "Fuel Level", color: "#7777FF" }],
             $check: function (value, label) {
                 Check.notEmptyArray(value, label)
             },
