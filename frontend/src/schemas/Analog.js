@@ -1,7 +1,6 @@
 import Check from '../common/Check'
 
 const orientations = ["Circular", "Vertical", "Horizontal"]
-const styles = ["Custom", "Standard"]
 
 function schema() {
     return {
@@ -14,38 +13,31 @@ function schema() {
                 Check.inList(value, label, orientations)
             },
         },
-        style: {
-            value: styles[0],
-            label: "Look & Feel",
-            help: "Alert handling style",
-            check: function (value, label) {
-                Check.inList(value, label, styles)
-            },
-        },
-        barZero: {
-            value: "0",
-            label: "Bar Zero",
-            help: "Non empty number [-180, 180]",
+        arcZero: {
+            value: "-45",
+            label: "Arc Zero",
+            help: "Non empty degrees [-180, 180]",
             check: function (value, label) {
                 Check.isGE(value, label, -180)
                 Check.isLE(value, label, +180)
             },
         },
-        barSpan: {
-            value: "180",
-            label: "Bar Span",
-            help: "Non empty number (0, 360]",
+        arcSpan: {
+            value: "270",
+            label: "Arc Span",
+            help: "Non empty degrees (0, 360]",
             check: function (value, label) {
                 Check.isGT(value, label, 0)
                 Check.isLE(value, label, 360)
             },
         },
-        barWidth: {
-            value: "10",
-            label: "Bar Width",
-            help: "Non empty number > 0",
+        arcWidth: {
+            value: "0.2",
+            label: "Arc Width",
+            help: "Non empty number (0, 1]",
             check: function (value, label) {
                 Check.isGT(value, label, 0)
+                Check.isLE(value, label, 1)
             },
         },
         barRatio: {
@@ -76,7 +68,7 @@ function schema() {
             },
         },
         barColored: {
-            value: false,
+            value: true,
             label: "Bar Color Enabled",
             help: "Uncheck for transparent background",
             check: function (value, label) {
@@ -163,6 +155,31 @@ function schema() {
                 Check.isColor(value, label)
             },
         },
+        gridWidth: {
+            value: "1",
+            label: "Grid Width",
+            help: "Non empty integer >= 0",
+            check: function (value, label) {
+                Check.isInteger(value, label)
+                Check.isGE(value, label, 1)
+            },
+        },
+        gridColored: {
+            value: false,
+            label: "Grid Color Enabled",
+            help: "Uncheck for transparent grid color",
+            check: function (value, label) {
+                Check.isBoolean(value, label)
+            },
+        },
+        gridColor: {
+            value: "#cfcfcf",
+            label: "Grid Color",
+            help: "Non empty grid color #RRGGBB",
+            check: function (value, label) {
+                Check.isColor(value, label)
+            },
+        },
     }
 }
 
@@ -172,5 +189,4 @@ export default {
     type,
     schema,
     orientations,
-    styles,
 }

@@ -26,40 +26,24 @@ function Editor({ getControl, setProp, globals }) {
         args.checkbox = checkbox
         return Check.props(args)
     }
-    const custom = data.style === "Custom"
     const circular = data.orientation === "Circular"
-    const customProps = custom ? <>
-        <FormEntry label={$schema.barColor.label}>
-            <InputGroup>
-                <InputGroup.Checkbox {...fieldProps("barColored", true)} />
-                <Form.Control type="color" {...fieldProps("barColor")} />
-                <Form.Control type="text" {...fieldProps("barColor")} />
-            </InputGroup>
-        </FormEntry>
-    </> : null
     const circularProps = circular ? <>
-        <FormEntry label="Bar Config">
+        <FormEntry label="Arc Config">
             <InputGroup>
-                <Form.Control type="number" {...fieldProps("barZero")} min="-180" max="180" />
-                <Form.Control type="number" {...fieldProps("barSpan")} min="0" max="360" />
-                <Form.Control type="number" {...fieldProps("barWidth")} min="0" />
+                <Form.Control type="number" {...fieldProps("arcZero")} min="-180" max="180" />
+                <Form.Control type="number" {...fieldProps("arcSpan")} min="0" max="360" />
+                <Form.Control type="number" {...fieldProps("arcWidth")} min="0" max="1" step="0.1" />
             </InputGroup>
         </FormEntry>
     </> : null
 
     const orientationOptions = $control.orientations.map(v => <option key={v} value={v}>{v}</option>)
-    const styleOptions = $control.styles.map(v => <option key={v} value={v}>{v}</option>)
 
     return (
         <>
             <FormEntry label={$schema.orientation.label}>
                 <Form.Select {...fieldProps("orientation")}>
                     {orientationOptions}
-                </Form.Select>
-            </FormEntry>
-            <FormEntry label={$schema.style.label}>
-                <Form.Select {...fieldProps("style")}>
-                    {styleOptions}
                 </Form.Select>
             </FormEntry>
             <FormEntry label="Input Range">
@@ -80,15 +64,26 @@ function Editor({ getControl, setProp, globals }) {
                     <Form.Control type="number" {...fieldProps("warningMax")} />
                 </InputGroup>
             </FormEntry>
-            <FormEntry label="Bar Params">
+            {circularProps}
+            <FormEntry label={$schema.barColor.label}>
                 <InputGroup>
-                    <Form.Control type="number" {...fieldProps("barRatio")} min="0" max="1" step="0.1" />
-                    <Form.Control type="number" {...fieldProps("barOpacity")} min="0" max="1" step="0.1" />
-                    <Form.Control type="number" {...fieldProps("barGrayscale")} min="0" max="1" step="0.1" />
+                    <InputGroup.Checkbox {...fieldProps("barColored", true)} />
+                    <Form.Control type="color" {...fieldProps("barColor")} />
+                    <Form.Control type="text" {...fieldProps("barColor")} />
                 </InputGroup>
             </FormEntry>
-            {circularProps}
-            {customProps}
+            <FormEntry label={$schema.gridColor.label}>
+                <InputGroup>
+                    <InputGroup.Checkbox {...fieldProps("gridColored", true)} />
+                    <Form.Control type="color" {...fieldProps("gridColor")} />
+                    <Form.Control type="text" {...fieldProps("gridColor")} />
+                </InputGroup>
+            </FormEntry>
+            <FormEntry label={$schema.gridWidth.label}>
+                <InputGroup>
+                    <Form.Control type="number" {...fieldProps("gridWidth")} min="1" step="1" />
+                </InputGroup>
+            </FormEntry>
             <FormEntry label={$schema.criticalColor.label}>
                 <InputGroup>
                     <Form.Control type="color" {...fieldProps("criticalColor")} />
@@ -140,36 +135,11 @@ function getMinMax(data, type, trim) {
     return val
 }
 
-function backColors(standard, data) {
-    return {
-        normal: standard ? data.normalColor : (data.barColored ? data.barColor : data.normalColor),
-        warning: standard ? data.warningColor : (data.barColored ? data.barColor : data.warningColor),
-        critical: standard ? data.criticalColor : (data.barColored ? data.barColor : data.criticalColor),
-    }
-}
-
-function foreColors(standard, data) {
-    return {
-        cursor: standard ? "black" : "none",
-        normal: standard ? "none" : data.normalColor,
-        warning: standard ? "#FF9436" : data.warningColor,
-        critical: standard ? "#FC342A" : data.criticalColor,
-    }
-}
-
-function calcAlertColor(status, fgColors) {
+function calcColor(data, status) {
     switch (status) {
-        case "normal": return "none"
-        case "warning": return fgColors.warning
-        default: return fgColors.critical
-    }
-}
-
-function calcLevelColor(status, fgColors) {
-    switch (status) {
-        case "normal": return fgColors.normal
-        case "warning": return fgColors.warning
-        default: return fgColors.critical
+        case "normal": return data.normalColor
+        case "warning": return data.warningColor
+        default: return data.criticalColor
     }
 }
 
@@ -181,191 +151,123 @@ function Renderer({ size, control, value }) {
     const data = control.data
     const circular = data.orientation === "Circular"
     const vertical = data.orientation === "Vertical"
-    const standard = data.style === "Standard"
-    const opacity = data.barOpacity
     const input = getMinMax(data, "input")
-    const warning = getMinMax(data, "warning", input)
-    const normal = getMinMax(data, "normal", input)
     const trimmed = trimValue(input, value)
     const status = calcStatus(data, trimmed)
-    const bgColors = backColors(standard, data)
-    const fgColors = foreColors(standard, data)
     const level = {
-        width: 2,
         value: trimmed,
-        ratio: data.barRatio,
-        color: calcLevelColor(status, fgColors),
-        grayscale: Number(data.barGrayscale),
+        color: calcColor(data, status),
     }
-    const alert = {
-        color: calcAlertColor(status, fgColors),
+    const warning = getMinMax(data, "warning", input)
+    const normal = getMinMax(data, "normal", input)
+    const grid = {
+        width: Number(data.gridWidth),
+        color: data.gridColor,
+        colored: data.gridColored,
     }
-    input.id = `input-${control.id}`
-    warning.id = `warning-${control.id}`
-    input.mask = standard ? "" : `url(#${input.id})`
-    warning.mask = standard ? "" : `url(#${warning.id})`
-    const grayscale = { filter: `grayscale(${level.grayscale})` }
     if (!circular) {
         const wide = vertical ? "width" : "height"
         const long = vertical ? "height" : "width"
         const width = size[wide]
-        alert.cx = width / 2
-        alert.cy = width / 2
-        alert.len = width / 2 * level.ratio
-        alert.x1 = alert.cx - alert.len
-        alert.x2 = alert.cx + alert.len
-        alert.y1 = alert.cy - alert.len
-        alert.y2 = alert.cy + alert.len
-        input.len = f(size[long] - (standard ? width : 0))
-        warning.ini = f(input.len * (warning.min - input.min) / input.span)
-        warning.len = f(input.len * warning.span / input.span)
-        normal.ini = f(input.len * (normal.min - input.min) / input.span)
-        normal.len = f(input.len * normal.span / input.span)
-        level.len = f(input.len * (level.value - input.min) / input.span)
+        input.len = size[long]
+        const calcLen = (v) => f(input.len * (v - input.min) / input.span)
+        level.len = calcLen(level.value)
+        warning.gmin = calcLen(warning.min)
+        warning.gmax = calcLen(warning.max)
+        normal.gmin = calcLen(normal.min)
+        normal.gmax = calcLen(normal.max)
         if (vertical) {
-            level.cursor = <line x1={0} y1={level.len} x2={width} y2={level.len}
-                stroke={fgColors.cursor} strokeWidth={level.width} />
-            level.bar = <rect x={width * (1 - level.ratio) / 2} y={0}
-                width={width * level.ratio} height={level.len} fill={level.color} />
-            level.back = <rect x={0} y={0} width={width} height={input.len} style={grayscale}
-                fill={data.barColor} fillOpacity={opacity} />
-            level.bars = <g>
-                <rect x={0} y={0} width={width} height={input.len} style={grayscale}
-                    fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                <rect x={0} y={warning.ini} width={width} height={warning.len} style={grayscale}
-                    fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                <rect x={0} y={normal.ini} width={width} height={normal.len} style={grayscale}
-                    fill={bgColors.normal} fillOpacity={opacity} />
-            </g>
-            alert.path = `M ${alert.x1} ${alert.y1} L ${alert.cx} ${alert.y2} L ${alert.x2} ${alert.y1} Z`
-            alert.trans = `translate(0, ${input.len})`
-            alert.elem = <g transform={alert.trans}>
-                <path d={alert.path} stroke="none" fill={alert.color} />
+            level.back = <rect x={0} y={0} width={width} height={input.len} fill={data.barColor} />
+            level.bar = <rect x={0} y={0} width={width} height={level.len} fill={level.color} />
+            const gridLines = <g>
+                <line x1={0} x2={width} y1={warning.gmin} y2={warning.gmin} stroke={grid.color} strokeWidth={grid.width} />
+                <line x1={0} x2={width} y1={warning.gmax} y2={warning.gmax} stroke={grid.color} strokeWidth={grid.width} />
+                <line x1={0} x2={width} y1={normal.gmax} y2={normal.gmax} stroke={grid.color} strokeWidth={grid.width} />
+                <line x1={0} x2={width} y1={normal.gmax} y2={normal.gmax} stroke={grid.color} strokeWidth={grid.width} />
             </g>
             const transform = `scale(1, -1) translate(0, -${size.height})`
             return (
                 <svg>
-                    <mask id={input.id}>
-                        <rect x={0} y={0} width={width} height={input.len} fill="white" />
-                        <rect x={0} y={warning.ini} width={width} height={warning.len} fill="black" />
-                        <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
-                    </mask>
-                    <mask id={warning.id}>
-                        <rect x={0} y={warning.ini} width={width} height={warning.len} fill="white" />
-                        <rect x={0} y={normal.ini} width={width} height={normal.len} fill="black" />
-                    </mask>
                     <g transform={transform}>
-                        {data.barColored ? level.back : level.bars}
-                        {standard ? alert.elem : null}
-                        {standard ? level.cursor : level.bar}
+                        {data.barColored ? level.back : null}
+                        {grid.colored ? gridLines : null}
+                        {level.bar}
                     </g>
                 </svg>
             )
         } else {
-            level.cursor = <line y1={0} x1={level.len} y2={width} x2={level.len}
-                stroke={fgColors.cursor} strokeWidth={level.width} />
-            level.bar = <rect y={width * (1 - level.ratio) / 2} x={0}
-                height={width * level.ratio} width={level.len} fill={level.color} />
-            level.back = <rect y={0} x={0} height={width} width={input.len} style={grayscale}
-                fill={data.barColor} fillOpacity={opacity} />
-            level.bars = <g><rect y={0} x={0} height={width} width={input.len} style={grayscale}
-                fill={bgColors.critical} fillOpacity={opacity} mask={input.mask} />
-                <rect y={0} x={warning.ini} height={width} width={warning.len} style={grayscale}
-                    fill={bgColors.warning} fillOpacity={opacity} mask={warning.mask} />
-                <rect y={0} x={normal.ini} height={width} width={normal.len} style={grayscale}
-                    fill={bgColors.normal} fillOpacity={opacity} /></g>
-            alert.path = `M 0 0 L 0 ${width} L ${width} ${width / 2} Z`
-            alert.path = `M ${alert.x1} ${alert.y1} L ${alert.x1} ${alert.y2} L ${alert.x2} ${alert.cy} Z`
-            alert.trans = `translate(${input.len}, 0)`
-            alert.elem = <g transform={alert.trans}>
-                <path d={alert.path} stroke="none" fill={alert.color} />
+            level.back = <rect y={0} x={0} height={width} width={input.len} fill={data.barColor} />
+            level.bar = <rect y={0} x={0} height={width} width={level.len} fill={level.color} />
+            const gridLines = <g>
+                <line y1={0} y2={width} x1={warning.gmin} x2={warning.gmin} stroke={grid.color} strokeWidth={grid.width} />
+                <line y1={0} y2={width} x1={warning.gmax} x2={warning.gmax} stroke={grid.color} strokeWidth={grid.width} />
+                <line y1={0} y2={width} x1={normal.gmax} x2={normal.gmax} stroke={grid.color} strokeWidth={grid.width} />
+                <line y1={0} y2={width} x1={normal.gmax} x2={normal.gmax} stroke={grid.color} strokeWidth={grid.width} />
             </g>
             return (
                 <svg>
-                    <mask id={input.id}>
-                        <rect y={0} x={0} height={width} width={input.len} fill="white" />
-                        <rect y={0} x={warning.ini} height={width} width={warning.len} fill="black" />
-                        <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
-                    </mask>
-                    <mask id={warning.id}>
-                        <rect y={0} x={warning.ini} height={width} width={warning.len} fill="white" />
-                        <rect y={0} x={normal.ini} height={width} width={normal.len} fill="black" />
-                    </mask>
-                    {data.barColored ? level.back : level.bars}
-                    {standard ? alert.elem : null}
-                    {standard ? level.cursor : level.bar}
+                    {data.barColored ? level.back : null}
+                    {grid.colored ? gridLines : null}
+                    {level.bar}
                 </svg>
             )
         }
     } else {
-        const bar = {
-            width: Number(data.barWidth),
-            zero: Number(data.barZero),
-            span: Number(data.barSpan),
-            ratio: Number(data.barRatio),
+        const arc = {
+            width: Number(data.arcWidth),
+            zero: Number(data.arcZero),
+            span: Number(data.arcSpan),
         }
         const center = { cx: size.width / 2, cy: size.height / 2 }
         //ensure radious wont go negative
         center.radius = Math.min(center.cx, center.cy)
-        if (bar.width > center.radius) bar.width = center.radius
-        const radius = center.radius - bar.width / 2
-        const arc = (d) => radius * Math.PI * d / 180
-        const ini = (v) => arc(f((v - input.min) * bar.span / input.span))
-        const perimeter = arc(360)
-        input.arc = arc(bar.span)
+        const width = center.radius * arc.width
+        const radius = center.radius - width / 2
+        const calcAngle = (v) => (v - input.min) * arc.span / input.span
+        const calcRadians = (v) => Math.PI * calcAngle(v) / 180
+        const calcArcSpan = (d) => radius * Math.PI * d / 180
+        const calcArcIni = (v) => calcArcSpan(calcAngle(v))
+        const perimeter = calcArcSpan(360)
+        input.arc = calcArcSpan(arc.span)
         input.dash = `${input.arc} ${perimeter}`
-        warning.arc = arc(warning.span * bar.span / input.span)
-        warning.ini = ini(warning.min)
-        warning.dash = `0 ${warning.ini} ${warning.arc} ${perimeter}`
-        normal.arc = arc(normal.span * bar.span / input.span)
-        normal.ini = ini(normal.min)
-        normal.dash = `0 ${normal.ini} ${normal.arc} ${perimeter}`
-        level.ini = ini(level.value)
-        //adjusted cursor position to keep the cursor within the input range
-        level.pos = Math.max(0, Math.min(level.ini - level.width / 2, input.arc - level.width))
-        level.dash = `0 ${level.pos} ${level.width} ${perimeter}`
-        level.cursor = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={bar.width} stroke={fgColors.cursor} strokeDasharray={level.dash} />
+        level.back = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
+            strokeWidth={width} stroke={data.barColor} strokeDasharray={input.dash} />
+        level.ini = calcArcIni(level.value)
         level.dash = `${level.ini} ${perimeter}`
         level.bar = <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={bar.width * level.ratio} stroke={level.color} strokeDasharray={level.dash} />
-        level.back = <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-            strokeWidth={bar.width} stroke={data.barColor} strokeDasharray={input.dash} />
-        level.bars = <g>
-            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                strokeWidth={bar.width} stroke={bgColors.critical} strokeDasharray={input.dash} mask={input.mask} />
-            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                strokeWidth={bar.width} stroke={bgColors.warning} strokeDasharray={warning.dash} mask={warning.mask} />
-            <circle r={radius} cx={center.cx} cy={center.cy} fill="none" strokeOpacity={opacity} style={grayscale}
-                strokeWidth={bar.width} stroke={bgColors.normal} strokeDasharray={normal.dash} />
+            strokeWidth={width} stroke={level.color} strokeDasharray={level.dash} />
+        const rotate = `rotate(${arc.zero + 180}, ${center.cx}, ${center.cy})`
+        warning.amin = arc.zero + calcRadians(warning.min)
+        warning.amax = arc.zero + calcRadians(warning.max)
+        normal.amin = arc.zero + calcRadians(normal.min)
+        normal.amax = arc.zero + calcRadians(normal.max)
+        warning.x2min = center.cx + center.radius * Math.cos(warning.amin)
+        warning.y2min = center.cy + center.radius * Math.sin(warning.amin)
+        warning.x2max = center.cx + center.radius * Math.cos(warning.amax)
+        warning.y2max = center.cy + center.radius * Math.sin(warning.amax)
+        normal.x2min = center.cx + center.radius * Math.cos(normal.amin)
+        normal.y2min = center.cy + center.radius * Math.sin(normal.amin)
+        normal.x2max = center.cx + center.radius * Math.cos(normal.amax)
+        normal.y2max = center.cy + center.radius * Math.sin(normal.amax)
+        const maskid = `mask-${control.id}`
+        const maskurl = `url(#${maskid})`
+        const gridLines = <g mask={maskurl}>
+            <line x1={center.cx} y1={center.cy} x2={warning.x2min} y2={warning.y2min} stroke={grid.color} strokeWidth={grid.width} />
+            <line x1={center.cx} y1={center.cy} x2={warning.x2max} y2={warning.y2max} stroke={grid.color} strokeWidth={grid.width} />
+            <line x1={center.cx} y1={center.cy} x2={normal.x2min} y2={normal.y2min} stroke={grid.color} strokeWidth={grid.width} />
+            <line x1={center.cx} y1={center.cy} x2={normal.x2max} y2={normal.y2max} stroke={grid.color} strokeWidth={grid.width} />
         </g>
-        const rotate = `rotate(${bar.zero + 180}, ${center.cx}, ${center.cy})`
-        alert.width = bar.width * bar.ratio
-        alert.radius = f(radius - bar.width / 2 - alert.width / 2)
-        alert.arc = alert.radius * Math.PI * bar.span / 180
-        alert.dash = `${alert.arc}  ${perimeter}`
-        alert.elem = standard ? <circle r={alert.radius} cx={center.cx} cy={center.cy} fill="none"
-            strokeWidth={alert.width} stroke={alert.color} strokeDasharray={alert.dash} /> : null
         return <>
             <svg>
-                <mask id={input.id} maskUnits="userSpaceOnUse">
+                <mask id={maskid}>
                     <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={bar.width} stroke="white" strokeDasharray={input.dash} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={bar.width} stroke="black" strokeDasharray={warning.dash} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={bar.width} stroke="black" strokeDasharray={normal.dash} />
-                </mask>
-                <mask id={warning.id} maskUnits="userSpaceOnUse">
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={bar.width} stroke="white" strokeDasharray={warning.dash} />
-                    <circle r={radius} cx={center.cx} cy={center.cy} fill="none"
-                        strokeWidth={bar.width} stroke="black" strokeDasharray={normal.dash} />
+                        strokeWidth={width} stroke="white" strokeDasharray={input.dash} />
+                    <circle r={center.radius - width} cx={center.cx} cy={center.cy} fill="black" />
                 </mask>
                 <g transform={rotate}>
-                    {alert.elem}
-                    {data.barColored ? level.back : level.bars}
-                    {standard ? level.cursor : level.bar}
+                    {data.barColored ? level.back : null}
+                    {grid.colored ? gridLines : null}
+                    {level.bar}
                 </g>
             </svg>
         </>
