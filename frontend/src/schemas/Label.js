@@ -68,7 +68,7 @@ function cond() {
         negate: {
             value: false,
             label: "Negate",
-            help: "Reverse the comparison codition",
+            help: "Reverse the comparison condition",
             check: function (value, label) {
                 Check.isBoolean(value, label)
             },

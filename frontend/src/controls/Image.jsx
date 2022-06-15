@@ -72,7 +72,8 @@ function Editor({ getControl, setProp, globals }) {
     }
     return (
         <>
-            <Button variant="link" onClick={onUpload}>Upload...</Button>
+            <Button variant="link" onClick={onUpload}
+                title="Select SVG file to upload">Upload...</Button>
             <Button variant="link" onClick={onDownload} disabled={!valid}
                 title={data.filename}>Download</Button>
             <Button variant="link" onClick={onCopy} disabled={!valid}
