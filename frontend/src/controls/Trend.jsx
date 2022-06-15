@@ -184,6 +184,6 @@ function Editor({ getControl, setProp, globals }) {
     )
 }
 
-const Label = { $control, Editor, Renderer }
+const exports = { $control, Editor, Renderer }
 
-export default Label
+export default exports

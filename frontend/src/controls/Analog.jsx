@@ -274,6 +274,6 @@ function Renderer({ size, control, value }) {
     }
 }
 
-const Label = { $control, Editor, Renderer }
+const exports = { $control, Editor, Renderer }
 
-export default Label
+export default exports

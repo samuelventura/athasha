@@ -100,6 +100,49 @@ function schema() {
                     Check.isColor(value, label)
                 },
             },
+            background: {
+                $type: "object",
+                viewBox: {
+                    value: "",
+                    label: "viewBox",
+                    help: "viewBox",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
+                content: {
+                    value: "",
+                    label: "Content",
+                    help: "Content",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
+                filename: {
+                    value: "",
+                    label: "Filename",
+                    help: "Filename",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
+                scale: {
+                    value: scales[0],
+                    label: "Back Scale",
+                    help: "Select scale from list",
+                    check: function (value, label) {
+                        Check.inList(value, label, scales)
+                    },
+                },
+                align: {
+                    value: aligns[0],
+                    label: "Back Align",
+                    help: "Select alignment from list",
+                    check: function (value, label) {
+                        Check.inList(value, label, aligns)
+                    },
+                },
+            },
         },
         controls: {
             $type: "array",

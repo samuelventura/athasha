@@ -25,6 +25,7 @@ import Type from "../common/Type"
 import Clone from "../tools/Clone"
 import Input from "../screen/Input"
 import State from "./screen/State"
+import Svg from "../common/Svg"
 
 const $type = Type.Screen
 const $schema = $type.schema()
@@ -590,6 +591,8 @@ function SvgWindow({ ctx, preview }) {
             {!edge || type.includes("Bottom") ? bottom : null}
         </>
     }
+    const bgValid = !!setts.background.viewBox
+    const bgImage = bgValid ? Svg.render(setts.background) : null
     const dragFrame = dragged.type ? renderDrag() : null
     return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)} tabIndex={-1}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
@@ -601,6 +604,7 @@ function SvgWindow({ ctx, preview }) {
                 </pattern>
             </defs>
             <rect width={W} height={H} fill={setts.backColor} stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
+            <svg width={W} height={H}>{bgImage}</svg>
             {gridRect}
             {controlList}
             {dragFrame}
@@ -665,8 +669,43 @@ function ScreenEditor({ ctx, previewControl }) {
         args.setter = setter(prop)
         return Check.props(args)
     }
+    const dataBg = ctx.state.setts.background
+    function setBgProp(name, value) {
+        const bg = Clone.deep(dataBg)
+        bg[name] = value
+        immediate.setSetts("background", bg)
+    }
+    function bgProps(prop) {
+        function setter(name) {
+            return function (value) {
+                setBgProp(name, value)
+            }
+        }
+        const args = { captured, setCaptured }
+        Check.fillProp(args, $schema.setts.background[prop], prop)
+        args.getter = () => ctx.state.setts.background[prop]
+        args.setter = setter(prop)
+        return Check.props(args)
+    }
     const scaleOptions = $type.scales.map(v => <option key={v} value={v}>{v}</option>)
     const alignOptions = $type.aligns.map(v => <option key={v} value={v}>{v}</option>)
+    const validBg = !!dataBg.viewBox
+    const onUpload = () => Svg.onUpload(({ svg, fn, vb }) => {
+        console.log(fn, vb)
+        const bg = Clone.deep(dataBg)
+        bg.content = svg
+        bg.filename = fn
+        bg.viewBox = vb
+        immediate.setSetts("background", bg)
+    })
+    const onDownload = () => Svg.onDownload(dataBg)
+    const onClear = () => {
+        const bg = Clone.deep(dataBg)
+        bg.content = ""
+        bg.filename = ""
+        bg.viewBox = ""
+        immediate.setSetts("background", bg)
+    }
     return (
         <Card>
             <Card.Header>
@@ -716,6 +755,24 @@ function ScreenEditor({ ctx, previewControl }) {
                             <Form.Control type="color" {...settsProps("hoverColor")} />
                             <Form.Control type="text" {...settsProps("hoverColor")} />
                         </InputGroup>
+                    </FormEntry>
+                    <FormEntry label="Background">
+                        <Button variant="link" onClick={onUpload}
+                            title="Select SVG file to upload">Upload...</Button>
+                        <Button variant="link" onClick={onDownload} disabled={!validBg}
+                            title={dataBg.filename}>Download</Button>
+                        <Button variant="link" onClick={onClear} disabled={!validBg}
+                            title="Remove background">Clear</Button>
+                    </FormEntry>
+                    <FormEntry label={$schema.setts.background.scale.label}>
+                        <Form.Select {...bgProps("scale")}>
+                            {scaleOptions}
+                        </Form.Select>
+                    </FormEntry>
+                    <FormEntry label={$schema.setts.background.align.label}>
+                        <Form.Select {...bgProps("align")}>
+                            {alignOptions}
+                        </Form.Select>
                     </FormEntry>
                 </ListGroup.Item>
             </ListGroup>

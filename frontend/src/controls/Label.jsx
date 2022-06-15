@@ -279,6 +279,6 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
     )
 }
 
-const Label = { $control, Editor, Renderer }
+const exports = { $control, Editor, Renderer }
 
-export default Label
+export default exports
