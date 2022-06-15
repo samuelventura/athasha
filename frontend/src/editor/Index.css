@@ -18,6 +18,10 @@ svg:focus {
     outline: none;
 }
 
+rect:focus {
+    outline: none;
+}
+
 .form-floating:not(:placeholder-shown) {
     color: silver !important;
 }

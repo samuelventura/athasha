@@ -263,11 +263,30 @@ function SvgWindow({ ctx, preview }) {
         buffered.setMulti()
         buffered.apply()
     }
+    //ensure blur since depending on
+    //preview flag and background color
+    //the event will be caugh by a rect
+    //the svg imposing the need to add tabIndex
+    //to all the hieranchy hence better to search
+    //the focusable ancestor and focus it
+    //failure to blur will cause 'not null captured'
+    function findFocusable(event) {
+        let target = event.target
+        while (target) {
+            if (target.hasAttribute("tabIndex")) {
+                target.focus()
+                break
+            }
+            else target = target.parentElement
+        }
+    }
     function backPointerDown(event) {
+        findFocusable(event) //ensure blur
         event.stopPropagation()
         clearSelection()
     }
     function screenPointerDown(event, type) {
+        findFocusable(event) //ensure blur
         event.stopPropagation()
         clearSelection()
         //only on left button = 0
@@ -434,6 +453,7 @@ function SvgWindow({ ctx, preview }) {
             }
         }
         function controlPointerDown(event, type) {
+            findFocusable(event) //ensure blur
             event.stopPropagation()
             //keep multi selection for multi d&d
             //clear multi only if non member control
@@ -539,7 +559,7 @@ function SvgWindow({ ctx, preview }) {
         //tabIndex to receive keyboard events and avoid delaying selection
         const key = control.id
         return (
-            <svg key={key} x={x} y={y} tabIndex={index}
+            <svg key={key} x={x} y={y} tabIndex={-1}
                 width={w} height={h} className="draggable"
                 {...moveEvents}>
                 {controlInstance}
@@ -571,9 +591,9 @@ function SvgWindow({ ctx, preview }) {
         </>
     }
     const dragFrame = dragged.type ? renderDrag() : null
-    return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)}>
+    return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)} tabIndex={-1}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
-        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")} tabIndex={0}>
+        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")}>
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
                     <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none"
