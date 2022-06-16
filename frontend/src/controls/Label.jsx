@@ -205,6 +205,9 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
             case "Enabled":
                 met = true
                 break
+            case "Input = Param1":
+                met = (value === param1) ^ cond.negate
+                break
             case "Input > Param1":
                 met = (value > param1) ^ cond.negate
                 break

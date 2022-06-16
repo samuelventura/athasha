@@ -20,7 +20,7 @@ defmodule Athasha.MixProject do
   def application do
     [
       mod: {Athasha.Application, []},
-      extra_applications: [:logger, :runtime_tools, :ssh, :modbus, :erlang_v8]
+      extra_applications: [:logger, :runtime_tools, :ssh, :modbus]
     ]
   end
 
@@ -50,8 +50,7 @@ defmodule Athasha.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:httpoison, "~> 1.8"},
-      {:modbus, path: "../native/modbus"},
-      {:erlang_v8, github: "strange/erlang_v8"}
+      {:modbus, path: "../native/modbus"}
     ]
   end
 

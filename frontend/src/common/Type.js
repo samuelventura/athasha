@@ -22,8 +22,10 @@ const types = {
     Script,
 }
 
-const names = ["Datafetch", "Datalink", "Datalog", "Dataplot", "Laurel", "Modbus", "Opto22", "Screen", "Script"]
+const names = ["Datafetch", "Datalink", "Datalog", "Dataplot", "Laurel", "Modbus", "Opto22", "Screen"]
 const views = ["Screen", "Datafetch", "Dataplot", "Modbus", "Opto22", "Laurel"]
+
+if (import.meta.env.DEV) names.push("Script")
 
 const get = (type) => {
     const $type = types[type]

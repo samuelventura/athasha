@@ -3,6 +3,7 @@ import Check from '../common/Check'
 const condTypes = [
     "Disabled",
     "Enabled",
+    "Input = Param1",
     "Input > Param1",
     "Input >= Param1",
     "Param1 <= Input <= Param2",
