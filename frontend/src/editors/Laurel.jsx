@@ -322,9 +322,17 @@ function Editor(props) {
                 </td>
             </tr>
         )
+        const slaveTypeOptions = $type.slaveTypes.map(v => <option key={v} value={v}>{v}</option>)
         return (
             <Tab key={sindex} eventKey={"tab" + sindex} title={"Slave " + slave.address}>
                 <Row>
+                    <Col xs={2}>
+                        <FloatingLabel label={$schema.slaves.type.label}>
+                            <Form.Select {...slaveProps(sindex, "type")}>
+                                {slaveTypeOptions}
+                            </Form.Select>
+                        </FloatingLabel>
+                    </Col>
                     <Col xs={2}>
                         <FloatingLabel label={$schema.slaves.address.label}>
                             <Form.Control type="number" {...slaveProps(sindex, "address")} min="0" max="255" step="1" />

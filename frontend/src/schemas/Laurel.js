@@ -2,6 +2,11 @@ import Check from '../common/Check'
 import Comm from '../common/Comm'
 import Schema from '../common/Schema'
 
+const slaveTypes = [
+    "Analog",
+    "Digital",
+]
+
 const inputCodes = [
     "Item 1",
     "Item 2", //timeout for meters
@@ -128,6 +133,15 @@ function schema() {
         slaves: {
             $type: "array",
             $value: (value) => [value(0)],
+            type: {
+                value: slaveTypes[0],
+                header: "Slave Type",
+                label: "Slave Type",
+                help: "Select type from list\nAnalog for meters and transmitters with analog input\nDigital for counters, timers, or pulse input transmitters",
+                check: function (value, label) {
+                    Check.inList(value, label, slaveTypes)
+                },
+            },
             address: {
                 value: (index) => `${index + 1}`,
                 header: "Slave Address",
@@ -216,6 +230,7 @@ function output(index) {
 
 export default {
     schema,
+    slaveTypes,
     inputCodes,
     outputCodes,
     transports,

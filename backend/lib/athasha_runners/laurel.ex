@@ -24,6 +24,7 @@ defmodule Athasha.Runner.Laurel do
 
     slaves =
       Enum.map(config["slaves"], fn slave ->
+        type = slave["type"]
         address = String.to_integer(slave["address"])
         decimals = String.to_integer(slave["decimals"])
 
@@ -35,7 +36,7 @@ defmodule Athasha.Runner.Laurel do
             %{
               id: "#{id} #{name}",
               name: name,
-              getter: getter(code, decimals)
+              getter: getter(type, code, decimals)
             }
           end)
 
@@ -211,17 +212,22 @@ defmodule Athasha.Runner.Laurel do
     end)
   end
 
-  defp getter(code, decimals) do
-    case code do
-      "Item 1" -> fn data -> read_decimal(data, 3, decimals) end
-      "Item 2" -> fn data -> read_decimal(data, 9, decimals) end
-      "Item 3" -> fn data -> read_decimal(data, 11, decimals) end
-      "Peak" -> fn data -> read_decimal(data, 5, decimals) end
-      "Valley" -> fn data -> read_decimal(data, 7, decimals) end
-      "Alarm 1" -> fn data -> read_alarm(data, 1) end
-      "Alarm 2" -> fn data -> read_alarm(data, 2) end
-      "Alarm 3" -> fn data -> read_alarm(data, 3) end
-      "Alarm 4" -> fn data -> read_alarm(data, 4) end
+  defp getter(type, code, decimals) do
+    case {type, code} do
+      {"Analog", "Item 1"} -> fn data -> read_decimal_m31(data, 3, decimals) end
+      {"Analog", "Item 2"} -> fn data -> read_decimal_m31(data, 9, decimals) end
+      {"Analog", "Item 3"} -> fn data -> read_decimal_m31(data, 11, decimals) end
+      {"Analog", "Peak"} -> fn data -> read_decimal_m31(data, 5, decimals) end
+      {"Analog", "Valley"} -> fn data -> read_decimal_m31(data, 7, decimals) end
+      {"Digital", "Item 1"} -> fn data -> read_decimal_2c32(data, 3, decimals) end
+      {"Digital", "Item 2"} -> fn data -> read_decimal_2c32(data, 9, decimals) end
+      {"Digital", "Item 3"} -> fn data -> read_decimal_2c32(data, 11, decimals) end
+      {"Digital", "Peak"} -> fn data -> read_decimal_2c32(data, 5, decimals) end
+      {"Digital", "Valley"} -> fn data -> read_decimal_2c32(data, 7, decimals) end
+      {_, "Alarm 1"} -> fn data -> read_alarm(data, 1) end
+      {_, "Alarm 2"} -> fn data -> read_alarm(data, 2) end
+      {_, "Alarm 3"} -> fn data -> read_alarm(data, 3) end
+      {_, "Alarm 4"} -> fn data -> read_alarm(data, 4) end
     end
   end
 
@@ -267,7 +273,19 @@ defmodule Athasha.Runner.Laurel do
     end
   end
 
-  defp read_decimal(data, address, decimals) do
+  defp read_decimal_2c32(data, address, decimals) do
+    # map address to data index
+    w0 = data[address - 1]
+    w1 = data[address]
+    <<reading::signed-integer-big-32>> = <<w0::16, w1::16>>
+
+    case decimals do
+      0 -> reading
+      _ -> reading * :math.pow(10, -decimals)
+    end
+  end
+
+  defp read_decimal_m31(data, address, decimals) do
     # map address to data index
     w0 = data[address - 1]
     w1 = data[address]
