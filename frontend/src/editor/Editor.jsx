@@ -24,6 +24,18 @@ function deleted() {
     return { type, msg, force, title }
 }
 
+function registerListener(callback) {
+    const mac = navigator.userAgentData.platform.match("Mac")
+    const listener = (e) => {
+        if (e.key === "s" && (mac ? e.metaKey : e.ctrlKey)) {
+            e.preventDefault();
+            callback()
+        }
+    }
+    document.addEventListener("keydown", listener, false)
+    return () => document.removeEventListener("keydown", listener)
+}
+
 function EditItem() {
     const app = useApp()
     const init = app.state.init
@@ -42,6 +54,9 @@ function EditItem() {
     useEffect(() => {
         document.title = `Athasha ${item.type} Editor - ${item.name}`
     }, [item.name])
+    useEffect(() => {
+        return registerListener(() => onButton("save"))
+    }, [config])
     function onButton(action) {
         const id = item.id
         switch (action) {

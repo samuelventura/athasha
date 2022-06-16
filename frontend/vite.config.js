@@ -2,10 +2,11 @@ import { resolve } from 'path'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import eslint from 'vite-plugin-eslint'
+import monaco from "vite-plugin-monaco-editor"
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), eslint()],
+  plugins: [react(), eslint(), monaco()],
   build: {
     rollupOptions: {
       input: {

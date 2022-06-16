@@ -41,3 +41,15 @@ rect:focus {
 .edgeTopLeft, .edgeBottomRight {
     cursor: nwse-resize
 }
+
+.monacoTab {
+    display: flex;
+    flex-flow: column;
+    height: calc(100vh - 16em);
+}
+
+.monacoEditor {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
