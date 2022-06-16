@@ -169,6 +169,7 @@ defmodule Athasha.Runner.Modbus do
 
   defp getter(code, slave, address) do
     case code do
+      # 03
       "01 Coil" ->
         fn master -> read_bit(master, :rc, slave, address) end
 
@@ -187,6 +188,7 @@ defmodule Athasha.Runner.Modbus do
       "03 S16LE" ->
         fn master -> read_register(master, :rhr, slave, address, &Number.r_s16le/1) end
 
+      # F32
       "03 F32BED" ->
         fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32bed/1) end
 
@@ -199,6 +201,33 @@ defmodule Athasha.Runner.Modbus do
       "03 F32LER" ->
         fn master -> read_register2(master, :rhr, slave, address, &Number.r_f32ler/1) end
 
+      # S32
+      "03 S32BED" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_s32bed/1) end
+
+      "03 S32LED" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_s32led/1) end
+
+      "03 S32BER" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_s32ber/1) end
+
+      "03 S32LER" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_s32ler/1) end
+
+      # U32
+      "03 U32BED" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_u32bed/1) end
+
+      "03 U32LED" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_u32led/1) end
+
+      "03 U32BER" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_u32ber/1) end
+
+      "03 U32LER" ->
+        fn master -> read_register2(master, :rhr, slave, address, &Number.r_u32ler/1) end
+
+      # 04
       "04 U16BE" ->
         fn master -> read_register(master, :rir, slave, address, &Number.r_u16be/1) end
 
@@ -211,6 +240,7 @@ defmodule Athasha.Runner.Modbus do
       "04 S16LE" ->
         fn master -> read_register(master, :rir, slave, address, &Number.r_s16le/1) end
 
+      # F32
       "04 F32BED" ->
         fn master -> read_register2(master, :rir, slave, address, &Number.r_f32bed/1) end
 
@@ -222,6 +252,32 @@ defmodule Athasha.Runner.Modbus do
 
       "04 F32LER" ->
         fn master -> read_register2(master, :rir, slave, address, &Number.r_f32ler/1) end
+
+      # S32
+      "04 S32BED" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_s32bed/1) end
+
+      "04 S32LED" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_s32led/1) end
+
+      "04 S32BER" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_s32ber/1) end
+
+      "04 S32LER" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_s32ler/1) end
+
+      # U32
+      "04 U32BED" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_u32bed/1) end
+
+      "04 U32LED" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_u32led/1) end
+
+      "04 U32BER" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_u32ber/1) end
+
+      "04 U32LER" ->
+        fn master -> read_register2(master, :rir, slave, address, &Number.r_u32ler/1) end
     end
   end
 
@@ -250,6 +306,7 @@ defmodule Athasha.Runner.Modbus do
           write_register(master, :phr, slave, address, value, &Number.w_s16le/1)
         end
 
+      # F32
       "16 F32BED" ->
         fn master, value ->
           write_register2(master, :phr, slave, address, value, &Number.w_f32bed/1)
@@ -269,20 +326,70 @@ defmodule Athasha.Runner.Modbus do
         fn master, value ->
           write_register2(master, :phr, slave, address, value, &Number.w_f32ler/1)
         end
+
+      # S32
+      "16 S32BED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_s32bed/1)
+        end
+
+      "16 S32LED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_s32led/1)
+        end
+
+      "16 S32BER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_s32ber/1)
+        end
+
+      "16 S32LER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_s32ler/1)
+        end
+
+      # U32
+      "16 U32BED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_u32bed/1)
+        end
+
+      "16 U32LED" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_u32led/1)
+        end
+
+      "16 U32BER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_u32ber/1)
+        end
+
+      "16 U32LER" ->
+        fn master, value ->
+          write_register2(master, :phr, slave, address, value, &Number.w_u32ler/1)
+        end
     end
   end
 
   defp read_register2(master, code, slave, address, transform) do
     case Master.exec(master, {code, slave, address, 2}) do
-      {:ok, [w0, w1]} -> {:ok, transform.([w0, w1])}
-      any -> any
+      {:ok, [w0, w1]} ->
+        value = transform.([w0, w1])
+        {:ok, value}
+
+      any ->
+        any
     end
   end
 
   defp read_register(master, code, slave, address, transform) do
     case Master.exec(master, {code, slave, address, 1}) do
-      {:ok, [value]} -> {:ok, transform.(value)}
-      any -> any
+      {:ok, [value]} ->
+        value = transform.(value)
+        {:ok, value}
+
+      any ->
+        any
     end
   end
 

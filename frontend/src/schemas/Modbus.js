@@ -4,35 +4,72 @@ import Schema from '../common/Schema'
 
 const inputCodes = [
     "01 Coil",
+
     "02 Input",
+
     "03 U16BE",
     "03 S16BE",
     "03 U16LE",
     "03 S16LE",
+
     "03 F32BED",
     "03 F32LED",
     "03 F32BER",
     "03 F32LER",
+
+    "03 S32BED",
+    "03 S32LED",
+    "03 S32BER",
+    "03 S32LER",
+
+    "03 U32BED",
+    "03 U32LED",
+    "03 U32BER",
+    "03 U32LER",
+
     "04 U16BE",
     "04 S16BE",
     "04 U16LE",
     "04 S16LE",
+
     "04 F32BED",
     "04 F32LED",
     "04 F32BER",
-    "04 F32LER"
+    "04 F32LER",
+
+    "04 S32BED",
+    "04 S32LED",
+    "04 S32BER",
+    "04 S32LER",
+
+    "04 U32BED",
+    "04 U32LED",
+    "04 U32BER",
+    "04 U32LER",
 ]
 
 const outputCodes = [
     "05 Coil",
+
     "06 U16BE",
     "06 S16BE",
     "06 U16LE",
     "06 S16LE",
+
     "16 F32BED",
     "16 F32LED",
     "16 F32BER",
     "16 F32LER",
+
+    "16 S32BED",
+    "16 S32LED",
+    "16 S32BER",
+    "16 S32LER",
+
+    "16 U32BED",
+    "16 U32LED",
+    "16 U32BER",
+    "16 U32LER",
 ]
 
 const protocols = Comm.protocols
