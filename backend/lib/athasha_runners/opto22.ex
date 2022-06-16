@@ -220,7 +220,8 @@ defmodule Athasha.Runner.Opto22 do
   # defp aa(m, n), do: m * 8 + 2 * (n - 1)
   defp ad32(m, n), do: m * 32 + (n - 1)
   defp aa32(m, n), do: m * 4 * 32 + 2 * (n - 1)
-  # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf page 33
+  # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf page 33,39
+  # https://documents.opto22.com/1465_OptoMMP_Protocol_Guide.pdf page 145
   defp address("SNAP-PAC-R1", "4ch Digital", _, m, n), do: ad(m, n)
   defp address("SNAP-PAC-EB1", "4ch Digital", _, m, n), do: ad(m, n)
   defp address("SNAP-PAC-R2", "4ch Digital", _, m, n), do: ad(m, n)
