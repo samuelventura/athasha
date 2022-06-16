@@ -68,7 +68,8 @@ function View() {
                 <Row>
                     <Col className='col-8'>
                         <InputGroup>
-                            <Form.Control type="text" value={value} onChange={(e) => setValue(e.target.value)}></Form.Control>
+                            <Form.Control type="text" value={value} onChange={(e) => setValue(e.target.value)}
+                                title="Prefix with 0x for hexadecimal format"></Form.Control>
                             <Button onClick={() => onSend(value)} disabled={disabled}>Send</Button>
                         </InputGroup>
                     </Col>
