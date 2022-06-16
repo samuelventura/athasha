@@ -125,7 +125,8 @@ defmodule Modbus.Master do
       case Transport.open(transm, opts) do
         {:ok, transi} ->
           transp = {transm, transi}
-          {:ok, %{trans: transp, proto: init.proto, tid: init.tid}}
+          log = Keyword.get(opts, :log, false)
+          {:ok, %{trans: transp, proto: init.proto, tid: init.tid, log: log}}
 
         {:error, reason} ->
           {:stop, reason}
@@ -145,15 +146,15 @@ defmodule Modbus.Master do
     end
 
     def handle_call({:exec, cmd, timeout}, _from, state) do
-      %{trans: trans, proto: proto, tid: tid} = state
+      %{trans: trans, proto: proto, tid: tid, log: log} = state
       state = Map.put(state, :tid, Protocol.next(state.proto, tid))
 
       result =
-        case request(proto, cmd, tid) do
+        case request(proto, cmd, tid, log) do
           {:ok, request, length} ->
             case Transport.master_reqres(trans, request, length, timeout) do
               {:ok, response} ->
-                values = parse_res(proto, cmd, response, tid)
+                values = parse_res(proto, cmd, response, tid, log)
 
                 case values do
                   nil -> :ok
@@ -171,8 +172,9 @@ defmodule Modbus.Master do
       {:reply, result, state}
     end
 
-    defp parse_res(proto, cmd, response, tid) do
+    defp parse_res(proto, cmd, response, tid, log) do
       try do
+        if log, do: IO.inspect({:<, tid, response})
         Protocol.parse_res(proto, cmd, response, tid)
       rescue
         e ->
@@ -181,9 +183,10 @@ defmodule Modbus.Master do
       end
     end
 
-    defp request(proto, cmd, tid) do
+    defp request(proto, cmd, tid, log) do
       try do
         request = Protocol.pack_req(proto, cmd, tid)
+        if log, do: IO.inspect({:>, tid, request})
         length = Protocol.res_len(proto, cmd)
         {:ok, request, length}
       rescue

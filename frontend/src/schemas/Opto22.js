@@ -1,9 +1,28 @@
 import Check from '../common/Check'
 import Schema from '../common/Schema'
 
-const types = ["Snap"]
-const inputCodes = ["4ch Digital", "4ch Analog"]
-const outputCodes = ["4ch Digital", "4ch Analog"]
+const types = [
+    "SNAP-PAC-R1",
+    "SNAP-PAC-EB1",
+    "SNAP-PAC-R2",
+    "SNAP-PAC-EB2",
+]
+const inputCodes = [
+    "4ch Digital",
+    "4ch Analog",
+    "4ch Latch On",
+    "4ch Latch Off",
+    "4ch Analog Min",
+    "4ch Analog Max",
+]
+const outputCodes = [
+    "4ch Digital",
+    "4ch Analog",
+    "4ch Latch On",
+    "4ch Latch Off",
+    "4ch Analog Min",
+    "4ch Analog Max",
+]
 
 function schema() {
     return {
@@ -11,7 +30,7 @@ function schema() {
         setts: {
             $type: "object",
             type: {
-                value: types[0],
+                value: "SNAP-PAC-EB2",
                 label: "Product Family",
                 help: "Select product family from list",
                 check: function (value, label) {
@@ -90,6 +109,30 @@ function schema() {
                     number: "1",
                     name: "Fuel Level",
                 },
+                {
+                    code: "4ch Latch On",
+                    module: "0",
+                    number: "1",
+                    name: "Emergency Up",
+                },
+                {
+                    code: "4ch Latch Off",
+                    module: "0",
+                    number: "1",
+                    name: "Emergency Down",
+                },
+                {
+                    code: "4ch Analog Min",
+                    module: "4",
+                    number: "1",
+                    name: "Fuel Level Min",
+                },
+                {
+                    code: "4ch Analog Max",
+                    module: "4",
+                    number: "1",
+                    name: "Fuel Level Max",
+                },
             ],
             code: {
                 value: inputCodes[0],
@@ -144,6 +187,30 @@ function schema() {
                     module: "2",
                     number: "1",
                     name: "Fuel Display",
+                },
+                {
+                    code: "4ch Latch On",
+                    module: "0",
+                    number: "1",
+                    name: "Clear Emergency Up",
+                },
+                {
+                    code: "4ch Latch Off",
+                    module: "0",
+                    number: "1",
+                    name: "Clear Emergency Down",
+                },
+                {
+                    code: "4ch Analog Min",
+                    module: "4",
+                    number: "1",
+                    name: "Clear Fuel Level Min",
+                },
+                {
+                    code: "4ch Analog Max",
+                    module: "4",
+                    number: "1",
+                    name: "Clear Fuel Level Max",
                 },
             ],
             code: {

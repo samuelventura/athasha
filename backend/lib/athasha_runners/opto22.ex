@@ -25,7 +25,7 @@ defmodule Athasha.Runner.Opto22 do
         module = String.to_integer(input["module"])
         number = String.to_integer(input["number"])
         name = input["name"]
-        address = address(type, code, module, number)
+        address = address(type, code, :i, module, number)
 
         %{
           id: "#{id} #{name}",
@@ -40,7 +40,7 @@ defmodule Athasha.Runner.Opto22 do
         module = String.to_integer(output["module"])
         number = String.to_integer(output["number"])
         name = output["name"]
-        address = address(type, code, module, number)
+        address = address(type, code, :o, module, number)
 
         %{
           id: "#{id} #{name}",
@@ -154,14 +154,21 @@ defmodule Athasha.Runner.Opto22 do
 
   # 4ch Digital, pag 12
   # 4ch Analog, pag 13
-  defp getter(master, "4ch Digital", slave, address) do
+  defp getter(master, "4ch Digital", slave, address), do: getter_bit(master, slave, address)
+  defp getter(master, "4ch Analog", slave, address), do: getter_float(master, slave, address)
+  defp getter(master, "4ch Latch On", slave, address), do: getter_bit(master, slave, address)
+  defp getter(master, "4ch Latch Off", slave, address), do: getter_bit(master, slave, address)
+  defp getter(master, "4ch Analog Min", slave, address), do: getter_float(master, slave, address)
+  defp getter(master, "4ch Analog Max", slave, address), do: getter_float(master, slave, address)
+
+  defp getter_bit(master, slave, address) do
     case Master.exec(master, {:ri, slave, address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
     end
   end
 
-  defp getter(master, "4ch Analog", slave, address) do
+  defp getter_float(master, slave, address) do
     case Master.exec(master, {:rir, slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<value::float-big-32>> = <<w0::16, w1::16>>
@@ -172,7 +179,25 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter(master, "4ch Digital", slave, address, value) do
+  defp setter(master, "4ch Digital", slave, address, value),
+    do: setter_bit(master, slave, address, value)
+
+  defp setter(master, "4ch Analog", slave, address, value),
+    do: setter_float(master, slave, address, value)
+
+  defp setter(master, "4ch Latch On", slave, address, value),
+    do: setter_bit(master, slave, address, value)
+
+  defp setter(master, "4ch Latch Off", slave, address, value),
+    do: setter_bit(master, slave, address, value)
+
+  defp setter(master, "4ch Analog Min", slave, address, value),
+    do: setter_bit(master, slave, address, value)
+
+  defp setter(master, "4ch Analog Max", slave, address, value),
+    do: setter_bit(master, slave, address, value)
+
+  defp setter_bit(master, slave, address, value) do
     value = Number.to_bit(value)
 
     case Master.exec(master, {:fc, slave, address, value}) do
@@ -181,7 +206,7 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter(master, "4ch Analog", slave, address, value) do
+  defp setter_float(master, slave, address, value) do
     value = :erlang.float(value)
     <<w0::16, w1::16>> = <<value::float-big-32>>
 
@@ -191,8 +216,50 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp address("Snap", "4ch Digital", module, number), do: module * 4 + (number - 1)
-  defp address("Snap", "4ch Analog", module, number), do: module * 8 + 2 * (number - 1)
+  defp ad(m, n), do: m * 4 + (n - 1)
+  # defp aa(m, n), do: m * 8 + 2 * (n - 1)
+  defp ad32(m, n), do: m * 32 + (n - 1)
+  defp aa32(m, n), do: m * 4 * 32 + 2 * (n - 1)
+  # https://documents.opto22.com/1678_Modbus_TCP_Protocol_Guide.pdf page 33
+  defp address("SNAP-PAC-R1", "4ch Digital", _, m, n), do: ad(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Digital", _, m, n), do: ad(m, n)
+  defp address("SNAP-PAC-R2", "4ch Digital", _, m, n), do: ad(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Digital", _, m, n), do: ad(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Analog", _, m, n), do: 4609 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Analog", _, m, n), do: 4609 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-R2", "4ch Analog", _, m, n), do: 4609 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Analog", _, m, n), do: 4609 - 1 + aa32(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Latch On", _, m, n), do: 129 - 1 + ad(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Latch On", _, m, n), do: 129 - 1 + ad(m, n)
+  defp address("SNAP-PAC-R2", "4ch Latch On", _, m, n), do: 65 - 1 + ad(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Latch On", _, m, n), do: 65 - 1 + ad(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Latch Off", _, m, n), do: 193 - 1 + ad(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Latch Off", _, m, n), do: 193 - 1 + ad(m, n)
+  defp address("SNAP-PAC-R2", "4ch Latch Off", _, m, n), do: 129 - 1 + ad(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Latch Off", _, m, n), do: 129 - 1 + ad(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Analog Min", :i, m, n), do: 6657 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Analog Min", :i, m, n), do: 6657 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-R2", "4ch Analog Min", :i, m, n), do: 6657 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Analog Min", :i, m, n), do: 6657 - 1 + aa32(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Analog Max", :i, m, n), do: 8705 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Analog Max", :i, m, n), do: 8705 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-R2", "4ch Analog Max", :i, m, n), do: 8705 - 1 + aa32(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Analog Max", :i, m, n), do: 8705 - 1 + aa32(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Analog Min", :o, m, n), do: 3585 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Analog Min", :o, m, n), do: 3585 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-R2", "4ch Analog Min", :o, m, n), do: 3585 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Analog Min", :o, m, n), do: 3585 - 1 + ad32(m, n)
+
+  defp address("SNAP-PAC-R1", "4ch Analog Max", :o, m, n), do: 4609 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-EB1", "4ch Analog Max", :o, m, n), do: 4609 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-R2", "4ch Analog Max", :o, m, n), do: 4609 - 1 + ad32(m, n)
+  defp address("SNAP-PAC-EB2", "4ch Analog Max", :o, m, n), do: 4609 - 1 + ad32(m, n)
 
   defp connect_master(config) do
     trans = Modbus.Tcp.Transport
