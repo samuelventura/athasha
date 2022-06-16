@@ -4,7 +4,7 @@
 
 #define MyAppId "Athasha" 
 #define MyAppName "Athasha"
-#define MyAppVersion "0.3.0"
+#define MyAppVersion "0.3.1"
 #define MyAppPublisher "athasha.io"
 #define MyAppURL "https://athasha.io"
 
@@ -57,7 +57,7 @@ Name: "{group}\Password"; Filename: "{app}\Password.bat"; IconFilename: "{app}\p
 ;Version in icon leaves previous link when upgrading
 
 [Run]
-Filename: "{app}\PostInstall.bat";
+Filename: "{app}\PostInstall.bat"; AfterInstall: SaveVersion('{app}\version.txt', '{#SetupSetting("AppVersion")}')
 
 [UninstallRun]
 Filename: "{app}\PreUninstall.bat"; RunOnceId: "PreUninstall";
@@ -68,6 +68,14 @@ var
   ResultCode: integer;
 begin
   Exec(ExpandConstant('{app}\PreUninstall.bat'), '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)
+end;
+
+procedure SaveVersion(Filename: string; Version: string);
+begin
+  Filename := ExpandConstant(Filename);
+  Version := ExpandConstant(Version);
+  Log('Save version to ' + Filename);
+  SaveStringToFile(FileName, Version, False);
 end;
 
 procedure SetElevationBit(Filename: string);
