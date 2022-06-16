@@ -63,7 +63,8 @@
               "code": "Tare",
               "name": "Tare"
             }
-          ]
+          ],
+          "type": "Analog"
         }
       ]
     },
@@ -1317,6 +1318,13 @@
       "setts": {
         "align": "Center",
         "backColor": "#ffffff",
+        "background": {
+          "align": "Center",
+          "content": "",
+          "filename": "",
+          "scale": "Fit",
+          "viewBox": ""
+        },
         "gridX": "160",
         "gridY": "120",
         "height": "480",

@@ -30,7 +30,7 @@ defmodule Athasha.Runner.Opto22 do
         %{
           id: "#{id} #{name}",
           name: name,
-          getter: fn master -> getter(master, code, slave, address) end
+          getter: getter(code, slave, address)
         }
       end)
 
@@ -45,7 +45,7 @@ defmodule Athasha.Runner.Opto22 do
         %{
           id: "#{id} #{name}",
           name: name,
-          setter: fn master, value -> setter(master, code, slave, address, value) end
+          setter: setter(code, slave, address)
         }
       end)
 
@@ -154,21 +154,32 @@ defmodule Athasha.Runner.Opto22 do
 
   # 4ch Digital, pag 12
   # 4ch Analog, pag 13
-  defp getter(master, "4ch Digital", slave, address), do: getter_bit(master, slave, address)
-  defp getter(master, "4ch Analog", slave, address), do: getter_float(master, slave, address)
-  defp getter(master, "4ch Latch On", slave, address), do: getter_bit(master, slave, address)
-  defp getter(master, "4ch Latch Off", slave, address), do: getter_bit(master, slave, address)
-  defp getter(master, "4ch Analog Min", slave, address), do: getter_float(master, slave, address)
-  defp getter(master, "4ch Analog Max", slave, address), do: getter_float(master, slave, address)
+  defp getter("4ch Digital", slave, address),
+    do: fn master -> get_bit(master, slave, address) end
 
-  defp getter_bit(master, slave, address) do
+  defp getter("4ch Analog", slave, address),
+    do: fn master -> get_float(master, slave, address) end
+
+  defp getter("4ch Latch On", slave, address),
+    do: fn master -> get_bit(master, slave, address) end
+
+  defp getter("4ch Latch Off", slave, address),
+    do: fn master -> get_bit(master, slave, address) end
+
+  defp getter("4ch Analog Min", slave, address),
+    do: fn master -> get_float(master, slave, address) end
+
+  defp getter("4ch Analog Max", slave, address),
+    do: fn master -> get_float(master, slave, address) end
+
+  defp get_bit(master, slave, address) do
     case Master.exec(master, {:ri, slave, address, 1}) do
       {:ok, [value]} -> {:ok, value}
       any -> any
     end
   end
 
-  defp getter_float(master, slave, address) do
+  defp get_float(master, slave, address) do
     case Master.exec(master, {:rir, slave, address, 2}) do
       {:ok, [w0, w1]} ->
         <<value::float-big-32>> = <<w0::16, w1::16>>
@@ -179,25 +190,25 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter(master, "4ch Digital", slave, address, value),
-    do: setter_bit(master, slave, address, value)
+  defp setter("4ch Digital", slave, address),
+    do: fn master, value -> set_bit(master, slave, address, value) end
 
-  defp setter(master, "4ch Analog", slave, address, value),
-    do: setter_float(master, slave, address, value)
+  defp setter("4ch Analog", slave, address),
+    do: fn master, value -> set_float(master, slave, address, value) end
 
-  defp setter(master, "4ch Latch On", slave, address, value),
-    do: setter_bit(master, slave, address, value)
+  defp setter("4ch Latch On", slave, address),
+    do: fn master, value -> set_bit(master, slave, address, value) end
 
-  defp setter(master, "4ch Latch Off", slave, address, value),
-    do: setter_bit(master, slave, address, value)
+  defp setter("4ch Latch Off", slave, address),
+    do: fn master, value -> set_bit(master, slave, address, value) end
 
-  defp setter(master, "4ch Analog Min", slave, address, value),
-    do: setter_bit(master, slave, address, value)
+  defp setter("4ch Analog Min", slave, address),
+    do: fn master, value -> set_bit(master, slave, address, value) end
 
-  defp setter(master, "4ch Analog Max", slave, address, value),
-    do: setter_bit(master, slave, address, value)
+  defp setter("4ch Analog Max", slave, address),
+    do: fn master, value -> set_bit(master, slave, address, value) end
 
-  defp setter_bit(master, slave, address, value) do
+  defp set_bit(master, slave, address, value) do
     value = Number.to_bit(value)
 
     case Master.exec(master, {:fc, slave, address, value}) do
@@ -206,7 +217,7 @@ defmodule Athasha.Runner.Opto22 do
     end
   end
 
-  defp setter_float(master, slave, address, value) do
+  defp set_float(master, slave, address, value) do
     value = :erlang.float(value)
     <<w0::16, w1::16>> = <<value::float-big-32>>
 
