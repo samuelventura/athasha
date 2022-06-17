@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEffect, useRef } from 'react'
-import * as monaco from 'monaco-editor'
+import monaco from './Custom'
 
 const model = monaco.editor.createModel("", 'javascript')
 
