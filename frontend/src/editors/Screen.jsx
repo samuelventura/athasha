@@ -25,6 +25,7 @@ import Type from "../common/Type"
 import Clone from "../tools/Clone"
 import Input from "../screen/Input"
 import State from "./screen/State"
+import Keys from "../common/Keys"
 import Svg from "../common/Svg"
 
 const $type = Type.Screen
@@ -127,35 +128,47 @@ function SvgWindow({ ctx, preview }) {
     const { H, W, vb, vp, sx, sy, gx, gy } = calcGeom(parent, setts)
     const gridColor = Color.invert(setts.backColor, true)
     const borderColor = Color.invert(setts.backColor, true)
+    //do not stop propagation unless used or the 
+    //global key hooks like ctrl+s wont work
+    function applyKeyDownAll(event, control) {
+        if (event.key === "Escape") {
+            event.stopPropagation()
+            immediate.setMulti()
+        } else if (ctx.state.multi.length > 0) {
+            ctx.state.multi.forEach(id => applyKeyDown(event, buffered, id))
+        } else if (control) {
+            applyKeyDown(event, buffered, control.id)
+        }
+        if (buffered.count() > 0) {
+            event.stopPropagation()
+            buffered.apply()
+        }
+    }
     function applyKeyDown(event, mutator, id) {
         switch (event.code) {
             case "Delete": {
                 mutator.actionControl(id, 'del')
-                break
+                return
             }
             case "ArrowDown": {
                 if (event.altKey) mutator.actionControl(id, event.shiftKey ? 'bottom' : 'down')
-                else if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'hinc10' : 'hinc')
-                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'hinc10' : 'hinc')
+                else if (Keys.isCtrlKey(event)) mutator.actionControl(id, event.shiftKey ? 'hinc10' : 'hinc')
                 else mutator.actionControl(id, event.shiftKey ? 'yinc10' : 'yinc')
                 break
             }
             case "ArrowUp": {
                 if (event.altKey) mutator.actionControl(id, event.shiftKey ? 'top' : "up")
-                else if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'hdec10' : 'hdec')
-                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'hdec10' : 'hdec')
+                else if (Keys.isCtrlKey(event)) mutator.actionControl(id, event.shiftKey ? 'hdec10' : 'hdec')
                 else mutator.actionControl(id, event.shiftKey ? 'ydec10' : 'ydec')
                 break
             }
             case "ArrowLeft": {
-                if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'wdec10' : 'wdec')
-                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'wdec10' : 'wdec')
+                if (Keys.isCtrlKey(event)) mutator.actionControl(id, event.shiftKey ? 'wdec10' : 'wdec')
                 else mutator.actionControl(id, event.shiftKey ? 'xdec10' : 'xdec')
                 break
             }
             case "ArrowRight": {
-                if (event.ctrlKey) mutator.actionControl(id, event.shiftKey ? 'winc10' : 'winc')
-                else if (event.metaKey) mutator.actionControl(id, event.shiftKey ? 'winc10' : 'winc')
+                if (Keys.isCtrlKey(event)) mutator.actionControl(id, event.shiftKey ? 'winc10' : 'winc')
                 else mutator.actionControl(id, event.shiftKey ? 'xinc10' : 'xinc')
                 break
             }
@@ -274,7 +287,8 @@ function SvgWindow({ ctx, preview }) {
     function findFocusable(event) {
         let target = event.target
         while (target) {
-            if (target.hasAttribute("tabIndex")) {
+            const flag = target.hasAttribute("tabindex")
+            if (flag) {
                 target.focus()
                 break
             }
@@ -330,13 +344,10 @@ function SvgWindow({ ctx, preview }) {
         }
     }
     //onKeyPress wont receive arrows
+    //tabIndex required in screen svg for 
+    //findFocusable to stop there
     function screenKeyDown(event) {
-        event.stopPropagation()
-        if (event.key === "Escape") immediate.setMulti()
-        else {
-            ctx.state.multi.forEach(id => applyKeyDown(event, buffered, id))
-            buffered.apply()
-        }
+        applyKeyDownAll(event)
     }
     function screenEvents(type) {
         return {
@@ -512,8 +523,7 @@ function SvgWindow({ ctx, preview }) {
         }
         //onKeyPress wont receive arrows
         function controlKeyDown(event) {
-            event.stopPropagation()
-            applyKeyDown(event, immediate, control.id)
+            applyKeyDownAll(event, control)
         }
         function controlEvents(type, withClass) {
             const events = {
@@ -537,7 +547,8 @@ function SvgWindow({ ctx, preview }) {
         const transpFrame = dragged.index === index || index < 0
         const fillOpacity = transpFrame ? "0.5" : "0"
         const borderOpacity = isSelected ? 0.1 : 0.2 //resize borders accumulate
-        const { msx, msy } = { msx: Math.max(2, sx / 2), msy: Math.max(2, sy / 2) } //min=2 for grids > 1X00
+        //min=2 for grids > 1X00, 3 = 6/2 from tickBorder above, half lies outside
+        const { msx, msy } = { msx: Math.max(3, sx), msy: Math.max(3, sy) }
         const controlEdges = isSelected ? <>
             <rect x={0} y={0} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeTop", true)} />
             <rect x={0} y={h - msy} width={w} height={msy} fill={borderColor} fillOpacity={borderOpacity} {...controlEvents("edgeBottom", true)} />
@@ -596,7 +607,7 @@ function SvgWindow({ ctx, preview }) {
     const dragFrame = dragged.type ? renderDrag() : null
     return (<svg ref={ref} width="100%" height="100%" onPointerDown={(e) => backPointerDown(e)} tabIndex={-1}>
         <rect width="100%" height="100%" fill="none" stroke="gray" strokeWidth="1" strokeOpacity="0.4" />
-        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")}>
+        <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none' {...screenEvents("multi")} tabIndex={-1}>
             <defs>
                 <pattern id="grid" width={sx} height={sy} patternUnits="userSpaceOnUse">
                     <path d={`M ${sx} 0 L 0 0 0 ${sy}`} fill="none"

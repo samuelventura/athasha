@@ -218,6 +218,7 @@ const mutator = (ctx, buffered) => {
         buffer.splice(0, buffer.length)
         return self
     }
+    self.count = () => buffer.length
     self.init = (setts, controls) => ctx.dispatch({ name: "init", args: { setts, controls } })
     self.setMulti = (ids) => apply({ name: "multi", args: { ids } })
     self.setSelected = (id) => apply({ name: "select", args: { id } })

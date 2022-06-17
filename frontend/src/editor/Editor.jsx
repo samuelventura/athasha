@@ -8,6 +8,7 @@ import Files from '../tools/Files'
 import Clone from '../tools/Clone'
 import Type from '../common/Type'
 import Icon from '../common/Icon'
+import Keys from '../common/Keys'
 import State from './State'
 import { useApp } from '../App'
 import { useEffect } from 'react'
@@ -25,9 +26,8 @@ function deleted() {
 }
 
 function registerListener(callback) {
-    const mac = navigator.userAgentData.platform.match("Mac")
     const listener = (e) => {
-        if (e.key === "s" && (mac ? e.metaKey : e.ctrlKey)) {
+        if (e.key === "s" && Keys.isCtrlKey(e)) {
             e.preventDefault();
             callback()
         }
