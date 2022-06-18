@@ -7,6 +7,7 @@ import Dataplot from '../icons/Dataplot.svg'
 import Laurel from '../icons/Laurel.svg'
 import Opto22 from '../icons/Opto22.svg'
 import Script from '../icons/Script.svg'
+import Preset from '../icons/Preset.svg'
 
 const icons = {
     Datalog,
@@ -18,6 +19,7 @@ const icons = {
     Laurel,
     Opto22,
     Script,
+    Preset,
 }
 
 export default {

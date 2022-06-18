@@ -702,7 +702,6 @@ function ScreenEditor({ ctx, previewControl }) {
     const alignOptions = $type.aligns.map(v => <option key={v} value={v}>{v}</option>)
     const validBg = !!dataBg.viewBox
     const onUpload = () => Svg.onUpload(({ svg, fn, vb }) => {
-        console.log(fn, vb)
         const bg = Clone.deep(dataBg)
         bg.content = svg
         bg.filename = fn

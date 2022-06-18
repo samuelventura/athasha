@@ -176,7 +176,7 @@ function debounce(func, wait) {
     return { apply, exit }
 }
 
-function props({ checkbox, captured, setCaptured, label, help, defval, getter, setter, check }) {
+function props({ checkbox, captured, setCaptured, label, help, defval, getter, setter, check, onChange }) {
     checkbox = !!checkbox
     function getCurrent(e) { return checkbox ? e.target.checked : e.target.value }
     function getValue() { return captured.value }
@@ -232,6 +232,7 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
         onChange: function (e) {
             const debounced = getDebounced()
             debounced.apply(e, getCurrent(e))
+            if (onChange) onChange(e)
         },
         onBlur: function (e) {
             const debounced = getDebounced()

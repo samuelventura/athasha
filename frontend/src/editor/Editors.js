@@ -6,6 +6,7 @@ import Screen from '../editors/Screen.jsx'
 import Dataplot from '../editors/Dataplot.jsx'
 import Laurel from '../editors/Laurel.jsx'
 import Opto22 from '../editors/Opto22.jsx'
+import Preset from '../editors/Preset.jsx'
 //import Script from '../editors/Script.jsx'
 
 const editors = {
@@ -17,6 +18,7 @@ const editors = {
     Dataplot,
     Laurel,
     Opto22,
+    Preset,
     // Script,
 }
 

@@ -7,6 +7,7 @@ import Dataplot from '../schemas/Dataplot.js'
 import Laurel from '../schemas/Laurel.js'
 import Opto22 from '../schemas/Opto22.js'
 import Script from '../schemas/Script.js'
+import Preset from '../schemas/Preset.js'
 import Schema from '../common/Schema.js'
 import UUID from '../tools/UUID.js'
 
@@ -20,9 +21,10 @@ const types = {
     Laurel,
     Opto22,
     Script,
+    Preset,
 }
 
-const names = ["Datafetch", "Datalink", "Datalog", "Dataplot", "Laurel", "Modbus", "Opto22", "Screen"]
+const names = ["Datafetch", "Datalink", "Datalog", "Dataplot", "Laurel", "Modbus", "Opto22", "Preset", "Screen"]
 const views = ["Screen", "Datafetch", "Dataplot", "Modbus", "Opto22", "Laurel"]
 
 if (import.meta.env.DEV) names.push("Script")
