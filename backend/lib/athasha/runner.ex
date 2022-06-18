@@ -177,6 +177,7 @@ defmodule Athasha.Runner do
       "Dataplot" -> Athasha.Runner.Dataplot
       "Laurel" -> Athasha.Runner.Laurel
       "Opto22" -> Athasha.Runner.Opto22
+      "Preset" -> Athasha.Runner.Preset
     end
   end
 end

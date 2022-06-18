@@ -14,7 +14,7 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import Points from '../common/Points'
 import Check from '../common/Check'
-import Utils from '../common/Utils'
+import Arrays from '../common/Arrays'
 import Type from '../common/Type'
 
 const $type = Type.Preset
@@ -156,7 +156,7 @@ function Tags({ tags, setTags, programs, globals }) {
         args.setter = setter(prop)
         return Check.props(args)
     }
-    const programNames = programs.map(v => v.name).filter(Utils.uniqueFilter)
+    const programNames = Arrays.unique(programs.map(v => v.name))
     const programOptions = programNames.map(v => <option key={v} value={v}>{v}</option>)
     const tagRows = tags.map((tag, index) =>
         <tr key={index} className='align-middle'>
@@ -164,7 +164,7 @@ function Tags({ tags, setTags, programs, globals }) {
                 {"#" + (index + 1)}
             </td>
             <td>
-                <Form.Control type="text" {...tagProps(index, "tag")} />
+                <Form.Control type="text" {...tagProps(index, "name")} />
             </td>
             <td>
                 <Form.Select {...tagProps(index, "program")}>
@@ -196,7 +196,7 @@ function Tags({ tags, setTags, programs, globals }) {
         <thead>
             <tr>
                 <th>#</th>
-                <th>{$schema.tags.tag.header}</th>
+                <th>{$schema.tags.name.header}</th>
                 <th>{$schema.tags.program.header}</th>
                 <th>{$schema.tags.desc.header}</th>
                 <th>

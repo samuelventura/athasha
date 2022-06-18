@@ -20,6 +20,12 @@ function schema() {
             //initial here requires initial params for each program
             //or react will complain at editor launch
             $value: [],
+            $check: function (value, label) {
+                Check.isArray(value, label)
+                //will clear array when duplicates found
+                //const outputs = value.map(v => v.output)
+                //Check.hasDuplicates(outputs, label)
+            },
             output: {
                 value: "",
                 header: "Param Output",
@@ -51,6 +57,12 @@ function schema() {
         programs: {
             $type: "array",
             $value: (value) => [value(0)],
+            $check: function (value, label) {
+                Check.isArray(value, label)
+                //will clear array when duplicates found
+                //const names = value.map(v => v.name)
+                //Check.hasDuplicates(names, label)
+            },
             name: {
                 value: (index) => `${index + 1}`,
                 header: "Program Name",
@@ -95,7 +107,7 @@ function schema() {
         tags: {
             $type: "array",
             $value: [],
-            tag: {
+            name: {
                 value: "",
                 header: "Tag Name",
                 label: (index) => `Tag Name ${index + 1}`,

@@ -32,6 +32,23 @@ function isArray(value, label) {
     return value
 }
 
+function hasLength(value, label, length) {
+    const array = isArray(value, label)
+    if (array.length !== length) {
+        throw `${label} length != ${length}`
+    }
+}
+
+function noDuplicates(value, label) {
+    const array = isArray(value, label)
+    const list = value.filter((value, index, self) => {
+        return self.indexOf(value) === index
+    })
+    if (array.length !== list.length) {
+        throw `${label} has duplicates`
+    }
+}
+
 function notEmptyArray(value, label) {
     const array = isArray(value, label)
     if (array.length === 0) {
@@ -265,6 +282,8 @@ export default {
     isString,
     notEmpty,
     isArray,
+    hasLength,
+    noDuplicates,
     notEmptyArray,
     isObject,
     hasProp,
