@@ -219,6 +219,12 @@ function Programs({ programs, setPrograms, params, globals }) {
     function addProgram() {
         const next = [...programs]
         const program = $type.program(next.length)
+        const defval = $type.programParam().value
+        program.params = params.map(p => {
+            const output = p.output
+            const value = defval
+            return { output, value }
+        })
         next.push(program)
         setPrograms(next)
     }
@@ -248,19 +254,11 @@ function Programs({ programs, setPrograms, params, globals }) {
         args.setter = setter(prop)
         return Check.props(args)
     }
-    const paramDefault = $type.programParam()
     const programRows = programs.map((program, index) => {
-        //value mapped to output to move up/down values along with params
-        const values = program.params.reduce((m, p) => {
-            m[p.output] = p.value
-            return m
-        }, {})
-        const local = params.map(p => {
-            const value = (p.output in values) ? values[p.output] : paramDefault.value
-            const output = p.output
+        const local = params.map((p, i) => {
             const desc = p.desc
             const name = p.name
-            return { output, name, value, desc }
+            return { ...program.params[i], name, desc }
         })
         function setParams(params) {
             const local = params.map(p => {
@@ -269,7 +267,7 @@ function Programs({ programs, setPrograms, params, globals }) {
                 return { output, value }
             })
             const next = [...programs]
-            next[index]["params"] = local
+            next[index].params = local
             setPrograms(next)
         }
         const paramProps = { params: local, setParams, globals, prefix: index }
@@ -404,7 +402,24 @@ function Editor(props) {
         args.setter = setter(prop)
         return Check.props(args)
     }
-    const paramsProps = { params, setParams, globals }
+    function syncParams(params) {
+        //keep program params array in sync with preset params
+        const defval = $type.programParam().value
+        programs.forEach(program => {
+            const values = program.params.reduce((m, p) => {
+                m[p.output] = p.value
+                return m
+            }, {})
+            program.params = params.map(p => {
+                const output = p.output
+                const value = (p.output in values) ? values[p.output] : defval
+                return { output, value }
+            })
+        })
+        setPrograms([...programs])
+        setParams(params)
+    }
+    const paramsProps = { params, setParams: syncParams, globals }
     const programsProps = { programs, setPrograms, params, globals }
     const tagsProps = { tags, setTags, programs, globals }
     return (

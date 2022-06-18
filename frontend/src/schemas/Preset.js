@@ -17,7 +17,9 @@ function schema() {
         },
         params: {
             $type: "array",
-            $value: (value) => [value(0)],
+            //initial here requires initial params for each program
+            //or react will complain at editor launch
+            $value: [],
             output: {
                 value: "",
                 header: "Param Output",
