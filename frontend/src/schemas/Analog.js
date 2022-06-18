@@ -1,6 +1,7 @@
 import Check from '../common/Check'
 
 const orientations = ["Circular", "Vertical", "Horizontal"]
+const priority = "\nPriority: Normal > Warning > Critical/Input"
 
 function schema() {
     return {
@@ -86,7 +87,7 @@ function schema() {
         inputMin: {
             value: "0",
             label: "Input Range Minimum",
-            help: "Non empty number (same as critical)",
+            help: "Non empty number (same as critical)" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },
@@ -94,7 +95,7 @@ function schema() {
         inputMax: {
             value: "10000",
             label: "Input Range Maximum",
-            help: "Non empty number (same as critical)",
+            help: "Non empty number (same as critical)" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },
@@ -102,7 +103,7 @@ function schema() {
         normalMin: {
             value: "4000",
             label: "Normal Range Minimum",
-            help: "Non empty number",
+            help: "Non empty number" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },
@@ -110,7 +111,7 @@ function schema() {
         normalMax: {
             value: "6000",
             label: "Normal Range Maximum",
-            help: "Non empty number",
+            help: "Non empty number" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },
@@ -118,7 +119,7 @@ function schema() {
         warningMin: {
             value: "2000",
             label: "Warning Range Minimum",
-            help: "Non empty number",
+            help: "Non empty number" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },
@@ -126,7 +127,7 @@ function schema() {
         warningMax: {
             value: "8000",
             label: "Warning Range Maximum",
-            help: "Non empty number",
+            help: "Non empty number" + priority,
             check: function (value, label) {
                 Check.isNumber(value, label)
             },

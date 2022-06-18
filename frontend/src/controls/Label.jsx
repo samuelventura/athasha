@@ -107,10 +107,15 @@ function Editor({ getControl, setProp, globals }) {
     }
     const alignOptions = $control.aligns.map(v => <option key={v} value={v}>{v}</option>)
     const ftFamilyOptions = $control.fontFamilies.map(v => <option key={v} value={v}>{v}</option>)
+    const priority = "\nDefault < Cond 1 < Cond 2 < Cond 3"
+    const defaultTitle = "Default" + priority
+    const cond1Title = "Overrides Default" + priority
+    const cond2Title = "Overrides Cond 1" + priority
+    const cond3Title = "Overrides Cond 2" + priority
     return (
         <>
             <Tabs defaultActiveKey="default">
-                <Tab eventKey="default" title="Default">
+                <Tab eventKey="default" title="Default" tabAttrs={{ title: defaultTitle }}>
                     <FormEntry label={$schema.text.label}>
                         <Form.Control type="text" {...fieldProps("text")} />
                     </FormEntry>
@@ -153,13 +158,13 @@ function Editor({ getControl, setProp, globals }) {
                         <Form.Control type="number" {...fieldProps("borderRadius")} min="0" max="1" step="0.1" />
                     </FormEntry>
                 </Tab>
-                <Tab eventKey="condition1" title="Cond 1" tabAttrs={{ title: "Overrides Default" }}>
+                <Tab eventKey="condition1" title="Cond 1" tabAttrs={{ title: cond1Title }}>
                     <CondEditor getCond={() => getCond("cond1")} setProp={setCondProp("cond1")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
-                <Tab eventKey="condition2" title="Cond 2" tabAttrs={{ title: "Overrides Cond 1" }}>
+                <Tab eventKey="condition2" title="Cond 2" tabAttrs={{ title: cond2Title }}>
                     <CondEditor getCond={() => getCond("cond2")} setProp={setCondProp("cond2")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
-                <Tab eventKey="condition3" title="Cond 3" tabAttrs={{ title: "Overrides Cond 2" }}>
+                <Tab eventKey="condition3" title="Cond 3" tabAttrs={{ title: cond3Title }}>
                     <CondEditor getCond={() => getCond("cond3")} setProp={setCondProp("cond3")} captured={captured} setCaptured={setCaptured} />
                 </Tab>
             </Tabs>
