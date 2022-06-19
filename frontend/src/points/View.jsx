@@ -33,9 +33,11 @@ function View() {
     }
     const inputRows = app.state.inames.map((name, index) => {
         const point = pointId(name)
+        const ivalue = app.state.ivalues[name]
+        const string = app.state.itypes[index] === "string"
         return <tr key={index} className="align-middle">
             <td title={point}>{name}</td>
-            <td>{formatFloat(app.state.ivalues[name])}</td>
+            <td>{string ? ivalue : formatFloat(ivalue)}</td>
             <td>
                 <Dropdown as={ButtonGroup}>
                     <Button variant="link" onClick={() => onGetInput(point)}>
@@ -53,24 +55,30 @@ function View() {
         const point = pointId(name)
         const ovalue = app.state.ovalues[name]
         const value = app.state.values[name]
-        const disabled = !(typeof value === 'string' && value.trim().length > 0 && isFinite(value))
+        const string = app.state.otypes[index] === "string"
+        function isValid() {
+            const stringType = typeof value === 'string'
+            const nonEmpty = stringType && value.trim().length > 0
+            const validNumber = nonEmpty && isFinite(value)
+            return string ? nonEmpty : validNumber
+        }
         function onSend(value) {
-            value = Number(value) //support 0xFF
-            app.send({ name: "write", args: { name, value } })
+            value = string ? value : Number(value) //support 0xFF
+            app.send({ name: "write", args: { name, value, string } })
         }
         function setValue(value) {
             app.dispatch({ name: "value", args: { name, value } })
         }
         return <tr key={index} className="align-middle">
             <td title={point}>{name}</td>
-            <td>{formatFloat(ovalue)}</td>
+            <td>{string ? ovalue : formatFloat(ovalue)}</td>
             <td>
                 <Row>
                     <Col className='col-8'>
                         <InputGroup>
                             <Form.Control type="text" value={value} onChange={(e) => setValue(e.target.value)}
                                 title="Prefix with 0x for hexadecimal format"></Form.Control>
-                            <Button onClick={() => onSend(value)} disabled={disabled}>Send</Button>
+                            <Button onClick={() => onSend(value)} disabled={!isValid()}>Send</Button>
                         </InputGroup>
                     </Col>
                     <Col>

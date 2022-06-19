@@ -25,7 +25,7 @@ const types = {
 }
 
 const names = ["Datafetch", "Datalink", "Datalog", "Dataplot", "Laurel", "Modbus", "Opto22", "Preset", "Screen"]
-const views = ["Screen", "Datafetch", "Dataplot", "Modbus", "Opto22", "Laurel"]
+const views = ["Screen", "Datafetch", "Dataplot", "Modbus", "Opto22", "Laurel", "Preset"]
 
 if (import.meta.env.DEV) names.push("Script")
 

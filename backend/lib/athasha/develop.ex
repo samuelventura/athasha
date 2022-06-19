@@ -5,6 +5,7 @@ defmodule Athasha.Develop do
   alias Athasha.Environ
   alias Athasha.Crypto
   alias Athasha.Repo
+  alias Athasha.Bus
 
   def insert_license(quantity) do
     lic = generate_license(quantity)
@@ -20,6 +21,10 @@ defmodule Athasha.Develop do
 
     privkey = Environ.load_privkey()
     Crypto.sign_license(lic, privkey)
+  end
+
+  def write_output(id, value) do
+    Bus.dispatch!({:write, id}, value)
   end
 
   def get_input(point, password \\ "") do

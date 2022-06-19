@@ -14,6 +14,14 @@ function schema() {
                     Check.notEmpty(value, label)
                 }
             },
+            password: {
+                label: "Access Password",
+                value: "",
+                help: "Optional access password",
+                check: function (value, label) {
+                    Check.isString(value, label)
+                },
+            },
         },
         params: {
             $type: "array",

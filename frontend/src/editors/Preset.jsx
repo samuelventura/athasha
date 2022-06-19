@@ -430,6 +430,12 @@ function Editor(props) {
                         <Form.Control type="text" {...settsProps("name")} />
                     </FloatingLabel>
                 </Col>
+                <Col></Col>
+                <Col xs={2}>
+                    <FloatingLabel label={$schema.setts.password.label}>
+                        <Form.Control type="password" {...settsProps("password")} />
+                    </FloatingLabel>
+                </Col>
             </Row>
 
             <Tabs defaultActiveKey="params" className="mt-3 mb-3">

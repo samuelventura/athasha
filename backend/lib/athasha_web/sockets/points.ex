@@ -73,8 +73,10 @@ defmodule AthashaWeb.Socket.Points do
       name: item.name,
       ivalues: PubSub.Input.get_values(id) |> Enum.map(&initial_point/1),
       inames: PubSub.Input.get_names(id),
+      itypes: PubSub.Input.get_types(id),
       ovalues: PubSub.Output.get_values(id) |> Enum.map(&initial_point/1),
-      onames: PubSub.Output.get_names(id)
+      onames: PubSub.Output.get_names(id),
+      otypes: PubSub.Output.get_types(id)
     }
 
     resp = %{name: "init", args: args}
@@ -126,8 +128,15 @@ defmodule AthashaWeb.Socket.Points do
   defp handle_event(event = %{"name" => "write"}, state = %{id: id, logged: true}) do
     args = event["args"]
     name = args["name"]
-    value = Number.to_number!(args["value"])
-    Bus.dispatch!({:write, "#{id} #{name}"}, value)
+    name = "#{id} #{name}"
+    value = args["value"]
+    string = Map.get(args, "string", false)
+
+    case string do
+      true -> Bus.dispatch!({:write, name}, "#{value}")
+      false -> Bus.dispatch!({:write, name}, Number.to_number!(value))
+    end
+
     {:ok, state}
   end
 

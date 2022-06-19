@@ -265,7 +265,6 @@ defmodule Athasha.Runner.Laurel do
   defp write_decimal(master, slave, address, value) do
     value = Number.to_sint32(value)
     <<w0::16, w1::16>> = <<value::signed-integer-big-32>>
-    IO.inspect({w0, w1, value})
 
     case Master.exec(master, {:phr, slave, address, [w0, w1]}) do
       :ok -> {:ok, value}

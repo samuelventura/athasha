@@ -20,6 +20,7 @@ export default defineConfig({
         modbus: resolve(__dirname, 'modbus.html'),
         opto22: resolve(__dirname, 'opto22.html'),
         laurel: resolve(__dirname, 'laurel.html'),
+        preset: resolve(__dirname, 'preset.html'),
       }
     }
   },

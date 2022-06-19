@@ -7,8 +7,10 @@ function initial() {
     type: "",
     status: {},
     inames: [],
+    itypes: [],
     ivalues: {},
     onames: [],
+    otypes: [],
     ovalues: {},
     values: {},
   }
@@ -28,8 +30,18 @@ function reducer(state, { name, args, self }) {
       next.status = args.status
       next.inames = args.inames
       next.onames = args.onames
+      next.itypes = args.itypes
+      next.otypes = args.otypes
       next.ivalues = {}
       next.ovalues = {}
+      args.inames.forEach((n, i) => {
+        next.itypes = next.itypes ? next.itypes : []
+        if (i >= next.itypes.length) next.itypes.push(null)
+      })
+      args.onames.forEach((n, i) => {
+        next.otypes = next.otypes ? next.otypes : []
+        if (i >= next.otypes.length) next.otypes.push(null)
+      })
       args.ivalues.forEach(point => {
         next.ivalues[point.name] = point.value
       })

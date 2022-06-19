@@ -11,6 +11,7 @@ defmodule Athasha.Runner.Preset do
     config = item.config
     setts = config["setts"]
     name = setts["name"]
+    password = setts["password"]
 
     {params, _} =
       Enum.reduce(
@@ -76,7 +77,6 @@ defmodule Athasha.Runner.Preset do
             |> String.replace("\\?", ".")
 
           pattern = "^#{pattern}$"
-          IO.inspect({name, pattern})
           regex = Regex.compile!(pattern)
           match = fn txt -> String.match?(txt, regex) end
           tag = %{name: name, desc: desc, program: program, pattern: pattern, match: match}
@@ -120,12 +120,18 @@ defmodule Athasha.Runner.Preset do
     PubSub.Input.register!(id, program.id, program.name, "")
     PubSub.Input.register!(id, pattern.id, pattern.name, "")
     PubSub.Input.register!(id, regex.id, regex.name, "")
-    PubSub.Output.register!(id, tag.id, tag.name)
-    PubSub.Output.register!(id, program.id, program.name)
+    PubSub.Output.register!(id, tag.id, tag.name, "")
+    PubSub.Output.register!(id, program.id, program.name, "")
+
+    PubSub.Input.reg_names!(id, [tag.name, program.name, pattern.name, regex.name])
+    PubSub.Input.reg_types!(id, ["string", "string", "string", "string"])
+    PubSub.Output.reg_names!(id, [tag.name, program.name])
+    PubSub.Output.reg_types!(id, ["string", "string"])
 
     Bus.register!({:write, tag.id})
     Bus.register!({:write, program.id})
     PubSub.Status.update!(item, :success, "Running")
+    PubSub.Password.register!(item, password)
     Process.send_after(self(), :status, @status)
     run_loop(item, config)
   end
@@ -146,9 +152,11 @@ defmodule Athasha.Runner.Preset do
 
         cond do
           id == config.program.id ->
+            update_output_program(config, name)
             run_program(config, name)
 
           id == config.tag.id ->
+            update_output_tag(config, name)
             run_tag(config, name)
         end
 
@@ -179,6 +187,18 @@ defmodule Athasha.Runner.Preset do
     id = config.item.id
     tag = config.tag
     PubSub.Input.update!(id, tag.id, tag.name, value)
+  end
+
+  defp update_output_program(config, value) do
+    id = config.item.id
+    program = config.program
+    PubSub.Output.update!(id, program.id, program.name, value)
+  end
+
+  defp update_output_tag(config, value) do
+    id = config.item.id
+    tag = config.tag
+    PubSub.Output.update!(id, tag.id, tag.name, value)
   end
 
   defp run_program(config, name, clear \\ true) do

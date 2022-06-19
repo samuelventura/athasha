@@ -3,7 +3,8 @@ defmodule Athasha.PubSub.Input do
   alias Athasha.Bus
 
   @key :input
-  @keys :inputs
+  @names :inames
+  @types :itypes
 
   def list() do
     match = {{@key, :"$1"}, :"$2", :"$3"}
@@ -13,12 +14,23 @@ defmodule Athasha.PubSub.Input do
   end
 
   def reg_names!(id, names) do
-    Store.register!({@keys, id}, names)
+    Store.register!({@names, id}, names)
   end
 
   def get_names(id) do
-    case Store.lookup({@keys, id}) do
+    case Store.lookup({@names, id}) do
       [{_, names}] -> names
+      [] -> nil
+    end
+  end
+
+  def reg_types!(id, types) do
+    Store.register!({@types, id}, types)
+  end
+
+  def get_types(id) do
+    case Store.lookup({@types, id}) do
+      [{_, types}] -> types
       [] -> nil
     end
   end
