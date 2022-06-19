@@ -194,6 +194,7 @@ function debounce(func, wait) {
 }
 
 function props({ checkbox, captured, setCaptured, label, help, defval, getter, setter, check, onChange }) {
+    const debug = false
     checkbox = !!checkbox
     function getCurrent(e) { return checkbox ? e.target.checked : e.target.value }
     function getValue() { return captured.value }
@@ -207,6 +208,9 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
     }
     function release() { setCaptured({}) }
     function apply(e, val) {
+        if (debug) console.log("apply", checkbox, val, typeof val, e.target)
+        //value is send as string in some blur events
+        if (checkbox) val = (`${val}` === "true")
         try {
             //do not trigger full validations on each blur
             if (val != getter()) {
@@ -248,13 +252,13 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
             }
         },
         onChange: function (e) {
-            console.log("onChange", checkbox, e.target)
+            if (debug) console.log("onChange", checkbox, e.target)
             const debounced = getDebounced()
             debounced.apply(e, getCurrent(e))
             if (onChange) onChange(e)
         },
         onBlur: function (e) {
-            console.log("onBlur", checkbox, e.target)
+            if (debug) console.log("onBlur", checkbox, e.target)
             const debounced = getDebounced()
             debounced.exit()
             if (!debounced.apply(e, getValue())) {
@@ -263,8 +267,12 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
             release()
         },
     }
-    const valueProp = checkbox ? "checked" : "value"
-    inputProps[valueProp] = getter()
+    //checked means to send the value in value attribute
+    //value is send as string in some blur events
+    //not setting value for checkboxes triggers value=on
+    const value = getter()
+    inputProps.value = value
+    if (checkbox) inputProps.checked = value
     return inputProps
 }
 
