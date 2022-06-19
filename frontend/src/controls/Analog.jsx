@@ -147,12 +147,13 @@ function f(v) {
     return isFinite(v) && v > 0 ? v : 0
 }
 
-function Renderer({ size, control, value }) {
+function Renderer({ size, control, string, value }) {
+    const number = string ? 0 : value
     const data = control.data
     const circular = data.orientation === "Circular"
     const vertical = data.orientation === "Vertical"
     const input = getMinMax(data, "input")
-    const trimmed = trimValue(input, value)
+    const trimmed = trimValue(input, number)
     const status = calcStatus(data, trimmed)
     const level = {
         value: trimmed,

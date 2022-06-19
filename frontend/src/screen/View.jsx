@@ -58,10 +58,16 @@ function calcGeom(parent, setts) {
 function PromptValue() {
     const app = useApp()
     const prompt = app.state.prompt
+    const string = prompt.string
     const focus = useRef(null)
     const [value, setValue] = useState("")
-    function isActive() { return prompt.output }
-    function isValid() { return typeof value === 'string' && value.trim().length > 0 && isFinite(value) }
+    function isActive() { return !!prompt.output }
+    function isValid() {
+        const stringType = typeof value === 'string'
+        const nonEmpty = stringType && value.trim().length > 0
+        const validNumber = nonEmpty && isFinite(value)
+        return string ? nonEmpty : validNumber
+    }
     function onKeyPress(e) {
         if (e.key === 'Enter') {
             onAccept()
@@ -73,8 +79,8 @@ function PromptValue() {
     function onAccept() {
         if (isValid()) {
             const name = prompt.output
-            const fixed = prompt.scaler(value) //Number(x) conversion supports 0xFF
-            app.send({ name: "write", args: { name, value: fixed } })
+            const fixed = string ? value : prompt.scaler(value) //Number(x) conversion supports 0xFF
+            app.send({ name: "write", args: { name, value: fixed, string } })
             app.dispatch({ name: "prompt", args: {} })
         }
     }
@@ -136,14 +142,14 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
         const hoverColor = setts.hoverColor
         const isPressed = click && pressed === index
         const controller = Controller.get(control.type)
-        const getter = () => { return Input.getter(csetts, inputs) }
         const scaler = (value) => {
             //Number(x) conversion supports 0xFF from prompt modal
             return Number(value) * Number(csetts.outputFactor) + Number(csetts.outputOffset)
         }
-        const value = getter()
+        const string = csetts.istring
+        const value = Input.getter(csetts, inputs)
         const trend = input ? trends[input] : null
-        const controlInstance = controller.Renderer({ control, size, value, trend, click, isPressed, hasHover, hoverColor, background })
+        const controlInstance = controller.Renderer({ control, size, string, value, trend, click, isPressed, hasHover, hoverColor, background })
         function onMouseAction(action) {
             switch (action) {
                 case "enter": {
@@ -165,13 +171,15 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
                             switch (csetts.click) {
                                 case "Fixed Value": {
                                     const name = output
-                                    const value = scaler(control.setts.value)
-                                    send({ name: "write", args: { name, value } })
+                                    const string = control.setts.ostring
+                                    const value = string ? control.setts.svalue : scaler(control.setts.value)
+                                    send({ name: "write", args: { name, value, string } })
                                     break
                                 }
                                 case "Value Prompt": {
                                     const title = control.setts.prompt
-                                    dispatch({ name: "prompt", args: { output, title, scaler } })
+                                    const string = control.setts.ostring
+                                    dispatch({ name: "prompt", args: { output, title, string, scaler } })
                                     break
                                 }
                             }

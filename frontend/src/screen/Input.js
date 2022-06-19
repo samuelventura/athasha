@@ -1,4 +1,14 @@
 function getter(csetts, inputs) {
+    const input = csetts.input
+    const value = input && inputs ? inputs[input] : null
+
+    if (csetts.istring) {
+        const ivalue = csetts.isvalued ? csetts.isvalue : null
+        if (value === undefined) return ivalue
+        if (value === null) return ivalue
+        return `${value}`
+    }
+
     //Number("") -> 0
     //Number(" ") -> 0
     //Number("-") -> NaN
@@ -10,13 +20,11 @@ function getter(csetts, inputs) {
     //Number("false") -> NaN
     //Number("true") -> NaN
     //Number(undefined) -> NaN
-    const defval = csetts.defEnabled ? Number(csetts.defValue) : null
-    const iid = csetts.input
-    const value = iid && inputs ? inputs[iid] : null
-    if (value === undefined) return defval
-    if (value === null) return defval
-    if (`${value}`.trim().length === 0) return defval
-    if (!isFinite(value)) return defval
+    const ivalue = csetts.ivalued ? Number(csetts.ivalue) : null
+    if (value === undefined) return ivalue
+    if (value === null) return ivalue
+    if (`${value}`.trim().length === 0) return ivalue
+    if (!isFinite(value)) return ivalue
     return Number(value) * Number(csetts.inputFactor) + Number(csetts.inputOffset)
 }
 

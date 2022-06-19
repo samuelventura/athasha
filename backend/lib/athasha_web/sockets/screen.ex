@@ -100,8 +100,14 @@ defmodule AthashaWeb.Socket.Screen do
   defp handle_event(event = %{"name" => "write"}, state = %{logged: true}) do
     args = event["args"]
     name = args["name"]
-    value = Number.to_number!(args["value"])
-    Bus.dispatch!({:write, name}, value)
+    value = args["value"]
+    string = Map.get(args, "string", false)
+
+    case string do
+      true -> Bus.dispatch!({:write, name}, "#{value}")
+      false -> Bus.dispatch!({:write, name}, Number.to_number!(value))
+    end
+
     {:ok, state}
   end
 

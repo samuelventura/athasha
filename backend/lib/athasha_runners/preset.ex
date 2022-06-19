@@ -72,37 +72,59 @@ defmodule Athasha.Runner.Preset do
           pattern =
             name
             |> Regex.escape()
-            |> String.replace("*", ".*")
-            |> String.replace("?", ".")
+            |> String.replace("\\*", ".*")
+            |> String.replace("\\?", ".")
 
-          regex = Regex.compile!("^#{pattern}$")
+          pattern = "^#{pattern}$"
+          IO.inspect({name, pattern})
+          regex = Regex.compile!(pattern)
           match = fn txt -> String.match?(txt, regex) end
-          tag = %{name: name, desc: desc, program: program, match: match}
+          tag = %{name: name, desc: desc, program: program, pattern: pattern, match: match}
           Map.put(map, name, tag)
         end
       )
 
+    tag = %{
+      id: "#{id} #{name} Tag",
+      name: "#{name} Tag"
+    }
+
+    program = %{
+      id: "#{id} #{name} Program",
+      name: "#{name} Program"
+    }
+
+    pattern = %{
+      id: "#{id} #{name} Pattern",
+      name: "#{name} Pattern"
+    }
+
+    regex = %{
+      id: "#{id} #{name} Regex",
+      name: "#{name} Regex"
+    }
+
     config = %{
       item: Item.head(item),
       name: name,
-      tag: %{
-        id: "#{id} #{name} Tag",
-        name: "#{name} Tag"
-      },
-      program: %{
-        id: "#{id} #{name} Program",
-        name: "#{name} Program"
-      },
+      tag: tag,
+      regex: regex,
+      program: program,
+      pattern: pattern,
       params: params,
       programs: programs,
       tags: tags
     }
 
-    PubSub.Output.register!(id, config.tag.id, config.tag.name)
-    PubSub.Output.register!(id, config.program.id, config.program.name)
+    PubSub.Input.register!(id, tag.id, tag.name, "")
+    PubSub.Input.register!(id, program.id, program.name, "")
+    PubSub.Input.register!(id, pattern.id, pattern.name, "")
+    PubSub.Input.register!(id, regex.id, regex.name, "")
+    PubSub.Output.register!(id, tag.id, tag.name)
+    PubSub.Output.register!(id, program.id, program.name)
 
-    Bus.register!({:write, config.tag.id})
-    Bus.register!({:write, config.program.id})
+    Bus.register!({:write, tag.id})
+    Bus.register!({:write, program.id})
     PubSub.Status.update!(item, :success, "Running")
     Process.send_after(self(), :status, @status)
     run_loop(item, config)
@@ -123,8 +145,11 @@ defmodule Athasha.Runner.Preset do
         name = "#{value}"
 
         cond do
-          id == config.program.id -> run_program(config, name)
-          id == config.tag.id -> run_tag(config, name)
+          id == config.program.id ->
+            run_program(config, name)
+
+          id == config.tag.id ->
+            run_tag(config, name)
         end
 
       other ->
@@ -132,10 +157,42 @@ defmodule Athasha.Runner.Preset do
     end
   end
 
-  defp run_program(config, name) do
+  defp update_regex(config, value) do
+    id = config.item.id
+    regex = config.regex
+    PubSub.Input.update!(id, regex.id, regex.name, value)
+  end
+
+  defp update_pattern(config, value) do
+    id = config.item.id
+    pattern = config.pattern
+    PubSub.Input.update!(id, pattern.id, pattern.name, value)
+  end
+
+  defp update_program(config, value) do
+    id = config.item.id
+    program = config.program
+    PubSub.Input.update!(id, program.id, program.name, value)
+  end
+
+  defp update_tag(config, value) do
+    id = config.item.id
+    tag = config.tag
+    PubSub.Input.update!(id, tag.id, tag.name, value)
+  end
+
+  defp run_program(config, name, clear \\ true) do
     program = Map.get(config.programs, name)
 
     if program != nil do
+      update_program(config, name)
+
+      if clear do
+        update_tag(config, "")
+        update_regex(config, "")
+        update_pattern(config, "")
+      end
+
       Enum.each(config.params, fn output ->
         values = program.values
         value = Map.fetch!(values, output)
@@ -152,7 +209,10 @@ defmodule Athasha.Runner.Preset do
 
     if tag != nil do
       {_, tag} = tag
-      run_program(config, tag.program)
+      update_tag(config, name)
+      update_regex(config, tag.pattern)
+      update_pattern(config, tag.name)
+      run_program(config, tag.program, false)
     end
   end
 end

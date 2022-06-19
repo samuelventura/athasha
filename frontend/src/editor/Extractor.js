@@ -41,6 +41,27 @@ const inputs = {
             }
         })
     },
+    Preset: function (item, add) {
+        const name = item.config.setts.name
+        if (name.trim().length > 0) {
+            add({
+                point: { name: `${name} Program`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+            add({
+                point: { name: `${name} Pattern`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+            add({
+                point: { name: `${name} Regex`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+            add({
+                point: { name: `${name} Tag`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+        }
+    },
 }
 
 const outputs = {
@@ -75,6 +96,19 @@ const outputs = {
                 }
             })
         })
+    },
+    Preset: function (item, add) {
+        const name = item.config.setts.name
+        if (name.trim().length > 0) {
+            add({
+                point: { name: `${name} Program`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+            add({
+                point: { name: `${name} Tag`, string: true },
+                item: { id: item.id, name: item.name }
+            })
+        }
     },
 }
 

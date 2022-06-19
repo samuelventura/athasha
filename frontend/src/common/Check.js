@@ -227,6 +227,7 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
         title: `${label}\n${help}`,
         placeholder: label,
         onFocus: function (e) {
+            console.log("onFocus", checkbox, e.target)
             if (captured.value != null) {
                 throw `Not null captured ${captured}`
             }
@@ -247,11 +248,13 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
             }
         },
         onChange: function (e) {
+            console.log("onChange", checkbox, e.target)
             const debounced = getDebounced()
             debounced.apply(e, getCurrent(e))
             if (onChange) onChange(e)
         },
         onBlur: function (e) {
+            console.log("onBlur", checkbox, e.target)
             const debounced = getDebounced()
             debounced.exit()
             if (!debounced.apply(e, getValue())) {

@@ -543,7 +543,8 @@ function SvgWindow({ ctx, preview }) {
         const strokeWidth = tickBorder ? "6" : "2"
         const controller = Controller.get(control.type)
         const value = Input.getter(csetts, null)
-        const controlInstance = controller.Renderer({ control, size, value })
+        const string = csetts.istring
+        const controlInstance = controller.Renderer({ control, size, string, value })
         const transpFrame = dragged.index === index || index < 0
         const fillOpacity = transpFrame ? "0.5" : "0"
         const borderOpacity = isSelected ? 0.1 : 0.2 //resize borders accumulate
@@ -819,6 +820,8 @@ function ControlEditor({ ctx, previewControl }) {
         <Card.Header>{control.type}</Card.Header>
         {controlProps}
     </Card>)
+    const cleanInput = () => immediate.setControlSetts(selected, "input", "")
+    const cleanOutput = () => immediate.setControlSetts(selected, "output", "")
     function settsProps(prop, checkbox) {
         function setter(name) {
             return function (value) {
@@ -830,45 +833,85 @@ function ControlEditor({ ctx, previewControl }) {
         args.getter = () => getControl().setts[prop]
         args.setter = setter(prop)
         args.checkbox = checkbox
+        if (prop === "istring") args.onChange = cleanInput
+        if (prop === "ostring") args.onChange = cleanOutput
         return Check.props(args)
     }
-    const inputProps = setts.input || setts.defEnabled ? <>
-        <FormEntry label="Input Scale">
-            <InputGroup>
-                <Form.Control type="number" {...settsProps("inputFactor")} />
-                <Form.Control type="number" {...settsProps("inputOffset")} />
-            </InputGroup>
-        </FormEntry>
-    </> : null
 
-    const promptProp = setts.click === "Value Prompt" ? <FormEntry label={$setts.prompt.label}>
-        <Form.Control type="text" {...settsProps("prompt")} />
-    </FormEntry> : <FormEntry label={$setts.value.label}>
-        <Form.Control type="number" {...settsProps("value")} />
+    const ivalue = <FormEntry label={$setts.ivalue.label}>
+        <InputGroup>
+            <InputGroup.Checkbox {...settsProps("ivalued", true)} />
+            <Form.Control type="number" {...settsProps("ivalue")} />
+        </InputGroup>
+    </FormEntry>
+
+    const isvalue = <FormEntry label={$setts.isvalue.label}>
+        <InputGroup>
+            <InputGroup.Checkbox {...settsProps("isvalued", true)} />
+            <Form.Control type="text" {...settsProps("isvalue")} />
+        </InputGroup>
+    </FormEntry>
+
+    const inputScale = <FormEntry label="Input Scale">
+        <InputGroup>
+            <Form.Control type="number" {...settsProps("inputFactor")} />
+            <Form.Control type="number" {...settsProps("inputOffset")} />
+        </InputGroup>
+    </FormEntry>
+
+    const inputProps = setts.istring ? isvalue : <>
+        {ivalue}
+        {setts.input || setts.ivalued ? inputScale : null}
+    </>
+
+    const outputScale = <FormEntry label="Output Scale">
+        <InputGroup>
+            <Form.Control type="number" {...settsProps("outputFactor")} />
+            <Form.Control type="number" {...settsProps("outputOffset")} />
+        </InputGroup>
     </FormEntry>
 
     const clickOptions = $type.clicks.map(v => <option key={v} value={v}>{v}</option>)
 
-    const outputProps = setts.output ? <>
-        <FormEntry label="Output Scale">
-            <InputGroup>
-                <Form.Control type="number" {...settsProps("outputFactor")} />
-                <Form.Control type="number" {...settsProps("outputOffset")} />
-            </InputGroup>
-        </FormEntry>
-        <FormEntry label={$setts.click.label}>
-            <Form.Select {...settsProps("click")} >
-                {clickOptions}
-            </Form.Select>
-        </FormEntry>
-        {promptProp}
-    </> : <FormEntry label="Link">
+    const click = <FormEntry label={$setts.click.label}>
+        <Form.Select {...settsProps("click")} >
+            {clickOptions}
+        </Form.Select>
+    </FormEntry>
+
+    const value = <FormEntry label={$setts.value.label}>
+        <Form.Control type="number" {...settsProps("value")} />
+    </FormEntry>
+
+    const svalue = <FormEntry label={$setts.svalue.label}>
+        <Form.Control type="text" {...settsProps("svalue")} />
+    </FormEntry>
+
+    const prompt = <FormEntry label={$setts.prompt.label}>
+        <Form.Control type="text" {...settsProps("prompt")} />
+    </FormEntry>
+
+    const link = <FormEntry label="Link">
         <InputGroup>
             <InputGroup.Checkbox {...settsProps("linkBlank", true)} />
             <Form.Control type="text" {...settsProps("linkURL")} />
         </InputGroup>
     </FormEntry>
+
+    const isPrompt = setts.click === "Value Prompt"
+    const isFixed = setts.click === "Fixed Value"
+
+    const outputProps = <>
+        {setts.output && !setts.ostring ? outputScale : null}
+        {setts.output ? click : null}
+        {setts.output && isPrompt ? prompt : null}
+        {setts.output && isFixed && setts.ostring ? svalue : null}
+        {setts.output && isFixed && !setts.ostring ? value : null}
+        {!setts.output ? link : null}
+    </>
+
     const actionControl = (action) => immediate.actionControl(selected, action)
+
     return (
         <>
             <Card>
@@ -924,23 +967,23 @@ function ControlEditor({ ctx, previewControl }) {
                             <Form.Control type="text" {...settsProps("title")} />
                         </FormEntry>
                         <FormEntry label={$setts.input.label}>
-                            <Form.Select {...settsProps("input")} >
-                                <option value=""></option>
-                                {Points.options(globals.inputs)}
-                            </Form.Select>
-                        </FormEntry>
-                        <FormEntry label={$setts.defValue.label}>
                             <InputGroup>
-                                <InputGroup.Checkbox {...settsProps("defEnabled", true)} />
-                                <Form.Control type="number" {...settsProps("defValue")} />
+                                <InputGroup.Checkbox {...settsProps("istring", true)} />
+                                <Form.Select {...settsProps("input")} >
+                                    <option value=""></option>
+                                    {Points.options(setts.istring ? globals.istrings : globals.inputs)}
+                                </Form.Select>
                             </InputGroup>
                         </FormEntry>
                         {inputProps}
                         <FormEntry label={$setts.output.label}>
-                            <Form.Select {...settsProps("output")} >
-                                <option value=""></option>
-                                {Points.options(globals.outputs)}
-                            </Form.Select>
+                            <InputGroup>
+                                <InputGroup.Checkbox {...settsProps("ostring", true)} />
+                                <Form.Select {...settsProps("output")} >
+                                    <option value=""></option>
+                                    {Points.options(setts.ostring ? globals.ostrings : globals.outputs)}
+                                </Form.Select>
+                            </InputGroup>
                         </FormEntry>
                         {outputProps}
                     </ListGroup.Item>
@@ -1006,12 +1049,13 @@ function Editor(props) {
     }, [props.hash])
     useEffect(() => {
         const inputs = state.controls.reduce((inputs, control) => {
+            const string = control.setts.istring
             const input = control.setts.input
             const type = control.type
             if (input.trim().length > 0) {
                 const init = { period: Number.MAX_SAFE_INTEGER, length: 0, trend: false }
                 const config = inputs[input] || init
-                if (type == "Trend") {
+                if (!string && type == "Trend") {
                     config.trend = true
                     config.length = Math.max(config.length, control.data.sampleLength)
                     config.period = Math.min(config.period, control.data.samplePeriod)

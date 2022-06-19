@@ -93,8 +93,10 @@ function EditItem() {
         const state = {
             globals: {
                 captured, setCaptured,
-                inputs: app.state.inputs,
-                outputs: app.state.outputs
+                inputs: app.state.inputs.filter(p => !p.point.string),
+                outputs: app.state.outputs.filter(p => !p.point.string),
+                istrings: app.state.inputs.filter(p => !!p.point.string),
+                ostrings: app.state.outputs.filter(p => !!p.point.string)
             }
         }
         state.id = item.id

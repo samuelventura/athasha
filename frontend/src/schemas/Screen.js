@@ -219,17 +219,41 @@ function schema() {
                         Check.isString(value, label)
                     },
                 },
-                defValue: {
+                istring: {
+                    value: false,
+                    label: "String Input",
+                    help: "Check to show string inputs",
+                    check: function (value, label) {
+                        Check.isBoolean(value, label)
+                    },
+                },
+                ivalue: {
                     value: "0",
-                    label: "Input Default",
+                    label: "Default Value",
                     help: "Non empty number",
                     check: function (value, label) {
                         Check.isNumber(value, label)
                     },
                 },
-                defEnabled: {
+                ivalued: {
                     value: false,
-                    label: "Input Default Enabled",
+                    label: "Default Value Enabled",
+                    help: "Check to enable input default",
+                    check: function (value, label) {
+                        Check.isBoolean(value, label)
+                    },
+                },
+                isvalue: {
+                    value: "",
+                    label: "Default String",
+                    help: "Non empty string",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
+                isvalued: {
+                    value: false,
+                    label: "Default String Enabled",
                     help: "Check to enable input default",
                     check: function (value, label) {
                         Check.isBoolean(value, label)
@@ -241,6 +265,14 @@ function schema() {
                     help: "Select optional output from list",
                     check: function (value, label) {
                         Check.isString(value, label)
+                    },
+                },
+                ostring: {
+                    value: false,
+                    label: "String Output",
+                    help: "Check to show string outputs",
+                    check: function (value, label) {
+                        Check.isBoolean(value, label)
                     },
                 },
                 click: {
@@ -259,10 +291,18 @@ function schema() {
                         Check.isNumber(value, label)
                     },
                 },
+                svalue: {
+                    value: "",
+                    label: "Fixed String",
+                    help: "Non empty fixed value string",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
                 prompt: {
                     value: "Enter Value",
                     label: "Value Prompt",
-                    help: "Non empty value prompt",
+                    help: "Non empty string prompt",
                     check: function (value, label) {
                         Check.notEmpty(value, label)
                     },

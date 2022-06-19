@@ -23,10 +23,10 @@ defmodule Athasha.PubSub.Input do
     end
   end
 
-  def register!(id, iid, name) do
-    Store.register!({@key, iid})
-    Store.register!({@key, id, name})
-    dispatch!(id, iid, name, nil)
+  def register!(id, iid, name, value \\ nil) do
+    Store.register!({@key, iid}, value)
+    Store.register!({@key, id, name}, value)
+    dispatch!(id, iid, name, value)
   end
 
   def update!(id, iid, name, value) do

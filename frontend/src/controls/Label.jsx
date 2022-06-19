@@ -172,7 +172,7 @@ function Editor({ getControl, setProp, globals }) {
     )
 }
 
-function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor }) {
+function Renderer({ control, size, string, value, click, isPressed, hasHover, hoverColor }) {
     const data = control.data
     let x = "50%"
     let textAnchor = "middle"
@@ -202,7 +202,8 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
     //solved by using a white background with 0 opacity below
     let backColor = data.backColored ? data.backColor : "none"
 
-    function evalCondition(cond, value) {
+    function evalCondition(cond, value, string) {
+        const number = string ? 0 : value
         const param1 = Number(cond.param1)
         const param2 = Number(cond.param2)
         let met = false
@@ -211,25 +212,25 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
                 met = true
                 break
             case "Input = Param1":
-                met = (value === param1) ^ cond.negate
+                met = (number === param1) ^ cond.negate
                 break
             case "Input > Param1":
-                met = (value > param1) ^ cond.negate
+                met = (number > param1) ^ cond.negate
                 break
             case "Input >= Param1":
-                met = (value >= param1) ^ cond.negate
+                met = (number >= param1) ^ cond.negate
                 break
             case "Param1 <= Input <= Param2":
-                met = (param1 <= value && value <= param2) ^ cond.negate
+                met = (param1 <= number && number <= param2) ^ cond.negate
                 break
             case "Param1 <= Input < Param2":
-                met = (param1 <= value && value < param2) ^ cond.negate
+                met = (param1 <= number && number < param2) ^ cond.negate
                 break
             case "Param1 < Input <= Param2":
-                met = (param1 < value && value <= param2) ^ cond.negate
+                met = (param1 < number && number <= param2) ^ cond.negate
                 break
             case "Param1 < Input < Param2":
-                met = (param1 < value && value < param2) ^ cond.negate
+                met = (param1 < number && number < param2) ^ cond.negate
                 break
         }
         if (met) {
@@ -242,8 +243,9 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
                     break
                 }
                 case "Format Text": {
+                    const raw = string && cond.textParam.trim().length == 0
                     //http://numeraljs.com/
-                    text = numeral(value).format(cond.textParam)
+                    text = raw ? value : numeral(number).format(cond.textParam)
                     break
                 }
             }
@@ -253,13 +255,13 @@ function Renderer({ control, size, value, click, isPressed, hasHover, hoverColor
     //null while editing
     if (value !== null) {
         if (data.cond1.type !== "Disabled") {
-            evalCondition(data.cond1, value)
+            evalCondition(data.cond1, value, string)
         }
         if (data.cond2.type !== "Disabled") {
-            evalCondition(data.cond2, value)
+            evalCondition(data.cond2, value, string)
         }
         if (data.cond3.type !== "Disabled") {
-            evalCondition(data.cond3, value)
+            evalCondition(data.cond3, value, string)
         }
     }
 

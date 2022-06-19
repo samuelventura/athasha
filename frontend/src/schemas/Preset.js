@@ -7,7 +7,7 @@ function schema() {
         setts: {
             $type: "object",
             name: {
-                value: "",
+                value: "Preset",
                 label: "Preset Name",
                 help: "Non empty string",
                 check: function (value, label) {
