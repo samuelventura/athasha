@@ -210,6 +210,9 @@ defmodule Athasha.Runner.Preset do
     if tag != nil do
       {_, tag} = tag
       update_tag(config, name)
+      # reset program to make evident
+      # and invalid tag.program value
+      update_program(config, "")
       update_regex(config, tag.pattern)
       update_pattern(config, tag.name)
       run_program(config, tag.program, false)
