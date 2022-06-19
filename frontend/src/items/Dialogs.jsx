@@ -11,6 +11,7 @@ import Clipboard from "../tools/Clipboard"
 import Log from "../tools/Log"
 import Files from '../tools/Files'
 import Type from "../common/Type"
+import Api from "../common/Api"
 import { useApp } from '../App'
 
 function DeleteItem() {
@@ -138,32 +139,23 @@ function ToolsButton() {
                 break
             }
             case "backup-licenses": {
-                fetch("api/licenses")
-                    .then(r => r.json())
-                    .then(list => {
-                        Files.downloadJson(list, app.state.hostname, Files.licenseExtension)
-                    })
+                Api.fetchLicenses(list =>
+                    Files.downloadJson(list, app.state.hostname, Files.licenseExtension))
                 break
             }
             case "install-licenses": {
                 Files.uploadJson(Files.licenseExtension, function (data) {
                     Clipboard.copyText(data)
-                    fetch("api/licenses", {
-                        method: "POST",
-                        body: JSON.stringify(data),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).then(() => {
-                        fetch("api/update").then(() => window.location.reload())
-                    })
+                    Api.installLicenses(data)
                 })
                 break
             }
             case "check-licenses": {
-                fetch("api/check")
+                Api.checkLicenses()
                 break
             }
             case "refresh-info": {
-                fetch("api/update").then(() => window.location.reload())
+                Api.refreshInfo()
                 break
             }
             default:

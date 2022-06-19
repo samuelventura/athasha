@@ -7,6 +7,10 @@ defmodule Athasha.Develop do
   alias Athasha.Repo
   alias Athasha.Bus
 
+  def remove_licenses() do
+    Repo.delete_all(License)
+  end
+
   def insert_license(quantity) do
     lic = generate_license(quantity)
     License.changeset(%License{}, lic) |> Repo.insert()
