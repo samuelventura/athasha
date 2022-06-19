@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEthernet } from '@fortawesome/free-solid-svg-icons'
 import { faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { faKey } from '@fortawesome/free-solid-svg-icons'
+import Focus from './common/Focus'
 import Router from './tools/Router'
 import { useApp } from './App'
 
@@ -139,14 +140,7 @@ function RenameItem() {
   useEffect(() => {
     if (isActive()) {
       setName(item.name)
-      //autoFocus fails with inputs but works with select above
-      setTimeout(() => {
-        const el = focus.current
-        if (el) {
-          el.focus()
-          el.select()
-        }
-      }, 0)
+      Focus.autoFocus(focus)
     }
   }, [targeted.action])
   return (

@@ -2,6 +2,11 @@
 
 import { expect, test } from 'vitest'
 
+test('truthy', () => {
+    expect(!!"").toEqual(false)
+    expect(!!"0").toEqual(true)
+})
+
 test('exceptions', () => {
     expect(() => { throw "error xyz" }).toThrow("error xyz")
     expect(() => { throw "error xyz" }).toThrow(/^error xyz$/)

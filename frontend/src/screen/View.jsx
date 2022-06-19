@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Controller from '../common/Controller'
+import Focus from '../common/Focus'
 import Input from './Input'
 import { useApp } from '../App'
 
@@ -61,7 +62,8 @@ function PromptValue() {
     const string = prompt.string
     const focus = useRef(null)
     const [value, setValue] = useState("")
-    function isActive() { return !!prompt.output }
+    const hasOptions = (typeof prompt.options == "string")
+    function isActive() { return !!prompt.output && !hasOptions }
     function isValid() {
         const stringType = typeof value === 'string'
         const nonEmpty = stringType && value.trim().length > 0
@@ -87,14 +89,7 @@ function PromptValue() {
     useEffect(() => {
         if (isActive()) {
             setValue("")
-            //autoFocus fails with inputs but works with select above
-            setTimeout(() => {
-                const el = focus.current
-                if (el) {
-                    el.focus()
-                    el.select()
-                }
-            }, 0)
+            Focus.autoFocus(focus)
         }
     }, [prompt.output])
     return (
@@ -106,6 +101,70 @@ function PromptValue() {
                 <Form.Control autoFocus ref={focus} type="text" placeholder="Type Value"
                     onKeyPress={onKeyPress}
                     value={value} onChange={e => setValue(e.target.value)} />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+                    Send
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
+function SelectValue() {
+    const app = useApp()
+    const prompt = app.state.prompt
+    const string = prompt.string
+    const focus = useRef(null)
+    const [value, setValue] = useState("")
+    //options are initially empty, show dialog but should fail valid below
+    const hasOptions = (typeof prompt.options == "string")
+    function isActive() { return !!prompt.output && hasOptions }
+    function isValid() {
+        const stringType = typeof value === 'string'
+        const nonEmpty = stringType && value.trim().length > 0
+        const validNumber = nonEmpty && isFinite(value)
+        return string ? nonEmpty : validNumber
+    }
+    const options = isActive() ? prompt.options.split('\n') : [""]
+    function onKeyPress(e) {
+        if (e.key === 'Enter') {
+            onAccept()
+        }
+    }
+    function onCancel() {
+        app.dispatch({ name: "prompt", args: {} })
+    }
+    function onAccept() {
+        if (isValid()) {
+            const name = prompt.output
+            const fixed = string ? value : prompt.scaler(value)
+            app.send({ name: "write", args: { name, value: fixed, string } })
+            app.dispatch({ name: "prompt", args: {} })
+        }
+    }
+    useEffect(() => {
+        if (isActive()) {
+            setValue(options[0])
+            Focus.autoFocus(focus)
+        }
+    }, [prompt.output])
+    const optionItems = options.map(v => <option key={v} value={v}>{v}</option>)
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>{prompt.title}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Select autoFocus ref={focus} value={value}
+                    placeholder="Select Value"
+                    onChange={e => setValue(e.target.value)}
+                    onKeyPress={onKeyPress}>
+                    {optionItems}
+                </Form.Select>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onCancel}>
@@ -182,6 +241,13 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
                                     dispatch({ name: "prompt", args: { output, title, string, scaler } })
                                     break
                                 }
+                                case "Value Selector": {
+                                    const title = control.setts.prompt
+                                    const string = control.setts.ostring
+                                    const options = control.setts.options
+                                    dispatch({ name: "prompt", args: { output, title, string, scaler, options } })
+                                    break
+                                }
                             }
                         } else if (link) {
                             if (csetts.linkBlank) window.open(link, '_blank').focus()
@@ -240,6 +306,7 @@ function View() {
     const props = { setts, controls, inputs, trends, send, dispatch }
     return <>
         <PromptValue />
+        <SelectValue />
         <SvgWindow {...props} />
     </>
 }

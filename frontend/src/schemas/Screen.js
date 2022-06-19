@@ -7,7 +7,7 @@ function id() { return UUID.v4() }
 
 const scales = ["Fit", "Stretch"]
 const aligns = ["Center", "Start", "End"]
-const clicks = ["Fixed Value", "Value Prompt"]
+const clicks = ["Fixed Value", "Value Prompt", "Value Selector"]
 const types = Control.types
 
 function schema() {
@@ -299,10 +299,18 @@ function schema() {
                         Check.isString(value, label)
                     },
                 },
+                options: {
+                    value: "",
+                    label: "Selector Options",
+                    help: "Non empty string lines",
+                    check: function (value, label) {
+                        Check.isString(value, label)
+                    },
+                },
                 prompt: {
                     value: "Enter Value",
-                    label: "Value Prompt",
-                    help: "Non empty string prompt",
+                    label: "Prompt Title",
+                    help: "Non empty string prompt title",
                     check: function (value, label) {
                         Check.notEmpty(value, label)
                     },

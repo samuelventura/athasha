@@ -93,6 +93,8 @@ function EditItem() {
         const state = {
             globals: {
                 captured, setCaptured,
+                dispatch: (msg) => app.dispatch(msg),
+                targeted: app.state.targeted,
                 inputs: app.state.inputs.filter(p => !p.point.string),
                 outputs: app.state.outputs.filter(p => !p.point.string),
                 istrings: app.state.inputs.filter(p => !!p.point.string),

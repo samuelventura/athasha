@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from 'react'
+import React, { useState, useReducer, useEffect, useRef } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import ListGroup from 'react-bootstrap/ListGroup'
 import InputGroup from 'react-bootstrap/InputGroup'
+import Modal from 'react-bootstrap/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAnglesRight } from '@fortawesome/free-solid-svg-icons'
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons'
@@ -18,6 +19,7 @@ import { faClone } from '@fortawesome/free-solid-svg-icons'
 import { useResizeDetector } from 'react-resize-detector'
 import { FormEntry } from '../controls/Tools'
 import Controller from "../common/Controller"
+import Focus from '../common/Focus'
 import Points from '../common/Points'
 import Check from '../common/Check'
 import Color from "../common/Color"
@@ -898,13 +900,26 @@ function ControlEditor({ ctx, previewControl }) {
         </InputGroup>
     </FormEntry>
 
-    const isPrompt = setts.click === "Value Prompt"
+    function onEditSelector() {
+        const action = "options"
+        const options = setts.options
+        globals.dispatch({ name: "target", args: { action, options } })
+    }
+
+    const selector = <FormEntry label="Selector Options">
+        <Button variant="link" onClick={onEditSelector}
+            title="Edit Selector Options">Edit...</Button>
+    </FormEntry>
+
     const isFixed = setts.click === "Fixed Value"
+    const isPrompt = setts.click === "Value Prompt"
+    const isSelector = setts.click === "Value Selector"
 
     const outputProps = <>
         {setts.output && !setts.ostring ? outputScale : null}
         {setts.output ? click : null}
-        {setts.output && isPrompt ? prompt : null}
+        {setts.output && (isPrompt || isSelector) ? prompt : null}
+        {setts.output && isSelector ? selector : null}
         {setts.output && isFixed && setts.ostring ? svalue : null}
         {setts.output && isFixed && !setts.ostring ? value : null}
         {!setts.output ? link : null}
@@ -1020,6 +1035,65 @@ function PreviewControl({ preview, setPreview }) {
     </span>)
 }
 
+function OptionsEditor({ ctx }) {
+    const globals = ctx.globals
+    const immediate = ctx.immediate
+    const selected = ctx.state.selected
+    const targeted = globals.targeted
+    const action = targeted.action
+    const options = targeted.options
+    const focus = useRef(null)
+    const [value, setValue] = useState("")
+    function isActive() { return selected && action === "options" }
+    function isStalled() { return !selected && action === "options" }
+    function isValid() {
+        const stringType = typeof value === 'string'
+        const nonEmpty = stringType && value.trim().length > 0
+        return nonEmpty
+    }
+    function onKeyPress(e) {
+        if (Keys.isCtrlKey(e) && e.key === 'Enter') {
+            onAccept()
+        }
+    }
+    function onCancel() {
+        globals.dispatch({ name: "target", args: {} })
+    }
+    function onAccept() {
+        if (isValid()) {
+            immediate.setControlSetts(selected, "options", value)
+            globals.dispatch({ name: "target", args: {} })
+        }
+    }
+    useEffect(() => {
+        if (isActive()) {
+            setValue(options)
+            Focus.autoFocus(focus)
+        }
+    }, [action])
+    useEffect(() => { if (isStalled()) onCancel() }, [selected])
+    return (
+        <Modal show={isActive()} onHide={onCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Selector Options</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Control autoFocus ref={focus} as="textarea" rows={10} placeholder="Options"
+                    onKeyPress={onKeyPress}
+                    value={value} onChange={e => setValue(e.target.value)} />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={onAccept} disabled={!isValid()}>
+                    Send
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 //context needs to be same object between calls
 //otherwise getter passed to Check.props captures 
 //it and reports stalled property values
@@ -1075,7 +1149,8 @@ function Editor(props) {
         preview={preview}
         setPreview={setPreview}
     />
-    return (
+    return (<>
+        <OptionsEditor ctx={ctx} />
         <Row className="h-100">
             <Col sm="auto" style={leftStyle} className="mh-100">
                 <LeftPanel ctx={ctx} />
@@ -1087,6 +1162,7 @@ function Editor(props) {
                 <RightPanel ctx={ctx} previewControl={previewControl} />
             </Col>
         </Row>
+    </>
     )
 }
 
