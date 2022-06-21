@@ -1,18 +1,33 @@
 #!/bin/bash -xe
 
 #tio /dev/ttyUSB0
-#./native.sh build linux-arm
-#new nerves version required 
 
-cd firmware
+COMMAND="${1:-build}"
 
-export MIX_ENV=dev
-export MIX_TARGET=bbb
+case $COMMAND in
+    client) #once only
+        (cd frontend && yarn)
+        (cd frontend && yarn build)
+        rsync -avr frontend/dist/ backend/priv/client
+    ;;
+    native) #once only
+        ./native.sh build linux-arm
+    ;;
+    build)
+        cd firmware
 
-mix firmware
+        export MIX_ENV=dev
+        export MIX_TARGET=bbb_icu
 
-#defaults to nerves.local
-mix upload athasha.local
+        mix firmware
+
+        #defaults to nerves.local
+        #ping athasha.local
+        #ping athasha-4199.local
+        #ping 10.77.4.240
+        mix upload athasha.local
+    ;;
+esac
 
 #burn SD card first time only
 #mix burn --task upgrade
@@ -22,3 +37,17 @@ mix upload athasha.local
 
 #Athasha.Release.migrate
 #Application.ensure_all_started :athasha
+
+#from https://hexdocs.pm/nerves/customizing-systems.html
+#see https://github.com/samuelventura/nerves_system_bbb_emmc/blob/main/Howto.txt
+#git clone https://github.com/nerves-project/nerves_system_bbb.git nerves_system_bbb_icu -b v2.14.0
+#cd nerves_system_bbb_icu
+#mix deps.get
+#mix nerves.system.shell 
+#make menuconfig (requires libncurses-dev)
+#Target packages -> Libraries -> Text and terminal handling -> icu
+#make savedefconfig
+#make (takes long)
+#exit
+#mix nerves.artifact (after updating @app and @github_organization)
+#cp nerves_system_bbb_icu-portable-2.14.0-54BA3ED.tar.gz ~/.nerves/artifacts

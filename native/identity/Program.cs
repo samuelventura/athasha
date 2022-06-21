@@ -7,6 +7,7 @@ Global.Catch((Exception ex) =>
     Environment.Exit(1);
 });
 
+//AddSystemDriveSerialNumber fails on nerves
 string deviceId = new DeviceIdBuilder()
     .AddMachineName()
     .AddOsVersion()
@@ -16,7 +17,8 @@ string deviceId = new DeviceIdBuilder()
         .AddSystemDriveSerialNumber())
     .OnLinux(linux => linux
         .AddMotherboardSerialNumber()
-        .AddSystemDriveSerialNumber())
+    // .AddSystemDriveSerialNumber()
+    )
     .OnMac(mac => mac
         .AddSystemDriveSerialNumber()
         .AddPlatformSerialNumber())

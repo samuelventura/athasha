@@ -17,3 +17,5 @@ config :athasha, AthashaWeb.Endpoint,
   secret_key_base: "6FXmCjoJnMM6htNKvuQOwbUXqaNQYnFZFN4qqXYnwObXYTMo3WXR1/Eac/bnFOyi"
 
 config :athasha, AthashaWeb.Endpoint, server: true
+
+config :athasha, :root_path, "/data"
