@@ -7,6 +7,7 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Controller from '../common/Controller'
 import Focus from '../common/Focus'
+import Svg from '../common/Svg'
 import Input from './Input'
 import { useApp } from '../App'
 
@@ -184,7 +185,7 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
     const { ref, width, height } = useResizeDetector()
     if (!setts.scale) return <svg ref={ref} width="100%" height="100%" />
     const parent = { pw: width, ph: height }
-    const { vb, sx, sy } = calcGeom(parent, setts)
+    const { vb, sx, sy, W, H } = calcGeom(parent, setts)
     const background = setts.backColor
     const controlList = controls.map((control, index) => {
         const csetts = control.setts
@@ -286,9 +287,13 @@ function SvgWindow({ setts, controls, inputs, trends, send, dispatch }) {
             </OverlayTrigger >
         )
     })
+
+    const bgValid = !!setts.background.viewBox
+    const bgImage = bgValid ? Svg.render(setts.background) : null
     return (<svg ref={ref} width="100%" height="100%">
         <rect width="100%" height="100%" fill={background} />
         <svg width="100%" height="100%" viewBox={vb} preserveAspectRatio='none'>
+            <svg width={W} height={H}>{bgImage}</svg>
             {controlList}
         </svg>
     </svg >)

@@ -231,7 +231,7 @@ function props({ checkbox, captured, setCaptured, label, help, defval, getter, s
         title: `${label}\n${help}`,
         placeholder: label,
         onFocus: function (e) {
-            console.log("onFocus", checkbox, e.target)
+            if (debug) console.log("onFocus", checkbox, e.target)
             if (captured.value != null) {
                 throw `Not null captured ${captured}`
             }
