@@ -31,3 +31,6 @@ if Mix.target() == :host or Mix.target() == :"" do
 else
   import_config "target.exs"
 end
+
+# athasha customization
+config :phoenix, :json_library, Jason

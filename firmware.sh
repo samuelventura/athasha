@@ -2,6 +2,7 @@
 
 #tio /dev/ttyUSB0
 #./native.sh build linux-arm
+#new nerves version required 
 
 cd firmware
 

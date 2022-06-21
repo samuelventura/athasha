@@ -1,8 +1,5 @@
 import Config
 
-# athasha customization
-config :phoenix, :json_library, Jason
-
 config :athasha, Athasha.Repo,
   database: "/data/athasha.db",
   pool_size: 5
