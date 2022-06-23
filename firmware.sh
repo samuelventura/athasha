@@ -27,6 +27,13 @@ case $COMMAND in
         #ping 10.77.4.240
         mix upload athasha.local
     ;;
+    upload)
+        cd firmware
+
+        export MIX_ENV=dev
+        export MIX_TARGET=bbb_icu
+        mix upload athasha.local
+    ;;
 esac
 
 #burn SD card first time only
