@@ -8,11 +8,17 @@ config :athasha,
   ecto_repos: [Athasha.Repo]
 
 config :athasha, AthashaWeb.Endpoint,
-  url: [host: "localhost", port: 54321],
+  url: [host: "localhost", port: 80],
   check_origin: false,
   http: [
     ip: {0, 0, 0, 0},
-    port: 54321
+    port: 80
+  ],
+  https: [
+    port: 443,
+    cipher_suite: :strong,
+    keyfile: "priv/cert/selfsigned_key.pem",
+    certfile: "priv/cert/selfsigned.pem"
   ],
   secret_key_base: "6FXmCjoJnMM6htNKvuQOwbUXqaNQYnFZFN4qqXYnwObXYTMo3WXR1/Eac/bnFOyi"
 
