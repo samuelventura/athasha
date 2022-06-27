@@ -20,6 +20,7 @@ config :athasha,
 
 if config_env() == :prod do
   port_path = Path.join(root_path, "athasha.config.port")
+  sport_path = Path.join(root_path, "athasha.config.sport")
   host_path = Path.join(root_path, "athasha.config.host")
   secret_path = Path.join(root_path, "athasha.config.secret")
 
@@ -47,6 +48,7 @@ if config_env() == :prod do
 
   host = file_read.(host_path, "localhost")
   port = String.to_integer(file_read.(port_path, "54321"))
+  sport = String.to_integer(file_read.(port_path, "54320"))
 
   config :athasha, AthashaWeb.Endpoint,
     url: [host: host, port: port],
@@ -58,6 +60,12 @@ if config_env() == :prod do
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0},
       port: port
+    ],
+    https: [
+      port: sport,
+      cipher_suite: :strong,
+      keyfile: "priv/cert/selfsigned_key.pem",
+      certfile: "priv/cert/selfsigned.pem"
     ],
     secret_key_base: secret_key_base
 

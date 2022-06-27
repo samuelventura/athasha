@@ -2,6 +2,9 @@
 
 #tio /dev/ttyUSB0
 
+#http://athasha.local/
+#https://athasha.local/
+
 COMMAND="${1:-build}"
 
 case $COMMAND in
@@ -11,6 +14,7 @@ case $COMMAND in
         rsync -avr frontend/dist/ backend/priv/client
     ;;
     native) #once only
+        ./native.sh clean
         ./native.sh build linux-arm
     ;;
     build)
