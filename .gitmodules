@@ -1,0 +1,3 @@
+[submodule "terminal/src/termbox"]
+	path = terminal/src/termbox
+	url = git@github.com:samuelventura/termbox.git

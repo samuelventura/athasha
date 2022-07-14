@@ -13,7 +13,6 @@ defmodule AthashaTerminal.Application do
 
     children =
       [
-        # {Ratatouille.Runtime.Supervisor, runtime: [app: AthashaTerminal.RatatouilleCounter]}
         # Children for all targets
         # Starts a worker by calling: AthashaTerminal.Worker.start_link(arg)
         # {AthashaTerminal.Worker, arg},

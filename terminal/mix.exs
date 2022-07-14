@@ -32,7 +32,6 @@ defmodule AthashaTerminal.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ratatouille, "~> 0.5.1"},
       {:elixir_make, "~> 0.4", runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       # Dependencies for all targets

@@ -5,9 +5,9 @@
 
 SRCDIR = src
 PRVDIR = priv
-SOURCES = $(SRCDIR)/svt.c
-TARGET = $(PRVDIR)/svt.so
-FLAGS = -fPIC -I$(ERTS_INCLUDE_DIR) -shared -g -O3 -ansi -pedantic -Wall -Wextra
+TARGET = $(PRVDIR)/tty
+SOURCES = $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/termbox/src/*.c)
+FLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE
 
 .PHONY: all clean
 
@@ -16,7 +16,7 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	echo "CC" $(CC)
 	mkdir -p $(PRVDIR)
-	$(CC) $(FLAGS) -o $@ $<
+	$(CC) $(FLAGS) -o $@ $(SOURCES)
 
 clean:
 	rm -f $(TARGET)
