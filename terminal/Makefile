@@ -6,8 +6,9 @@
 SRCDIR = src
 PRVDIR = priv
 TARGET = $(PRVDIR)/tty
-SOURCES = $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/termbox/src/*.c)
-FLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE
+SOURCES = $(wildcard $(SRCDIR)/*.c) 
+CFLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra 
+LCFLAGS= -L$(SRCDIR)/termbox/src -l:termbox.a
 
 .PHONY: all clean
 
@@ -16,7 +17,9 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	echo "CC" $(CC)
 	mkdir -p $(PRVDIR)
-	$(CC) $(FLAGS) -o $@ $(SOURCES)
+	make -f Termbox.mk
+	$(CC) $(CFLAGS) $(SOURCES) -o $@ $(LCFLAGS)
 
 clean:
+	make clean -f Termbox.mk
 	rm -f $(TARGET)

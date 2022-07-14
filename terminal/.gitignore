@@ -18,5 +18,9 @@ erl_crash.dump
 
 /priv/tty
 
+*.so
+*.o
+*.a
+
 *.img
 run-qemu.sh
