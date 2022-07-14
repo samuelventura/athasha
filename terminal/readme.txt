@@ -53,7 +53,17 @@ qemu-system-x86_64 -enable-kvm -m 512M \
     -serial stdio
 
 iex -S mix
+
 alias AthashaTerminal.TTY
+
+port = TTY.open ["c2"]
+
 port = TTY.open
 TTY.chvt port, 2
 TTY.chvt port, 1
+
+port = TTY.open
+TTY.openvt port, 2
+
+tty = TTY.ttyname |> to_string
+TTY.openvt port, tty

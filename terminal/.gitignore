@@ -16,11 +16,11 @@
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
-/priv/tty
-
 *.so
 *.o
 *.a
+
+/priv/native
 
 *.img
 run-qemu.sh
