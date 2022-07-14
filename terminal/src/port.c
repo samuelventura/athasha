@@ -18,9 +18,9 @@ void print_time(const char *tail) {
 }
 
 void debug(const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
   if (debug_enabled) {
+    va_list ap;
+    va_start(ap, fmt);
     print_time(" ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\r\n");
@@ -110,16 +110,15 @@ int read_digit(struct CMD* cmd) {
 
 //should consume only digits and leave non digits untouch
 unsigned int read_uint(struct CMD* cmd) {
-  unsigned int value = 0;
-  int count = 0;
-  int start = cmd->position;
-  while(cmd->position < cmd->length) {
+  char buf[32];
+  unsigned int count = 0;
+  while(cmd->position < cmd->length && count < sizeof(buf) - 1) {
     char c = cmd->buffer[cmd->position];
-    if (isdigit(c)) { value *= 10; value += c - '0'; count++; cmd->position++; }
+    if (isdigit(c)) { buf[count] = c; buf[count+1] = 0; count++; cmd->position++; }
     else break;
   }
-  if (count > 0) return value;
-  crash("read_uint failed at index %d", start);
+  if (count > 0) return atoi(buf);
+  crash("read_uint failed at index %d", cmd->position);
   return 0;
 }
 
