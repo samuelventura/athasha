@@ -1,4 +1,6 @@
 defmodule AthashaTerminal.TTY do
+  use AthashaTerminal.TTYConst
+
   @on_load :init
 
   def init() do
@@ -57,9 +59,6 @@ defmodule AthashaTerminal.TTY do
 
     {w, h} = rec_size(port)
     {port, w, h}
-  end
-
-  def follow() do
   end
 
   defp rec_size(port) do
