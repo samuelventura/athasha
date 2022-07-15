@@ -2,6 +2,8 @@
 
 COMMAND="${1:-build}"
 
+#./native.sh
+
 case $COMMAND in
     build)
         (cd frontend && yarn)
