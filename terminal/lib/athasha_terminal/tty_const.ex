@@ -1,20 +1,15 @@
-defmodule AthashaTerminal.TTYConst do
+defmodule AthashaTerminal.TtyConst do
   defmacro __using__(_opts) do
     list = load()
+    map = Enum.into(list, %{})
+    map = Macro.escape(map)
+    list = [{:const, map} | list]
 
-    const =
-      quote bind_quoted: [list: list] do
-        def const(), do: unquote(list)
+    for {name, value} <- list do
+      quote do
+        def unquote(name)(), do: unquote(value)
       end
-
-    list =
-      for {name, value} <- list do
-        quote bind_quoted: [name: name, value: value] do
-          def unquote(name)(), do: unquote(value)
-        end
-      end
-
-    [const | list]
+    end
   end
 
   def load() do

@@ -1,11 +1,15 @@
-defmodule AthashaTerminal.TTY do
-  use AthashaTerminal.TTYConst
+defmodule AthashaTerminal.Tty do
+  use AthashaTerminal.TtyConst
 
   @on_load :init
 
   def init() do
     nif = :code.priv_dir(:athasha_terminal) ++ '/native/tty_nif'
     :erlang.load_nif(nif, 0)
+  end
+
+  def ttyname() do
+    :erlang.nif_error("NIF library not loaded")
   end
 
   def open(args \\ []) do
@@ -28,10 +32,6 @@ defmodule AthashaTerminal.TTY do
 
   def openvt(port, tty) when is_binary(tty) do
     Port.command(port, "O#{tty};")
-  end
-
-  def ttyname() do
-    :erlang.nif_error("NIF library not loaded")
   end
 
   def get_size(port) do

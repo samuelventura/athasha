@@ -13,4 +13,4 @@ static ErlNifFunc nif_funcs[] = {
   {"ttyname", 0, nif_ttyname, 0}
 };
 
-ERL_NIF_INIT(Elixir.AthashaTerminal.TTY, nif_funcs, NULL, NULL, NULL, NULL)
+ERL_NIF_INIT(Elixir.AthashaTerminal.Tty, nif_funcs, NULL, NULL, NULL, NULL)

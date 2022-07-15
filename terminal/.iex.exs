@@ -1,1 +1,1 @@
-alias AthashaTerminal.TTY
+alias AthashaTerminal.Tty
