@@ -9,7 +9,7 @@ struct CMD {
   int position;
 };
 
-int read_loop(int argc, char *argv[], void (*callback)(struct CMD*));
+void read_loop(int argc, char *argv[], int (*callback)(struct CMD*));
 
 void stdout_write_packet(unsigned char* buffer, int size);
 

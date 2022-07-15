@@ -21,6 +21,7 @@ void send_size() {
   int w = tb_width();
   int h = tb_height();
   int n = snprintf(buf, sizeof(buf), "s%08X%08X", w, h);
+  debug("S: %s", buf);
   stdout_write_packet((unsigned char*)buf, n);
 }
 
@@ -41,7 +42,7 @@ void *poll_events( void *arg ) {
     debug("E: type:%d mod:%d key:%d ch:%d w:%d h:%d x:%d y:%d",
     event.type, event.mod, event.key, event.ch, 
     event.w, event.h, event.x, event.y);
-
+    send_event(&event);
   }
   return NULL;
 }
@@ -56,17 +57,12 @@ void cmd_chvt(struct CMD* cmd) {
   close(fd);
 }
 
-void cmd_openvt(struct CMD* cmd, int name) {
+void cmd_openvt(struct CMD* cmd) {
   char vt[32];
-  if (name) {
-    read_str_c(cmd, ';', vt, sizeof(vt));
-  } else {
-    int tn = read_digit(cmd);
-    if (tn>0) snprintf(vt, sizeof(vt), "/dev/tty%d", tn);
-    else snprintf(vt, sizeof(vt), "/dev/tty");
-  }
+  read_str_c(cmd, ';', vt, sizeof(vt));
   int err = tb_init_file(vt);
   if (err) crash("tb_init_file %d %s", err, vt);
+  if (atexit(tb_shutdown)) crash("texit tb_shutdown");
   if (pthread_create(&poll_thread, NULL, poll_events, (void*) NULL)) crash("pthread_create");
 }
 
@@ -96,7 +92,7 @@ void cmd_cursor(struct CMD* cmd) {
   tb_set_cursor(c_x, c_y);
 }
 
-void process_cmd(struct CMD* cmd) {
+int process_cmd(struct CMD* cmd) {
   while(cmd->position < cmd->length) {
     char c = cmd->buffer[cmd->position++];
     switch(c) {
@@ -119,10 +115,7 @@ void process_cmd(struct CMD* cmd) {
         cmd_chvt(cmd);
         break;
       case 'o':
-        cmd_openvt(cmd, 0);
-        break;
-      case 'O':
-        cmd_openvt(cmd, 1);
+        cmd_openvt(cmd);
         break;
       case 's':
         cmd_size(cmd);
@@ -134,8 +127,11 @@ void process_cmd(struct CMD* cmd) {
         crash("process_cmd %d %c", cmd->position, c);
     }
   }
+  return 0;
 }
 
 int main(int argc, char *argv[]) {
-  return read_loop(argc, argv, process_cmd);
+  read_loop(argc, argv, process_cmd);
+  exit(0); //kill threads
+  return 0;
 }

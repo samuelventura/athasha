@@ -76,6 +76,7 @@ int stdin_read_packet(unsigned char* buffer, int size) {
   int is = header[0]<<8 | header[1];
   if (is > size) crash("Packet larger than buffer size packet:%d buffer:%d", is, size);
   ic = stdin_read(buffer, is);
+  if (ic <= 0) return ic;
   if (is != ic) crash("Partial read from stdin expected:%d read:%d", is, ic);
   return is;
 }
@@ -140,7 +141,7 @@ void read_str_c(struct CMD* cmd, char delimiter, char* buffer, char bufsize) {
   }
 }
 
-int read_loop(int argc, char *argv[], void (*callback)(struct CMD*)) {
+void read_loop(int argc, char *argv[], int (*callback)(struct CMD*)) {
   for(int i=1; i<argc; i++) {
     struct CMD cmd;
     char* buffer = argv[1];
@@ -148,18 +149,20 @@ int read_loop(int argc, char *argv[], void (*callback)(struct CMD*)) {
     cmd.length = strlen(buffer);
     cmd.position = 0;
     debug(">%s", buffer);
-    callback(&cmd);
+    int r = callback(&cmd);
+    if (r) return;
   }
   while(1) {
     unsigned char buffer[256];
     int ic = stdin_read_packet(buffer, sizeof(buffer) - 1);
-    if (ic <= 0) return ic;
+    if (ic <= 0) return;
     buffer[ic] = 0;
     struct CMD cmd;
     cmd.buffer = (char*)buffer;
     cmd.length = ic;
     cmd.position = 0;
     debug(">%s", buffer);
-    callback(&cmd);
+    int r = callback(&cmd);
+    if (r) return;
   }
 }
