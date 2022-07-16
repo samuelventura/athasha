@@ -61,13 +61,8 @@ void cmd_openvt(struct CMD* cmd) {
   char vt[32];
   read_str_c(cmd, ';', vt, sizeof(vt));
   int fd = open(vt, O_RDWR|O_NOCTTY);
-  dprintf(fd, "Hello!");
-  // fcntl(fd, O_NONBLOCK);
   int err = tb_init_fd(fd);
   if (err) crash("tb_init_file %d %s", err, vt);
-  // struct tb_event event;
-  // int r = tb_poll_event(&event);
-  // printf("event %d\n", r);
   if (atexit(tb_shutdown)) crash("texit tb_shutdown");
   if (pthread_create(&poll_thread, NULL, poll_events, (void*) NULL)) crash("pthread_create");
 }

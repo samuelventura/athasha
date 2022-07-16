@@ -13,9 +13,7 @@ pid = System.pid()
 File.write!(ptsp, "#{pid}")
 File.write!(ptsx, "echo 1 > #{ptsf}\nsleep 1\ntest -f #{ptsk} && . #{ptsk}")
 File.write!(ptsk, "kill -9 #{pid}")
-Tty.tbinit()
 Tty.linkpt(mfd, ptsf |> String.to_charlist())
-Tty.tbexit()
 File.rm(ptsk)
 
 # sends 1 to the fifo first

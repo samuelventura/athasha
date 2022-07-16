@@ -8,14 +8,6 @@ defmodule AthashaTerminal.Tty do
     :erlang.load_nif(nif, 0)
   end
 
-  def tbinit() do
-    :erlang.nif_error("NIF library not loaded")
-  end
-
-  def tbexit() do
-    :erlang.nif_error("NIF library not loaded")
-  end
-
   def ttyname() do
     :erlang.nif_error("NIF library not loaded")
   end
