@@ -1,3 +1,4 @@
+gcc src/pair/echo.c -o /tmp/echo.pair && /tmp/echo.pair
 gcc src/pair/master.c -o /tmp/master.pair && /tmp/master.pair
 gcc src/pair/slave.c -o /tmp/slave.pair && /tmp/slave.pair
 killall master.pair
@@ -14,6 +15,15 @@ exiting the master exists exit the slave (if slave not the first to write)
 https://stackoverflow.com/questions/23459520/how-to-read-write-to-linux-pseudoterminals-using-separate-processes-but-without
 https://spin0r.wordpress.com/2012/12/28/terminally-confused-part-seven/
 https://github.com/t3nsor/ttycat
+https://lwn.net/Articles/688809/
+http://www.rkoucha.fr/tech_corner/pty_pdip.html
+http://pdip.sourceforge.net/
+http://mihids.blogspot.com/2015/02/detaching-process-from-terminal-exec.html
+https://stackoverflow.com/questions/46621463/detach-child-process-from-parent
+https://stackoverflow.com/questions/3095566/linux-daemonize
+https://stackoverflow.com/questions/14894261/programmatically-check-if-a-process-is-being-run-in-the-background
+https://stackoverflow.com/questions/50620264/from-a-c-program-how-to-know-if-the-process-is-running-in-the-foreground-or-bac
+https://unix.stackexchange.com/questions/606892/can-a-process-background-itself
 
 stty -F /dev/pts/4
 speed 38400 baud; line = 0;
@@ -21,3 +31,12 @@ min = 1; time = 0;
 -brkint -icrnl -imaxbel
 -opost
 -isig -icanon -iexten -echo
+
+AT THIS POINT:
+
+- the parent is going bg when the child reads the pts
+    and from there stdin blocks in parent select forever.
+    The first (master/slave) to receive data from the 
+    other side gets its stdin blocked (detached?).
+
+FD_ZERO & FD_SET need to be called on each cycle.

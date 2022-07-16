@@ -6,10 +6,12 @@
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <termios.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#define __USE_BSD
+#include <termios.h>
 
 void crash(const char* fmt, ...) {
     va_list ap;
@@ -55,32 +57,75 @@ int main (void)
 {
     int r;
     char buf[256];
-    const char* link = "/tmp/master.pts";
-    //const char* link = "/dev/pts/4";
-    int fd = open(link, O_RDWR|O_NOCTTY);
-    if (fd < 0) crash("open %s %d", link, fd);
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(0, &fds);
-    FD_SET(fd, &fds);
-    //make_raw(0);
-    make_raw(fd);
-    while (1) {
-        r = select(fd + 1, &fds, 0, 0, 0);
-        debug("select %d", r);
-        if (r<=0) crash("select %d", r);
-        if (FD_ISSET(0, &fds)) {
-            int n = read(0, buf, sizeof(buf));
-            if (n <= 0) crash("read 0 %d", n);
-            int w = write(fd, buf, n);
-            if (w!=n) crash("write fd %d", w);
+    int pip[2]; //0=read 1=write
+    pipe(pip);
+    int pop[2]; //0=read 1=write
+    pipe(pop);
+    if (fork()) { //parent
+        close(pip[1]);
+        fd_set fds;
+        while (1) {
+            FD_ZERO(&fds);
+            FD_SET(STDIN_FILENO, &fds);
+            FD_SET(pip[0], &fds);
+            r = select(pip[0] + 1, &fds, 0, 0, 0);
+            if (!r) continue;
+            debug("pselect %d", r);
+            if (r<=0) crash("select %d", r);
+            if (FD_ISSET(STDIN_FILENO, &fds)) {
+                int n = read(STDIN_FILENO, buf, sizeof(buf));
+                if (n <= 0) crash("read STDIN_FILENO %d", n);
+                int w = write(pop[1], buf, n);
+                if (w!=n) crash("write pop[1] %d", w);
+            }
+            if (FD_ISSET(pip[0], &fds)) {
+                int n = read(pip[0], buf, sizeof(buf));
+                if (n <= 0) crash("read pip[0] %d", n);
+                int w = write(STDOUT_FILENO, buf, n);
+                if (w!=n) crash("write STDOUT_FILENO %d", w);
+                debug("isatty %d", isatty(0));
+            }
         }
-        if (FD_ISSET(fd, &fds)) {
-            int n = read(fd, buf, sizeof(buf));
-            if (n <= 0) crash("read fd %d", n);
-            int w = write(1, buf, n);
-            if (w!=n) crash("write 1 %d", w);
-        }
+    } else { //child
+        close(pop[1]);
+        // close(STDIN_FILENO);
+        // close(STDOUT_FILENO);
+        const char* link = "/tmp/master.pts";
+        int fd = open(link, O_RDWR); //attach
+        if (fd < 0) crash("open %s %d", link, fd);
+        make_raw(fd);
+        // r = dup2(fd, STDIN_FILENO);
+        // if (r<0) crash("dup2 STDIN_FILENO", r);
+        // r = dup2(fd, STDOUT_FILENO);
+        // if (r<0) crash("dup2 STDOUT_FILENO", r);
+        // r = setsid();
+        // if (r<0) crash("setsid %d", r);
+        // r = ioctl(fd, TIOCSCTTY, 1);
+        // if (r<0) crash("ioctl TIOCSCTTY %d", r);
+        //close(fd);
+        fd_set fds;
+        int max = pop[0] > fd ? pop[0] : fd;
+        while (1) {
+            FD_ZERO(&fds);
+            FD_SET(fd, &fds);
+            FD_SET(pop[0], &fds);
+            r = select(max + 1, &fds, 0, 0, 0);
+            debug("cselect %d", r);
+            if (r<=0) crash("select %d", r);
+            if (FD_ISSET(fd, &fds)) {
+                debug("cselect fd");
+                int n = read(fd, buf, sizeof(buf));
+                if (n <= 0) crash("read fd %d", n);
+                int w = write(pip[1], buf, n);
+                if (w!=n) crash("write pip[1] %d", w);
+            }
+            if (FD_ISSET(pop[0], &fds)) {
+                int n = read(pop[0], buf, sizeof(buf));
+                if (n <= 0) crash("read pop[0] %d", n);
+                int w = write(fd, buf, n);
+                if (w!=n) crash("write fd %d", w);
+            }
+        }        
     }
     return 0;
 }
