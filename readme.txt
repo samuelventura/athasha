@@ -34,8 +34,8 @@ asdf global java openjdk-18.0.1.1
 
 #ex_termbox (not needed anymore)
 asdf plugin add python 
-asdf install python 2.7.18
-asdf global python 2.7.18
+asdf install python 3.10.5
+asdf local python 3.10.5
 
 cd frontend
 yarn dev --host

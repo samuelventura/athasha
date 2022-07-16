@@ -8,12 +8,12 @@ PRVDIR = priv/native
 
 N_SOURCES = $(SRCDIR)/tty_nif.c
 N_TARGET = $(PRVDIR)/tty_nif.so
-N_FLAGS = -fPIC -I$(ERTS_INCLUDE_DIR) -shared -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=600
+N_FLAGS = -fPIC -I$(ERTS_INCLUDE_DIR) -shared -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 N_LDFLAGS= -L$(SRCDIR)/termbox/src -l:termbox.a
 
 P_TARGET = $(PRVDIR)/tty_port
 P_SOURCES = $(wildcard $(SRCDIR)/*port.c)
-P_CFLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=600
+P_CFLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 P_LDFLAGS= -L$(SRCDIR)/termbox/src -l:termbox.a
 
 TB_SRCDIR = src/termbox/src

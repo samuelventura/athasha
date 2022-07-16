@@ -61,6 +61,7 @@ void cmd_openvt(struct CMD* cmd) {
   char vt[32];
   read_str_c(cmd, ';', vt, sizeof(vt));
   int fd = open(vt, O_RDWR|O_NOCTTY);
+  dprintf(fd, "Hello!");
   // fcntl(fd, O_NONBLOCK);
   int err = tb_init_fd(fd);
   if (err) crash("tb_init_file %d %s", err, vt);
