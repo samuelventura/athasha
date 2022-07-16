@@ -8,7 +8,27 @@ defmodule AthashaTerminal.Tty do
     :erlang.load_nif(nif, 0)
   end
 
+  def tbinit() do
+    :erlang.nif_error("NIF library not loaded")
+  end
+
+  def tbexit() do
+    :erlang.nif_error("NIF library not loaded")
+  end
+
   def ttyname() do
+    :erlang.nif_error("NIF library not loaded")
+  end
+
+  def openpt() do
+    :erlang.nif_error("NIF library not loaded")
+  end
+
+  def ptsname(_fd) do
+    :erlang.nif_error("NIF library not loaded")
+  end
+
+  def linkpt(_fd, _ff) do
     :erlang.nif_error("NIF library not loaded")
   end
 
@@ -48,7 +68,7 @@ defmodule AthashaTerminal.Tty do
         {w, h}
 
       any ->
-        raise any
+        raise "#{inspect(any)}"
     end
   end
 
@@ -70,7 +90,7 @@ defmodule AthashaTerminal.Tty do
         %{type: type, mod: mod, key: key, ch: ch, w: w, h: h, x: x, y: y}
 
       any ->
-        raise any
+        raise "#{inspect(any)}"
     end
   end
 end

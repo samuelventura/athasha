@@ -20,3 +20,7 @@ defmodule AthashaTerminal.TtyTest do
     end
   end
 end
+
+alias AthashaTerminal.TtyTest
+
+TtyTest.test("/tmp/ash.pts")

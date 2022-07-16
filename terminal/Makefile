@@ -8,11 +8,12 @@ PRVDIR = priv/native
 
 N_SOURCES = $(SRCDIR)/tty_nif.c
 N_TARGET = $(PRVDIR)/tty_nif.so
-N_FLAGS = -fPIC -I$(ERTS_INCLUDE_DIR) -shared -g -O3 -pedantic -Wall -Wextra
+N_FLAGS = -fPIC -I$(ERTS_INCLUDE_DIR) -shared -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=600
+N_LDFLAGS= -L$(SRCDIR)/termbox/src -l:termbox.a
 
 P_TARGET = $(PRVDIR)/tty_port
 P_SOURCES = $(wildcard $(SRCDIR)/*port.c)
-P_CFLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra 
+P_CFLAGS = -fPIC -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=600
 P_LDFLAGS= -L$(SRCDIR)/termbox/src -l:termbox.a
 
 TB_SRCDIR = src/termbox/src
@@ -23,7 +24,7 @@ TB_CFLAGS = -fPIC -D_XOPEN_SOURCE
 
 .PHONY: all clean
 
-all: $(N_TARGET) $(P_TARGET)
+all: $(P_TARGET) $(N_TARGET)
 
 $(P_TARGET): $(P_SOURCES) $(TB_TARGET)
 	mkdir -p $(PRVDIR)
@@ -35,8 +36,8 @@ $(P_TARGET): $(P_SOURCES) $(TB_TARGET)
 $(TB_TARGET): $(TB_OBJECTS)
 	$(AR) -r -o $@ $(TB_OBJECTS)
 
-$(N_TARGET): $(N_SOURCES)
-	$(CC) $(N_FLAGS) -o $@ $<
+$(N_TARGET): $(N_SOURCES) $(TB_TARGET)
+	$(CC) $(N_FLAGS) $(N_SOURCES) -o $@ $(N_LDFLAGS)
 
 clean:
 	rm -f $(N_TARGET)
