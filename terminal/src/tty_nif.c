@@ -6,33 +6,28 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 #include <termios.h>
 #include "termbox/src/termbox.h"
 
 #define UNUSED(x) (void)(x)
 
-static ERL_NIF_TERM nif_ttyname(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-  UNUSED(argc);
-  UNUSED(argv);
-  return enif_make_string(env, ttyname(0), ERL_NIF_LATIN1);
+int fd;
+
+static void update_size() {
+  struct winsize ts;
+  ioctl(0, TIOCGWINSZ, &ts);
+  ioctl(fd, TIOCSWINSZ, &ts);
+  signal(SIGWINCH, update_size);
+  //fprintf(stderr, "SIGWINCH %d %d\n", ts.ws_row, ts.ws_col);
 }
 
 static ERL_NIF_TERM nif_openpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
   UNUSED(argc);
   UNUSED(argv);
-  int fd = posix_openpt(O_RDWR|O_NOCTTY);
+  fd = posix_openpt(O_RDWR|O_NOCTTY);
   unlockpt(fd);
-  //SIGWINCH resize event
-  struct winsize ts;
-  ioctl(0, TIOCGWINSZ, &ts);
-  ioctl(fd, TIOCSWINSZ, &ts);
-  return enif_make_int(env, fd);
-}
-
-static ERL_NIF_TERM nif_ptsname(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-  UNUSED(argc);
-  int fd;
-  enif_get_int(env, argv[0], &fd);  
+  update_size();
   return enif_make_string(env, ptsname(fd), ERL_NIF_LATIN1);
 }
 
@@ -52,11 +47,9 @@ void make_raw(int fd, struct termios *ots)
 
 static ERL_NIF_TERM nif_linkpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
   UNUSED(argc);
-  int fd;
   int ff;
   char buf[256];
-  enif_get_int(env, argv[0], &fd);  
-  enif_get_string(env, argv[1], buf, sizeof(buf), ERL_NIF_LATIN1);  
+  enif_get_string(env, argv[0], buf, sizeof(buf), ERL_NIF_LATIN1);  
   mkfifo(buf, 0666);
   ff = open(buf, O_RDWR);
   fd_set fds;
@@ -89,10 +82,8 @@ static ERL_NIF_TERM nif_linkpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
 }
 
 static ErlNifFunc nif_funcs[] = {
-  {"ttyname", 0, nif_ttyname, 0},
   {"openpt", 0, nif_openpt, 0},
-  {"ptsname", 1, nif_ptsname, 0},
-  {"linkpt", 2, nif_linkpt, 0},
+  {"linkpt", 1, nif_linkpt, 0},
 };
 
 ERL_NIF_INIT(Elixir.AthashaTerminal.Tty, nif_funcs, NULL, NULL, NULL, NULL)

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <signal.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,8 +34,15 @@ void debug(const char* fmt, ...) {
     fflush(stderr);
 }
 
+static void update_size(int sig) {
+  struct winsize ts;
+  ioctl(0, TIOCGWINSZ, &ts);
+  debug("SIGWINCH %d %d\n", ts.ws_row, ts.ws_col);
+}
+
 int main (void)
 {
+    signal(SIGWINCH, update_size);    
     struct timeval tv;
     tv.tv_sec = 1;
     tv.tv_usec = 0;

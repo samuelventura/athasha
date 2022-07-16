@@ -8,19 +8,11 @@ defmodule AthashaTerminal.Tty do
     :erlang.load_nif(nif, 0)
   end
 
-  def ttyname() do
-    :erlang.nif_error("NIF library not loaded")
-  end
-
   def openpt() do
     :erlang.nif_error("NIF library not loaded")
   end
 
-  def ptsname(_fd) do
-    :erlang.nif_error("NIF library not loaded")
-  end
-
-  def linkpt(_fd, _ff) do
+  def linkpt(_ff) do
     :erlang.nif_error("NIF library not loaded")
   end
 

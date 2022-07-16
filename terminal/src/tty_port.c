@@ -27,7 +27,8 @@ void send_size() {
 
 void send_event(struct tb_event *event) {
   char buf[64];
-  int n = snprintf(buf, sizeof(buf), "e%02X%02X%04X%08X%08X%08X%08X%08X", 
+  int n = snprintf(buf, sizeof(buf), 
+    "e%02X%02X%04X%08X%08X%08X%08X%08X", 
     event->type, event->mod, event->key, event->ch, 
     event->w, event->h, event->x, event->y);
   stdout_write_packet((unsigned char*)buf, n);

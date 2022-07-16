@@ -1,4 +1,5 @@
 gcc src/pair/echo.c -o /tmp/echo.pair && /tmp/echo.pair
+gcc src/pair/resize.c -o /tmp/resize.pair && /tmp/resize.pair
 gcc src/pair/master.c -o /tmp/master.pair && /tmp/master.pair
 gcc src/pair/slave.c -o /tmp/slave.pair && /tmp/slave.pair
 killall master.pair
@@ -24,6 +25,7 @@ https://stackoverflow.com/questions/3095566/linux-daemonize
 https://stackoverflow.com/questions/14894261/programmatically-check-if-a-process-is-being-run-in-the-background
 https://stackoverflow.com/questions/50620264/from-a-c-program-how-to-know-if-the-process-is-running-in-the-foreground-or-bac
 https://unix.stackexchange.com/questions/606892/can-a-process-background-itself
+http://www.rkoucha.fr/tech_corner/sigwinch.html
 
 stty -F /dev/pts/4
 speed 38400 baud; line = 0;
