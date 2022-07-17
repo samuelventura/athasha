@@ -1,8 +1,9 @@
-defmodule AthashaTerminal.Slave do
+defmodule AthashaTerminal.Tryout do
   alias AthashaTerminal.Tty
 
-  def run(tty) do
+  def run(tty, vt) do
     port = Tty.open()
+    Tty.chvt(port, vt)
     Tty.openvt(port, tty)
     loop(port)
   end
@@ -15,6 +16,8 @@ defmodule AthashaTerminal.Slave do
   end
 end
 
-alias AthashaTerminal.Slave
+alias AthashaTerminal.Tryout
 
-Slave.run("/tmp/ash.pts")
+tty = "/dev/tty2"
+
+Tryout.run(tty, 2)

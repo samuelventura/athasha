@@ -58,6 +58,7 @@ void make_raw(int fd, struct termios *ots) {
 static ERL_NIF_TERM nif_linkpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
   UNUSED(argc);
   int ff;
+  int res = 0;
   char buf[256];
   enif_get_string(env, argv[0], buf, sizeof(buf), ERL_NIF_LATIN1);  
   mkfifo(buf, 0666);
@@ -83,10 +84,15 @@ static ERL_NIF_TERM nif_linkpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
       if (n <= 0) break;
       if (write(1, buf, n)!=n) break;
     }
-    if (FD_ISSET(ff, &fds)) break;
+    if (FD_ISSET(ff, &fds)) {
+      res = 1;
+      break;
+    }
   }
+  close(ff);
+  close(fd);
   tcsetattr(0, TCSAFLUSH, &ots);
-  return enif_make_atom(env, "ok");
+  return enif_make_int(env, res);
 }
 
 static ErlNifFunc nif_funcs[] = {
