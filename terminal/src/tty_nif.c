@@ -8,18 +8,33 @@
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <termios.h>
+#include <string.h>
 #include "termbox/src/termbox.h"
 
 #define UNUSED(x) (void)(x)
 
 int fd;
 
-static void update_size() {
+static void signal_handler(int sig) {
   struct winsize ts;
-  ioctl(0, TIOCGWINSZ, &ts);
-  ioctl(fd, TIOCSWINSZ, &ts);
-  signal(SIGWINCH, update_size);
-  //fprintf(stderr, "SIGWINCH %d %d\n", ts.ws_row, ts.ws_col);
+  switch(sig) {
+    case SIGWINCH:
+    ioctl(0, TIOCGWINSZ, &ts);
+    ioctl(fd, TIOCSWINSZ, &ts);
+    fprintf(stderr, "SIGWINCH %d %d\n", ts.ws_row, ts.ws_col);
+    break;
+    default:
+    fprintf(stderr, "signal_handler %d\n", sig);
+    break;
+  }
+}
+
+static void signal_setup(int sig) {
+  struct sigaction sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = signal_handler;
+	sa.sa_flags = 0;
+	sigaction(sig, &sa, 0); 
 }
 
 static ERL_NIF_TERM nif_openpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
@@ -27,12 +42,12 @@ static ERL_NIF_TERM nif_openpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
   UNUSED(argv);
   fd = posix_openpt(O_RDWR|O_NOCTTY);
   unlockpt(fd);
-  update_size();
+  signal_handler(SIGWINCH);
+	signal_setup(SIGWINCH);  
   return enif_make_string(env, ptsname(fd), ERL_NIF_LATIN1);
 }
 
-void make_raw(int fd, struct termios *ots) 
-{
+void make_raw(int fd, struct termios *ots) {
     tcgetattr(fd, ots);
     struct termios ts;
     tcgetattr(fd, &ts);

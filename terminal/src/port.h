@@ -1,7 +1,7 @@
 #ifndef _PORT_H_
 #define _PORT_H_
 
-#define debug_enabled 1
+//#define PORT_DEBUG
 
 struct CMD {
   char* buffer;
@@ -11,6 +11,7 @@ struct CMD {
 
 void read_loop(int argc, char *argv[], int (*callback)(struct CMD*));
 
+int stdin_read_packet(unsigned char* buffer, int size);
 void stdout_write_packet(unsigned char* buffer, int size);
 
 char read_char(struct CMD* cmd);

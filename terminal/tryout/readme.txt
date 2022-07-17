@@ -1,9 +1,8 @@
-gcc src/pair/echo.c -o /tmp/echo.pair && /tmp/echo.pair
-gcc src/pair/resize.c -o /tmp/resize.pair && /tmp/resize.pair
-gcc src/pair/master.c -o /tmp/master.pair && /tmp/master.pair
-gcc src/pair/slave.c -o /tmp/slave.pair && /tmp/slave.pair
-killall master.pair
-killall slave.pair
+gcc src/tryout/echo.c -o /tmp/echo.pair && /tmp/echo.pair
+gcc src/tryout/resize.c -o /tmp/resize.pair && /tmp/resize.pair
+gcc src/tryout/master.c -o /tmp/master.pair && /tmp/master.pair
+gcc src/tryout/slave.c -o /tmp/slave.pair && /tmp/slave.pair
+killall master.pair; killall slave.pair
 
 slave fails to open if unlockpt not called
 slave fails to open if master not running

@@ -8,52 +8,58 @@
 #include <sys/time.h>
 #include "port.h"
 
+#define UNUSED(x) (void)(x)
+
 void print_time(const char *tail) {
-    struct timeval now;
-    int pid = getpid();
-    int rv = gettimeofday(&now, NULL);
-    if (rv < 0) exit(-2);
-    fprintf(stderr, "%d %d.%03d%s", pid, (int)(now.tv_sec%1000),
-      (int)(now.tv_usec/1000), tail);
+  struct timeval now;
+  int pid = getpid();
+  int rv = gettimeofday(&now, NULL);
+  if (rv < 0) exit(-2);
+  fprintf(stderr, "%d %d.%03d%s", pid, (int)(now.tv_sec%1000),
+    (int)(now.tv_usec/1000), tail);
 }
 
 void debug(const char* fmt, ...) {
-  if (debug_enabled) {
-    va_list ap;
-    va_start(ap, fmt);
-    print_time(" ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\r\n");
-    fflush(stderr);
-  }
+#ifdef PORT_DEBUG
+  va_list ap;
+  va_start(ap, fmt);
+  print_time(" ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\r\n");
+  fflush(stderr);
+#else
+  UNUSED(fmt);  
+#endif
 }
 
 void crash(const char* fmt, ...) {
-  if (debug_enabled) {
-    va_list ap;
-    va_start(ap, fmt);
-    print_time(" ");
-    fprintf(stderr, "crash: ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\r\n");
-    print_time(" ");
-    fprintf(stderr, "error: %d %s", errno, strerror(errno));
-    fprintf(stderr, "\r\n");
-    fflush(stderr);
-  }
+  va_list ap;
+  va_start(ap, fmt);
+  print_time(" ");
+  fprintf(stderr, "crash: ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\r\n");
+  print_time(" ");
+  fprintf(stderr, "error: %d %s", errno, strerror(errno));
+  fprintf(stderr, "\r\n");
+  fflush(stderr);
   exit(-1);
   abort(); //force crash
 }
 
 void phex(const char *header, unsigned char *buf, int size) {
-  if (debug_enabled) {
+#ifdef PORT_DEBUG
     print_time(" ");
     fprintf(stderr, "%s", header);
     for (int i = 0; i < size; i++) {
         fprintf(stderr, "%02X", buf[i]);
     }
     fprintf(stderr, "\r\n");
-  }
+#else
+  UNUSED(header);
+  UNUSED(buf);
+  UNUSED(size);
+#endif
 }
 
 int stdin_read(unsigned char* buffer, int size) {
@@ -131,7 +137,7 @@ void read_str_n(struct CMD* cmd, int width, char* buffer, char bufsize) {
   }
 }
 
-//should consume the delimiter
+//should consume the delimiter but not return it
 void read_str_c(struct CMD* cmd, char delimiter, char* buffer, char bufsize) {
   for(int i=0; ; i++) {
     char c = read_char(cmd);
