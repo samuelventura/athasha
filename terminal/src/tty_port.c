@@ -62,7 +62,7 @@ void send_size() {
   char buf[256];
   struct winsize ts;
   ioctl(fd, TIOCGWINSZ, &ts);
-  int n = snprintf(buf, sizeof(buf), "s%d,%d;", ts.ws_row, ts.ws_col);
+  int n = snprintf(buf, sizeof(buf), "\x1B[%d,%dR", ts.ws_row, ts.ws_col);
   stdout_write_packet((unsigned char*)buf, n);
 }
 
