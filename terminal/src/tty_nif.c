@@ -9,7 +9,6 @@
 #include <signal.h>
 #include <termios.h>
 #include <string.h>
-#include "termbox/src/termbox.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -21,10 +20,6 @@ static void signal_handler(int sig) {
     case SIGWINCH:
     ioctl(0, TIOCGWINSZ, &ts);
     ioctl(fd, TIOCSWINSZ, &ts);
-    fprintf(stderr, "SIGWINCH %d %d\n", ts.ws_row, ts.ws_col);
-    break;
-    default:
-    fprintf(stderr, "signal_handler %d\n", sig);
     break;
   }
 }
@@ -69,8 +64,6 @@ static ERL_NIF_TERM nif_linkpt(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
   ff = open(buf, O_RDWR);
   fd_set fds;
   int max = ff > fd ? ff : fd;
-  //tb_init_fd from port clears terminal
-  //but doesnt seem to raw stdin
   struct termios ots;
   make_raw(0, &ots);
   while (1) {

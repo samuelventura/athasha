@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <linux/vt.h>
 #include <linux/kd.h>
-#include "termbox/src/termbox.h"
 #include "port.h"
 
 #define UNUSED(x) (void)(x)

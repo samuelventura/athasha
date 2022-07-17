@@ -1,8 +1,0 @@
-sudo apt install libreadline-dev libbz2-dev tk-dev 
-
-asdf plugin add python 
-asdf install python 3.10.5
-asdf local python 3.10.5
-
-pip install --upgrade pip
-pip install pexpect
