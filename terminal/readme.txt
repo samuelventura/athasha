@@ -32,13 +32,19 @@ qemu-system-x86_64 -enable-kvm -m 512M \
 #local development on konsole
 mix run tryout/term.exs loop
 mix run tryout/term.exs
-mix run tryout/echo.exs
 source /tmp/ash.exit
 
-#on device development
-ssh athasha-4ad8 < tryout/reset.exs
-ssh athasha-4ad8 < tryout/app.exs
+mix run tryout/try_ansi.exs
+mix run tryout/try_escapes.exs
+mix run tryout/try_monitor.exs
 
+#on device development
+ssh athasha-4ad8 < tryout/shell.exs
+ssh athasha-4ad8 < tryout/try_ansi.exs
+ssh athasha-4ad8 < tryout/try_escapes.exs
+ssh athasha-4ad8 < tryout/try_monitor.exs
+
+mousedev
 cmd "find /lib/modules/5.15.32-v8/kernel -name *.ko"
 cmd "ls /dev/input/"
 cmd "ls /sys/module/"
