@@ -6,6 +6,7 @@
 SRCDIR = src
 PRVDIR = priv/native
 UNAME := $(shell uname -s)
+MIX_TARGET ?= host
 
 C_CFLAGS = -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 C_LDFLAGS = -fPIC
@@ -20,10 +21,12 @@ P_SOURCES = $(wildcard $(SRCDIR)/*port.c)
 P_CFLAGS = $(C_CFLAGS)
 P_LDFLAGS= $(C_LDFLAGS)
 
+ifeq ($(MIX_TARGET),host)
 ifeq ($(UNAME),Darwin)
 N_CFLAGS += -D_DARWIN_C_SOURCE
 P_CFLAGS += -D_DARWIN_C_SOURCE
 N_LDFLAGS += -dynamiclib -undefined dynamic_lookup
+endif
 endif
 
 .PHONY: all clean
