@@ -47,7 +47,7 @@ void crash(const char* fmt, ...) {
   abort(); //force crash
 }
 
-void phex(const char *header, unsigned char *buf, int size) {
+void hexa(const char *header, unsigned char *buf, int size) {
 #ifdef PORT_DEBUG
     print_time(" ");
     fprintf(stderr, "%s", header);
@@ -65,12 +65,12 @@ void phex(const char *header, unsigned char *buf, int size) {
 int stdin_read(unsigned char* buffer, int size) {
   int ic = read(STDIN_FILENO, buffer, size);
   if (ic <= 0) return ic;
-  phex("sir>", buffer, ic);
+  hexa("sir>", buffer, ic);
   return ic;
 }
 
 int stdout_write(unsigned char* buffer, int size) {
-  phex("sow<", buffer, size);
+  hexa("sow<", buffer, size);
   return write(STDOUT_FILENO, buffer, size);
 }
 

@@ -12,8 +12,10 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef __linux__
 #include <linux/vt.h>
 #include <linux/kd.h>
+#endif
 #include "port.h"
 
 #define UNUSED(x) (void)(x)
@@ -38,12 +40,16 @@ static void signal_setup(int sig) {
 }
 
 void cmd_chvt(struct CMD* cmd) {
+#ifdef __linux__
   int tn = read_digit(cmd);
   int fd = open("/dev/tty0", O_RDWR);
   if (fd < 0) crash("open /dev/tty0");
   if (ioctl(fd, VT_ACTIVATE, tn)) crash("chvt VT_ACTIVATE");
   if (ioctl(fd, VT_WAITACTIVE, tn)) crash("chvt VT_WAITACTIVE");
   close(fd);
+#else
+  UNUSED(cmd);
+#endif
 }
 
 void make_raw() {

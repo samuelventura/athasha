@@ -1,7 +1,7 @@
 #ifndef _PORT_H_
 #define _PORT_H_
 
-//#define PORT_DEBUG
+#define PORT_DEBUG
 
 struct CMD {
   char* buffer;
@@ -20,6 +20,7 @@ unsigned int read_uint(struct CMD* cmd);
 void read_str_n(struct CMD* cmd, int width, char* buffer, char bufsize);
 void read_str_c(struct CMD* cmd, char delimiter, char* buffer, char bufsize);
 
+void hexa(const char *header, unsigned char *buf, int size);
 void debug(const char* fmt, ...);
 void crash(const char* fmt, ...);
 
