@@ -1,10 +1,8 @@
 alias AthashaTerminal.Tty
 alias IO.ANSI
 
-target = Application.get_env(:athasha_terminal, :target)
-
 port =
-  case target do
+  case Tty.target() do
     :host ->
       Tty.open("/dev/ttys004")
 

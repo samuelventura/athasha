@@ -1,10 +1,9 @@
 alias AthashaTerminal.Tty
-target = Application.get_env(:athasha_terminal, :target)
 
-defmodule AthashaTerminal.Tryout do
-  def run(target) do
+defmodule Tryout do
+  def run() do
     port =
-      case target do
+      case Tty.target() do
         :host ->
           Tty.open("/dev/ttys004")
 
@@ -31,6 +30,4 @@ defmodule AthashaTerminal.Tryout do
   end
 end
 
-alias AthashaTerminal.Tryout
-
-Tryout.run(target)
+Tryout.run()
