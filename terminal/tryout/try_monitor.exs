@@ -6,7 +6,6 @@ defmodule AthashaTerminal.Tryout do
     port =
       case target do
         :host ->
-          IO.puts("openinig /dev/ttys004")
           Tty.open("/dev/ttys004")
 
         _ ->
@@ -17,6 +16,8 @@ defmodule AthashaTerminal.Tryout do
     # enable mouse extended
     Tty.write(port, "\e[?1000h")
     Tty.write(port, "\e[?1006h")
+    # set size (not working in vscode)
+    # Tty.write(port, "\e[8;30;100t")
     # query window size
     Tty.write(port, "\e[s\e[999;999H\e[6n\e[u")
 
@@ -31,4 +32,5 @@ defmodule AthashaTerminal.Tryout do
 end
 
 alias AthashaTerminal.Tryout
+
 Tryout.run(target)

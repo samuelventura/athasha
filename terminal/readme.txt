@@ -56,6 +56,7 @@ mix run tryout/try_monitor.exs
 
 #on device development
 ssh athasha-4ad8 < tryout/shell.exs
+ssh athasha-4ad8 < tryout/try_hello.exs
 ssh athasha-4ad8 < tryout/try_ansi.exs
 ssh athasha-4ad8 < tryout/try_escapes.exs
 ssh athasha-4ad8 < tryout/try_monitor.exs

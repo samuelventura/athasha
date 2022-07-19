@@ -15,6 +15,4 @@ port =
 Tty.write(port, "hello\r\n")
 
 Tty.close(port)
-
-# exit from nerves shell (works in host as well)
-Process.exit(Process.group_leader(), :kill)
+Tty.exit()

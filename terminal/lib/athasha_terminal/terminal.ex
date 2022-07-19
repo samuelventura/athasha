@@ -27,4 +27,9 @@ defmodule AthashaTerminal.Tty do
     exec = :code.priv_dir(:athasha_terminal) ++ '/native/tty_chvt'
     System.cmd("#{exec}", "#{tn}")
   end
+
+  def exit() do
+    # exit from nerves shell (works in host as well)
+    Process.exit(Process.group_leader(), :kill)
+  end
 end

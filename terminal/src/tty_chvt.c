@@ -16,7 +16,6 @@
 #include <linux/vt.h>
 #include <linux/kd.h>
 #endif
-#include "port.h"
 
 #define UNUSED(x) (void)(x)
 

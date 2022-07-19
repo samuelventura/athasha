@@ -13,7 +13,6 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "port.h"
 
 #define UNUSED(x) (void)(x)
 #define MAX(x, y) (x>y?x:y)

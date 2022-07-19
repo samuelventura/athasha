@@ -21,6 +21,4 @@ Tty.write(port, ANSI.reset())
 # blink_off not working
 
 Tty.close(port)
-
-# exit from nerves shell (works in host as well)
-Process.exit(Process.group_leader(), :kill)
+Tty.exit()

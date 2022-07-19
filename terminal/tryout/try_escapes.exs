@@ -34,6 +34,4 @@ Tty.write(port, "\e[2;10H")
 Tty.write(port, "#{DateTime.utc_now()}")
 
 Tty.close(port)
-
-# exit from nerves shell (works in host as well)
-Process.exit(Process.group_leader(), :kill)
+Tty.exit()
