@@ -26,19 +26,29 @@ MIX_TARGET=x86_64 mix firmware.gen.script
 #this upgrades by default
 MIX_TARGET=x86_64 SSH_OPTIONS="-p 8022" ./upload.sh localhost
 
+#linux
 qemu-system-x86_64 -enable-kvm -m 512M \
     -drive file=athasha_terminal.img,if=virtio,format=raw \
     -net nic,model=virtio \
     -net user,hostfwd=tcp::8022-:22 \
     -serial stdio
 
+#macos
 qemu-system-x86_64 -m 512M \
     -drive file=athasha_terminal.img,if=virtio,format=raw \
     -net nic,model=virtio \
     -net user,hostfwd=tcp::8022-:22 \
     -serial stdio
 
-#local development on konsole
+#local development on konsole/vscode
+priv/native/tty_master; reset
+cat /dev/ttys004
+echo "hello" > /dev/ttys004
+stty -f /dev/ttys004 raw -echo
+killall tty_master
+#from elixir port only
+#priv/native/tty_slave /dev/ttys004
+
 mix run tryout/term.exs loop
 mix run tryout/term.exs
 source /tmp/ash.exit
