@@ -3,7 +3,7 @@ alias AthashaTerminal.Tty
 port =
   case Tty.target() do
     :host ->
-      Tty.open("/dev/ttys004")
+      Tty.open("/tmp/ash.tty")
 
     _ ->
       Tty.chvt(2)

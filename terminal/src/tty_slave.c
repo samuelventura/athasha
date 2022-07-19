@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include <termios.h>
-#include <signal.h>
-#include <pthread.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
@@ -73,7 +71,8 @@ int main(int argc, char *argv[]) {
       int n = read(STDIN_FILENO, buf, sizeof(buf));
       if (n == 0) return 0;
       if (n <= 0) crash("read STDIN_FILENO %d", n);
-      int w = write(fd, buf, n);
+       //rpiX compiler complains (& 0xFFFF -> hack)
+      int w = write(fd, buf, n & 0xFFFF);
       if (w != n) crash("write fd %d", w);
     }
   }

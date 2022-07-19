@@ -8,7 +8,7 @@ DSTDIR = priv/native
 UNAME := $(shell uname -s)
 MIX_TARGET ?= host
 
-C_CFLAGS = -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
+C_CFLAGS = -g -O3 -Werror -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 C_LDFLAGS = -fPIC
 
 CH_TARGET = $(DSTDIR)/tty_chvt

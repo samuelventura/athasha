@@ -16,10 +16,12 @@ ssh athasha-4ad8
 MIX_TARGET=rpi3 mix deps.get
 MIX_TARGET=rpi3 mix compile
 MIX_TARGET=rpi3 mix firmware.image
+#update not working
 MIX_TARGET=rpi3 mix upload athasha-ee0c
 ssh athasha-ee0c
 
 MIX_TARGET=x86_64 mix deps.get
+MIX_TARGET=x86_64 mix compile
 MIX_TARGET=x86_64 mix firmware.image
 MIX_TARGET=x86_64 mix nerves.gen.qemu_script
 MIX_TARGET=x86_64 mix firmware.gen.script

@@ -37,7 +37,7 @@ int pfd;
 static void signal_handler(int sig) {
   switch(sig) {
     case SIGWINCH:
-    write(pfd, &sig, 1);
+    if (write(pfd, &sig, 1)!=1) crash("pipe write");
     break;
   }
 }
@@ -85,11 +85,14 @@ int main(int argc, char *argv[]) {
   int rp[2];
   fd_set fds;
   unsigned char buf[256];
+  char *link = "/tmp/ash.tty";
+  unlink(link);
   fd = posix_openpt(O_RDWR|O_NOCTTY);
   if (fd<0) crash("open master %d", fd);
   if (unlockpt(fd)) crash("unlockpt %d", fd);
   if (grantpt(fd)) crash("grantpt %d", fd);
   char * ptsn = ptsname(fd);
+  if (symlink(ptsn, link)) crash("symlink");
   //for slave reuse and stty changes preservation
   int sfd = open(ptsn, O_RDWR|O_NOCTTY);
   if (sfd<0) crash("open slave %d", sfd);

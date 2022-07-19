@@ -25,7 +25,7 @@ defmodule AthashaTerminal.Tty do
 
   def chvt(tn) do
     exec = :code.priv_dir(:athasha_terminal) ++ '/native/tty_chvt'
-    System.cmd("#{exec}", "#{tn}")
+    System.cmd("#{exec}", ["#{tn}"])
   end
 
   def target() do
