@@ -1,0 +1,100 @@
+https://hexdocs.pm/vintage_net/cookbook.html
+
+VintageNet.info()
+#this below shows GW/DNS info
+VintageNet.get_by_prefix([])
+
+VintageNet.deconfigure("wlan0", persist: false)
+
+VintageNet.reset_to_defaults("eth0")
+
+VintageNet.subscribe("eth0")
+
+VintageNet.unsubscribe("eth0")
+
+VintageNet.configure("eth0", 
+    %{type: VintageNetEthernet, ipv4: %{method: :dhcp}}
+)
+
+VintageNet.get_configuration("eth0")
+
+%{ipv4: %{method: :dhcp}, type: VintageNetEthernet}
+
+VintageNet.configure("eth0", 
+    %{
+        type: VintageNetEthernet,
+        ipv4: %{
+            method: :static,
+            address: "10.77.3.176",
+            prefix_length: 8,
+            gateway: "10.77.0.1",
+            name_servers: ["10.77.0.1"]
+        }
+    }
+)
+
+VintageNet.get_configuration("eth0")        
+
+%{
+  ipv4: %{
+    address: {10, 77, 3, 176},
+    gateway: {10, 77, 0, 1},
+    method: :static,
+    name_servers: [{10, 77, 0, 1}],
+    prefix_length: 8
+  },
+  type: VintageNetEthernet
+}
+
+# nameservers are optional
+# gateway is mandatory
+VintageNet.configuration_valid?("eth0", 
+    %{
+        type: VintageNetEthernet,
+        ipv4: %{
+            method: :static,
+            address: "10.77.3.176",
+            prefix_length: 8,
+            gateway: "10.77.0.1",
+            name_servers: ["10.77.0.1"]
+        }
+    }
+)
+
+#minimal valid static config
+VintageNet.configuration_valid?("eth0", 
+    %{
+        type: VintageNetEthernet,
+        ipv4: %{
+            method: :static,
+            address: "192.168.0.10",
+            prefix_length: 24,
+        }
+    }
+)
+
+#false positive, gateway not in segment
+VintageNet.configuration_valid?("eth0", 
+    %{
+        type: VintageNetEthernet,
+        ipv4: %{
+            method: :static,
+            address: "192.168.0.10",
+            prefix_length: 24,
+            gateway: "192.168.1.1",
+            name_servers: ["192.168.1.2"]
+        }
+    }
+)
+VintageNet.configure("eth0", 
+    %{
+        type: VintageNetEthernet,
+        ipv4: %{
+            method: :static,
+            address: "192.168.0.10",
+            prefix_length: 24,
+            gateway: "192.168.1.1",
+            name_servers: ["192.168.1.2"]
+        }
+    }
+)
