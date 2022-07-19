@@ -8,6 +8,7 @@
 #include <termios.h>
 #include <signal.h>
 #include <pthread.h>
+#include <stdarg.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <sys/types.h>
@@ -18,6 +19,19 @@
 #endif
 
 #define UNUSED(x) (void)(x)
+
+void crash(const char* fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  fprintf(stderr, "crash: ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\r\n");
+  fprintf(stderr, "error: %d %s", errno, strerror(errno));
+  fprintf(stderr, "\r\n");
+  fflush(stderr);
+  exit(-1);
+  abort();
+}
 
 int main(int argc, char *argv[]) {
 #ifdef __linux__

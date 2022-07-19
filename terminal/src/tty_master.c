@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
   UNUSED(argv);
   int rp[2];
   fd_set fds;
-  char buf[256];
+  unsigned char buf[256];
   fd = posix_openpt(O_RDWR|O_NOCTTY);
   if (fd<0) crash("open master %d", fd);
   if (unlockpt(fd)) crash("unlockpt %d", fd);
@@ -110,17 +110,17 @@ int main(int argc, char *argv[]) {
     if (FD_ISSET(fd, &fds)) {
       int n = read(fd, buf, sizeof(buf));
       if (n <= 0) crash("read fd %d", n);
-      int w = write(STDOUT_FILENO, (unsigned char*)buf, n);
+      int w = write(STDOUT_FILENO, buf, n);
       if (w != n) crash("write STDOUT_FILENO %d!=%d", w, n);
     }
     if (FD_ISSET(STDIN_FILENO, &fds)) {
-      int n = read(STDIN_FILENO, (unsigned char*)buf, sizeof(buf));
+      int n = read(STDIN_FILENO, buf, sizeof(buf));
       if (n <= 0) crash("read STDIN_FILENO %d", n);
       int w = write(fd, buf, n);
       if (w != n) crash("write fd %d", w);
     }
     if (FD_ISSET(rp[0], &fds)) {
-      int n = read(rp[0], (unsigned char*)buf, sizeof(buf));
+      int n = read(rp[0], buf, sizeof(buf));
       if (n <= 0) crash("read rp[0] %d", n);
       send_size();
     }
