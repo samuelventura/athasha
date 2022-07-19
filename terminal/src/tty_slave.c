@@ -44,7 +44,6 @@ void make_raw(int fd) {
 
 void send_size(int fd) {
   struct winsize ts;
-  //0,0 if not controlling terminal
   if (ioctl(fd, TIOCGWINSZ, &ts)) crash("ioctl TIOCGWINSZ %d", fd);
   dprintf(STDOUT_FILENO, "\x1B[%d;%dR", ts.ws_row, ts.ws_col);
 }

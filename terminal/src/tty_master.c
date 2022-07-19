@@ -97,6 +97,8 @@ int main(int argc, char *argv[]) {
   pfd = rp[1];
   make_raw(STDIN_FILENO);
   signal_setup(SIGWINCH);
+  make_raw(fd); //prevent size echo
+  send_size();
   int max = MAX3(rp[0], fd, STDIN_FILENO);
   while (1) {
     FD_ZERO(&fds);
