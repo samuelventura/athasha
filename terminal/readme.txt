@@ -6,6 +6,7 @@
 - must support tester devel
 - future framebuffer support
 
+#30x100
 mix nerves.new . --app athasha_terminal
 MIX_TARGET=rpi4 mix deps.get
 MIX_TARGET=rpi4 mix compile
@@ -13,13 +14,18 @@ MIX_TARGET=rpi4 mix firmware.image
 MIX_TARGET=rpi4 mix upload athasha-4ad8
 ssh athasha-4ad8
 
+#30x80
 MIX_TARGET=rpi3 mix deps.get
 MIX_TARGET=rpi3 mix compile
 MIX_TARGET=rpi3 mix firmware.image
+MIX_TARGET=rpi3 mix burn
+MIX_TARGET=rpi3 mix burn --task upgrade
 #update not working
 MIX_TARGET=rpi3 mix upload athasha-ee0c
 ssh athasha-ee0c
+MIX_TARGET=rpi3 ./upload.sh athasha-ee0c
 
+#25x80
 MIX_TARGET=x86_64 mix deps.get
 MIX_TARGET=x86_64 mix compile
 MIX_TARGET=x86_64 mix firmware.image
@@ -62,6 +68,8 @@ ssh athasha-4ad8 < tryout/try_hello.exs
 ssh athasha-4ad8 < tryout/try_ansi.exs
 ssh athasha-4ad8 < tryout/try_escapes.exs
 ssh athasha-4ad8 < tryout/try_monitor.exs
+ssh athasha-ee0c < tryout/try_monitor.exs
+ssh localhost -p 8022 < tryout/try_monitor.exs
 
 mousedev
 cmd "find /lib/modules/5.15.32-v8/kernel -name *.ko"
