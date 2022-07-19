@@ -2,37 +2,38 @@ alias AthashaTerminal.Tty
 
 target = Application.get_env(:athasha_terminal, :target)
 
-port = Tty.open()
+port =
+  case target do
+    :host ->
+      Tty.open("/dev/ttys004")
 
-case target do
-  :host ->
-    Tty.openvt(port, "/tmp/ash.pts")
-
-  _ ->
-    Tty.chvt(port, 2)
-    Tty.openvt(port, "/dev/tty2")
-end
+    _ ->
+      Tty.chvt(2)
+      Tty.open("/dev/tty2")
+  end
 
 # clear screen
-Port.command(port, "\e[2J")
+Tty.write(port, "\e[2J")
 # reset styles and colors
-Port.command(port, "\e[0m")
+Tty.write(port, "\e[0m")
 # blue fg color
-Port.command(port, "\e[0;34m")
+Tty.write(port, "\e[0;34m")
 # hide cursor
-Port.command(port, "\e[?25l")
+Tty.write(port, "\e[?25l")
 # enable all mouse events
-Port.command(port, "\e[?1000h")
+Tty.write(port, "\e[?1000h")
 # enable extended xy format
-Port.command(port, "\e[?1006h")
+Tty.write(port, "\e[?1006h")
 # cursor to origin
-Port.command(port, "\e[H")
+Tty.write(port, "\e[H")
 # write text
-Port.command(port, "HELLO WORLD")
+Tty.write(port, "HELLO WORLD")
 # cursor to yx
-Port.command(port, "\e[2;10H")
+Tty.write(port, "\e[2;10H")
 # write text
-Port.command(port, "#{DateTime.utc_now()}")
+Tty.write(port, "#{DateTime.utc_now()}")
+
+Tty.close(port)
 
 # exit from nerves shell (works in host as well)
 Process.exit(Process.group_leader(), :kill)

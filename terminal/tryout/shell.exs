@@ -1,7 +1,6 @@
 alias AthashaTerminal.Tty
 
-port = Tty.open()
-Tty.chvt(port, 1)
-Tty.close(port)
+Tty.chvt(1)
 
-exit
+# exit from nerves shell (works in host as well)
+Process.exit(Process.group_leader(), :kill)

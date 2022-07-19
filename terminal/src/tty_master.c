@@ -33,14 +33,12 @@ void crash(const char* fmt, ...) {
 }
 
 int fd;
+int pfd;
 
 static void signal_handler(int sig) {
-  struct winsize ts;
   switch(sig) {
     case SIGWINCH:
-    ioctl(STDIN_FILENO, TIOCGWINSZ, &ts);
-    dprintf(STDERR_FILENO, "size %d %d\r\n", ts.ws_row, ts.ws_col);
-    ioctl(fd, TIOCSWINSZ, &ts);
+    write(pfd, &sig, 1);
     break;
   }
 }
@@ -51,6 +49,13 @@ static void signal_setup(int sig) {
 	sa.sa_handler = signal_handler;
 	sa.sa_flags = 0;
 	if (sigaction(sig, &sa, 0)) crash("sigaction %d", sig);
+}
+
+void send_size() {
+  struct winsize ts;
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ts)) crash("ioctl TIOCGWINSZ %d", fd);
+  if (ioctl(fd, TIOCSWINSZ, &ts)) crash("ioctl TIOCSWINSZ %d", fd);
+  dprintf(fd, "\x1B[%d,%dR", ts.ws_row, ts.ws_col);
 }
 
 void make_raw(int fd) {
@@ -65,6 +70,16 @@ void make_raw(int fd) {
   if (tcsetattr(fd, TCSAFLUSH, &ts)) crash("tcsetattr %d", fd);
 }
 
+// master transmits the resize escape sequence so that the
+// development slave does not have to register a signal handler
+// which in turn requires ioctl(fd, TIOCSCTTY) which severes
+// the master pts on slave port exit.
+// cat and echo over the pts slave can reuse the same slave pts
+// (by keeping the slave device open from the master)
+// but 'mix run tryout/try_hello.exs', which talks to tty_slave
+// over an erlang port, puts the master pts on a unrecoverable
+// state where select return immediately and read 0 bytes despite
+// fcntl(fd, F_GETFD) returning 0.
 int main(int argc, char *argv[]) {
   UNUSED(argc);
   UNUSED(argv);
@@ -79,7 +94,8 @@ int main(int argc, char *argv[]) {
   //for slave reuse and stty changes preservation
   int sfd = open(ptsn, O_RDWR|O_NOCTTY);
   if (sfd<0) crash("open slave %d", sfd);
-  dprintf(STDERR_FILENO, "%s\r\n", ptsn);
+  if (pipe(rp)) crash("pipe");
+  pfd = rp[1];
   make_raw(STDIN_FILENO);
   signal_setup(SIGWINCH);
   int max = MAX3(rp[0], fd, STDIN_FILENO);
@@ -101,6 +117,11 @@ int main(int argc, char *argv[]) {
       if (n <= 0) crash("read STDIN_FILENO %d", n);
       int w = write(fd, buf, n);
       if (w != n) crash("write fd %d", w);
+    }
+    if (FD_ISSET(rp[0], &fds)) {
+      int n = read(rp[0], (unsigned char*)buf, sizeof(buf));
+      if (n <= 0) crash("read rp[0] %d", n);
+      send_size();
     }
   }
   return 0;

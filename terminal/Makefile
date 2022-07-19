@@ -4,64 +4,51 @@
 #  mix clean
 
 SRCDIR = src
-PRVDIR = priv/native
+DSTDIR = priv/native
 UNAME := $(shell uname -s)
 MIX_TARGET ?= host
 
 C_CFLAGS = -g -O3 -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 C_LDFLAGS = -fPIC
 
-N_SOURCES = $(SRCDIR)/tty_nif.c
-N_TARGET = $(PRVDIR)/tty_nif.so
-N_CFLAGS = $(C_CFLAGS) -I$(ERTS_INCLUDE_DIR)
-N_LDFLAGS= $(C_LDFLAGS) -shared -L$(ERL_EI_LIBDIR)
+CH_TARGET = $(DSTDIR)/tty_chvt
+CH_SOURCES = $(SRCDIR)/tty_chvt.c
+CH_CFLAGS = $(C_CFLAGS)
+CH_LDFLAGS= $(C_LDFLAGS)
 
-P_TARGET = $(PRVDIR)/tty_port
-P_SOURCES = $(wildcard $(SRCDIR)/*port.c)
-P_CFLAGS = $(C_CFLAGS)
-P_LDFLAGS= $(C_LDFLAGS)
+SLV_TARGET = $(DSTDIR)/tty_slave
+SLV_SOURCES = $(SRCDIR)/tty_slave.c
+SLV_CFLAGS = $(C_CFLAGS)
+SLV_LDFLAGS= $(C_LDFLAGS)
 
-S_TARGET = $(PRVDIR)/tty_slave
-S_SOURCES = $(SRCDIR)/tty_slave.c
-S_CFLAGS = $(C_CFLAGS)
-S_LDFLAGS= $(C_LDFLAGS)
-
-M_TARGET = $(PRVDIR)/tty_master
-M_SOURCES = $(SRCDIR)/tty_master.c
-M_CFLAGS = $(C_CFLAGS)
-M_LDFLAGS= $(C_LDFLAGS)
+MTR_TARGET = $(DSTDIR)/tty_master
+MTR_SOURCES = $(SRCDIR)/tty_master.c
+MTR_CFLAGS = $(C_CFLAGS)
+MTR_LDFLAGS= $(C_LDFLAGS)
 
 ifeq ($(MIX_TARGET),host)
 ifeq ($(UNAME),Darwin)
-S_CFLAGS += -D_DARWIN_C_SOURCE
-M_CFLAGS += -D_DARWIN_C_SOURCE
-N_CFLAGS += -D_DARWIN_C_SOURCE
-P_CFLAGS += -D_DARWIN_C_SOURCE
-N_LDFLAGS += -dynamiclib -undefined dynamic_lookup
+SLV_CFLAGS += -D_DARWIN_C_SOURCE
+MTR_CFLAGS += -D_DARWIN_C_SOURCE
+CH_CFLAGS += -D_DARWIN_C_SOURCE
 endif
 endif
 
 .PHONY: all clean
 
-all: $(P_TARGET) $(N_TARGET) $(S_TARGET) $(M_TARGET)
+all: $(CH_TARGET) $(SLV_TARGET) $(MTR_TARGET)
 
-$(PRVDIR):
-	mkdir -p $(PRVDIR)
+$(DSTDIR):
+	mkdir -p $(DSTDIR)
 
-$(S_TARGET): $(PRVDIR) $(S_SOURCES) 
-	$(CC) $(S_CFLAGS) $(S_SOURCES) -o $@ $(S_LDFLAGS)
+$(SLV_TARGET): $(DSTDIR) $(SLV_SOURCES) 
+	$(CC) $(SLV_CFLAGS) $(SLV_SOURCES) -o $@ $(SLV_LDFLAGS)
 
-$(M_TARGET): $(PRVDIR) $(M_SOURCES) 
-	$(CC) $(M_CFLAGS) $(M_SOURCES) -o $@ $(M_LDFLAGS)
+$(MTR_TARGET): $(DSTDIR) $(MTR_SOURCES) 
+	$(CC) $(MTR_CFLAGS) $(MTR_SOURCES) -o $@ $(MTR_LDFLAGS)
 
-$(P_TARGET): $(PRVDIR) $(P_SOURCES) 
-	$(CC) $(P_CFLAGS) $(P_SOURCES) -o $@ $(P_LDFLAGS)
+$(CH_TARGET): $(DSTDIR) $(CH_SOURCES) 
+	$(CC) $(CH_CFLAGS) $(CH_SOURCES) -o $@ $(CH_LDFLAGS)
 	
-$(N_TARGET): $(PRVDIR) $(N_SOURCES) 
-	$(CC) $(N_CFLAGS) $(N_SOURCES) -o $@ $(N_LDFLAGS)
-
 clean:
-	rm -f $(N_TARGET)
-	rm -f $(P_TARGET)
-	rm -f $(S_TARGET)
-	rm -f $(M_TARGET)
+	rm -fR $(DSTDIR)

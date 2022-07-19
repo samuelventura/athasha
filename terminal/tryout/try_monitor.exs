@@ -3,28 +3,28 @@ target = Application.get_env(:athasha_terminal, :target)
 
 defmodule AthashaTerminal.Tryout do
   def run(target) do
-    port = Tty.open()
+    port =
+      case target do
+        :host ->
+          IO.puts("openinig /dev/ttys004")
+          Tty.open("/dev/ttys004")
 
-    case target do
-      :host ->
-        Tty.openvt(port, "/tmp/ash.pts")
-
-      _ ->
-        Tty.chvt(port, 2)
-        Tty.openvt(port, "/dev/tty2")
-    end
+        _ ->
+          Tty.chvt(2)
+          Tty.open("/dev/tty2")
+      end
 
     # enable mouse extended
-    Port.command(port, "\e[?1000h")
-    Port.command(port, "\e[?1006h")
+    Tty.write(port, "\e[?1000h")
+    Tty.write(port, "\e[?1006h")
     # query window size
-    Port.command(port, "\e[s\e[999;999H\e[6n\e[u")
+    Tty.write(port, "\e[s\e[999;999H\e[6n\e[u")
 
     loop(port)
   end
 
   defp loop(port) do
-    data = Tty.recv_data!(port)
+    data = Tty.read!(port)
     IO.inspect(data)
     loop(port)
   end

@@ -49,10 +49,7 @@ killall tty_master
 #from elixir port only
 #priv/native/tty_slave /dev/ttys004
 
-mix run tryout/term.exs loop
-mix run tryout/term.exs
-source /tmp/ash.exit
-
+mix run tryout/try_hello.exs
 mix run tryout/try_ansi.exs
 mix run tryout/try_escapes.exs
 mix run tryout/try_monitor.exs
