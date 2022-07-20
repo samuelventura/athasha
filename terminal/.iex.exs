@@ -1,3 +1,3 @@
 alias AthashaTerminal.Tty
-alias AthashaTerminal.TtyTest
-alias AthashaTerminal.TtyConst
+alias AthashaTerminal.Term
+alias AthashaTerminal.Tryout

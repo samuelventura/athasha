@@ -50,12 +50,14 @@ qemu-system-x86_64 -m 512M \
 
 #local development on konsole/vscode
 priv/native/tty_master; reset
-cat /dev/ttys004
-echo "hello" > /dev/ttys004
+cat /tmp/ash.tty
+echo "hello" > /tmp/ash.tty
 stty -f /dev/ttys004 raw -echo
 killall tty_master
 #from elixir port only
-#priv/native/tty_slave /dev/ttys004
+#priv/native/tty_slave /tmp/ash.tty
+#from iex -S mix
+Tryout.run "tryout/try_monitor.exs"
 
 mix run tryout/try_hello.exs
 mix run tryout/try_ansi.exs
