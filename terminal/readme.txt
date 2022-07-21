@@ -57,7 +57,7 @@ killall tty_master
 #from elixir port only
 #priv/native/tty_slave /tmp/ash.tty
 #from iex -S mix
-ALT+F1
+ALT+F1, ALT+F2, ALT+LEFT, ALT+RIGHT
 Tty.chvt(2)
 Tryout.run "tryout/try_monitor.exs"
 Tryout.run Tryout, :export, ["/dev/tty2", 8899]
