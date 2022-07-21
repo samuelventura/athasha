@@ -19,8 +19,8 @@ defmodule AthashaTerminal.Tty do
     end
   end
 
-  def write(port, data) do
-    Port.command(port, data)
+  def write!(port, data) do
+    true = Port.command(port, data)
   end
 
   def chvt(tn) do

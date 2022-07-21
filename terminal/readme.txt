@@ -57,7 +57,14 @@ killall tty_master
 #from elixir port only
 #priv/native/tty_slave /tmp/ash.tty
 #from iex -S mix
+ALT+F1
+Tty.chvt(2)
 Tryout.run "tryout/try_monitor.exs"
+Tryout.run Tryout, :export, ["/dev/tty2", 8899]
+Tryout.run Tryout, :monitor, [:linux, "/dev/tty2"]
+Tryout.run Tryout, :monitor, [:linux, "athasha-4ad8", 8899]
+nc athasha-4ad8 8899
+nc localhost 8899
 
 mix run tryout/try_hello.exs
 mix run tryout/try_ansi.exs
@@ -66,6 +73,8 @@ mix run tryout/try_monitor.exs
 
 #on device development
 ssh athasha-4ad8 < tryout/shell.exs
+ssh athasha-4ad8 < tryout/export.exs
+nc athasha-4ad8 8899 
 ssh athasha-4ad8 < tryout/try_hello.exs
 ssh athasha-4ad8 < tryout/try_ansi.exs
 ssh athasha-4ad8 < tryout/try_escapes.exs

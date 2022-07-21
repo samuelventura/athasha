@@ -8,7 +8,7 @@ defmodule AthashaTerminal.VintageApp do
     state
   end
 
-  def render(state) do
+  def render(_state) do
     [
       {:window, x: 0, y: 1}
     ]

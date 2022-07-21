@@ -14,13 +14,16 @@ defmodule Tryout do
       end
 
     # full reset
-    Tty.write(port, "\ec")
+    Tty.write!(port, "\ec")
     # enable mouse standard
-    # Tty.write(port, "\e[?1000h")
-    Tty.write(port, "\e[?1006h")
-    Tty.write(port, "\e[?1000h")
+    # Tty.write!(port, "\e[?1000h")
+    # enable mouse extended
+    # motion
+    Tty.write!(port, "\e[?1003h")
+    # sgr coordinates
+    Tty.write!(port, "\e[?1006h")
     # query window size
-    Tty.write(port, "\e[s\e[999;999H\e[6n\e[u")
+    Tty.write!(port, "\e[s\e[999;999H\e[6n\e[u")
     loop(port, "")
   end
 
