@@ -1,4 +1,37 @@
 defmodule AthashaTerminal.TermLinux do
+  def clear(:screen), do: "\e[2J"
+  def clear(:setts), do: "\ec"
+
+  def query(:size), do: "\e[s\e[999;999H\e[6n\e[u"
+
+  def mouse(:standard), do: "\e[?1000h"
+  def mouse(:extended), do: "\e[?1006h"
+
+  def cursor(line, column), do: "\e[#{line};#{column}H"
+
+  def show(:cursor), do: "\e[?25h"
+  def hide(:cursor), do: "\e[?25l"
+
+  def color(:foreground, id), do: "\e[38;5;#{id}m"
+  def color(:background, id), do: "\e[48;5;#{id}m"
+
+  def set(:bold), do: "\e[1m"
+  def set(:italic), do: "\e[3m"
+  def set(:underline), do: "\e[4m"
+  def set(:blinking), do: "\e[5m"
+  def set(:inverse), do: "\e[7m"
+
+  def reset(:bold), do: "\e[22m"
+  def reset(:italic), do: "\e[23m"
+  def reset(:underline), do: "\e[24m"
+  def reset(:blinking), do: "\e[25m"
+  def reset(:inverse), do: "\e[27m"
+
+  def append(buffer, data) do
+    buffer = buffer <> data
+    scan(buffer, [])
+  end
+
   @ctl 1
   @alt 2
   @fun 4
@@ -33,6 +66,13 @@ defmodule AthashaTerminal.TermLinux do
 
   @singles [
     {"\d", {@fun, :backspace}},
+    {"\a", {@ctl, "g"}},
+    {"\b", {@ctl, "h"}},
+    {"\v", {@ctl, "k"}},
+    {"\f", {@ctl, "l"}},
+    # {"\t", {@ctl, "i"}},
+    # {"\n", {@ctl, "j"}},
+    # {"\r", {@ctl, "m"}},
     {<<0>>, {@ctl, "2"}},
     {<<28>>, {@ctl, "4"}},
     {<<29>>, {@ctl, "5"}},
@@ -51,16 +91,13 @@ defmodule AthashaTerminal.TermLinux do
     {<<19>>, {@ctl, "s"}},
     {<<4>>, {@ctl, "d"}},
     {<<6>>, {@ctl, "f"}},
-    {"\a", {@ctl, "g"}},
-    {"\b", {@ctl, "h"}},
-    {"\v", {@ctl, "k"}},
-    {"\f", {@ctl, "l"}},
     {<<26>>, {@ctl, "z"}},
     {<<24>>, {@ctl, "x"}},
     {<<3>>, {@ctl, "c"}},
     {<<22>>, {@ctl, "v"}},
     {<<2>>, {@ctl, "b"}},
     {<<14>>, {@ctl, "n"}}
+
     # tab -> "\t"
     # prtsc -> <<28>>
     # ctrl_` -> ctrl_2
@@ -88,11 +125,6 @@ defmodule AthashaTerminal.TermLinux do
   ]
 
   @singles_map @singles |> Enum.into(%{})
-
-  def append(buffer, data) do
-    buffer = buffer <> data
-    scan(buffer, [])
-  end
 
   defp scan("", events) do
     {"", Enum.reverse(events)}

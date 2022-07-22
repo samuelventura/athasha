@@ -79,7 +79,7 @@ defmodule AthashaTerminal.Tryout do
     read = fn -> Tty.read!(port) end
     write = fn data -> Tty.write!(port, data) end
     monitor_init(term, write, mouse)
-    monitor_loop(term, read, "")
+    monitor_loop(term, write, read, "")
   end
 
   def monitor(term, host, port, mouse) do
@@ -98,32 +98,90 @@ defmodule AthashaTerminal.Tryout do
 
     write = fn data -> :ok = :gen_tcp.send(socket, data) end
     monitor_init(term, write, mouse)
-    monitor_loop(term, read, "")
+    monitor_loop(term, write, read, "")
   end
 
-  defp monitor_init(_term, write, mouse) do
-    # full reset
-    write.("\ec")
+  defp monitor_init(term, write, mouse) do
+    Term.clear(term, :all) |> write.()
 
     case mouse do
       :mext ->
-        # enable mouse extended
-        write.("\e[?1006h")
-        write.("\e[?1000h")
+        Term.mouse(term, :standard) |> write.()
+        Term.mouse(term, :extended) |> write.()
 
       :mstd ->
-        # enable mouse standard
-        write.("\e[?1000h")
+        Term.mouse(term, :standard) |> write.()
     end
 
-    # query window size
-    write.("\e[s\e[999;999H\e[6n\e[u")
+    Term.query(term, :size) |> write.()
   end
 
-  defp monitor_loop(term, read, buffer) do
+  defp monitor_loop(term, write, read, buffer) do
     data = read.()
     {buffer, events} = Term.append(term, buffer, data)
+    Enum.each(events, &monitor_handle(term, write, &1))
     IO.inspect({data, events, buffer})
-    monitor_loop(term, read, buffer)
+    monitor_loop(term, write, read, buffer)
+  end
+
+  defp monitor_handle(term, write, event) do
+    case event do
+      {:key, 0, "\e"} -> monitor_showcase(term)
+      {:key, 2, "1"} -> Term.clear(term, :all)
+      {:key, 2, "2"} -> Term.clear(term, :screen)
+      {:key, 2, "3"} -> Term.mouse(term, :standard)
+      {:key, 2, "4"} -> Term.mouse(term, :extended)
+      {:key, 2, "a"} -> Term.cursor(term, 0, 0)
+      {:key, 2, "s"} -> Term.hide(term, :cursor)
+      {:key, 2, "d"} -> Term.show(term, :cursor)
+      {:key, 2, "f"} -> Term.cursor(term, :style, :blinking_block)
+      {:key, 2, "g"} -> Term.cursor(term, :style, :steady_block)
+      {:key, 2, "h"} -> Term.cursor(term, :style, :blinking_underline)
+      {:key, 2, "j"} -> Term.cursor(term, :style, :steady_underline)
+      {:key, 2, "k"} -> Term.cursor(term, :style, :blinking_bar)
+      {:key, 2, "l"} -> Term.cursor(term, :style, :steady_bar)
+      {:key, 2, "x"} -> Term.set(term, :bold)
+      {:key, 2, "v"} -> Term.set(term, :dimmed)
+      {:key, 2, "b"} -> Term.set(term, :italic)
+      {:key, 2, "n"} -> Term.set(term, :underline)
+      {:key, 2, "m"} -> Term.set(term, :inverse)
+      {:key, 2, ","} -> Term.set(term, :crossed)
+      {:key, 2, "6"} -> Term.reset(term, :normal)
+      {:key, 2, "7"} -> Term.reset(term, :italic)
+      {:key, 2, "8"} -> Term.reset(term, :underline)
+      {:key, 2, "9"} -> Term.reset(term, :inverse)
+      {:key, 2, "0"} -> Term.reset(term, :crossed)
+      {:key, 0, "\r"} -> "\r\n"
+      {:key, 0, k} -> k
+      _ -> ""
+    end
+    |> write.()
+  end
+
+  defp monitor_showcase(term) do
+    Term.clear(term, :all) <>
+      "000\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :bold) <>
+      "111\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :italic) <>
+      "222\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :underline) <>
+      "333\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :dimmed) <>
+      "444\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :crossed) <>
+      "555\n\r" <>
+      Term.clear(term, :styles) <>
+      Term.set(term, :inverse) <>
+      "666\n\r" <>
+      Term.clear(term, :styles) <>
+      Enum.reduce(0..255, "", fn n, acc ->
+        acc <> Term.color(term, :background, n) <> " "
+      end) <> "\n\r"
   end
 end
