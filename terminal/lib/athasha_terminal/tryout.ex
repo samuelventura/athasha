@@ -127,10 +127,12 @@ defmodule AthashaTerminal.Tryout do
   defp monitor_handle(term, write, event) do
     case event do
       {:key, 0, "\e"} -> monitor_showcase(term)
+      {:key, 2, "`"} -> Term.query(term, :size)
       {:key, 2, "1"} -> Term.clear(term, :all)
       {:key, 2, "2"} -> Term.clear(term, :screen)
-      {:key, 2, "3"} -> Term.mouse(term, :standard)
-      {:key, 2, "4"} -> Term.mouse(term, :extended)
+      {:key, 2, "3"} -> Term.clear(term, :styles)
+      {:key, 2, "4"} -> Term.mouse(term, :standard)
+      {:key, 2, "5"} -> Term.mouse(term, :extended)
       {:key, 2, "a"} -> Term.cursor(term, 0, 0)
       {:key, 2, "s"} -> Term.hide(term, :cursor)
       {:key, 2, "d"} -> Term.show(term, :cursor)
@@ -146,11 +148,13 @@ defmodule AthashaTerminal.Tryout do
       {:key, 2, "n"} -> Term.set(term, :underline)
       {:key, 2, "m"} -> Term.set(term, :inverse)
       {:key, 2, ","} -> Term.set(term, :crossed)
+      {:key, 2, "."} -> Term.set(term, :blink)
       {:key, 2, "6"} -> Term.reset(term, :normal)
       {:key, 2, "7"} -> Term.reset(term, :italic)
       {:key, 2, "8"} -> Term.reset(term, :underline)
       {:key, 2, "9"} -> Term.reset(term, :inverse)
       {:key, 2, "0"} -> Term.reset(term, :crossed)
+      {:key, 2, "-"} -> Term.reset(term, :blink)
       {:key, 0, "\r"} -> "\r\n"
       {:key, 0, k} -> k
       _ -> ""
@@ -160,28 +164,37 @@ defmodule AthashaTerminal.Tryout do
 
   defp monitor_showcase(term) do
     Term.clear(term, :all) <>
-      "000\n\r" <>
+      "normal\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :bold) <>
-      "111\n\r" <>
+      "bold\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :italic) <>
-      "222\n\r" <>
+      "italic\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :underline) <>
-      "333\n\r" <>
+      "underline\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :dimmed) <>
-      "444\n\r" <>
+      "dimmed\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :crossed) <>
-      "555\n\r" <>
+      "crossed\n\r" <>
       Term.clear(term, :styles) <>
       Term.set(term, :inverse) <>
-      "666\n\r" <>
+      "inverse\n\r" <>
       Term.clear(term, :styles) <>
       Enum.reduce(0..255, "", fn n, acc ->
         acc <> Term.color(term, :background, n) <> " "
-      end) <> "\n\r"
+      end) <>
+      "\n\r" <>
+      Enum.reduce(0..7, "", fn n, acc ->
+        acc <>
+          Term.color(term, :background, n) <>
+          "                " <>
+          Term.color(term, :background, 0) <>
+          Term.color(term, :foreground, n) <>
+          " 0123456789abcdef\n\r"
+      end)
   end
 end

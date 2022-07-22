@@ -31,6 +31,7 @@ defmodule AthashaTerminal.TermCode do
   def set(:underline), do: "\e[4m"
   def set(:inverse), do: "\e[7m"
   def set(:crossed), do: "\e[9m"
+  def set(_), do: ""
 
   # normal reset both bold and dimmed
   def reset(:normal), do: "\e[22m"
@@ -38,6 +39,7 @@ defmodule AthashaTerminal.TermCode do
   def reset(:underline), do: "\e[24m"
   def reset(:inverse), do: "\e[27m"
   def reset(:crossed), do: "\e[29m"
+  def reset(_), do: ""
 
   def append(buffer, data) do
     buffer = buffer <> data

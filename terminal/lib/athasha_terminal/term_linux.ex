@@ -1,9 +1,15 @@
 defmodule AthashaTerminal.TermLinux do
+  # https://man7.org/linux/man-pages/man4/console_codes.4.html
+  # cursor styles not supported
+  # limited text styles support
+  # 8 colors only
+  def clear(:all), do: "\ec"
   def clear(:screen), do: "\e[2J"
-  def clear(:setts), do: "\ec"
+  def clear(:styles), do: "\e[0m"
 
   def query(:size), do: "\e[s\e[999;999H\e[6n\e[u"
 
+  # standard required to enable extended
   def mouse(:standard), do: "\e[?1000h"
   def mouse(:extended), do: "\e[?1006h"
 
@@ -16,16 +22,14 @@ defmodule AthashaTerminal.TermLinux do
   def color(:background, id), do: "\e[48;5;#{id}m"
 
   def set(:bold), do: "\e[1m"
-  def set(:italic), do: "\e[3m"
-  def set(:underline), do: "\e[4m"
-  def set(:blinking), do: "\e[5m"
+  def set(:dimmed), do: "\e[2m"
   def set(:inverse), do: "\e[7m"
+  def set(_), do: ""
 
-  def reset(:bold), do: "\e[22m"
-  def reset(:italic), do: "\e[23m"
-  def reset(:underline), do: "\e[24m"
-  def reset(:blinking), do: "\e[25m"
+  # normal reset both bold and dimmed
+  def reset(:normal), do: "\e[22m"
   def reset(:inverse), do: "\e[27m"
+  def reset(_), do: ""
 
   def append(buffer, data) do
     buffer = buffer <> data
