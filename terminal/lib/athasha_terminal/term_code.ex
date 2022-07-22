@@ -1,9 +1,12 @@
-defmodule AthashaTerminal.TermLinux do
+defmodule AthashaTerminal.TermCode do
   @ctl 1
   @alt 2
   @fun 4
 
   @resize ~r/^\e\[(\d+);(\d+)R/
+  @mouse ~r/^\e\[M(.)(.)(.)/
+  @mouse_down ~r/^\e\[<(\d+);(\d+);(\d+)M/
+  @mouse_up ~r/^\e\[<(\d+);(\d+);(\d+)m/
 
   # thinkpad usb us keyboard
   @escapes [
@@ -106,6 +109,9 @@ defmodule AthashaTerminal.TermLinux do
 
   defp scan("\e" <> _ = buffer) do
     nil
+    |> mouse(buffer, @mouse)
+    |> mouse_ex(buffer, @mouse_up, :mouse_up)
+    |> mouse_ex(buffer, @mouse_down, :mouse_down)
     |> escapes(buffer)
     |> resize(buffer)
     |> altkey(buffer)
@@ -130,6 +136,36 @@ defmodule AthashaTerminal.TermLinux do
   end
 
   defp singles(prev, _), do: prev
+
+  defp mouse(nil, buffer, regex) do
+    case Regex.run(regex, buffer) do
+      [prefix, s, x, y] ->
+        [s] = String.to_charlist(s)
+        [x] = String.to_charlist(x)
+        [y] = String.to_charlist(y)
+        {prefix, {:mouse, s - 32, x - 32, y - 32}}
+
+      nil ->
+        nil
+    end
+  end
+
+  defp mouse(prev, _, _), do: prev
+
+  defp mouse_ex(nil, buffer, regex, name) do
+    case Regex.run(regex, buffer) do
+      [prefix, s, x, y] ->
+        s = String.to_integer(s)
+        x = String.to_integer(x)
+        y = String.to_integer(y)
+        {prefix, {name, s, x, y}}
+
+      nil ->
+        nil
+    end
+  end
+
+  defp mouse_ex(prev, _, _, _), do: prev
 
   defp escapes(nil, buffer) do
     Enum.find_value(@escapes, fn {prefix, code} ->

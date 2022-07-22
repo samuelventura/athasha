@@ -74,15 +74,15 @@ defmodule AthashaTerminal.Tryout do
     end
   end
 
-  def monitor(term, tty) do
+  def monitor(term, tty, mouse) do
     port = Tty.open(tty)
     read = fn -> Tty.read!(port) end
     write = fn data -> Tty.write!(port, data) end
-    monitor_init(term, write)
+    monitor_init(term, write, mouse)
     monitor_loop(term, read, "")
   end
 
-  def monitor(term, host, port) do
+  def monitor(term, host, port, mouse) do
     host = String.to_charlist(host)
     {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: false])
 
@@ -97,17 +97,25 @@ defmodule AthashaTerminal.Tryout do
     end
 
     write = fn data -> :ok = :gen_tcp.send(socket, data) end
-    monitor_init(term, write)
+    monitor_init(term, write, mouse)
     monitor_loop(term, read, "")
   end
 
-  defp monitor_init(_term, write) do
+  defp monitor_init(_term, write, mouse) do
     # full reset
     write.("\ec")
-    # enable mouse standard
-    # write.("\e[?1000h")
-    write.("\e[?1006h")
-    write.("\e[?1000h")
+
+    case mouse do
+      :mext ->
+        # enable mouse extended
+        write.("\e[?1006h")
+        write.("\e[?1000h")
+
+      :mstd ->
+        # enable mouse standard
+        write.("\e[?1000h")
+    end
+
     # query window size
     write.("\e[s\e[999;999H\e[6n\e[u")
   end

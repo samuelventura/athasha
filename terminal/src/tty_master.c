@@ -50,11 +50,10 @@ static void signal_setup(int sig) {
 	if (sigaction(sig, &sa, 0)) crash("sigaction %d", sig);
 }
 
-void send_size() {
+void copy_size() {
   struct winsize ts;
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ts)) crash("ioctl TIOCGWINSZ %d", fd);
   if (ioctl(fd, TIOCSWINSZ, &ts)) crash("ioctl TIOCSWINSZ %d", fd);
-  dprintf(fd, "\x1B[%d,%dR", ts.ws_row, ts.ws_col);
 }
 
 void make_raw(int fd) {
@@ -101,7 +100,7 @@ int main(int argc, char *argv[]) {
   make_raw(STDIN_FILENO);
   signal_setup(SIGWINCH);
   make_raw(fd); //prevent size echo
-  send_size();
+  copy_size();
   int max = MAX3(rp[0], fd, STDIN_FILENO);
   while (1) {
     FD_ZERO(&fds);
@@ -125,7 +124,7 @@ int main(int argc, char *argv[]) {
     if (FD_ISSET(rp[0], &fds)) {
       int n = read(rp[0], buf, sizeof(buf));
       if (n <= 0) crash("read rp[0] %d", n);
-      send_size();
+      copy_size();
     }
   }
   return 0;

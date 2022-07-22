@@ -61,8 +61,10 @@ ALT+F1, ALT+F2, ALT+LEFT, ALT+RIGHT
 Tty.chvt(2)
 Tryout.run "tryout/try_monitor.exs"
 Tryout.run Tryout, :export, ["/dev/tty2", 8899]
-Tryout.run Tryout, :monitor, [:linux, "/dev/tty2"]
-Tryout.run Tryout, :monitor, [:linux, "athasha-4ad8", 8899]
+Tryout.run Tryout, :monitor, [:code, "/tmp/ash.tty", :mext]
+Tryout.run Tryout, :monitor, [:code, "/tmp/ash.tty", :mstd]
+Tryout.run Tryout, :monitor, [:linux, "/dev/tty2", :mext]
+Tryout.run Tryout, :monitor, [:linux, "athasha-4ad8", 8899, :mext]
 nc athasha-4ad8 8899
 nc localhost 8899
 

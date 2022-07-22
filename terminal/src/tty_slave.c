@@ -40,12 +40,6 @@ void make_raw(int fd) {
   if (tcsetattr(fd, TCSAFLUSH, &ts)) crash("tcsetattr %d", fd);
 }
 
-void send_size(int fd) {
-  struct winsize ts;
-  if (ioctl(fd, TIOCGWINSZ, &ts)) crash("ioctl TIOCGWINSZ %d", fd);
-  dprintf(STDOUT_FILENO, "\x1B[%d;%dR", ts.ws_row, ts.ws_col);
-}
-
 int main(int argc, char *argv[]) {
   unsigned char buf[256];
   fd_set fds;
@@ -53,7 +47,6 @@ int main(int argc, char *argv[]) {
   int fd = open(argv[1], O_RDWR|O_NOCTTY);
   if (fd<0) crash("open %d", fd);
   make_raw(fd);
-  send_size(fd);
   int max = MAX(fd, STDIN_FILENO);
   while (1) {
     FD_ZERO(&fds);
