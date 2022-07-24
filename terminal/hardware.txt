@@ -1,0 +1,234 @@
+samuel@build:~/src/athasha/terminal$ ssh athasha-62c2
+Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+████▄▄    ▐███
+█▌  ▀▀██▄▄  ▐█
+█▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
+█▌  ▀▀██▄▄  ▐█
+███▌    ▀▀████
+athasha_terminal 0.1.0 (f6c0bc2d-69f7-58bf-198f-347bd66f00e6) arm rpi3
+  Uptime       : 8 minutes and 44 seconds
+  Clock        : 2022-07-24 06:40:21 UTC
+
+  Firmware     : Valid (A)               Applications : 36 started
+  Memory usage : 55 MB (7%)              Part usage   : 0 MB (0%)
+  Hostname     : athasha-62c2            Load average : 0.00 0.00 0.00
+
+  eth0         : 10.77.3.172/8, fe80::ba27:ebff:fe3b:62c2/64
+
+Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+
+Toolshed imported. Run h(Toolshed) for more info.
+iex(1)> cmd "cat /proc/cpuinfo"
+processor       : 0
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 1
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 2
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 3
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+Hardware        : BCM2835
+Revision        : a22082
+Serial          : 00000000333b62c2
+Model           : Raspberry Pi 3 Model B Rev 1.2
+0
+
+samuel@build:~/src/athasha/terminal$ ssh athasha-ee0c
+Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+████▄▄    ▐███
+█▌  ▀▀██▄▄  ▐█
+█▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
+█▌  ▀▀██▄▄  ▐█
+███▌    ▀▀████
+athasha_terminal 0.1.0 (959813bb-45e4-523b-3dba-00f6702b3f3e) arm rpi3
+  Uptime       : 21 hours, 31 minutes and 55 seconds
+  Clock        : 2022-07-24 06:40:58 UTC
+
+  Firmware     : Valid (A)               Applications : 36 started
+  Memory usage : 57 MB (7%)              Part usage   : 0 MB (0%)
+  Hostname     : athasha-ee0c            Load average : 0.00 0.00 0.00
+
+  eth0         : 10.77.3.150/8, fe80::ba27:ebff:fecf:ee0c/64
+
+Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+
+Toolshed imported. Run h(Toolshed) for more info.
+iex(1)> cmd "cat /proc/cpuinfo"                                              
+processor       : 0
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 1
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 2
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+processor       : 3
+model name      : ARMv7 Processor rev 4 (v7l)
+BogoMIPS        : 38.40
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm crc32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 4
+
+Hardware        : BCM2835
+Revision        : a220a0
+Serial          : 0000000061cfee0c
+Model           : Raspberry Pi Compute Module 3 Rev 1.0
+0
+
+samuel@build:~/src/athasha/terminal$ ssh athasha-4ad8
+Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+████▄▄    ▐███
+█▌  ▀▀██▄▄  ▐█
+█▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
+█▌  ▀▀██▄▄  ▐█
+███▌    ▀▀████
+athasha_terminal 0.1.0 (53a82e35-0eee-54a2-cbcc-38f726a1eca6) arm rpi4
+  Uptime       : 1 days, 10 hours, 52 minutes and 40 seconds
+  Clock        : 2022-07-24 06:41:59 UTC
+
+  Firmware     : Valid (B)               Applications : 36 started
+  Memory usage : 143 MB (4%)             Part usage   : 1354 MB (2%)
+  Hostname     : athasha-4ad8            Load average : 0.00 0.00 0.00
+
+  eth0         : 10.77.3.176/8, fe80::e65f:1ff:fe57:4a67/64
+  usb0         : 172.31.255.9/30
+
+Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+
+Toolshed imported. Run h(Toolshed) for more info.
+iex(1)> cmd "cat /proc/cpuinfo"                        
+processor       : 0
+BogoMIPS        : 108.00
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd08
+CPU revision    : 3
+
+processor       : 1
+BogoMIPS        : 108.00
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd08
+CPU revision    : 3
+
+processor       : 2
+BogoMIPS        : 108.00
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd08
+CPU revision    : 3
+
+processor       : 3
+BogoMIPS        : 108.00
+Features        : fp asimd evtstrm crc32 cpuid
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd08
+CPU revision    : 3
+
+Hardware        : BCM2835
+Revision        : c03114
+Serial          : 10000000b3fc4ad8
+Model           : Raspberry Pi 4 Model B Rev 1.4
+0
+
+samuel@p3420:~$ ssh athasha-4199
+Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+████▄▄    ▐███
+█▌  ▀▀██▄▄  ▐█
+█▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
+█▌  ▀▀██▄▄  ▐█
+███▌    ▀▀████
+athasha_fw 0.1.0 (b5d8f217-2ded-5a37-83f7-bb0ebdab783c) arm bbb
+  Uptime       : 1 days, 10 hours, 53 minutes and 56 seconds
+  Clock        : 2022-07-24 06:43:12 UTC
+
+  Firmware     : Valid (A)               Applications : 78 started
+  Memory usage : 72 MB (14%)             Part usage   : 1885 MB (2%)
+  Hostname     : athasha-4199            Load average : 0.04 0.06 0.01
+
+  eth0         : 10.77.4.240/8, fe80::aae7:7dff:feed:22e8/64
+  usb0         : 172.31.202.121/30
+
+Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+
+Toolshed imported. Run h(Toolshed) for more info.
+iex(1)> cmd "cat /proc/cpuinfo"
+processor       : 0
+model name      : ARMv7 Processor rev 2 (v7l)
+BogoMIPS        : 298.84
+Features        : half thumb fastmult vfp edsp neon vfpv3 tls vfpd32 
+CPU implementer : 0x41
+CPU architecture: 7
+CPU variant     : 0x3
+CPU part        : 0xc08
+CPU revision    : 2
+
+Hardware        : Generic AM33XX (Flattened Device Tree)
+Revision        : 0000
+Serial          : 2042SBB04199
+0

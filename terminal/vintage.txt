@@ -46,8 +46,7 @@ VintageNet.get_configuration("eth0")
   type: VintageNetEthernet
 }
 
-# nameservers are optional
-# gateway is mandatory
+# gateway and nameservers are optional
 VintageNet.configuration_valid?("eth0", 
     %{
         type: VintageNetEthernet,

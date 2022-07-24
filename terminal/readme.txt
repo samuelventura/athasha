@@ -22,8 +22,13 @@ MIX_TARGET=rpi3 mix burn
 MIX_TARGET=rpi3 mix burn --task upgrade
 #update fails most of the times
 MIX_TARGET=rpi3 mix upload athasha-ee0c
-ssh athasha-ee0c
+MIX_TARGET=rpi3 mix upload athasha-62c2
 MIX_TARGET=rpi3 ./upload.sh athasha-ee0c
+ssh athasha-ee0c
+ssh athasha-62c2
+
+#bbb
+ssh athasha-4199
 
 #25x80
 MIX_TARGET=x86_64 mix deps.get

@@ -1,0 +1,36 @@
+# epmd 4369 port
+# connect requires IP or fully qualified hostname
+#below fails because of erlang versions must be exactly the same
+Node.spawn_link :"target@athasha-4ad8.local", fn -> VintageNet.info() end
+:erlang.system_info :otp_release
+System.version
+
+cmd "epmd -daemon"
+cmd "epmd -kill"
+cmd "epmd -names"
+cmd "ps"
+
+Node.self
+:nonode@nohost
+Node.get_cookie
+:nocookie
+Node.list
+[]
+
+#rpi4
+ssh athasha-4ad8
+cmd "epmd -daemon"
+Node.start :"target@10.77.3.176"
+Node.start :"target@athasha-4ad8.local"
+Node.set_cookie :COOKIE
+
+#build
+System.cmd "epmd",["-daemon"]
+System.cmd "epmd",["-names"]
+Node.start :"code@build"
+Node.connect :"target@10.77.3.176"
+Node.connect :"target@athasha-4ad8.local"
+Node.set_cookie :COOKIE
+:rpc.call :"target@10.77.3.176", VintageNet, :info, []
+:rpc.call :"target@athasha-4ad8.local", VintageNet, :info, []
+Node.spawn_link :"target@athasha-4ad8.local", VintageNet, :info, []
