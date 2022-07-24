@@ -97,3 +97,127 @@ VintageNet.configure("eth0",
         }
     }
 )
+
+VintageNet.configure("wlan0", %{
+      type: VintageNetWiFi,
+      vintage_net_wifi: %{
+        regulatory_domain: "US",
+        networks: [
+          %{
+            ssid: "Guest",
+            key_mgmt: :wpa_psk,
+            psk: "XXXXXXXXX"
+          }
+        ]
+      },
+      ipv4: %{method: :dhcp}
+})
+
+ping "nerves-project.com", ifname: "wlan0"
+
+iex(22)> ifconfig
+lo: flags=[:up, :loopback, :running]
+    inet 127.0.0.1  netmask 255.0.0.0
+    inet ::1  netmask ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+    hwaddr 00:00:00:00:00:00
+
+eth0: flags=[:up, :broadcast, :running, :multicast]
+    inet 10.77.3.176  netmask 255.0.0.0  broadcast 10.255.255.255
+    inet fe80::e65f:1ff:fe57:4a67  netmask ffff:ffff:ffff:ffff::
+    hwaddr e4:5f:01:57:4a:67
+
+wlan0: flags=[:up, :broadcast, :running, :multicast]
+    inet 10.77.4.30  netmask 255.0.0.0  broadcast 10.255.255.255
+    inet fe80::e65f:1ff:fe57:4a68  netmask ffff:ffff:ffff:ffff::
+    hwaddr e4:5f:01:57:4a:68
+
+usb0: flags=[:up, :broadcast, :running, :multicast]
+    inet 172.31.255.9  netmask 255.255.255.252  broadcast 172.31.255.9
+    inet fe80::a8d3:3ff:fe06:6848  netmask ffff:ffff:ffff:ffff::
+    hwaddr aa:d3:03:06:68:48
+
+#rpi4 has integrated wifi/ble
+VintageNet.scan("wlan0")
+VintageNet.get(["interface", "wlan0", "wifi", "access_points"])
+[
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_5_ghz,
+    bssid: "74:ac:b9:68:64:1c",
+    channel: 36,
+    flags: [:wpa2_psk_ccmp, :wpa2, :psk, :ccmp, :ess],
+    frequency: 5180,
+    signal_dbm: -75,
+    signal_percent: 60,
+    ssid: "Yeico"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_5_ghz,
+    bssid: "7a:ac:b9:68:64:1c",
+    channel: 36,
+    flags: [:wpa2_psk_ccmp, :wpa2, :psk, :ccmp, :ess],
+    frequency: 5180,
+    signal_dbm: -75,
+    signal_percent: 60,
+    ssid: "Guest"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_2_4_ghz,
+    bssid: "90:16:ba:ce:98:03",
+    channel: 11,
+    flags: [:ess],
+    frequency: 2462,
+    signal_dbm: -63,
+    signal_percent: 61,
+    ssid: "ClubTotalplay_WiFi_2.4G"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_5_ghz,
+    bssid: "90:16:ba:ce:98:04",
+    channel: 149,
+    flags: [:wpa2_psk_ccmp, :wpa2, :psk, :ccmp, :ess],
+    frequency: 5745,
+    signal_dbm: -82,
+    signal_percent: 43,
+    ssid: "Totalplay-26A5-5G"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_5_ghz,
+    bssid: "90:16:ba:ce:98:07",
+    channel: 149,
+    flags: [:ess],
+    frequency: 5745,
+    signal_dbm: -82,
+    signal_percent: 43,
+    ssid: "ClubTotalplay_WiFi_5G"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_2_4_ghz,
+    bssid: "d8:b0:4c:f2:d4:54",
+    channel: 6,
+    flags: [:ess],
+    frequency: 2437,
+    signal_dbm: -63,
+    signal_percent: 61,
+    ssid: "USR-WIFI232-630_D454"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_2_4_ghz,
+    bssid: "e0:63:da:2a:3b:5a",
+    channel: 6,
+    flags: [:wpa2_psk_ccmp, :wpa2, :psk, :ccmp, :ess],
+    frequency: 2437,
+    signal_dbm: -78,
+    signal_percent: 34,
+    ssid: "Yeico"
+  },
+  %VintageNetWiFi.AccessPoint{
+    band: :wifi_2_4_ghz,
+    bssid: "e2:63:da:13:80:9a",
+    channel: 6,
+    flags: [:wpa2_psk_ccmp, :wpa2, :psk, :ccmp, :ess],
+    frequency: 2437,
+    signal_dbm: -34,
+    signal_percent: 93,
+    ssid: "Guest"
+  },
+]

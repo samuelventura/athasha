@@ -19,18 +19,25 @@ Node.list
 
 #rpi4
 ssh athasha-4ad8
+ssh 172.31.255.9
 cmd "epmd -daemon"
+Node.start :"target@172.31.255.9"
 Node.start :"target@10.77.3.176"
 Node.start :"target@athasha-4ad8.local"
 Node.set_cookie :COOKIE
 
-#build
+#build/devel
 System.cmd "epmd",["-daemon"]
 System.cmd "epmd",["-names"]
-Node.start :"code@build"
+Node.start :"code@build.local"
+Node.start :"code@p3420.local"
+Node.start :"code@172.31.255.10"
+Node.set_cookie :COOKIE
+Node.connect :"target@172.31.255.9"
 Node.connect :"target@10.77.3.176"
 Node.connect :"target@athasha-4ad8.local"
-Node.set_cookie :COOKIE
+:rpc.call :"target@172.31.255.9", VintageNet, :info, []
 :rpc.call :"target@10.77.3.176", VintageNet, :info, []
 :rpc.call :"target@athasha-4ad8.local", VintageNet, :info, []
 Node.spawn_link :"target@athasha-4ad8.local", VintageNet, :info, []
+System.put_env("VintageRemote", "target@172.31.255.9")
