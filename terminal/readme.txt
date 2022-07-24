@@ -20,7 +20,7 @@ MIX_TARGET=rpi3 mix compile
 MIX_TARGET=rpi3 mix firmware.image
 MIX_TARGET=rpi3 mix burn
 MIX_TARGET=rpi3 mix burn --task upgrade
-#update not working
+#update fails most of the times
 MIX_TARGET=rpi3 mix upload athasha-ee0c
 ssh athasha-ee0c
 MIX_TARGET=rpi3 ./upload.sh athasha-ee0c
@@ -65,8 +65,11 @@ Tryout.run Tryout, :monitor, [:code, "/tmp/ash.tty", :mext]
 Tryout.run Tryout, :monitor, [:code, "/tmp/ash.tty", :mstd]
 Tryout.run Tryout, :monitor, [:linux, "/dev/tty2", :mext]
 Tryout.run Tryout, :monitor, [:linux, "athasha-4ad8", 8899, :mext]
+Tryout.run Tryout, :monitor, [:linux, "athasha-ee0c", 8899, :mext]
 nc athasha-4ad8 8899
 nc localhost 8899
+{:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.tty", :code
+Process.exit pid, :kill
 
 mix run tryout/try_hello.exs
 mix run tryout/try_ansi.exs

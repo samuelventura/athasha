@@ -184,8 +184,12 @@ defmodule AthashaTerminal.Tryout do
       Term.set(term, :inverse) <>
       "inverse\n\r" <>
       Term.clear(term, :styles) <>
-      Enum.reduce(0..255, "", fn n, acc ->
-        acc <> Term.color(term, :background, n) <> " "
+      Enum.reduce(0..3, "", fn n, acc ->
+        acc <>
+          Term.cursor(term, 9 + n, 0) <>
+          Enum.reduce(0..63, "", fn m, acc ->
+            acc <> Term.color(term, :background, 64 * n + m) <> " "
+          end)
       end) <>
       "\n\r" <>
       Enum.reduce(0..7, "", fn n, acc ->
@@ -195,6 +199,12 @@ defmodule AthashaTerminal.Tryout do
           Term.color(term, :background, 0) <>
           Term.color(term, :foreground, n) <>
           " 0123456789abcdef\n\r"
+      end) <>
+      Term.clear(term, :styles) <>
+      Enum.reduce(0..120, "", fn n, acc ->
+        acc <>
+          Term.cursor(term, n, 70) <>
+          "#{n}"
       end)
   end
 end
