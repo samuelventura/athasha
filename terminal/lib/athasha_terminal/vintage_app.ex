@@ -34,9 +34,10 @@ defmodule AthashaTerminal.VintageApp do
         type: :window,
         x: 0,
         y: 0,
-        width: 4,
+        width: 20,
         height: 3,
-        backcolor: :green,
+        background: :white,
+        foreground: :black,
         border: :double,
         title: "Network Settings"
       }

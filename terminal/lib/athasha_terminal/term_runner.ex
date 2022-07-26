@@ -87,11 +87,24 @@ defmodule AthashaTerminal.AppRunner do
         canvas -> Render.render(canvas, l)
       end
 
-    IO.inspect(canvas2)
     diff = Canvas.diff(canvas1, canvas2)
-    IO.inspect(diff)
-    diff = Canvas.encode(term, diff)
-    Tty.write!(port, diff)
-    canvas2
+    # do not hide cursor for empty or cursor only diffs
+    case diff do
+      [] ->
+        canvas2
+
+      _ ->
+        diff = :lists.reverse(diff)
+
+        diff =
+          case diff do
+            [{:c, _}] -> diff
+            _ -> [{:c, false} | diff]
+          end
+
+        diff = Canvas.encode(term, diff)
+        Tty.write!(port, diff)
+        canvas2
+    end
   end
 end

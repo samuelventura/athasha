@@ -75,6 +75,7 @@ defmodule AthashaTerminal.Tryout do
   end
 
   def monitor(term, tty, mouse) do
+    term = Term.init(term)
     port = Tty.open(tty)
     read = fn -> Tty.read!(port) end
     write = fn data -> Tty.write!(port, data) end
@@ -102,23 +103,23 @@ defmodule AthashaTerminal.Tryout do
   end
 
   defp monitor_init(term, write, mouse) do
-    Term.clear(term, :all) |> write.()
+    term.clear(:all) |> write.()
 
     case mouse do
       :mext ->
-        Term.mouse(term, :standard) |> write.()
-        Term.mouse(term, :extended) |> write.()
+        term.mouse(:standard) |> write.()
+        term.mouse(:extended) |> write.()
 
       :mstd ->
-        Term.mouse(term, :standard) |> write.()
+        term.mouse(:standard) |> write.()
     end
 
-    Term.query(term, :size) |> write.()
+    term.query(:size) |> write.()
   end
 
   defp monitor_loop(term, write, read, buffer) do
     data = read.()
-    {buffer, events} = Term.append(term, buffer, data)
+    {buffer, events} = term.append(buffer, data)
     Enum.each(events, &monitor_handle(term, write, &1))
     IO.inspect({data, events, buffer})
     monitor_loop(term, write, read, buffer)
@@ -127,34 +128,34 @@ defmodule AthashaTerminal.Tryout do
   defp monitor_handle(term, write, event) do
     case event do
       {:key, 0, "\e"} -> monitor_showcase(term)
-      {:key, 2, "`"} -> Term.query(term, :size)
-      {:key, 2, "1"} -> Term.clear(term, :all)
-      {:key, 2, "2"} -> Term.clear(term, :screen)
-      {:key, 2, "3"} -> Term.clear(term, :styles)
-      {:key, 2, "4"} -> Term.mouse(term, :standard)
-      {:key, 2, "5"} -> Term.mouse(term, :extended)
-      {:key, 2, "a"} -> Term.cursor(term, 0, 0)
-      {:key, 2, "s"} -> Term.hide(term, :cursor)
-      {:key, 2, "d"} -> Term.show(term, :cursor)
-      {:key, 2, "f"} -> Term.cursor(term, :style, :blinking_block)
-      {:key, 2, "g"} -> Term.cursor(term, :style, :steady_block)
-      {:key, 2, "h"} -> Term.cursor(term, :style, :blinking_underline)
-      {:key, 2, "j"} -> Term.cursor(term, :style, :steady_underline)
-      {:key, 2, "k"} -> Term.cursor(term, :style, :blinking_bar)
-      {:key, 2, "l"} -> Term.cursor(term, :style, :steady_bar)
-      {:key, 2, "x"} -> Term.set(term, :bold)
-      {:key, 2, "v"} -> Term.set(term, :dimmed)
-      {:key, 2, "b"} -> Term.set(term, :italic)
-      {:key, 2, "n"} -> Term.set(term, :underline)
-      {:key, 2, "m"} -> Term.set(term, :inverse)
-      {:key, 2, ","} -> Term.set(term, :crossed)
-      {:key, 2, "."} -> Term.set(term, :blink)
-      {:key, 2, "6"} -> Term.reset(term, :normal)
-      {:key, 2, "7"} -> Term.reset(term, :italic)
-      {:key, 2, "8"} -> Term.reset(term, :underline)
-      {:key, 2, "9"} -> Term.reset(term, :inverse)
-      {:key, 2, "0"} -> Term.reset(term, :crossed)
-      {:key, 2, "-"} -> Term.reset(term, :blink)
+      {:key, 2, "`"} -> term.query(:size)
+      {:key, 2, "1"} -> term.clear(:all)
+      {:key, 2, "2"} -> term.clear(:screen)
+      {:key, 2, "3"} -> term.clear(:styles)
+      {:key, 2, "4"} -> term.mouse(:standard)
+      {:key, 2, "5"} -> term.mouse(:extended)
+      {:key, 2, "a"} -> term.cursor(0, 0)
+      {:key, 2, "s"} -> term.hide(:cursor)
+      {:key, 2, "d"} -> term.show(:cursor)
+      {:key, 2, "f"} -> term.cursor(:style, :blinking_block)
+      {:key, 2, "g"} -> term.cursor(:style, :steady_block)
+      {:key, 2, "h"} -> term.cursor(:style, :blinking_underline)
+      {:key, 2, "j"} -> term.cursor(:style, :steady_underline)
+      {:key, 2, "k"} -> term.cursor(:style, :blinking_bar)
+      {:key, 2, "l"} -> term.cursor(:style, :steady_bar)
+      {:key, 2, "x"} -> term.set(:bold)
+      {:key, 2, "v"} -> term.set(:dimmed)
+      {:key, 2, "b"} -> term.set(:italic)
+      {:key, 2, "n"} -> term.set(:underline)
+      {:key, 2, "m"} -> term.set(:inverse)
+      {:key, 2, ","} -> term.set(:crossed)
+      {:key, 2, "."} -> term.set(:blink)
+      {:key, 2, "6"} -> term.reset(:normal)
+      {:key, 2, "7"} -> term.reset(:italic)
+      {:key, 2, "8"} -> term.reset(:underline)
+      {:key, 2, "9"} -> term.reset(:inverse)
+      {:key, 2, "0"} -> term.reset(:crossed)
+      {:key, 2, "-"} -> term.reset(:blink)
       {:key, 0, "\r"} -> "\r\n"
       {:key, 0, k} -> k
       _ -> ""
@@ -163,47 +164,47 @@ defmodule AthashaTerminal.Tryout do
   end
 
   defp monitor_showcase(term) do
-    Term.clear(term, :all) <>
+    term.clear(:all) <>
       "normal\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :bold) <>
+      term.clear(:styles) <>
+      term.set(:bold) <>
       "bold\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :italic) <>
+      term.clear(:styles) <>
+      term.set(:italic) <>
       "italic\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :underline) <>
+      term.clear(:styles) <>
+      term.set(:underline) <>
       "underline\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :dimmed) <>
+      term.clear(:styles) <>
+      term.set(:dimmed) <>
       "dimmed\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :crossed) <>
+      term.clear(:styles) <>
+      term.set(:crossed) <>
       "crossed\n\r" <>
-      Term.clear(term, :styles) <>
-      Term.set(term, :inverse) <>
+      term.clear(:styles) <>
+      term.set(:inverse) <>
       "inverse\n\r" <>
-      Term.clear(term, :styles) <>
+      term.clear(:styles) <>
       Enum.reduce(0..3, "", fn n, acc ->
         acc <>
-          Term.cursor(term, 9 + n, 0) <>
+          term.cursor(9 + n, 0) <>
           Enum.reduce(0..63, "", fn m, acc ->
-            acc <> Term.color(term, :background, 64 * n + m) <> " "
+            acc <> term.color(:background, 64 * n + m) <> " "
           end)
       end) <>
       "\n\r" <>
       Enum.reduce(0..7, "", fn n, acc ->
         acc <>
-          Term.color(term, :background, n) <>
+          term.color(:background, n) <>
           "                " <>
-          Term.color(term, :background, 0) <>
-          Term.color(term, :foreground, n) <>
+          term.color(:background, 0) <>
+          term.color(:foreground, n) <>
           " 0123456789abcdef\n\r"
       end) <>
-      Term.clear(term, :styles) <>
+      term.clear(:styles) <>
       Enum.reduce(0..120, "", fn n, acc ->
         acc <>
-          Term.cursor(term, n, 70) <>
+          term.cursor(n, 70) <>
           "#{n}"
       end)
   end

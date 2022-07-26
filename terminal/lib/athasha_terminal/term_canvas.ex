@@ -186,17 +186,13 @@ defmodule AthashaTerminal.Canvas do
         false -> [{:m, x2, y2} | list]
       end
 
-    list =
-      case cursor1 == cursor2 do
-        true -> list
-        false -> [{:c, cursor2} | list]
-      end
-
-    list
+    case cursor1 == cursor2 do
+      true -> list
+      false -> [{:c, cursor2} | list]
+    end
   end
 
   def encode(term, list) do
-    list = :lists.reverse(list)
     list = encode(term, [], list)
     :lists.reverse(list)
   end

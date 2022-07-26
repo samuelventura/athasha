@@ -1,58 +1,68 @@
 defmodule AthashaTerminal.Render do
   alias AthashaTerminal.Canvas
 
-  def render(canvas, %{
-        type: :window,
-        x: x,
-        y: y,
-        width: w,
-        height: h,
-        backcolor: backcolor,
-        border: border,
-        title: title
-      }) do
+  def render(canvas, %{type: :window} = window) do
+    %{x: x, y: y, width: w, height: h, background: background} = window
+    border = Map.get(window, :border)
+    title = Map.get(window, :title)
     canvas = Canvas.clear(canvas, :styles)
-    canvas = Canvas.color(canvas, :background, backcolor)
-
+    canvas = Canvas.color(canvas, :background, background)
     ph = h - 1
 
-    for r <- 0..ph, reduce: canvas do
-      canvas ->
-        canvas = Canvas.cursor(canvas, x, y + r)
+    canvas =
+      case {border, title} do
+        {nil, nil} ->
+          canvas
 
-        horizontal = border_char(border, :horizontal)
-        vertical = border_char(border, :vertical)
+        _ ->
+          foreground = Map.fetch!(window, :foreground)
+          Canvas.color(canvas, :foreground, foreground)
+      end
 
-        border =
-          case r do
-            0 ->
-              [
-                border_char(border, :top_left),
-                String.duplicate(horizontal, w - 2),
-                border_char(border, :top_right)
-              ]
+    canvas =
+      for r <- 0..ph, reduce: canvas do
+        canvas ->
+          canvas = Canvas.cursor(canvas, x, y + r)
 
-            ^ph ->
-              [
-                border_char(border, :bottom_left),
-                String.duplicate(horizontal, w - 2),
-                border_char(border, :bottom_right)
-              ]
+          horizontal = border_char(border, :horizontal)
+          vertical = border_char(border, :vertical)
 
-            _ ->
-              [vertical, String.duplicate(" ", w - 2), vertical]
-          end
+          border =
+            case r do
+              0 ->
+                [
+                  border_char(border, :top_left),
+                  String.duplicate(horizontal, w - 2),
+                  border_char(border, :top_right)
+                ]
 
-        Canvas.write(canvas, border)
+              ^ph ->
+                [
+                  border_char(border, :bottom_left),
+                  String.duplicate(horizontal, w - 2),
+                  border_char(border, :bottom_right)
+                ]
+
+              _ ->
+                [vertical, String.duplicate(" ", w - 2), vertical]
+            end
+
+          Canvas.write(canvas, border)
+      end
+
+    case title do
+      nil ->
+        canvas
+
+      _ ->
+        canvas = Canvas.cursor(canvas, x + 1, y)
+        Canvas.write(canvas, title)
     end
   end
 
   # https://en.wikipedia.org/wiki/Box-drawing_character
   defp border_char(type, elem) do
     case type do
-      :none ->
-        " "
-
       :single ->
         case elem do
           :top_left -> "┌"
@@ -72,6 +82,9 @@ defmodule AthashaTerminal.Render do
           :horizontal -> "═"
           :vertical -> "║"
         end
+
+      _ ->
+        " "
     end
   end
 end
