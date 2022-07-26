@@ -1,8 +1,27 @@
 defmodule AthashaTerminal.Render do
   alias AthashaTerminal.Canvas
 
+  def render(canvas, %{type: :label} = label) do
+    %{x: x, y: y, text: text} = label
+    %{foreground: foreground, background: background} = label
+    %{width: w, inverse: inverse} = label
+    canvas = Canvas.cursor(canvas, x, y)
+    canvas = Canvas.color(canvas, :foreground, foreground)
+    canvas = Canvas.color(canvas, :background, background)
+
+    canvas =
+      case inverse do
+        false -> Canvas.reset(canvas, :inverse)
+        true -> Canvas.set(canvas, :inverse)
+      end
+
+    text = String.pad_trailing(text, w)
+    Canvas.write(canvas, text)
+  end
+
   def render(canvas, %{type: :window} = window) do
-    %{x: x, y: y, width: w, height: h, background: background} = window
+    %{x: x, y: y, width: w, height: h} = window
+    %{background: background} = window
     border = Map.get(window, :border)
     title = Map.get(window, :title)
     canvas = Canvas.clear(canvas, :styles)

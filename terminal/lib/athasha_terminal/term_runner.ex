@@ -78,6 +78,11 @@ defmodule AthashaTerminal.AppRunner do
   end
 
   defp render(port, term, mod, model, canvas1) do
+    render_diff(port, term, mod, model, canvas1)
+    # render_direct(port, term, mod, model, canvas1)
+  end
+
+  defp render_diff(port, term, mod, model, canvas1) do
     layers = mod.render(model)
     %{width: width, height: height} = canvas1
     canvas2 = Canvas.new(width, height)
@@ -106,5 +111,22 @@ defmodule AthashaTerminal.AppRunner do
         Tty.write!(port, diff)
         canvas2
     end
+  end
+
+  defp render_direct(port, term, mod, model, canvas1) do
+    layers = mod.render(model)
+    %{width: width, height: height} = canvas1
+    canvas2 = Canvas.new(width, height)
+
+    canvas2 =
+      for l <- layers, reduce: canvas2 do
+        canvas -> Render.render(canvas, l)
+      end
+
+    data = Canvas.encode(term, canvas2)
+    data = IO.iodata_to_binary(data)
+    Tty.write!(port, term.hide(:cursor))
+    Tty.write!(port, data)
+    canvas2
   end
 end

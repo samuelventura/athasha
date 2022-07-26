@@ -79,7 +79,7 @@ defmodule AthashaTerminal.Canvas do
   end
 
   def reset(canvas = %{style: style}, :inverse) do
-    %{canvas | style: Bitwise.band(style, @inverse)}
+    %{canvas | style: Bitwise.band(style, Bitwise.bnot(@inverse))}
   end
 
   def write(canvas, chardata) do
@@ -114,30 +114,29 @@ defmodule AthashaTerminal.Canvas do
       width: width,
       cursor_x: x1,
       cursor_y: y1,
-      cursor: cursor1
+      cursor: cursor1,
+      background: b1,
+      foreground: f1,
+      style: s1
     } = canvas1
 
     %{
       data: data2,
       height: ^height,
-      width: ^width,
-      cursor_x: x2,
-      cursor_y: y2,
-      cursor: cursor2
+      width: ^width
     } = canvas2
 
-    {list, _, x, y} =
-      for row <- 0..(height - 1), col <- 0..(width - 1), reduce: {[], @cell, x1, y1} do
-        {list, cel0, x, y} ->
+    {list, f, b, s, x, y} =
+      for row <- 0..(height - 1), col <- 0..(width - 1), reduce: {[], f1, b1, s1, x1, y1} do
+        {list, f0, b0, s0, x, y} ->
           cel1 = Map.get(data1, {col, row}, @cell)
           cel2 = Map.get(data2, {col, row}, @cell)
 
-          case cel1 == cel2 do
+          case cel2 == cel1 do
             true ->
-              {list, cel0, x, y}
+              {list, f0, b0, s0, x, y}
 
             false ->
-              {_, f0, b0, s0} = cel0
               {c2, f2, b2, s2} = cel2
 
               list =
@@ -163,8 +162,11 @@ defmodule AthashaTerminal.Canvas do
 
               list =
                 case s0 == s2 do
-                  true -> list
-                  false -> [{:s, s0, s2} | list]
+                  true ->
+                    list
+
+                  false ->
+                    [{:s, s0, s2} | list]
                 end
 
               # to update styles write c2 even if same to c1
@@ -176,8 +178,39 @@ defmodule AthashaTerminal.Canvas do
 
               row = row + div(col + 1, width)
               col = rem(col + 1, width)
-              {list, cel2, col, row}
+              {list, f2, b2, s2, col, row}
           end
+      end
+
+    # restore canvas2 styles
+    %{
+      cursor_x: x2,
+      cursor_y: y2,
+      cursor: cursor2,
+      background: b2,
+      foreground: f2,
+      style: s2
+    } = canvas2
+
+    list =
+      case b == b2 do
+        true -> list
+        false -> [{:b, b2} | list]
+      end
+
+    list =
+      case f == f2 do
+        true -> list
+        false -> [{:f, f2} | list]
+      end
+
+    list =
+      case s == s2 do
+        true ->
+          list
+
+        false ->
+          [{:s, s, s2} | list]
       end
 
     list =
@@ -186,13 +219,63 @@ defmodule AthashaTerminal.Canvas do
         false -> [{:m, x2, y2} | list]
       end
 
-    case cursor1 == cursor2 do
-      true -> list
-      false -> [{:c, cursor2} | list]
-    end
+    list =
+      case cursor1 == cursor2 do
+        true -> list
+        false -> [{:c, cursor2} | list]
+      end
+
+    list
   end
 
-  def encode(term, list) do
+  def encode(term, canvas) when is_map(canvas) do
+    %{
+      data: data,
+      height: height,
+      width: width,
+      cursor_x: x,
+      cursor_y: y,
+      cursor: cursor
+    } = canvas
+
+    list =
+      for row <- 0..(height - 1), col <- 0..(width - 1) do
+        case Map.get(data, {col, row}) do
+          nil ->
+            nil
+
+          {c, f, b, s} ->
+            sb = Bitwise.band(s, @bold) > 0
+            sd = Bitwise.band(s, @dimmed) > 0
+            si = Bitwise.band(s, @inverse) > 0
+
+            [
+              term.cursor(col, row),
+              term.reset(:normal),
+              term.reset(:inverse),
+              if(sb, do: term.set(:bold)),
+              if(sd, do: term.set(:dimmed)),
+              if(si, do: term.set(:inverse)),
+              term.color(:foreground, f),
+              term.color(:background, b),
+              IO.chardata_to_string([c])
+            ]
+            |> Enum.filter(&(&1 != nil))
+        end
+      end
+
+    list = Enum.filter(list, &(&1 != nil))
+
+    list =
+      case cursor do
+        false -> [term.hide(:cursor) | list]
+        true -> [term.show(:cursor) | list]
+      end
+
+    [term.cursor(x, y) | list]
+  end
+
+  def encode(term, list) when is_list(list) do
     list = encode(term, [], list)
     :lists.reverse(list)
   end
