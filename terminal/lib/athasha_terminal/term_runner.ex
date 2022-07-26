@@ -84,14 +84,12 @@ defmodule AthashaTerminal.AppRunner do
 
     canvas2 =
       for l <- layers, reduce: canvas2 do
-        canvas ->
-          IO.inspect(l)
-          IO.inspect(canvas)
-          IO.gets("hey")
-          Render.render(canvas, l)
+        canvas -> Render.render(canvas, l)
       end
 
+    IO.inspect(canvas2)
     diff = Canvas.diff(canvas1, canvas2)
+    IO.inspect(diff)
     diff = Canvas.encode(term, diff)
     Tty.write!(port, diff)
     canvas2

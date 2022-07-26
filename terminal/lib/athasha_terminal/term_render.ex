@@ -12,45 +12,39 @@ defmodule AthashaTerminal.Render do
         title: title
       }) do
     canvas = Canvas.clear(canvas, :styles)
+    canvas = Canvas.color(canvas, :background, backcolor)
 
-    canvas =
-      case backcolor == :none do
-        true ->
-          canvas
+    ph = h - 1
 
-        false ->
-          canvas = Canvas.color(canvas, :foreground, backcolor)
-          Canvas.color(canvas, :background, backcolor)
-      end
+    for r <- 0..ph, reduce: canvas do
+      canvas ->
+        canvas = Canvas.cursor(canvas, x, y + r)
 
-    Enum.reduce(0..h, canvas, fn r ->
-      canvas = Canvas.cursor(canvas, 1 + y + r, 1 + x)
+        horizontal = border_char(border, :horizontal)
+        vertical = border_char(border, :vertical)
 
-      horizontal = border_char(border, :horizontal)
-      vertical = border_char(border, :vertical)
+        border =
+          case r do
+            0 ->
+              [
+                border_char(border, :top_left),
+                String.duplicate(horizontal, w - 2),
+                border_char(border, :top_right)
+              ]
 
-      border =
-        case r do
-          0 ->
-            [
-              border_char(border, :top_left),
-              String.duplicate(horizontal, w - 2),
-              border_char(border, :top_right)
-            ]
+            ^ph ->
+              [
+                border_char(border, :bottom_left),
+                String.duplicate(horizontal, w - 2),
+                border_char(border, :bottom_right)
+              ]
 
-          ^h ->
-            [
-              border_char(border, :bottom_left),
-              String.duplicate(horizontal, w - 2),
-              border_char(border, :bottom_right)
-            ]
+            _ ->
+              [vertical, String.duplicate(" ", w - 2), vertical]
+          end
 
-          _ ->
-            [vertical, String.duplicate(" ", w - 2), vertical]
-        end
-
-      Canvas.write(canvas, border)
-    end)
+        Canvas.write(canvas, border)
+    end
   end
 
   # https://en.wikipedia.org/wiki/Box-drawing_character

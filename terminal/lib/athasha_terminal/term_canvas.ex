@@ -12,6 +12,8 @@ defmodule AthashaTerminal.Canvas do
   @cyan 6
   @white 7
 
+  @cell {' ', @white, @black, 0}
+
   def new(width, height) do
     %{
       data: %{},
@@ -96,22 +98,24 @@ defmodule AthashaTerminal.Canvas do
       |> IO.chardata_to_string()
       |> String.to_charlist()
       |> Enum.reduce({data, x, y}, fn c, {data, x, y} ->
-        x = rem(x + 1, width)
-        y = y + div(x + 1, width)
         data = Map.put(data, {x, y}, {c, fg, bg, style})
+        y = y + div(x + 1, width)
+        x = rem(x + 1, width)
         {data, x, y}
       end)
 
     %{canvas | data: data, cursor_x: x, cursor_y: y}
   end
 
-  def diff(buf1, buf2) do
+  def diff(canvas1, canvas2) do
     %{
       data: data1,
       height: height,
       width: width,
+      cursor_x: x1,
+      cursor_y: y1,
       cursor: cursor1
-    } = buf1
+    } = canvas1
 
     %{
       data: data2,
@@ -120,26 +124,29 @@ defmodule AthashaTerminal.Canvas do
       cursor_x: x2,
       cursor_y: y2,
       cursor: cursor2
-    } = buf2
+    } = canvas2
 
     {list, _, x, y} =
-      for row <- 0..height, col <- 0..width, reduce: {[], nil, 0, 0} do
+      for row <- 0..(height - 1), col <- 0..(width - 1), reduce: {[], @cell, x1, y1} do
         {list, cel0, x, y} ->
-          cel1 = Map.get(data1, {row, col}, {' ', @white, @black, 0})
-          cel2 = Map.get(data2, {row, col}, {' ', @white, @black, 0})
+          cel1 = Map.get(data1, {col, row}, @cell)
+          cel2 = Map.get(data2, {col, row}, @cell)
 
           case cel1 == cel2 do
             true ->
               {list, cel0, x, y}
 
             false ->
-              {_, b0, f0, s0} = cel0
-              {c2, b2, f2, s2} = cel2
+              {_, f0, b0, s0} = cel0
+              {c2, f2, b2, s2} = cel2
 
               list =
                 case {x, y} == {col, row} do
-                  true -> list
-                  false -> [{:m, col, row} | list]
+                  true ->
+                    list
+
+                  false ->
+                    [{:m, col, row} | list]
                 end
 
               list =
@@ -163,13 +170,13 @@ defmodule AthashaTerminal.Canvas do
               # to update styles write c2 even if same to c1
               list =
                 case list do
-                  [{:d, d} | tail] -> [{:d, [d, c2]} | tail]
-                  _ -> [{:d, c2} | list]
+                  [{:d, d} | tail] -> [{:d, [c2 | d]} | tail]
+                  _ -> [{:d, [c2]} | list]
                 end
 
+              row = row + div(col + 1, width)
               col = rem(col + 1, width)
-              row = div(col + 1, width)
-              {list, cel2, col + 1, row}
+              {list, cel2, col, row}
           end
       end
 
@@ -202,6 +209,7 @@ defmodule AthashaTerminal.Canvas do
   end
 
   defp encode(term, list, [{:d, d} | tail]) do
+    d = :lists.reverse(d)
     d = IO.chardata_to_string(d)
     encode(term, [d | list], tail)
   end
