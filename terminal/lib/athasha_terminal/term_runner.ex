@@ -1,32 +1,39 @@
 defmodule AthashaTerminal.AppRunner do
   alias AthashaTerminal.Tty
   alias AthashaTerminal.Term
+  alias AthashaTerminal.Canvas
+  alias AthashaTerminal.Render
 
   def start_link(mod, tty, term, opts \\ []) do
     Task.start_link(fn -> run(mod, tty, term, opts) end)
   end
 
   def run(mod, tty, term, opts) do
+    term = Term.init(term)
     port = Tty.open(tty)
+    Tty.write!(port, term.clear(:all))
+    Tty.write!(port, term.hide(:cursor))
     size = query_size(port, term)
+    {width, height} = size
+    canvas = Canvas.new(width, height)
     {model, cmds} = mod.init(opts ++ [size: size])
     execute_cmds(mod, cmds)
-    render(port, term, mod, model)
-    loop(port, term, "", mod, model)
+    canvas = render(port, term, mod, model, canvas)
+    loop(port, term, "", mod, model, canvas)
   end
 
-  defp loop(port, term, buffer, mod, model) do
+  defp loop(port, term, buffer, mod, model, canvas) do
     receive do
       {^port, {:data, data}} ->
-        {buffer, events} = Term.append(term, buffer, data)
+        {buffer, events} = term.append(buffer, data)
         model = apply_events(mod, model, events)
-        render(port, term, mod, model)
-        loop(port, term, buffer, mod, model)
+        canvas = render(port, term, mod, model, canvas)
+        loop(port, term, buffer, mod, model, canvas)
 
       {:cmd, cmd, res} ->
         model = apply_events(mod, model, [{:cmd, cmd, res}])
-        render(port, term, mod, model)
-        loop(port, term, buffer, mod, model)
+        canvas = render(port, term, mod, model, canvas)
+        loop(port, term, buffer, mod, model, canvas)
 
       other ->
         raise "#{inspect(other)}"
@@ -42,34 +49,12 @@ defmodule AthashaTerminal.AppRunner do
   end
 
   defp query_size(port, term) do
-    query = Term.query(term, :size)
+    query = term.query(:size)
     Tty.write!(port, query)
     data = Tty.read!(port)
-    {"", [event]} = Term.append(term, "", data)
+    {"", [event]} = term.append("", data)
     {:resize, w, h} = event
     {w, h}
-  end
-
-  defp tty_write(data, port) do
-    IO.inspect({port, data})
-    Tty.write!(port, data)
-  end
-
-  defp render(port, term, mod, model) do
-    Term.clear(term, :all) |> tty_write(port)
-    Term.hide(term, :cursor) |> tty_write(port)
-    layers = mod.render(model)
-    Enum.each(layers, &render(port, term, &1))
-  end
-
-  defp render(port, term, {:window, x: x, y: y, w: w, h: h, bg: color}) do
-    Term.color(term, :foreground, color) |> tty_write(port)
-    Term.color(term, :background, color) |> tty_write(port)
-
-    Enum.each(0..h, fn r ->
-      Term.cursor(term, 1 + y + r, 1 + x) |> tty_write(port)
-      String.duplicate(" ", w) |> tty_write(port)
-    end)
   end
 
   defp execute_cmds(_, []), do: nil
@@ -90,5 +75,25 @@ defmodule AthashaTerminal.AppRunner do
         e -> send(self, {:cmd, cmd, e})
       end
     end)
+  end
+
+  defp render(port, term, mod, model, canvas1) do
+    layers = mod.render(model)
+    %{width: width, height: height} = canvas1
+    canvas2 = Canvas.new(width, height)
+
+    canvas2 =
+      for l <- layers, reduce: canvas2 do
+        canvas ->
+          IO.inspect(l)
+          IO.inspect(canvas)
+          IO.gets("hey")
+          Render.render(canvas, l)
+      end
+
+    diff = Canvas.diff(canvas1, canvas2)
+    diff = Canvas.encode(term, diff)
+    Tty.write!(port, diff)
+    canvas2
   end
 end

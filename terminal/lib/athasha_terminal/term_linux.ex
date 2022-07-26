@@ -13,13 +13,13 @@ defmodule AthashaTerminal.TermLinux do
   def mouse(:standard), do: "\e[?1000h"
   def mouse(:extended), do: "\e[?1006h"
 
-  def cursor(line, column), do: "\e[#{line};#{column}H"
+  def cursor(column, line), do: "\e[#{line + 1};#{column + 1}H"
 
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, id), do: "\e[38;5;#{id}m"
-  def color(:background, id), do: "\e[48;5;#{id}m"
+  def color(:foreground, id), do: "\e[38;5;#{num(id)}m"
+  def color(:background, id), do: "\e[48;5;#{num(id)}m"
 
   def set(:bold), do: "\e[1m"
   def set(:dimmed), do: "\e[2m"
@@ -34,6 +34,20 @@ defmodule AthashaTerminal.TermLinux do
   def append(buffer, data) do
     buffer = buffer <> data
     scan(buffer, [])
+  end
+
+  defp num(id) do
+    case id do
+      :black -> 0
+      :red -> 1
+      :green -> 2
+      :yellow -> 3
+      :blue -> 4
+      :magenta -> 5
+      :cyan -> 6
+      :white -> 7
+      _ -> id
+    end
   end
 
   @ctl 1

@@ -30,7 +30,16 @@ defmodule AthashaTerminal.VintageApp do
 
   def render(_state) do
     [
-      {:window, x: 0, y: 0, w: 10, h: 10, bg: :green}
+      %{
+        type: :window,
+        x: 0,
+        y: 0,
+        width: 20,
+        height: 5,
+        backcolor: :none,
+        border: :double,
+        title: "Network Settings"
+      }
     ]
   end
 
