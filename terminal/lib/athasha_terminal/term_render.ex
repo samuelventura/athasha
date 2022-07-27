@@ -2,9 +2,9 @@ defmodule AthashaTerminal.Render do
   alias AthashaTerminal.Canvas
 
   def render(canvas, %{type: :label} = label) do
-    %{x: x, y: y, text: text} = label
+    %{width: w, x: x, y: y, text: text} = label
     %{foreground: foreground, background: background} = label
-    %{width: w, inverse: inverse} = label
+    inverse = Map.get(label, :inverse, false)
     canvas = Canvas.cursor(canvas, x, y)
     canvas = Canvas.color(canvas, :foreground, foreground)
     canvas = Canvas.color(canvas, :background, background)

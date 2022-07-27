@@ -59,6 +59,7 @@ cat /tmp/ash.tty
 echo "hello" > /tmp/ash.tty
 stty -f /dev/ttys004 raw -echo
 killall tty_master
+System.cmd "killall",["tty_master"]
 #from elixir port only
 #priv/native/tty_slave /tmp/ash.tty
 #from iex -S mix

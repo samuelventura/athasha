@@ -1,4 +1,6 @@
 defmodule AthashaTerminal.TermCode do
+  use AthashaTerminal.Term
+
   # https://xtermjs.org/docs/api/vtfeatures/
   # xtermjs wont suppot blink #944
   def clear(:all), do: "\ec"
@@ -22,8 +24,8 @@ defmodule AthashaTerminal.TermCode do
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, id), do: "\e[38;5;#{num(id)}m"
-  def color(:background, id), do: "\e[48;5;#{num(id)}m"
+  def color(:foreground, name), do: "\e[38;5;#{color_id(name)}m"
+  def color(:background, name), do: "\e[48;5;#{color_id(name)}m"
 
   def set(:bold), do: "\e[1m"
   def set(:dimmed), do: "\e[2m"
@@ -45,24 +47,6 @@ defmodule AthashaTerminal.TermCode do
     buffer = buffer <> data
     scan(buffer, [])
   end
-
-  defp num(id) do
-    case id do
-      :black -> 0
-      :red -> 1
-      :green -> 2
-      :yellow -> 3
-      :blue -> 4
-      :magenta -> 5
-      :cyan -> 6
-      :white -> 7
-      _ -> id
-    end
-  end
-
-  @ctl 1
-  @alt 2
-  @fun 4
 
   @resize ~r/^\e\[(\d+);(\d+)R/
   @mouse ~r/^\e\[M(.)(.)(.)/

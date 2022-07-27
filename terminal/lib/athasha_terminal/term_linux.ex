@@ -1,4 +1,5 @@
 defmodule AthashaTerminal.TermLinux do
+  use AthashaTerminal.Term
   # https://man7.org/linux/man-pages/man4/console_codes.4.html
   # cursor styles not supported
   # limited text styles support
@@ -18,8 +19,8 @@ defmodule AthashaTerminal.TermLinux do
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, id), do: "\e[38;5;#{num(id)}m"
-  def color(:background, id), do: "\e[48;5;#{num(id)}m"
+  def color(:foreground, name), do: "\e[38;5;#{color_id(name)}m"
+  def color(:background, name), do: "\e[48;5;#{color_id(name)}m"
 
   def set(:bold), do: "\e[1m"
   def set(:dimmed), do: "\e[2m"
@@ -35,24 +36,6 @@ defmodule AthashaTerminal.TermLinux do
     buffer = buffer <> data
     scan(buffer, [])
   end
-
-  defp num(id) do
-    case id do
-      :black -> 0
-      :red -> 1
-      :green -> 2
-      :yellow -> 3
-      :blue -> 4
-      :magenta -> 5
-      :cyan -> 6
-      :white -> 7
-      _ -> id
-    end
-  end
-
-  @ctl 1
-  @alt 2
-  @fun 4
 
   @resize ~r/^\e\[(\d+);(\d+)R/
 

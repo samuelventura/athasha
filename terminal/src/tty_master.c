@@ -50,10 +50,16 @@ static void signal_setup(int sig) {
 	if (sigaction(sig, &sa, 0)) crash("sigaction %d", sig);
 }
 
-void copy_size() {
+//during development slave wont receive resize signal because it 
+//doesn't have a controlling tty, during production no resize
+//will be needed.
+//slave will need to update if resize signal is ever needed in 
+//the future and it is not paired with this devel master.
+void copy_size(int send) {
   struct winsize ts;
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ts)) crash("ioctl TIOCGWINSZ %d", fd);
   if (ioctl(fd, TIOCSWINSZ, &ts)) crash("ioctl TIOCSWINSZ %d", fd);
+  if (send) dprintf(fd, "\x1B[%d;%dR", ts.ws_row, ts.ws_col);
 }
 
 void make_raw(int fd) {
@@ -100,7 +106,7 @@ int main(int argc, char *argv[]) {
   make_raw(STDIN_FILENO);
   signal_setup(SIGWINCH);
   make_raw(fd); //prevent size echo
-  copy_size();
+  copy_size(0);
   int max = MAX3(rp[0], fd, STDIN_FILENO);
   while (1) {
     FD_ZERO(&fds);
@@ -124,7 +130,7 @@ int main(int argc, char *argv[]) {
     if (FD_ISSET(rp[0], &fds)) {
       int n = read(rp[0], buf, sizeof(buf));
       if (n <= 0) crash("read rp[0] %d", n);
-      copy_size();
+      copy_size(1);
     }
   }
   return 0;

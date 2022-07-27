@@ -4,6 +4,9 @@ defmodule AthashaTerminal.AppRunner do
   alias AthashaTerminal.Canvas
   alias AthashaTerminal.Render
 
+  # @method :direct
+  @method :diff
+
   def start_link(mod, tty, term, opts \\ []) do
     Task.start_link(fn -> run(mod, tty, term, opts) end)
   end
@@ -11,8 +14,7 @@ defmodule AthashaTerminal.AppRunner do
   def run(mod, tty, term, opts) do
     term = Term.init(term)
     port = Tty.open(tty)
-    Tty.write!(port, term.clear(:all))
-    Tty.write!(port, term.hide(:cursor))
+    init(port, term)
     size = query_size(port, term)
     {width, height} = size
     canvas = Canvas.new(width, height)
@@ -22,11 +24,32 @@ defmodule AthashaTerminal.AppRunner do
     loop(port, term, "", mod, model, canvas)
   end
 
+  defp init(port, term) do
+    Tty.write!(port, [
+      term.clear(:all),
+      term.hide(:cursor),
+      term.mouse(:standard),
+      term.mouse(:extended)
+    ])
+  end
+
   defp loop(port, term, buffer, mod, model, canvas) do
     receive do
       {^port, {:data, data}} ->
         {buffer, events} = term.append(buffer, data)
         model = apply_events(mod, model, events)
+
+        # glitch on horizontal resize because of auto line wrapping
+        canvas =
+          case find_resize(events) do
+            nil ->
+              canvas
+
+            {:resize, width, height} ->
+              init(port, term)
+              Canvas.new(width, height)
+          end
+
         canvas = render(port, term, mod, model, canvas)
         loop(port, term, buffer, mod, model, canvas)
 
@@ -46,6 +69,15 @@ defmodule AthashaTerminal.AppRunner do
     {model, cmds} = mod.update(model, event)
     execute_cmds(mod, cmds)
     apply_events(mod, model, tail)
+  end
+
+  defp find_resize(events) do
+    Enum.find(events, fn event ->
+      case event do
+        {:resize, _, _} -> true
+        _ -> false
+      end
+    end)
   end
 
   defp query_size(port, term) do
@@ -78,12 +110,26 @@ defmodule AthashaTerminal.AppRunner do
   end
 
   defp render(port, term, mod, model, canvas1) do
-    render_diff(port, term, mod, model, canvas1)
-    # render_direct(port, term, mod, model, canvas1)
+    layers = mod.render(model)
+
+    {canvas2, data} =
+      case @method do
+        :diff -> render_diff(term, layers, canvas1)
+        :direct -> render_direct(term, layers, canvas1)
+      end
+
+    case data do
+      nil ->
+        canvas2
+
+      _ ->
+        data = IO.iodata_to_binary(data)
+        Tty.write!(port, data)
+        canvas2
+    end
   end
 
-  defp render_diff(port, term, mod, model, canvas1) do
-    layers = mod.render(model)
+  def render_diff(term, layers, canvas1) do
     %{width: width, height: height} = canvas1
     canvas2 = Canvas.new(width, height)
 
@@ -92,29 +138,37 @@ defmodule AthashaTerminal.AppRunner do
         canvas -> Render.render(canvas, l)
       end
 
+    %{cursor: cursor2} = canvas2
     diff = Canvas.diff(canvas1, canvas2)
     # do not hide cursor for empty or cursor only diffs
+    # hide cursor before write or move and then restore
     case diff do
       [] ->
-        canvas2
+        {canvas2, nil}
 
       _ ->
-        diff = :lists.reverse(diff)
-
         diff =
           case diff do
-            [{:c, _}] -> diff
-            _ -> [{:c, false} | diff]
+            [{:c, _}] ->
+              :lists.reverse(diff)
+
+            _ ->
+              diff =
+                case cursor2 do
+                  true -> [{:c, true} | diff]
+                  _ -> diff
+                end
+
+              diff = :lists.reverse(diff)
+              [{:c, false} | diff]
           end
 
         diff = Canvas.encode(term, diff)
-        Tty.write!(port, diff)
-        canvas2
+        {canvas2, diff}
     end
   end
 
-  defp render_direct(port, term, mod, model, canvas1) do
-    layers = mod.render(model)
+  def render_direct(term, layers, canvas1) do
     %{width: width, height: height} = canvas1
     canvas2 = Canvas.new(width, height)
 
@@ -124,9 +178,7 @@ defmodule AthashaTerminal.AppRunner do
       end
 
     data = Canvas.encode(term, canvas2)
-    data = IO.iodata_to_binary(data)
-    Tty.write!(port, term.hide(:cursor))
-    Tty.write!(port, data)
-    canvas2
+    data = [term.hide(:cursor) | data]
+    {canvas2, data}
   end
 end

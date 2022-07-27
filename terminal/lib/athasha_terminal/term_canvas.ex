@@ -1,16 +1,5 @@
 defmodule AthashaTerminal.Canvas do
-  @bold 1
-  @dimmed 2
-  @inverse 4
-
-  @black 0
-  @red 1
-  @green 2
-  @yellow 3
-  @blue 4
-  @magenta 5
-  @cyan 6
-  @white 7
+  use AthashaTerminal.Term
 
   @cell {' ', @white, @black, 0}
 
@@ -52,12 +41,12 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | cursor: false}
   end
 
-  def color(canvas, :foreground, id) do
-    %{canvas | foreground: num(id)}
+  def color(canvas, :foreground, name) do
+    %{canvas | foreground: color_id(name)}
   end
 
-  def color(canvas, :background, id) do
-    %{canvas | background: num(id)}
+  def color(canvas, :background, name) do
+    %{canvas | background: color_id(name)}
   end
 
   def set(canvas = %{style: style}, :bold) do
@@ -82,6 +71,7 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | style: Bitwise.band(style, Bitwise.bnot(@inverse))}
   end
 
+  # writes a single line clipping excess to avoid terminal wrapping
   def write(canvas, chardata) do
     %{
       data: data,
@@ -90,6 +80,7 @@ defmodule AthashaTerminal.Canvas do
       foreground: fg,
       background: bg,
       style: style,
+      height: height,
       width: width
     } = canvas
 
@@ -98,10 +89,14 @@ defmodule AthashaTerminal.Canvas do
       |> IO.chardata_to_string()
       |> String.to_charlist()
       |> Enum.reduce({data, x, y}, fn c, {data, x, y} ->
-        data = Map.put(data, {x, y}, {c, fg, bg, style})
-        y = y + div(x + 1, width)
-        x = rem(x + 1, width)
-        {data, x, y}
+        case x >= width || y >= height do
+          true ->
+            {data, x, y}
+
+          false ->
+            data = Map.put(data, {x, y}, {c, fg, bg, style})
+            {data, x + 1, y}
+        end
       end)
 
     %{canvas | data: data, cursor_x: x, cursor_y: y}
@@ -182,7 +177,7 @@ defmodule AthashaTerminal.Canvas do
           end
       end
 
-    # restore canvas2 styles
+    # restore canvas2 styles and cursor
     %{
       cursor_x: x2,
       cursor_y: y2,
@@ -340,19 +335,5 @@ defmodule AthashaTerminal.Canvas do
       end
 
     encode(term, [d | list], tail)
-  end
-
-  defp num(id) do
-    case id do
-      :black -> @black
-      :red -> @red
-      :green -> @green
-      :yellow -> @yellow
-      :blue -> @blue
-      :magenta -> @magenta
-      :cyan -> @cyan
-      :white -> @white
-      _ -> id
-    end
   end
 end

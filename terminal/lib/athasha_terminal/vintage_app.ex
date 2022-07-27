@@ -2,19 +2,23 @@ defmodule AthashaTerminal.VintageApp do
   @behaviour AthashaTerminal.App
   alias AthashaTerminal.VintageLib
 
+  @eth0 "eth0"
+  @wlan0 "wlan0"
+
   def init(opts) do
-    nics = ["eth0", "wlan0"]
-    next = %{nil => "eth0", "wlan0" => "eth0", "eth0" => "wlan0"}
-    prev = %{nil => "wlan0", "wlan0" => "eth0", "eth0" => "wlan0"}
+    nics = [@eth0, @wlan0]
+    next = %{nil => @eth0, @wlan0 => @eth0, @eth0 => @wlan0}
+    prev = %{nil => @wlan0, @wlan0 => @eth0, @eth0 => @wlan0}
 
     {%{
+       origin: {0, 0},
        size: Keyword.fetch!(opts, :size),
        nics: %{list: nics, next: next, prev: prev},
        focus: :nics,
        nic: nil,
        conf: nil,
        error: nil
-     }, [{:get, "eth0"}]}
+     }, [{:get, @eth0}]}
   end
 
   def update(state, {:cmd, {:get, nic}, res}) do
@@ -50,38 +54,85 @@ defmodule AthashaTerminal.VintageApp do
   end
 
   def render(state) do
-    %{nics: nics, nic: selected} = state
+    %{nics: nics, nic: nic, origin: {ox, oy}} = state
+    %{size: {width, _height}, error: error} = state
 
-    layers = [
-      %{
-        type: :window,
-        x: 0,
-        y: 0,
-        width: 12,
-        height: 4,
-        background: :white,
-        foreground: :black,
-        border: :double,
-        title: "NICs"
-      }
-    ]
+    title_label = %{
+      type: :label,
+      x: ox,
+      y: oy,
+      width: width,
+      background: :black,
+      foreground: :white,
+      text: "Network Settings"
+    }
+
+    nics_window = %{
+      type: :window,
+      x: ox,
+      y: oy + 2,
+      width: 12,
+      height: 4,
+      background: :black,
+      foreground: :white,
+      border: :single,
+      title: "NICs"
+    }
+
+    nics_labels =
+      for {n, i} <- Enum.with_index(nics.list) do
+        %{
+          type: :label,
+          x: ox + 2,
+          y: oy + 3 + i,
+          width: 8,
+          background: :black,
+          foreground: :white,
+          inverse: nic == n,
+          text: n
+        }
+      end
+
+    config_window = %{
+      type: :window,
+      x: ox + 14,
+      y: oy + 2,
+      width: 48,
+      height: 16,
+      background: :black,
+      foreground: :white,
+      border: :single,
+      title: "NIC Configuration"
+    }
+
+    # layers =
+    #   case nic do
+    #     nil ->
+    #       layers
+
+    #     @eth0 ->
+    #       nil
+    #   end
+
+    error_label = %{
+      type: :label,
+      x: ox,
+      y: oy + 20,
+      width: width,
+      background: :red,
+      foreground: :white,
+      text: error
+    }
+
+    layers = [title_label]
+    layers = [nics_window | layers]
+    layers = nics_labels ++ layers
+    layers = [config_window | layers]
 
     layers =
-      for {nic, i} <- Enum.with_index(nics.list), reduce: layers do
-        layers ->
-          [
-            %{
-              type: :label,
-              x: 2,
-              y: 1 + i,
-              width: 8,
-              background: :white,
-              foreground: :black,
-              inverse: selected == nic,
-              text: nic
-            }
-            | layers
-          ]
+      case error do
+        nil -> layers
+        _ -> [error_label | layers]
       end
 
     :lists.reverse(layers)
