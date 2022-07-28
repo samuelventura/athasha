@@ -14,6 +14,7 @@ defmodule AthashaTerminal.VintageApp do
       size: size,
       focus: :nics,
       nics: nics,
+      nic: nil,
       conf: conf,
       error: nil
     }
@@ -24,25 +25,29 @@ defmodule AthashaTerminal.VintageApp do
   def update(%{focus: :nics} = state, {:key, _, :arrow_down} = event) do
     %{nics: nics} = state
     {nics, nic} = VintageNics.update(nics, event)
-    state = %{state | nics: nics}
-    {state, [{:get, nic}]}
+    state = %{state | nics: nics, nic: nic}
+    {state, []}
   end
 
   def update(%{focus: :nics} = state, {:key, _, :arrow_up} = event) do
     %{nics: nics} = state
     {nics, nic} = VintageNics.update(nics, event)
-    state = %{state | nics: nics}
+    state = %{state | nics: nics, nic: nic}
+    {state, []}
+  end
+
+  def update(%{focus: :nics} = state, {:key, 0, "\r"}) do
+    %{nic: nic} = state
     {state, [{:get, nic}]}
   end
 
   def update(state, {:cmd, {:get, nic}, res}) do
-    %{nics: nics, conf: conf} = state
+    %{conf: conf} = state
     {conf, error} = VintageConf.update(conf, {:nic, nic, res})
 
     case error do
       nil ->
-        nics = VintageNics.update(nics, {:nic, nic})
-        state = %{state | conf: conf, nics: nics}
+        state = %{state | conf: conf, error: nil}
         {state, []}
 
       other ->

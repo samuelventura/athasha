@@ -14,7 +14,7 @@ defmodule AthashaTerminal.VintageNics do
       nics: nics,
       next: next,
       prev: prev,
-      nic: nil
+      nic: @eth0
     }
 
     {state, @eth0}
@@ -24,19 +24,17 @@ defmodule AthashaTerminal.VintageNics do
     %{state | focus: focus}
   end
 
-  def update(state, {:nic, nic}) do
-    %{state | nic: nic}
-  end
-
   def update(%{focus: true} = state, {:key, _, :arrow_down}) do
     %{next: next, nic: nic} = state
     nic = Map.get(next, nic)
+    state = %{state | nic: nic}
     {state, nic}
   end
 
   def update(%{focus: true} = state, {:key, _, :arrow_up}) do
     %{prev: prev, nic: nic} = state
     nic = Map.get(prev, nic)
+    state = %{state | nic: nic}
     {state, nic}
   end
 

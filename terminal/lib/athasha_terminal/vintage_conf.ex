@@ -53,10 +53,20 @@ defmodule AthashaTerminal.VintageConf do
       title: "NIC Configuration"
     }
 
-    mac_label = %{
+    nic_label = %{
       type: :label,
       x: originx + 2,
       y: originy + 2,
+      width: width - 4,
+      background: :black,
+      foreground: :white,
+      text: "NIC: #{nic}"
+    }
+
+    mac_label = %{
+      type: :label,
+      x: originx + 2,
+      y: originy + 3,
       width: width - 4,
       background: :black,
       foreground: :white,
@@ -65,7 +75,7 @@ defmodule AthashaTerminal.VintageConf do
 
     case nic do
       nil -> [config_window]
-      _ -> [config_window, mac_label]
+      _ -> [config_window, nic_label, mac_label]
     end
   end
 end
