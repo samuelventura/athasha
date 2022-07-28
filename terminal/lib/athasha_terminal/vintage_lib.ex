@@ -4,6 +4,13 @@ defmodule AthashaTerminal.VintageLib do
     |> String.to_atom()
   end
 
+  def get_mac!(nic) do
+    case remote() do
+      :none -> apply(MACAddress, :mac_address!, [nic])
+      node -> :rpc.call(node, MACAddress, :mac_address!, [nic])
+    end
+  end
+
   def get_configuration(nic) do
     case remote() do
       :none -> apply(VintageNet, :get_configuration, [nic])

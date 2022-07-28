@@ -10,8 +10,9 @@
 mix nerves.new . --app athasha_terminal
 MIX_TARGET=rpi4 mix deps.get
 MIX_TARGET=rpi4 mix compile
+MIX_TARGET=rpi4 mix firmware
 MIX_TARGET=rpi4 mix firmware.image
-MIX_TARGET=rpi4 mix upload athasha-4ad8
+MIX_TARGET=rpi4 mix upload athasha-4ad8.local
 ssh athasha-4ad8
 
 #30x80
@@ -21,9 +22,9 @@ MIX_TARGET=rpi3 mix firmware.image
 MIX_TARGET=rpi3 mix burn
 MIX_TARGET=rpi3 mix burn --task upgrade
 #update fails most of the times
-MIX_TARGET=rpi3 mix upload athasha-ee0c
-MIX_TARGET=rpi3 mix upload athasha-62c2
-MIX_TARGET=rpi3 ./upload.sh athasha-ee0c
+MIX_TARGET=rpi3 mix upload athasha-ee0c.local
+MIX_TARGET=rpi3 mix upload athasha-62c2.local
+MIX_TARGET=rpi3 ./upload.sh athasha-ee0c.local
 ssh athasha-ee0c
 ssh athasha-62c2
 
