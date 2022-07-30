@@ -1,3 +1,26 @@
+#rpi4
+ssh 172.31.255.9
+cmd "epmd -daemon"
+Node.start :"target@172.31.255.9"
+Node.set_cookie :COOKIE
+exit
+
+#master
+priv/native/tty_master; reset
+System.cmd "killall",["tty_master"]
+killall tty_master
+
+#build/devel
+iex -S mix
+System.cmd "epmd",["-daemon"]
+Node.start :"code@172.31.255.10"
+Node.set_cookie :COOKIE
+Node.connect :"target@172.31.255.9"
+System.put_env("VintageRemote", "target@172.31.255.9")
+{:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.tty", :code
+Process.exit pid, :kill
+
+#########################################################################
 # epmd 4369 port
 # connect requires IP or fully qualified hostname
 #below fails because of erlang versions must be exactly the same
@@ -16,25 +39,6 @@ Node.get_cookie
 :nocookie
 Node.list
 []
-
-#rpi4
-cmd "epmd -daemon"
-Node.start :"target@172.31.255.9"
-Node.set_cookie :COOKIE
-
-ssh athasha-4ad8
-ssh 172.31.255.9
-Node.start :"target@10.77.3.176"
-Node.start :"target@athasha-4ad8.local"
-
-#build/devel
-System.cmd "epmd",["-daemon"]
-Node.start :"code@172.31.255.10"
-Node.set_cookie :COOKIE
-Node.connect :"target@172.31.255.9"
-System.put_env("VintageRemote", "target@172.31.255.9")
-{:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.tty", :code
-Process.exit pid, :kill
 
 System.cmd "epmd",["-names"]
 Node.start :"code@build.local"
