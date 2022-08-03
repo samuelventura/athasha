@@ -21,22 +21,34 @@ defmodule AthashaTerminal.VintageNics do
   end
 
   def update(state, {:focus, focus}) do
-    %{state | focus: focus}
+    state = %{state | focus: focus}
+    {state, nil}
   end
 
   def update(%{focus: true} = state, {:key, _, :arrow_down}) do
     %{next: next, nic: nic} = state
     nic = Map.get(next, nic)
     state = %{state | nic: nic}
-    {state, nic}
+    {state, nil}
   end
 
   def update(%{focus: true} = state, {:key, _, :arrow_up}) do
     %{prev: prev, nic: nic} = state
     nic = Map.get(prev, nic)
     state = %{state | nic: nic}
-    {state, nic}
+    {state, nil}
   end
+
+  def update(%{focus: true} = state, {:key, _, "\t"}) do
+    {state, {:nav, :next}}
+  end
+
+  def update(%{focus: true} = state, {:key, _, "\r"}) do
+    %{nic: nic} = state
+    {state, {:nic, nic}}
+  end
+
+  def update(state, _event), do: {state, nil}
 
   def render(state, size: size, origin: origin) do
     {width, height} = size

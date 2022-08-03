@@ -2,27 +2,29 @@ defmodule AthashaTerminal.VintageConf do
   def init(opts) do
     focus = Keyword.fetch!(opts, :focus)
 
-    %{
+    state = %{
       focus: focus,
-      type: nil,
+      panel: nil,
       nic: nil,
-      mac: nil,
-      conf: nil
+      mac: nil
     }
+
+    {state, nil}
   end
 
   def update(state, {:focus, focus}) do
-    %{state | focus: focus}
+    state = %{state | focus: focus}
+    {state, nil}
   end
 
   def update(state, {:nic, nic, conf}) do
     case conf do
-      %{ipv4: ipv4, mac: mac, type: VintageNetEthernet} ->
-        state = %{state | type: :eth, nic: nic, mac: mac, conf: ipv4}
+      %{ipv4: _ipv4, mac: mac, type: VintageNetEthernet} ->
+        state = %{state | nic: nic, mac: mac}
         {state, nil}
 
-      %{ipv4: ipv4, mac: mac, vintage_net_wifi: wifi, type: VintageNetWiFi} ->
-        state = %{state | type: :wifi, nic: nic, mac: mac, conf: {ipv4, wifi}}
+      %{ipv4: _ipv4, mac: mac, vintage_net_wifi: _wifi, type: VintageNetWiFi} ->
+        state = %{state | nic: nic, mac: mac}
         {state, nil}
 
       other ->
@@ -30,13 +32,18 @@ defmodule AthashaTerminal.VintageConf do
     end
   end
 
+  def update(%{focus: true} = state, {:key, _, "\t"}) do
+    {state, {:nav, :next}}
+  end
+
+  def update(state, _event), do: {state, nil}
+
   def render(state, size: size, origin: origin) do
     {width, height} = size
     {originx, originy} = origin
 
     %{
       focus: focus,
-      type: _type,
       mac: mac,
       nic: nic
     } = state

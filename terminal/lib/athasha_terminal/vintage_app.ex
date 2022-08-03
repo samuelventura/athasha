@@ -1,20 +1,21 @@
 defmodule AthashaTerminal.VintageApp do
   @behaviour AthashaTerminal.App
+  alias AthashaTerminal.App
   alias AthashaTerminal.VintageLib
   alias AthashaTerminal.VintageNics
   alias AthashaTerminal.VintageConf
 
   def init(opts) do
     size = Keyword.fetch!(opts, :size)
-    {nics, nic} = VintageNics.init(focus: true)
-    conf = VintageConf.init(focus: false)
+
+    {nics, nic} = App.init(VintageNics, focus: true)
+    {conf, nil} = App.init(VintageConf, focus: false)
 
     state = %{
       origin: {2, 1},
       size: size,
       focus: :nics,
       nics: nics,
-      nic: nil,
       conf: conf,
       error: nil
     }
@@ -22,64 +23,42 @@ defmodule AthashaTerminal.VintageApp do
     {state, [{:get, nic}]}
   end
 
-  def update(%{focus: :nics} = state, {:key, _, :arrow_down} = event) do
-    %{nics: nics} = state
-    {nics, nic} = VintageNics.update(nics, event)
-    state = %{state | nics: nics, nic: nic}
-    {state, []}
-  end
+  def update(%{focus: focus} = state, {:key, _, _} = event) do
+    {state, events} = App.kupdate(state, focus, event)
 
-  def update(%{focus: :nics} = state, {:key, _, :arrow_up} = event) do
-    %{nics: nics} = state
-    {nics, nic} = VintageNics.update(nics, event)
-    state = %{state | nics: nics, nic: nic}
-    {state, []}
-  end
+    case events do
+      nil ->
+        {state, []}
 
-  def update(%{focus: :nics} = state, {:key, 0, "\r"}) do
-    %{nic: nic} = state
-    {state, [{:get, nic}]}
+      {:nav, _} ->
+        state = navigate(state)
+        {state, []}
+
+      {:nic, nic} ->
+        {state, [{:get, nic}]}
+
+      {:conf, conf} ->
+        {state, [{:conf, conf}]}
+    end
   end
 
   def update(state, {:cmd, {:get, nic}, res}) do
-    %{conf: conf} = state
-    {conf, error} = VintageConf.update(conf, {:nic, nic, res})
+    {state, error} = App.kupdate(state, :conf, {:nic, nic, res})
 
     case error do
       nil ->
-        state = %{state | conf: conf, error: nil}
+        state = %{state | error: nil}
         {state, []}
 
       other ->
-        state = %{state | conf: conf, error: "#{inspect(other)}"}
+        state = %{state | error: "#{inspect(other)}"}
         {state, []}
     end
   end
 
-  def update(state, {:key, 0, "\t"}) do
-    %{focus: focus, nics: nics, conf: conf} = state
-
-    state =
-      case focus do
-        :nics ->
-          focus = :conf
-          nics = VintageNics.update(nics, {:focus, false})
-          conf = VintageConf.update(conf, {:focus, true})
-          %{state | focus: focus, nics: nics, conf: conf}
-
-        :conf ->
-          focus = :nics
-          conf = VintageConf.update(conf, {:focus, false})
-          nics = VintageNics.update(nics, {:focus, true})
-          %{state | focus: focus, nics: nics, conf: conf}
-      end
-
-    {state, []}
-  end
-
   def update(state, _event), do: {state, []}
 
-  def render(state) do
+  def render(state, _opts \\ []) do
     %{
       origin: {ox, oy},
       size: {width, _height},
@@ -110,9 +89,9 @@ defmodule AthashaTerminal.VintageApp do
       text: "Network Settings"
     }
 
-    nics_window = VintageNics.render(nics, size: {nw, nh}, origin: {nx, ny})
+    nics_window = App.render(nics, size: {nw, nh}, origin: {nx, ny})
 
-    conf_window = VintageConf.render(conf, size: {cw, ch}, origin: {cx, cy})
+    conf_window = App.render(conf, size: {cw, ch}, origin: {cx, cy})
 
     error_label = %{
       type: :label,
@@ -142,5 +121,23 @@ defmodule AthashaTerminal.VintageApp do
     mac = MACAddress.to_hex(mac)
     config = VintageLib.get_configuration(nic)
     Map.put(config, :mac, mac)
+  end
+
+  defp navigate(state) do
+    %{focus: focus, nics: nics, conf: conf} = state
+
+    case focus do
+      :nics ->
+        focus = :conf
+        {nics, nil} = App.update(nics, {:focus, false})
+        {conf, nil} = App.update(conf, {:focus, true})
+        %{state | focus: focus, nics: nics, conf: conf}
+
+      :conf ->
+        focus = :nics
+        {conf, nil} = App.update(conf, {:focus, false})
+        {nics, nil} = App.update(nics, {:focus, true})
+        %{state | focus: focus, nics: nics, conf: conf}
+    end
   end
 end
