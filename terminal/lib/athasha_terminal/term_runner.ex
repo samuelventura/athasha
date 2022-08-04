@@ -2,10 +2,6 @@ defmodule AthashaTerminal.AppRunner do
   alias AthashaTerminal.Tty
   alias AthashaTerminal.Term
   alias AthashaTerminal.Canvas
-  alias AthashaTerminal.Render
-
-  # @method :direct
-  @method :diff
 
   def start_link(mod, tty, term, opts \\ []) do
     Task.start_link(fn -> run(mod, tty, term, opts) end)
@@ -89,6 +85,7 @@ defmodule AthashaTerminal.AppRunner do
     {w, h}
   end
 
+  defp execute_cmds(_, nil), do: nil
   defp execute_cmds(_, []), do: nil
 
   defp execute_cmds(mod, [cmd | tail]) do
@@ -110,12 +107,31 @@ defmodule AthashaTerminal.AppRunner do
   end
 
   defp render(port, term, mod, model, canvas1) do
-    layers = mod.render(model)
+    {width, size} = Canvas.get(canvas1, :size)
+    canvas2 = Canvas.new(width, size)
+    canvas2 = mod.render(model, canvas2)
+    cursor2 = Canvas.get(canvas1, :cursor)
+    diff = Canvas.diff(canvas1, canvas2)
+    # do not hide cursor for empty or cursor only diffs
+    # hide cursor before write or move and then restore
+    data =
+      case diff do
+        [] ->
+          nil
 
-    {canvas2, data} =
-      case @method do
-        :diff -> render_diff(term, layers, canvas1)
-        :direct -> render_direct(term, layers, canvas1)
+        [{:c, _}] ->
+          Canvas.encode(term, diff)
+
+        _ ->
+          case cursor2 do
+            true -> [{:c, true} | diff]
+            _ -> diff
+          end
+
+          diff = :lists.reverse(diff)
+          [{:c, false} | diff]
+
+          Canvas.encode(term, diff)
       end
 
     case data do
@@ -124,61 +140,9 @@ defmodule AthashaTerminal.AppRunner do
 
       _ ->
         data = IO.iodata_to_binary(data)
+        # IO.inspect(data)
         Tty.write!(port, data)
         canvas2
     end
-  end
-
-  def render_diff(term, layers, canvas1) do
-    %{width: width, height: height} = canvas1
-    canvas2 = Canvas.new(width, height)
-
-    canvas2 =
-      for l <- layers, reduce: canvas2 do
-        canvas -> Render.render(canvas, l)
-      end
-
-    %{cursor: cursor2} = canvas2
-    diff = Canvas.diff(canvas1, canvas2)
-    # do not hide cursor for empty or cursor only diffs
-    # hide cursor before write or move and then restore
-    case diff do
-      [] ->
-        {canvas2, nil}
-
-      _ ->
-        diff =
-          case diff do
-            [{:c, _}] ->
-              :lists.reverse(diff)
-
-            _ ->
-              diff =
-                case cursor2 do
-                  true -> [{:c, true} | diff]
-                  _ -> diff
-                end
-
-              diff = :lists.reverse(diff)
-              [{:c, false} | diff]
-          end
-
-        diff = Canvas.encode(term, diff)
-        {canvas2, diff}
-    end
-  end
-
-  def render_direct(term, layers, canvas1) do
-    %{width: width, height: height} = canvas1
-    canvas2 = Canvas.new(width, height)
-
-    canvas2 =
-      for l <- layers, reduce: canvas2 do
-        canvas -> Render.render(canvas, l)
-      end
-
-    data = Canvas.encode(term, canvas2)
-    data = [term.hide(:cursor) | data]
-    {canvas2, data}
   end
 end

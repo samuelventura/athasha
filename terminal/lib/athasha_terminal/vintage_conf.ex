@@ -1,88 +1,78 @@
 defmodule AthashaTerminal.VintageConf do
+  alias AthashaTerminal.App
+  alias AthashaTerminal.Frame
+  alias AthashaTerminal.Label
+
   def init(opts) do
     focus = Keyword.fetch!(opts, :focus)
+    origin = Keyword.fetch!(opts, :origin)
+    size = Keyword.fetch!(opts, :size)
+
+    {width, _height} = size
+    {orig_x, orig_y} = origin
+
+    nx = orig_x + 2
+    ny = orig_y + 2
+    nw = width - 4
+    mx = nx
+    my = ny + 1
+    mw = nw
+
+    {frame, _} =
+      App.init(Frame, size: size, origin: origin, focus: focus, title: "NIC Configuration")
+
+    {nic, nil} = App.init(Label, origin: {nx, ny}, width: nw, text: "NIC:")
+    {mac, nil} = App.init(Label, origin: {mx, my}, width: mw, text: "MAC:")
 
     state = %{
-      focus: focus,
-      panel: nil,
-      nic: nil,
-      mac: nil
+      frame: frame,
+      nic: nic,
+      mac: mac
     }
 
     {state, nil}
   end
 
-  def update(state, {:focus, focus}) do
-    state = %{state | focus: focus}
-    {state, nil}
+  def update(state, {:focus, _} = event) do
+    App.kupdate(state, :frame, event)
   end
 
   def update(state, {:nic, nic, conf}) do
     case conf do
-      %{ipv4: _ipv4, mac: mac, type: VintageNetEthernet} ->
-        state = %{state | nic: nic, mac: mac}
+      %{mac: mac, type: VintageNetEthernet, ipv4: _ipv4} ->
+        {state, nil} = App.kupdate(state, :nic, {:text, "NIC: #{nic}"})
+        {state, nil} = App.kupdate(state, :mac, {:text, "MAC: #{mac}"})
         {state, nil}
 
-      %{ipv4: _ipv4, mac: mac, vintage_net_wifi: _wifi, type: VintageNetWiFi} ->
-        state = %{state | nic: nic, mac: mac}
+      %{mac: mac, type: VintageNetWiFi, ipv4: _ipv4, vintage_net_wifi: _wifi} ->
+        {state, nil} = App.kupdate(state, :nic, {:text, "NIC: #{nic}"})
+        {state, nil} = App.kupdate(state, :mac, {:text, "MAC: #{mac}"})
         {state, nil}
 
       other ->
+        state = %{state | nic: nic, mac: nil, ipv4: nil}
+        {state, nil} = App.kupdate(state, :nic, {:text, "NIC:"})
+        {state, nil} = App.kupdate(state, :mac, {:text, "MAC:"})
         {state, "#{inspect(other)}"}
     end
   end
 
-  def update(%{focus: true} = state, {:key, _, "\t"}) do
+  def update(state, {:key, _, "\t"}) do
     {state, {:nav, :next}}
   end
 
   def update(state, _event), do: {state, nil}
 
-  def render(state, size: size, origin: origin) do
-    {width, height} = size
-    {originx, originy} = origin
-
+  def render(state, canvas) do
     %{
-      focus: focus,
-      mac: mac,
-      nic: nic
+      frame: frame,
+      nic: nic,
+      mac: mac
     } = state
 
-    config_window = %{
-      type: :window,
-      x: originx,
-      y: originy,
-      width: width,
-      height: height,
-      background: :black,
-      foreground: :white,
-      border: if(focus, do: :double, else: :single),
-      title: "NIC Configuration"
-    }
-
-    nic_label = %{
-      type: :label,
-      x: originx + 2,
-      y: originy + 2,
-      width: width - 4,
-      background: :black,
-      foreground: :white,
-      text: "NIC: #{nic}"
-    }
-
-    mac_label = %{
-      type: :label,
-      x: originx + 2,
-      y: originy + 3,
-      width: width - 4,
-      background: :black,
-      foreground: :white,
-      text: "MAC: #{mac}"
-    }
-
-    case nic do
-      nil -> [config_window]
-      _ -> [config_window, nic_label, mac_label]
-    end
+    canvas = App.render(frame, canvas)
+    canvas = App.render(nic, canvas)
+    canvas = App.render(mac, canvas)
+    canvas
   end
 end

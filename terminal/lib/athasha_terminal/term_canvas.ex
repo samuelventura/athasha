@@ -17,6 +17,14 @@ defmodule AthashaTerminal.Canvas do
     }
   end
 
+  def get(%{width: width, height: height}, :size) do
+    {width, height}
+  end
+
+  def get(%{cursor: cursor}, :cursor) do
+    cursor
+  end
+
   def clear(%{width: width, height: height}, :all) do
     new(width, height)
   end

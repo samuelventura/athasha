@@ -1,7 +1,7 @@
 defmodule AthashaTerminal.App do
   @callback init(opts :: any()) :: {any(), [any()]}
   @callback update(state :: any(), event :: any()) :: {any(), [any()]}
-  @callback render(state :: any(), opts :: Keyword.t()) :: [any()]
+  @callback render(state :: any(), canvas :: any()) :: any()
   @callback execute(cmd :: any()) :: any()
 
   def init(module, opts) do
@@ -15,9 +15,9 @@ defmodule AthashaTerminal.App do
     {{module, state}, events}
   end
 
-  def render(mote, opts) do
+  def render(mote, canvas) do
     {module, state} = mote
-    module.render(state, opts)
+    module.render(state, canvas)
   end
 
   def execute(mote, cmd) do

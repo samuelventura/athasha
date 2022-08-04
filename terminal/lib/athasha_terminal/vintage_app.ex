@@ -1,23 +1,43 @@
 defmodule AthashaTerminal.VintageApp do
   @behaviour AthashaTerminal.App
   alias AthashaTerminal.App
+  alias AthashaTerminal.Label
   alias AthashaTerminal.VintageLib
   alias AthashaTerminal.VintageNics
   alias AthashaTerminal.VintageConf
 
   def init(opts) do
-    size = Keyword.fetch!(opts, :size)
+    {width, height} = Keyword.fetch!(opts, :size)
+    origin = Keyword.get(opts, :origin, {2, 1})
 
-    {nics, nic} = App.init(VintageNics, focus: true)
-    {conf, nil} = App.init(VintageConf, focus: false)
+    {orig_x, orig_y} = origin
+
+    tx = orig_x
+    ty = orig_y + 0
+    nx = tx
+    ny = ty + 2
+    nw = 12
+    nh = 4
+    cx = nx + 14
+    cy = ny
+    cw = 48
+    ch = 16
+    ex = tx
+    ey = cy + ch
+
+    {nics, nic} = App.init(VintageNics, focus: true, origin: {nx, ny}, size: {nw, nh})
+    {conf, nil} = App.init(VintageConf, focus: false, origin: {cx, cy}, size: {cw, ch})
+    {title, nil} = App.init(Label, origin: {tx, ty}, width: width, text: "Network Settings")
+    {alert, nil} = App.init(Label, origin: {ex, ey}, width: width, text: "")
 
     state = %{
-      origin: {2, 1},
-      size: size,
+      origin: origin,
+      size: {width, height},
       focus: :nics,
       nics: nics,
       conf: conf,
-      error: nil
+      title: title,
+      alert: alert
     }
 
     {state, [{:get, nic}]}
@@ -34,86 +54,42 @@ defmodule AthashaTerminal.VintageApp do
         state = navigate(state)
         {state, []}
 
-      {:nic, nic} ->
+      {:item, nic} ->
         {state, [{:get, nic}]}
-
-      {:conf, conf} ->
-        {state, [{:conf, conf}]}
     end
   end
 
-  def update(state, {:cmd, {:get, nic}, res}) do
+  def update(%{alert: alert} = state, {:cmd, {:get, nic}, res}) do
     {state, error} = App.kupdate(state, :conf, {:nic, nic, res})
 
     case error do
       nil ->
-        state = %{state | error: nil}
-        {state, []}
+        {alert, nil} = App.update(alert, {:text, ""})
+        state = %{state | alert: alert}
+        {state, nil}
 
       other ->
-        state = %{state | error: "#{inspect(other)}"}
-        {state, []}
+        {alert, nil} = App.update(alert, {:text, "#{inspect(other)}"})
+        state = %{state | alert: alert}
+        {state, nil}
     end
   end
 
-  def update(state, _event), do: {state, []}
+  def update(state, _event), do: {state, nil}
 
-  def render(state, _opts \\ []) do
+  def render(state, canvas) do
     %{
-      origin: {ox, oy},
-      size: {width, _height},
+      alert: alert,
+      title: title,
       nics: nics,
-      conf: conf,
-      error: error
+      conf: conf
     } = state
 
-    nx = ox
-    ny = oy + 2
-    nw = 12
-    nh = 4
-    cx = ox + 14
-    cy = oy + 2
-    cw = 48
-    ch = 16
-    ex = ox
-    ey = cy + ch
-    ew = width
-
-    title_label = %{
-      type: :label,
-      x: ox,
-      y: oy,
-      width: width,
-      background: :black,
-      foreground: :white,
-      text: "Network Settings"
-    }
-
-    nics_window = App.render(nics, size: {nw, nh}, origin: {nx, ny})
-
-    conf_window = App.render(conf, size: {cw, ch}, origin: {cx, cy})
-
-    error_label = %{
-      type: :label,
-      x: ex,
-      y: ey,
-      width: ew,
-      background: :red,
-      foreground: :white,
-      text: error
-    }
-
-    layers = [title_label]
-    layers = :lists.reverse(nics_window) ++ layers
-    layers = :lists.reverse(conf_window) ++ layers
-
-    layers =
-      case error do
-        nil -> layers
-        _ -> [error_label | layers]
-      end
-
-    :lists.reverse(layers)
+    canvas = App.render(title, canvas)
+    canvas = App.render(alert, canvas)
+    canvas = App.render(nics, canvas)
+    canvas = App.render(conf, canvas)
+    canvas
   end
 
   def execute({:get, nic}) do
