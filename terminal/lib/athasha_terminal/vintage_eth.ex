@@ -14,16 +14,22 @@ defmodule AthashaTerminal.VintageEth do
 
     {orig_x, orig_y} = origin
 
+    lw = 12
     tx = orig_x
     ty = orig_y
+    tw = 15
 
     {radio, {:item, item}} =
       App.init(Radio, focus: focus, origin: {tx, ty}, items: [@dhcp, @static])
 
-    {lip, _} = App.init(Label, width: 4, origin: {tx, ty + 1}, text: "IP:")
-    {ip, _} = App.init(Input, width: 15, origin: {tx + 4, ty + 1}, text: "10.77.5.10")
-    {lgw, _} = App.init(Label, width: 4, origin: {tx, ty + 2}, text: "GW:")
-    {gw, _} = App.init(Input, width: 15, origin: {tx + 4, ty + 2}, text: "10.77.0.1")
+    {lip, _} = App.init(Label, width: lw, origin: {tx, ty + 1}, text: "Address:")
+    {ip, _} = App.init(Input, width: tw, origin: {tx + lw, ty + 1}, text: "10.77.5.10")
+    {lnm, _} = App.init(Label, width: lw, origin: {tx, ty + 2}, text: "Netmask:")
+    {nm, _} = App.init(Input, width: tw, origin: {tx + lw, ty + 2}, text: "8")
+    {lgw, _} = App.init(Label, width: lw, origin: {tx, ty + 3}, text: "Gateway:")
+    {gw, _} = App.init(Input, width: tw, origin: {tx + lw, ty + 3}, text: "10.77.0.1")
+    {lns, _} = App.init(Label, width: lw, origin: {tx, ty + 4}, text: "Nameserver:")
+    {ns, _} = App.init(Input, width: tw, origin: {tx + lw, ty + 4}, text: "10.77.0.1")
 
     state = %{
       ipv4: ipv4,
@@ -32,9 +38,13 @@ defmodule AthashaTerminal.VintageEth do
       radio: radio,
       type: item,
       lip: lip,
+      lnm: lnm,
       lgw: lgw,
+      lns: lns,
       ip: ip,
-      gw: gw
+      nm: nm,
+      gw: gw,
+      ns: ns
     }
 
     {state, nil}
@@ -49,7 +59,9 @@ defmodule AthashaTerminal.VintageEth do
   def update(%{active: active} = state, {:focus, focus}) do
     {state, _} = App.kupdate(state, :radio, {:focus, focus && active == :radio})
     {state, _} = App.kupdate(state, :ip, {:focus, focus && active == :ip})
+    {state, _} = App.kupdate(state, :nm, {:focus, focus && active == :nm})
     {state, _} = App.kupdate(state, :gw, {:focus, focus && active == :gw})
+    {state, _} = App.kupdate(state, :ns, {:focus, focus && active == :ns})
     state = %{state | focus: focus}
     {state, nil}
   end
@@ -59,7 +71,9 @@ defmodule AthashaTerminal.VintageEth do
     selected = get(ipv4, :selected, 0)
     {state, _} = App.kupdate(state, :radio, {:selected, selected})
     state = set(state, ipv4, :ip)
+    state = set(state, ipv4, :nm)
     state = set(state, ipv4, :gw)
+    state = set(state, ipv4, :ns)
     state = %{state | type: type, active: :radio}
     {state, nil}
   end
@@ -71,7 +85,9 @@ defmodule AthashaTerminal.VintageEth do
       {:item, type} ->
         enabled = type == @static
         {state, _} = App.kupdate(state, :ip, {:enabled, enabled})
+        {state, _} = App.kupdate(state, :nm, {:enabled, enabled})
         {state, _} = App.kupdate(state, :gw, {:enabled, enabled})
+        {state, _} = App.kupdate(state, :ns, {:enabled, enabled})
         state = %{state | type: type}
         {state, nil}
 
@@ -100,16 +116,24 @@ defmodule AthashaTerminal.VintageEth do
     %{
       radio: radio,
       lip: lip,
+      lnm: lnm,
       lgw: lgw,
+      lns: lns,
       ip: ip,
-      gw: gw
+      nm: nm,
+      gw: gw,
+      ns: ns
     } = state
 
     canvas = App.render(radio, canvas)
     canvas = App.render(lip, canvas)
     canvas = App.render(ip, canvas)
+    canvas = App.render(lnm, canvas)
+    canvas = App.render(nm, canvas)
     canvas = App.render(lgw, canvas)
     canvas = App.render(gw, canvas)
+    canvas = App.render(lns, canvas)
+    canvas = App.render(ns, canvas)
     canvas
   end
 
@@ -125,8 +149,10 @@ defmodule AthashaTerminal.VintageEth do
 
   def next(_, @dhcp), do: nil
   def next(:radio, _), do: :ip
-  def next(:ip, _), do: :gw
-  def next(:gw, _), do: nil
+  def next(:ip, _), do: :nm
+  def next(:nm, _), do: :gw
+  def next(:gw, _), do: :ns
+  def next(:ns, _), do: nil
 
   def get(nil, _, def), do: def
   def get(%{method: :dhcp}, _, def), do: def

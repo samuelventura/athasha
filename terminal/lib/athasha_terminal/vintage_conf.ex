@@ -26,13 +26,8 @@ defmodule AthashaTerminal.VintageConf do
 
     {lnic, nil} = App.init(Label, origin: {nx, ny}, width: 4, text: "NIC:")
     {lmac, nil} = App.init(Label, origin: {mx, my}, width: 4, text: "MAC:")
-
-    {nic, nil} =
-      App.init(Label, origin: {nx + 5, ny}, width: nw, text: "", foreground: App.theme(:fore_data))
-
-    {mac, nil} =
-      App.init(Label, origin: {mx + 5, my}, width: mw, text: "", foreground: App.theme(:fore_data))
-
+    {nic, nil} = App.init(Label, origin: {nx + 5, ny}, width: nw, text: "")
+    {mac, nil} = App.init(Label, origin: {mx + 5, my}, width: mw, text: "")
     {eth, nil} = App.init(VintageEth, origin: {ex, ey})
 
     state = %{

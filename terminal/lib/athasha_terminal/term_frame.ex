@@ -6,12 +6,14 @@ defmodule AthashaTerminal.Frame do
     size = Keyword.fetch!(opts, :size)
     focus = Keyword.fetch!(opts, :focus)
     title = Keyword.fetch!(opts, :title)
+    style = Keyword.get(opts, :style, :single)
     origin = Keyword.get(opts, :origin, {0, 0})
     background = Keyword.get(opts, :background, App.theme(:back))
     foreground = Keyword.get(opts, :foreground, App.theme(:fore))
 
     state = %{
       size: size,
+      style: style,
       focus: focus,
       title: title,
       origin: origin,
@@ -32,6 +34,7 @@ defmodule AthashaTerminal.Frame do
   def render(state, canvas) do
     %{
       focus: focus,
+      style: style,
       origin: {orig_x, orig_y},
       size: {width, height},
       title: title,
@@ -48,23 +51,23 @@ defmodule AthashaTerminal.Frame do
       for r <- 0..last, reduce: canvas do
         canvas ->
           canvas = Canvas.move(canvas, orig_x, orig_y + r)
-          horizontal = border_char(focus, :horizontal)
-          vertical = border_char(focus, :vertical)
+          horizontal = border_char(style, :horizontal)
+          vertical = border_char(style, :vertical)
 
           border =
             case r do
               0 ->
                 [
-                  border_char(focus, :top_left),
+                  border_char(style, :top_left),
                   String.duplicate(horizontal, width - 2),
-                  border_char(focus, :top_right)
+                  border_char(style, :top_right)
                 ]
 
               ^last ->
                 [
-                  border_char(focus, :bottom_left),
+                  border_char(style, :bottom_left),
                   String.duplicate(horizontal, width - 2),
-                  border_char(focus, :bottom_right)
+                  border_char(style, :bottom_right)
                 ]
 
               _ ->
@@ -75,13 +78,20 @@ defmodule AthashaTerminal.Frame do
       end
 
     canvas = Canvas.move(canvas, orig_x + 1, orig_y)
+
+    title =
+      case focus do
+        true -> "[#{title}]"
+        false -> " #{title} "
+      end
+
     Canvas.write(canvas, title)
   end
 
   # https://en.wikipedia.org/wiki/Box-drawing_character
-  defp border_char(focus, elem) do
-    case focus do
-      false ->
+  defp border_char(style, elem) do
+    case style do
+      :single ->
         case elem do
           :top_left -> "┌"
           :top_right -> "┐"
@@ -91,7 +101,7 @@ defmodule AthashaTerminal.Frame do
           :vertical -> "│"
         end
 
-      true ->
+      :double ->
         case elem do
           :top_left -> "╔"
           :top_right -> "╗"
