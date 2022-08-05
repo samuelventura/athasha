@@ -4,6 +4,7 @@ defmodule AthashaTerminal.Select do
   def init(opts) do
     items = Keyword.fetch!(opts, :items)
     size = Keyword.fetch!(opts, :size)
+    focus = Keyword.get(opts, :focus, false)
     origin = Keyword.get(opts, :origin, {0, 0})
     selected = Keyword.get(opts, :selected, 0)
     offset = Keyword.get(opts, :offset, 0)
@@ -18,6 +19,7 @@ defmodule AthashaTerminal.Select do
 
     state = %{
       size: size,
+      focus: focus,
       count: count,
       items: items,
       offset: offset,
@@ -29,6 +31,11 @@ defmodule AthashaTerminal.Select do
 
     item = Map.get(items, selected)
     {state, {:item, item}}
+  end
+
+  def update(state, {:focus, focus}) do
+    state = %{state | focus: focus}
+    {state, nil}
   end
 
   def update(state, {:key, _, :arrow_down}) do
@@ -63,6 +70,7 @@ defmodule AthashaTerminal.Select do
 
   def render(state, canvas) do
     %{
+      focus: focus,
       items: items,
       origin: {orig_x, orig_y},
       size: {width, height},
@@ -78,15 +86,18 @@ defmodule AthashaTerminal.Select do
 
     for i <- 0..(height - 1), reduce: canvas do
       canvas ->
-        canvas = Canvas.cursor(canvas, orig_x, orig_y + i)
+        canvas = Canvas.move(canvas, orig_x, orig_y + i)
+        canvas = Canvas.reset(canvas, :inverse)
+        canvas = Canvas.reset(canvas, :normal)
 
         canvas =
-          case offset + i == selected do
-            false -> Canvas.reset(canvas, :inverse)
-            true -> Canvas.set(canvas, :inverse)
+          case {focus, offset + i == selected} do
+            {true, true} -> Canvas.set(canvas, :inverse)
+            {false, true} -> Canvas.set(canvas, :bold)
+            _ -> canvas
           end
 
-        item = Map.get(items, i + offset)
+        item = Map.get(items, i + offset, "")
         item = String.pad_trailing(item, width)
         Canvas.write(canvas, item)
     end

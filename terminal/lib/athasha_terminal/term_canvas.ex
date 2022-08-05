@@ -5,12 +5,12 @@ defmodule AthashaTerminal.Canvas do
 
   def new(width, height) do
     %{
+      x: 0,
+      y: 0,
       data: %{},
       width: width,
       height: height,
-      cursor_x: 0,
-      cursor_y: 0,
-      cursor: false,
+      cursor: {false, 0, 0},
       foreground: @white,
       background: @black,
       style: 0
@@ -37,16 +37,12 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | foreground: @white, background: @black, style: 0}
   end
 
+  def move(canvas, x, y) do
+    %{canvas | x: x, y: y}
+  end
+
   def cursor(canvas, x, y) do
-    %{canvas | cursor_x: x, cursor_y: y}
-  end
-
-  def show(canvas, :cursor) do
-    %{canvas | cursor: true}
-  end
-
-  def hide(canvas, :cursor) do
-    %{canvas | cursor: false}
+    %{canvas | cursor: {true, x, y}}
   end
 
   def color(canvas, :foreground, name) do
@@ -82,9 +78,9 @@ defmodule AthashaTerminal.Canvas do
   # writes a single line clipping excess to avoid terminal wrapping
   def write(canvas, chardata) do
     %{
+      x: x,
+      y: y,
       data: data,
-      cursor_x: x,
-      cursor_y: y,
       foreground: fg,
       background: bg,
       style: style,
@@ -107,7 +103,7 @@ defmodule AthashaTerminal.Canvas do
         end
       end)
 
-    %{canvas | data: data, cursor_x: x, cursor_y: y}
+    %{canvas | data: data, x: x, y: y}
   end
 
   def diff(canvas1, canvas2) do
@@ -115,9 +111,7 @@ defmodule AthashaTerminal.Canvas do
       data: data1,
       height: height,
       width: width,
-      cursor_x: x1,
-      cursor_y: y1,
-      cursor: cursor1,
+      cursor: {cursor1, x1, y1},
       background: b1,
       foreground: f1,
       style: s1
@@ -187,9 +181,7 @@ defmodule AthashaTerminal.Canvas do
 
     # restore canvas2 styles and cursor
     %{
-      cursor_x: x2,
-      cursor_y: y2,
-      cursor: cursor2,
+      cursor: {cursor2, x2, y2},
       background: b2,
       foreground: f2,
       style: s2
@@ -233,11 +225,11 @@ defmodule AthashaTerminal.Canvas do
 
   def encode(term, canvas) when is_map(canvas) do
     %{
+      x: x,
+      y: y,
       data: data,
       height: height,
       width: width,
-      cursor_x: x,
-      cursor_y: y,
       cursor: cursor
     } = canvas
 

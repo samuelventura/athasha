@@ -5,7 +5,7 @@ defmodule AthashaTerminal.Render do
     %{width: w, x: x, y: y, text: text} = label
     %{foreground: foreground, background: background} = label
     inverse = Map.get(label, :inverse, false)
-    canvas = Canvas.cursor(canvas, x, y)
+    canvas = Canvas.move(canvas, x, y)
     canvas = Canvas.color(canvas, :foreground, foreground)
     canvas = Canvas.color(canvas, :background, background)
 
@@ -41,7 +41,7 @@ defmodule AthashaTerminal.Render do
     canvas =
       for r <- 0..ph, reduce: canvas do
         canvas ->
-          canvas = Canvas.cursor(canvas, x, y + r)
+          canvas = Canvas.move(canvas, x, y + r)
 
           horizontal = border_char(border, :horizontal)
           vertical = border_char(border, :vertical)
@@ -74,7 +74,7 @@ defmodule AthashaTerminal.Render do
         canvas
 
       _ ->
-        canvas = Canvas.cursor(canvas, x + 1, y)
+        canvas = Canvas.move(canvas, x + 1, y)
         Canvas.write(canvas, title)
     end
   end

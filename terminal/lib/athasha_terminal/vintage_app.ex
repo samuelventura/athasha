@@ -17,7 +17,7 @@ defmodule AthashaTerminal.VintageApp do
     nx = tx
     ny = ty + 2
     nw = 12
-    nh = 4
+    nh = 6
     cx = nx + 14
     cy = ny
     cw = 48
@@ -33,7 +33,7 @@ defmodule AthashaTerminal.VintageApp do
     state = %{
       origin: origin,
       size: {width, height},
-      focus: :nics,
+      active: :nics,
       nics: nics,
       conf: conf,
       title: title,
@@ -43,8 +43,8 @@ defmodule AthashaTerminal.VintageApp do
     {state, [{:get, nic}]}
   end
 
-  def update(%{focus: focus} = state, {:key, _, _} = event) do
-    {state, events} = App.kupdate(state, focus, event)
+  def update(%{active: active} = state, {:key, _, _} = event) do
+    {state, events} = App.kupdate(state, active, event)
 
     case events do
       nil ->
@@ -100,20 +100,13 @@ defmodule AthashaTerminal.VintageApp do
   end
 
   defp navigate(state) do
-    %{focus: focus, nics: nics, conf: conf} = state
-
-    case focus do
-      :nics ->
-        focus = :conf
-        {nics, nil} = App.update(nics, {:focus, false})
-        {conf, nil} = App.update(conf, {:focus, true})
-        %{state | focus: focus, nics: nics, conf: conf}
-
-      :conf ->
-        focus = :nics
-        {conf, nil} = App.update(conf, {:focus, false})
-        {nics, nil} = App.update(nics, {:focus, true})
-        %{state | focus: focus, nics: nics, conf: conf}
-    end
+    %{active: active} = state
+    {state, _} = App.kupdate(state, active, {:focus, false})
+    active = next(active)
+    {state, _} = App.kupdate(state, active, {:focus, true})
+    %{state | active: active}
   end
+
+  defp next(:nics), do: :conf
+  defp next(:conf), do: :nics
 end

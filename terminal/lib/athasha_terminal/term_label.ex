@@ -38,7 +38,7 @@ defmodule AthashaTerminal.Label do
     canvas = Canvas.clear(canvas, :styles)
     canvas = Canvas.color(canvas, :background, background)
     canvas = Canvas.color(canvas, :foreground, foreground)
-    canvas = Canvas.cursor(canvas, orig_x, orig_y)
+    canvas = Canvas.move(canvas, orig_x, orig_y)
     text = String.pad_trailing(text, width)
     Canvas.write(canvas, text)
   end

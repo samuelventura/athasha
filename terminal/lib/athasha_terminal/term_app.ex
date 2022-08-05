@@ -25,10 +25,20 @@ defmodule AthashaTerminal.App do
     module.execute(cmd)
   end
 
+  def get(mote, field, defval \\ nil) do
+    {module, state} = mote
+    module.get(state, field, defval)
+  end
+
   def kupdate(map, key, event) do
     mote = Map.get(map, key)
     {mote, events} = update(mote, event)
     map = Map.put(map, key, mote)
     {map, events}
+  end
+
+  def kget(map, key, field, defval \\ nil) do
+    mote = Map.get(map, key)
+    get(mote, field, defval)
   end
 end

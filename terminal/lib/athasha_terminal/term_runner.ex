@@ -20,12 +20,14 @@ defmodule AthashaTerminal.AppRunner do
     loop(port, term, "", mod, model, canvas)
   end
 
+  # setup code cursor to linux default
   defp init(port, term) do
     Tty.write!(port, [
       term.clear(:all),
       term.hide(:cursor),
       term.mouse(:standard),
-      term.mouse(:extended)
+      term.mouse(:extended),
+      term.cursor(:style, :blinking_underline)
     ])
   end
 
@@ -110,37 +112,43 @@ defmodule AthashaTerminal.AppRunner do
     {width, size} = Canvas.get(canvas1, :size)
     canvas2 = Canvas.new(width, size)
     canvas2 = mod.render(model, canvas2)
-    cursor2 = Canvas.get(canvas1, :cursor)
+    {cursor1, _, _} = Canvas.get(canvas1, :cursor)
+    {cursor2, _, _} = Canvas.get(canvas2, :cursor)
     diff = Canvas.diff(canvas1, canvas2)
     # do not hide cursor for empty or cursor only diffs
     # hide cursor before write or move and then restore
-    data =
+    diff =
       case diff do
         [] ->
-          nil
+          diff
 
         [{:c, _}] ->
-          Canvas.encode(term, diff)
+          diff
 
         _ ->
-          case cursor2 do
-            true -> [{:c, true} | diff]
-            _ -> diff
+          case {cursor1, cursor2} do
+            {true, true} ->
+              diff = [{:c, true} | diff]
+              diff = :lists.reverse(diff)
+              [{:c, false} | diff]
+
+            {true, false} ->
+              diff = :lists.reverse(diff)
+              [{:c, false} | diff]
+
+            _ ->
+              :lists.reverse(diff)
           end
-
-          diff = :lists.reverse(diff)
-          [{:c, false} | diff]
-
-          Canvas.encode(term, diff)
       end
 
-    case data do
-      nil ->
+    case diff do
+      [] ->
         canvas2
 
       _ ->
+        data = Canvas.encode(term, diff)
         data = IO.iodata_to_binary(data)
-        # IO.inspect(data)
+        IO.inspect(data)
         Tty.write!(port, data)
         canvas2
     end

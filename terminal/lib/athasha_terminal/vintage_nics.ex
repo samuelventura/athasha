@@ -19,6 +19,7 @@ defmodule AthashaTerminal.VintageNics do
     {nics, _} =
       App.init(Select,
         items: @nics,
+        focus: focus,
         origin: {orig_x + 1, orig_y + 1},
         size: {width - 2, height - 2}
       )
@@ -32,7 +33,9 @@ defmodule AthashaTerminal.VintageNics do
   end
 
   def update(state, {:focus, _} = event) do
-    App.kupdate(state, :frame, event)
+    {state, _} = App.kupdate(state, :frame, event)
+    {state, _} = App.kupdate(state, :nics, event)
+    {state, nil}
   end
 
   def update(state, {:key, _, _} = event) do

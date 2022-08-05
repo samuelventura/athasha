@@ -46,7 +46,7 @@ defmodule AthashaTerminal.Frame do
     canvas =
       for r <- 0..last, reduce: canvas do
         canvas ->
-          canvas = Canvas.cursor(canvas, orig_x, orig_y + r)
+          canvas = Canvas.move(canvas, orig_x, orig_y + r)
           horizontal = border_char(focus, :horizontal)
           vertical = border_char(focus, :vertical)
 
@@ -73,7 +73,7 @@ defmodule AthashaTerminal.Frame do
           Canvas.write(canvas, border)
       end
 
-    canvas = Canvas.cursor(canvas, orig_x + 1, orig_y)
+    canvas = Canvas.move(canvas, orig_x + 1, orig_y)
     Canvas.write(canvas, title)
   end
 
