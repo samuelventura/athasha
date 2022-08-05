@@ -1,5 +1,6 @@
 defmodule AthashaTerminal.Select do
   alias AthashaTerminal.Canvas
+  alias AthashaTerminal.App
 
   def init(opts) do
     items = Keyword.fetch!(opts, :items)
@@ -8,8 +9,6 @@ defmodule AthashaTerminal.Select do
     origin = Keyword.get(opts, :origin, {0, 0})
     selected = Keyword.get(opts, :selected, 0)
     offset = Keyword.get(opts, :offset, 0)
-    background = Keyword.get(opts, :background, :black)
-    foreground = Keyword.get(opts, :foreground, :white)
 
     {count, items} =
       for item <- items, reduce: {0, %{}} do
@@ -24,9 +23,7 @@ defmodule AthashaTerminal.Select do
       items: items,
       offset: offset,
       origin: origin,
-      selected: selected,
-      background: background,
-      foreground: foreground
+      selected: selected
     }
 
     item = Map.get(items, selected)
@@ -75,26 +72,27 @@ defmodule AthashaTerminal.Select do
       origin: {orig_x, orig_y},
       size: {width, height},
       selected: selected,
-      offset: offset,
-      background: background,
-      foreground: foreground
+      offset: offset
     } = state
-
-    canvas = Canvas.clear(canvas, :styles)
-    canvas = Canvas.color(canvas, :foreground, foreground)
-    canvas = Canvas.color(canvas, :background, background)
 
     for i <- 0..(height - 1), reduce: canvas do
       canvas ->
         canvas = Canvas.move(canvas, orig_x, orig_y + i)
-        canvas = Canvas.reset(canvas, :inverse)
-        canvas = Canvas.reset(canvas, :normal)
+        canvas = Canvas.clear(canvas, :colors)
 
         canvas =
           case {focus, offset + i == selected} do
-            {true, true} -> Canvas.set(canvas, :inverse)
-            {false, true} -> Canvas.set(canvas, :bold)
-            _ -> canvas
+            {true, true} ->
+              canvas = Canvas.color(canvas, :foreground, App.theme(:fore_focused))
+              Canvas.color(canvas, :background, App.theme(:back_focused))
+
+            {false, true} ->
+              canvas = Canvas.color(canvas, :foreground, App.theme(:fore_selected))
+              Canvas.color(canvas, :background, App.theme(:back_selected))
+
+            _ ->
+              canvas = Canvas.color(canvas, :foreground, App.theme(:fore_data))
+              Canvas.color(canvas, :background, App.theme(:back_data))
           end
 
         item = Map.get(items, i + offset, "")

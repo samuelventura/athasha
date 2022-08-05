@@ -77,7 +77,7 @@ nc athasha-4ad8 8899
 nc localhost 8899
 {:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.tty", :code
 Process.exit pid, :kill
-System.put_env("VintageRemote", "target@172.31.255.9")
+System.put_env("VintageNode", "target@172.31.255.9")
 VintageLib.get_configuration "eth0"
 
 mix run tryout/try_hello.exs

@@ -24,7 +24,8 @@ defmodule AthashaTerminal.TermCode do
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, name), do: "\e[38;5;#{color_id(name)}m"
+  # bright colors are shifted by 8 but frame chars wont show in bblack
+  def color(:foreground, name), do: "\e[38;5;#{rem(color_id(name), 16)}m"
   def color(:background, name), do: "\e[48;5;#{color_id(name)}m"
 
   def set(:bold), do: "\e[1m"

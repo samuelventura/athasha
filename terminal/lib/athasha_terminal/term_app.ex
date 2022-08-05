@@ -41,4 +41,15 @@ defmodule AthashaTerminal.App do
     mote = Map.get(map, key)
     get(mote, field, defval)
   end
+
+  def theme(:back), do: :black
+  def theme(:fore), do: :bblack
+  def theme(:back_data), do: :black
+  def theme(:fore_data), do: :white
+  def theme(:back_disabled), do: :black
+  def theme(:fore_disabled), do: :bblack
+  def theme(:back_selected), do: :black
+  def theme(:fore_selected), do: :green
+  def theme(:back_focused), do: :green
+  def theme(:fore_focused), do: :bblack
 end

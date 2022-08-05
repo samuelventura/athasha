@@ -1,12 +1,13 @@
 defmodule AthashaTerminal.Label do
   alias AthashaTerminal.Canvas
+  alias AthashaTerminal.App
 
   def init(opts) do
     width = Keyword.fetch!(opts, :width)
     text = Keyword.fetch!(opts, :text)
     origin = Keyword.get(opts, :origin, {0, 0})
-    background = Keyword.get(opts, :background, :black)
-    foreground = Keyword.get(opts, :foreground, :white)
+    background = Keyword.get(opts, :background, App.theme(:back))
+    foreground = Keyword.get(opts, :foreground, App.theme(:fore))
 
     state = %{
       width: width,
@@ -35,7 +36,6 @@ defmodule AthashaTerminal.Label do
       foreground: foreground
     } = state
 
-    canvas = Canvas.clear(canvas, :styles)
     canvas = Canvas.color(canvas, :background, background)
     canvas = Canvas.color(canvas, :foreground, foreground)
     canvas = Canvas.move(canvas, orig_x, orig_y)

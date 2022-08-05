@@ -20,6 +20,7 @@ defmodule AthashaTerminal.AppRunner do
     loop(port, term, "", mod, model, canvas)
   end
 
+  # code cursor not shown under inverse
   # setup code cursor to linux default
   defp init(port, term) do
     Tty.write!(port, [

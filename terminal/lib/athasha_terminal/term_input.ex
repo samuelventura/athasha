@@ -1,5 +1,6 @@
 defmodule AthashaTerminal.Input do
   alias AthashaTerminal.Canvas
+  alias AthashaTerminal.App
 
   def init(opts) do
     width = Keyword.fetch!(opts, :width)
@@ -8,8 +9,6 @@ defmodule AthashaTerminal.Input do
     enabled = Keyword.get(opts, :enabled, false)
     cursor = Keyword.get(opts, :cursor, String.length(text))
     origin = Keyword.get(opts, :origin, {0, 0})
-    background = Keyword.get(opts, :background, :black)
-    foreground = Keyword.get(opts, :foreground, :white)
 
     state = %{
       focus: focus,
@@ -17,9 +16,7 @@ defmodule AthashaTerminal.Input do
       enabled: enabled,
       text: text,
       width: width,
-      origin: origin,
-      background: background,
-      foreground: foreground
+      origin: origin
     }
 
     {state, nil}
@@ -53,20 +50,24 @@ defmodule AthashaTerminal.Input do
       enabled: enabled,
       origin: {orig_x, orig_y},
       width: width,
-      text: text,
-      background: background,
-      foreground: foreground
+      text: text
     } = state
 
-    canvas = Canvas.clear(canvas, :styles)
-    canvas = Canvas.color(canvas, :background, background)
-    canvas = Canvas.color(canvas, :foreground, foreground)
+    canvas = Canvas.clear(canvas, :colors)
 
     canvas =
       case {focus, enabled} do
-        {true, true} -> Canvas.set(canvas, :inverse)
-        {_, false} -> Canvas.set(canvas, :dimmed)
-        _ -> canvas
+        {true, true} ->
+          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_focused))
+          Canvas.color(canvas, :background, App.theme(:back_focused))
+
+        {_, false} ->
+          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_disabled))
+          Canvas.color(canvas, :background, App.theme(:back_disabled))
+
+        _ ->
+          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_data))
+          Canvas.color(canvas, :background, App.theme(:back_data))
       end
 
     canvas = Canvas.move(canvas, orig_x, orig_y)

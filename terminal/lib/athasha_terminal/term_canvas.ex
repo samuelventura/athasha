@@ -1,7 +1,7 @@
 defmodule AthashaTerminal.Canvas do
   use AthashaTerminal.Term
 
-  @cell {' ', @white, @black, 0}
+  @cell {' ', @white, @black}
 
   def new(width, height) do
     %{
@@ -12,8 +12,7 @@ defmodule AthashaTerminal.Canvas do
       height: height,
       cursor: {false, 0, 0},
       foreground: @white,
-      background: @black,
-      style: 0
+      background: @black
     }
   end
 
@@ -33,8 +32,8 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | data: %{}}
   end
 
-  def clear(canvas, :styles) do
-    %{canvas | foreground: @white, background: @black, style: 0}
+  def clear(canvas, :colors) do
+    %{canvas | foreground: @white, background: @black}
   end
 
   def move(canvas, x, y) do
@@ -53,28 +52,6 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | background: color_id(name)}
   end
 
-  def set(canvas = %{style: style}, :bold) do
-    %{canvas | style: Bitwise.bor(style, @bold)}
-  end
-
-  def set(canvas = %{style: style}, :dimmed) do
-    %{canvas | style: Bitwise.bor(style, @dimmed)}
-  end
-
-  def set(canvas = %{style: style}, :inverse) do
-    %{canvas | style: Bitwise.bor(style, @inverse)}
-  end
-
-  def reset(canvas = %{style: style}, :normal) do
-    style = Bitwise.band(style, Bitwise.bnot(@bold))
-    style = Bitwise.band(style, Bitwise.bnot(@dimmed))
-    %{canvas | style: style}
-  end
-
-  def reset(canvas = %{style: style}, :inverse) do
-    %{canvas | style: Bitwise.band(style, Bitwise.bnot(@inverse))}
-  end
-
   # writes a single line clipping excess to avoid terminal wrapping
   def write(canvas, chardata) do
     %{
@@ -83,7 +60,6 @@ defmodule AthashaTerminal.Canvas do
       data: data,
       foreground: fg,
       background: bg,
-      style: style,
       height: height,
       width: width
     } = canvas
@@ -98,7 +74,7 @@ defmodule AthashaTerminal.Canvas do
             {data, x, y}
 
           false ->
-            data = Map.put(data, {x, y}, {c, fg, bg, style})
+            data = Map.put(data, {x, y}, {c, fg, bg})
             {data, x + 1, y}
         end
       end)
@@ -113,8 +89,7 @@ defmodule AthashaTerminal.Canvas do
       width: width,
       cursor: {cursor1, x1, y1},
       background: b1,
-      foreground: f1,
-      style: s1
+      foreground: f1
     } = canvas1
 
     %{
@@ -123,18 +98,18 @@ defmodule AthashaTerminal.Canvas do
       width: ^width
     } = canvas2
 
-    {list, f, b, s, x, y} =
-      for row <- 0..(height - 1), col <- 0..(width - 1), reduce: {[], f1, b1, s1, x1, y1} do
-        {list, f0, b0, s0, x, y} ->
+    {list, f, b, x, y} =
+      for row <- 0..(height - 1), col <- 0..(width - 1), reduce: {[], f1, b1, x1, y1} do
+        {list, f0, b0, x, y} ->
           cel1 = Map.get(data1, {col, row}, @cell)
           cel2 = Map.get(data2, {col, row}, @cell)
 
           case cel2 == cel1 do
             true ->
-              {list, f0, b0, s0, x, y}
+              {list, f0, b0, x, y}
 
             false ->
-              {c2, f2, b2, s2} = cel2
+              {c2, f2, b2} = cel2
 
               list =
                 case {x, y} == {col, row} do
@@ -157,15 +132,6 @@ defmodule AthashaTerminal.Canvas do
                   false -> [{:f, f2} | list]
                 end
 
-              list =
-                case s0 == s2 do
-                  true ->
-                    list
-
-                  false ->
-                    [{:s, s0, s2} | list]
-                end
-
               # to update styles write c2 even if same to c1
               list =
                 case list do
@@ -175,7 +141,7 @@ defmodule AthashaTerminal.Canvas do
 
               row = row + div(col + 1, width)
               col = rem(col + 1, width)
-              {list, f2, b2, s2, col, row}
+              {list, f2, b2, col, row}
           end
       end
 
@@ -183,8 +149,7 @@ defmodule AthashaTerminal.Canvas do
     %{
       cursor: {cursor2, x2, y2},
       background: b2,
-      foreground: f2,
-      style: s2
+      foreground: f2
     } = canvas2
 
     list =
@@ -197,15 +162,6 @@ defmodule AthashaTerminal.Canvas do
       case f == f2 do
         true -> list
         false -> [{:f, f2} | list]
-      end
-
-    list =
-      case s == s2 do
-        true ->
-          list
-
-        false ->
-          [{:s, s, s2} | list]
       end
 
     list =

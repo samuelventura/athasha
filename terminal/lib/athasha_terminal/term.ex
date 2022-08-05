@@ -24,6 +24,14 @@ defmodule AthashaTerminal.Term do
       @magenta 5
       @cyan 6
       @white 7
+      @bblack 8
+      @bred 9
+      @bgreen 10
+      @byellow 11
+      @bblue 12
+      @bmagenta 13
+      @bcyan 14
+      @bwhite 15
 
       defp color_id(color) do
         case color do
@@ -35,6 +43,14 @@ defmodule AthashaTerminal.Term do
           :magenta -> @magenta
           :cyan -> @cyan
           :white -> @white
+          :bblack -> @bblack
+          :bred -> @bred
+          :bgreen -> @bgreen
+          :byellow -> @byellow
+          :bblue -> @bblue
+          :bmagenta -> @bmagenta
+          :bcyan -> @bcyan
+          :bwhite -> @bwhite
           _ -> color
         end
       end

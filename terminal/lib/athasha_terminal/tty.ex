@@ -36,4 +36,42 @@ defmodule AthashaTerminal.Tty do
     # exit from nerves shell (works in host as well)
     Process.exit(Process.group_leader(), :kill)
   end
+
+  def export_start_link(tty, port) do
+    Task.start_link(fn -> export_run(tty, port) end)
+  end
+
+  def export_run(tty, port) do
+    opts = [
+      :binary,
+      ip: {0, 0, 0, 0},
+      packet: :raw,
+      active: true,
+      reuseaddr: true
+    ]
+
+    {:ok, listener} = :gen_tcp.listen(port, opts)
+    {:ok, socket} = :gen_tcp.accept(listener)
+    port = open(tty)
+    export_loop(listener, port, socket)
+  end
+
+  defp export_loop(listener, port, socket) do
+    receive do
+      {:tcp, _, data} ->
+        write!(port, data)
+        export_loop(listener, port, socket)
+
+      {^port, {:data, data}} ->
+        :gen_tcp.send(socket, data)
+        export_loop(listener, port, socket)
+
+      {:tcp_closed, _} ->
+        {:ok, socket} = :gen_tcp.accept(listener)
+        export_loop(listener, port, socket)
+
+      any ->
+        raise "#{inspect(any)}"
+    end
+  end
 end

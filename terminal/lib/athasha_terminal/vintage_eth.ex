@@ -4,6 +4,9 @@ defmodule AthashaTerminal.VintageEth do
   alias AthashaTerminal.Label
   alias AthashaTerminal.Input
 
+  @dhcp "DHCP"
+  @static "Static"
+
   def init(opts) do
     origin = Keyword.fetch!(opts, :origin)
     focus = Keyword.get(opts, :focus, false)
@@ -15,7 +18,7 @@ defmodule AthashaTerminal.VintageEth do
     ty = orig_y
 
     {radio, {:item, item}} =
-      App.init(Radio, focus: focus, origin: {tx, ty}, items: ["DHCP", "Static"])
+      App.init(Radio, focus: focus, origin: {tx, ty}, items: [@dhcp, @static])
 
     {lip, _} = App.init(Label, width: 4, origin: {tx, ty + 1}, text: "IP:")
     {ip, _} = App.init(Input, width: 15, origin: {tx + 4, ty + 1}, text: "10.77.5.10")
@@ -52,11 +55,12 @@ defmodule AthashaTerminal.VintageEth do
   end
 
   def update(state, {:ipv4, ipv4}) do
+    type = get(ipv4, :type, @dhcp)
     selected = get(ipv4, :selected, 0)
     {state, _} = App.kupdate(state, :radio, {:selected, selected})
     state = set(state, ipv4, :ip)
     state = set(state, ipv4, :gw)
-    state = %{state | active: :radio}
+    state = %{state | type: type, active: :radio}
     {state, nil}
   end
 
@@ -65,7 +69,7 @@ defmodule AthashaTerminal.VintageEth do
 
     case events do
       {:item, type} ->
-        enabled = type == "Static"
+        enabled = type == @static
         {state, _} = App.kupdate(state, :ip, {:enabled, enabled})
         {state, _} = App.kupdate(state, :gw, {:enabled, enabled})
         state = %{state | type: type}
@@ -119,7 +123,7 @@ defmodule AthashaTerminal.VintageEth do
     state
   end
 
-  def next(_, "DHCP"), do: nil
+  def next(_, @dhcp), do: nil
   def next(:radio, _), do: :ip
   def next(:ip, _), do: :gw
   def next(:gw, _), do: nil
@@ -128,6 +132,7 @@ defmodule AthashaTerminal.VintageEth do
   def get(%{method: :dhcp}, _, def), do: def
   def get(%{method: :static}, :selected, _), do: 1
   def get(%{method: :static}, :enabled, _), do: true
+  def get(%{method: :static}, :type, _), do: @static
   def get(%{method: :static, address: address}, :ip, _), do: address
   def get(%{method: :static, gateway: gateway}, :gw, _), do: gateway
   def get(%{method: :static, name_servers: [name_server]}, :ns, _), do: name_server

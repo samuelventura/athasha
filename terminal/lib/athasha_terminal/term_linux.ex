@@ -4,6 +4,9 @@ defmodule AthashaTerminal.TermLinux do
   # cursor styles not supported
   # limited text styles support
   # 8 colors only
+  #
+  # forecolors 8-15 render as dimmed but get reset if more then 16 colors
+  # are used at once by abusing background/dimmed/bold combinations
   def clear(:all), do: "\ec"
   def clear(:screen), do: "\e[2J"
   def clear(:styles), do: "\e[0m"
@@ -14,12 +17,13 @@ defmodule AthashaTerminal.TermLinux do
   def mouse(:standard), do: "\e[?1000h"
   def mouse(:extended), do: "\e[?1006h"
 
+  def cursor(:style, _), do: ""
   def cursor(column, line), do: "\e[#{line + 1};#{column + 1}H"
 
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, name), do: "\e[38;5;#{color_id(name)}m"
+  def color(:foreground, name), do: "\e[38;5;#{rem(color_id(name), 16)}m"
   def color(:background, name), do: "\e[48;5;#{color_id(name)}m"
 
   def set(:bold), do: "\e[1m"

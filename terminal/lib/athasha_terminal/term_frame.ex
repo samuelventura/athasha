@@ -1,13 +1,14 @@
 defmodule AthashaTerminal.Frame do
   alias AthashaTerminal.Canvas
+  alias AthashaTerminal.App
 
   def init(opts) do
     size = Keyword.fetch!(opts, :size)
     focus = Keyword.fetch!(opts, :focus)
     title = Keyword.fetch!(opts, :title)
     origin = Keyword.get(opts, :origin, {0, 0})
-    background = Keyword.get(opts, :background, :black)
-    foreground = Keyword.get(opts, :foreground, :white)
+    background = Keyword.get(opts, :background, App.theme(:back))
+    foreground = Keyword.get(opts, :foreground, App.theme(:fore))
 
     state = %{
       size: size,
@@ -38,7 +39,7 @@ defmodule AthashaTerminal.Frame do
       foreground: foreground
     } = state
 
-    canvas = Canvas.clear(canvas, :styles)
+    canvas = Canvas.clear(canvas, :colors)
     canvas = Canvas.color(canvas, :background, background)
     canvas = Canvas.color(canvas, :foreground, foreground)
     last = height - 1

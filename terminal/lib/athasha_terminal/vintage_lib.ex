@@ -1,6 +1,6 @@
 defmodule AthashaTerminal.VintageLib do
   def remote() do
-    System.get_env("VintageRemote", "none")
+    System.get_env("VintageNode", "none")
     |> String.to_atom()
   end
 
