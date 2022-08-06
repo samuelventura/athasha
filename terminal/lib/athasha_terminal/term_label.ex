@@ -6,15 +6,15 @@ defmodule AthashaTerminal.Label do
     width = Keyword.fetch!(opts, :width)
     text = Keyword.fetch!(opts, :text)
     origin = Keyword.get(opts, :origin, {0, 0})
-    background = Keyword.get(opts, :background, App.theme(:back))
-    foreground = Keyword.get(opts, :foreground, App.theme(:fore))
+    bgcolor = Keyword.get(opts, :bgcolor, App.theme(:back))
+    fgcolor = Keyword.get(opts, :fgcolor, App.theme(:fore))
 
     state = %{
       width: width,
       text: text,
       origin: origin,
-      background: background,
-      foreground: foreground
+      bgcolor: bgcolor,
+      fgcolor: fgcolor
     }
 
     {state, nil}
@@ -25,13 +25,13 @@ defmodule AthashaTerminal.Label do
     {state, nil}
   end
 
-  def update(state, {:foreground, foreground}) do
-    state = %{state | foreground: foreground}
+  def update(state, {:fgcolor, fgcolor}) do
+    state = %{state | fgcolor: fgcolor}
     {state, nil}
   end
 
-  def update(state, {:background, background}) do
-    state = %{state | background: background}
+  def update(state, {:bgcolor, bgcolor}) do
+    state = %{state | bgcolor: bgcolor}
     {state, nil}
   end
 
@@ -42,12 +42,12 @@ defmodule AthashaTerminal.Label do
       origin: {orig_x, orig_y},
       width: width,
       text: text,
-      background: background,
-      foreground: foreground
+      bgcolor: bgcolor,
+      fgcolor: fgcolor
     } = state
 
-    canvas = Canvas.color(canvas, :background, background)
-    canvas = Canvas.color(canvas, :foreground, foreground)
+    canvas = Canvas.color(canvas, :bgcolor, bgcolor)
+    canvas = Canvas.color(canvas, :fgcolor, fgcolor)
     canvas = Canvas.move(canvas, orig_x, orig_y)
     text = String.pad_trailing(text, width)
     Canvas.write(canvas, text)

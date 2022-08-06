@@ -20,8 +20,8 @@ defmodule AthashaTerminal.TermDemo do
           for j <- 0..7, reduce: canvas do
             canvas ->
               canvas = Canvas.move(canvas, 8 * j, i)
-              canvas = Canvas.color(canvas, :background, j)
-              canvas = Canvas.color(canvas, :foreground, i)
+              canvas = Canvas.color(canvas, :bgcolor, j)
+              canvas = Canvas.color(canvas, :fgcolor, i)
               canvas = Canvas.write(canvas, " Demo ")
               canvas
           end

@@ -6,7 +6,7 @@ defmodule AthashaTerminal.TermLinux do
   # 8 colors only
   #
   # forecolors 8-15 render as dimmed but get reset if more then 16 colors
-  # are used at once by abusing background/dimmed/bold combinations
+  # are used at once by abusing bgcolor/dimmed/bold combinations
   def clear(:all), do: "\ec"
   def clear(:screen), do: "\e[2J"
   def clear(:styles), do: "\e[0m"
@@ -23,8 +23,8 @@ defmodule AthashaTerminal.TermLinux do
   def show(:cursor), do: "\e[?25h"
   def hide(:cursor), do: "\e[?25l"
 
-  def color(:foreground, name), do: "\e[38;5;#{rem(color_id(name), 16)}m"
-  def color(:background, name), do: "\e[48;5;#{color_id(name)}m"
+  def color(:fgcolor, name), do: "\e[38;5;#{rem(color_id(name), 16)}m"
+  def color(:bgcolor, name), do: "\e[48;5;#{rem(color_id(name), 8)}m"
 
   def set(:bold), do: "\e[1m"
   def set(:dimmed), do: "\e[2m"

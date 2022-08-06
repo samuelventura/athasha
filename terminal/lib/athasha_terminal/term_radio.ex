@@ -92,20 +92,20 @@ defmodule AthashaTerminal.Radio do
           canvas =
             case {enabled, focus, i == selected} do
               {false, _, _} ->
-                canvas = Canvas.color(canvas, :foreground, App.theme(:fore_disabled))
-                Canvas.color(canvas, :background, App.theme(:back_disabled))
+                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_disabled))
+                Canvas.color(canvas, :bgcolor, App.theme(:back_disabled))
 
               {true, true, true} ->
-                canvas = Canvas.color(canvas, :foreground, App.theme(:fore_focused))
-                Canvas.color(canvas, :background, App.theme(:back_focused))
+                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_focused))
+                Canvas.color(canvas, :bgcolor, App.theme(:back_focused))
 
               {true, false, true} ->
-                canvas = Canvas.color(canvas, :foreground, App.theme(:fore_selected))
-                Canvas.color(canvas, :background, App.theme(:back_selected))
+                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_selected))
+                Canvas.color(canvas, :bgcolor, App.theme(:back_selected))
 
               _ ->
-                canvas = Canvas.color(canvas, :foreground, App.theme(:fore_data))
-                Canvas.color(canvas, :background, App.theme(:back_data))
+                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_data))
+                Canvas.color(canvas, :bgcolor, App.theme(:back_data))
             end
 
           item = Map.get(items, i)

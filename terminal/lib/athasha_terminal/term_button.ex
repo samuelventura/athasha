@@ -52,16 +52,16 @@ defmodule AthashaTerminal.Button do
     canvas =
       case {enabled, focus} do
         {false, _} ->
-          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_disabled))
-          Canvas.color(canvas, :background, App.theme(:back_disabled))
+          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_disabled))
+          Canvas.color(canvas, :bgcolor, App.theme(:back_disabled))
 
         {true, true} ->
-          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_focused))
-          Canvas.color(canvas, :background, App.theme(:back_focused))
+          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_focused))
+          Canvas.color(canvas, :bgcolor, App.theme(:back_focused))
 
         _ ->
-          canvas = Canvas.color(canvas, :foreground, App.theme(:fore_data))
-          Canvas.color(canvas, :background, App.theme(:back_data))
+          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_data))
+          Canvas.color(canvas, :bgcolor, App.theme(:back_data))
       end
 
     canvas = Canvas.move(canvas, orig_x, orig_y)

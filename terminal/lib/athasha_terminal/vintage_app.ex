@@ -28,7 +28,7 @@ defmodule AthashaTerminal.VintageApp do
     {nics, nic} = App.init(VintageNics, focus: true, origin: {nx, ny}, size: {nw, nh})
     {conf, nil} = App.init(VintageConf, focus: false, origin: {cx, cy}, size: {cw, ch})
     {title, nil} = App.init(Label, origin: {tx, ty}, width: width, text: "Network Settings")
-    {alert, nil} = App.init(Label, origin: {ex, ey}, width: width, text: "", foreground: :white)
+    {alert, nil} = App.init(Label, origin: {ex, ey}, width: width, text: "", fgcolor: :white)
 
     state = %{
       origin: origin,
@@ -67,13 +67,13 @@ defmodule AthashaTerminal.VintageApp do
 
     case error do
       nil ->
-        {alert, nil} = App.update(alert, {:background, :black})
+        {alert, nil} = App.update(alert, {:bgcolor, :black})
         {alert, nil} = App.update(alert, {:text, ""})
         state = %{state | alert: alert}
         {state, nil}
 
       other ->
-        {alert, nil} = App.update(alert, {:background, :red})
+        {alert, nil} = App.update(alert, {:bgcolor, :red})
         {alert, nil} = App.update(alert, {:text, "#{inspect(other)}"})
         state = %{state | alert: alert}
         {state, nil}
@@ -83,13 +83,13 @@ defmodule AthashaTerminal.VintageApp do
   def update(%{alert: alert} = state, {:cmd, {:save, _conf}, res}) do
     case res do
       :ok ->
-        {alert, nil} = App.update(alert, {:background, :bblue})
+        {alert, nil} = App.update(alert, {:bgcolor, :bblue})
         {alert, nil} = App.update(alert, {:text, "Config saved successfully"})
         state = %{state | alert: alert}
         {state, nil}
 
       {:error, error} ->
-        {alert, nil} = App.update(alert, {:background, :red})
+        {alert, nil} = App.update(alert, {:bgcolor, :red})
         {alert, nil} = App.update(alert, {:text, "#{inspect(error)}"})
         state = %{state | alert: alert}
         {state, nil}

@@ -8,8 +8,8 @@ defmodule AthashaTerminal.Frame do
     title = Keyword.fetch!(opts, :title)
     style = Keyword.get(opts, :style, :single)
     origin = Keyword.get(opts, :origin, {0, 0})
-    background = Keyword.get(opts, :background, App.theme(:back))
-    foreground = Keyword.get(opts, :foreground, App.theme(:fore))
+    bgcolor = Keyword.get(opts, :bgcolor, App.theme(:back))
+    fgcolor = Keyword.get(opts, :fgcolor, App.theme(:fore))
 
     state = %{
       size: size,
@@ -17,8 +17,8 @@ defmodule AthashaTerminal.Frame do
       focus: focus,
       title: title,
       origin: origin,
-      background: background,
-      foreground: foreground
+      bgcolor: bgcolor,
+      fgcolor: fgcolor
     }
 
     {state, nil}
@@ -38,13 +38,13 @@ defmodule AthashaTerminal.Frame do
       origin: {orig_x, orig_y},
       size: {width, height},
       title: title,
-      background: background,
-      foreground: foreground
+      bgcolor: bgcolor,
+      fgcolor: fgcolor
     } = state
 
     canvas = Canvas.clear(canvas, :colors)
-    canvas = Canvas.color(canvas, :background, background)
-    canvas = Canvas.color(canvas, :foreground, foreground)
+    canvas = Canvas.color(canvas, :bgcolor, bgcolor)
+    canvas = Canvas.color(canvas, :fgcolor, fgcolor)
     last = height - 1
 
     canvas =

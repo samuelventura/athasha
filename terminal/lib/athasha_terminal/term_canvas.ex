@@ -11,8 +11,8 @@ defmodule AthashaTerminal.Canvas do
       width: width,
       height: height,
       cursor: {false, 0, 0},
-      foreground: @white,
-      background: @black
+      fgcolor: @white,
+      bgcolor: @black
     }
   end
 
@@ -33,7 +33,7 @@ defmodule AthashaTerminal.Canvas do
   end
 
   def clear(canvas, :colors) do
-    %{canvas | foreground: @white, background: @black}
+    %{canvas | fgcolor: @white, bgcolor: @black}
   end
 
   def move(canvas, x, y) do
@@ -44,12 +44,12 @@ defmodule AthashaTerminal.Canvas do
     %{canvas | cursor: {true, x, y}}
   end
 
-  def color(canvas, :foreground, name) do
-    %{canvas | foreground: color_id(name)}
+  def color(canvas, :fgcolor, name) do
+    %{canvas | fgcolor: color_id(name)}
   end
 
-  def color(canvas, :background, name) do
-    %{canvas | background: color_id(name)}
+  def color(canvas, :bgcolor, name) do
+    %{canvas | bgcolor: color_id(name)}
   end
 
   # writes a single line clipping excess to avoid terminal wrapping
@@ -58,8 +58,8 @@ defmodule AthashaTerminal.Canvas do
       x: x,
       y: y,
       data: data,
-      foreground: fg,
-      background: bg,
+      fgcolor: fg,
+      bgcolor: bg,
       height: height,
       width: width
     } = canvas
@@ -88,8 +88,8 @@ defmodule AthashaTerminal.Canvas do
       height: height,
       width: width,
       cursor: {cursor1, x1, y1},
-      background: b1,
-      foreground: f1
+      bgcolor: b1,
+      fgcolor: f1
     } = canvas1
 
     %{
@@ -148,8 +148,8 @@ defmodule AthashaTerminal.Canvas do
     # restore canvas2 styles and cursor
     %{
       cursor: {cursor2, x2, y2},
-      background: b2,
-      foreground: f2
+      bgcolor: b2,
+      fgcolor: f2
     } = canvas2
 
     list =
@@ -207,8 +207,8 @@ defmodule AthashaTerminal.Canvas do
               if(sb, do: term.set(:bold)),
               if(sd, do: term.set(:dimmed)),
               if(si, do: term.set(:inverse)),
-              term.color(:foreground, f),
-              term.color(:background, b),
+              term.color(:fgcolor, f),
+              term.color(:bgcolor, b),
               IO.chardata_to_string([c])
             ]
             |> Enum.filter(&(&1 != nil))
@@ -274,12 +274,12 @@ defmodule AthashaTerminal.Canvas do
   end
 
   defp encode(term, list, [{:b, b} | tail]) do
-    d = term.color(:background, b)
+    d = term.color(:bgcolor, b)
     encode(term, [d | list], tail)
   end
 
   defp encode(term, list, [{:f, f} | tail]) do
-    d = term.color(:foreground, f)
+    d = term.color(:fgcolor, f)
     encode(term, [d | list], tail)
   end
 
