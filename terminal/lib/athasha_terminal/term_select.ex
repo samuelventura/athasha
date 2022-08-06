@@ -6,6 +6,7 @@ defmodule AthashaTerminal.Select do
     items = Keyword.fetch!(opts, :items)
     size = Keyword.fetch!(opts, :size)
     focus = Keyword.get(opts, :focus, false)
+    enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
     selected = Keyword.get(opts, :selected, 0)
     offset = Keyword.get(opts, :offset, 0)
@@ -19,6 +20,7 @@ defmodule AthashaTerminal.Select do
     state = %{
       size: size,
       focus: focus,
+      enabled: enabled,
       count: count,
       items: items,
       offset: offset,
@@ -54,7 +56,7 @@ defmodule AthashaTerminal.Select do
   end
 
   def update(state, {:key, _, "\t"}) do
-    {state, {:nav, :next}}
+    {state, {:focus, :next}}
   end
 
   def update(state, {:key, _, "\r"}) do
@@ -69,6 +71,7 @@ defmodule AthashaTerminal.Select do
     %{
       focus: focus,
       items: items,
+      enabled: enabled,
       origin: {orig_x, orig_y},
       size: {width, height},
       selected: selected,
@@ -81,12 +84,16 @@ defmodule AthashaTerminal.Select do
         canvas = Canvas.clear(canvas, :colors)
 
         canvas =
-          case {focus, offset + i == selected} do
-            {true, true} ->
+          case {enabled, focus, i == selected} do
+            {false, _, _} ->
+              canvas = Canvas.color(canvas, :foreground, App.theme(:fore_disabled))
+              Canvas.color(canvas, :background, App.theme(:back_disabled))
+
+            {true, true, true} ->
               canvas = Canvas.color(canvas, :foreground, App.theme(:fore_focused))
               Canvas.color(canvas, :background, App.theme(:back_focused))
 
-            {false, true} ->
+            {true, false, true} ->
               canvas = Canvas.color(canvas, :foreground, App.theme(:fore_selected))
               Canvas.color(canvas, :background, App.theme(:back_selected))
 

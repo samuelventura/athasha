@@ -45,11 +45,11 @@ defmodule AthashaTerminal.App do
   def theme(:back), do: :black
   def theme(:fore), do: :bblack
   def theme(:back_data), do: :black
-  def theme(:fore_data), do: :bblue
+  def theme(:fore_data), do: :white
   def theme(:back_disabled), do: :black
   def theme(:fore_disabled), do: :bblack
   def theme(:back_selected), do: :black
-  def theme(:fore_selected), do: :white
+  def theme(:fore_selected), do: :bblue
   def theme(:back_focused), do: :blue
   def theme(:fore_focused), do: :white
 end

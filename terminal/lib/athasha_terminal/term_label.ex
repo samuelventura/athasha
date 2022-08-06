@@ -25,6 +25,16 @@ defmodule AthashaTerminal.Label do
     {state, nil}
   end
 
+  def update(state, {:foreground, foreground}) do
+    state = %{state | foreground: foreground}
+    {state, nil}
+  end
+
+  def update(state, {:background, background}) do
+    state = %{state | background: background}
+    {state, nil}
+  end
+
   def update(state, _event), do: {state, nil}
 
   def render(state, canvas) do

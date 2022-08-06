@@ -1,21 +1,19 @@
-defmodule AthashaTerminal.Input do
+defmodule AthashaTerminal.Button do
   alias AthashaTerminal.Canvas
   alias AthashaTerminal.App
 
   def init(opts) do
     width = Keyword.fetch!(opts, :width)
-    text = Keyword.get(opts, :text, "")
+    text = Keyword.fetch!(opts, :text)
     focus = Keyword.get(opts, :focus, false)
-    enabled = Keyword.get(opts, :enabled, false)
-    cursor = Keyword.get(opts, :cursor, String.length(text))
+    enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
 
     state = %{
       focus: focus,
-      cursor: cursor,
       enabled: enabled,
-      text: text,
       width: width,
+      text: text,
       origin: origin
     }
 
@@ -32,28 +30,24 @@ defmodule AthashaTerminal.Input do
     {state, nil}
   end
 
-  def update(state, {:text, text}) do
-    state = %{state | text: text, cursor: String.length(text)}
-    {state, nil}
-  end
-
   def update(state, {:key, _, "\t"}) do
     {state, {:focus, :next}}
+  end
+
+  def update(%{enabled: true, text: text} = state, {:key, _, "\r"}) do
+    {state, {:click, text}}
   end
 
   def update(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{
+      text: text,
       focus: focus,
-      cursor: cursor,
-      enabled: enabled,
-      origin: {orig_x, orig_y},
       width: width,
-      text: text
+      enabled: enabled,
+      origin: {orig_x, orig_y}
     } = state
-
-    canvas = Canvas.clear(canvas, :colors)
 
     canvas =
       case {enabled, focus} do
@@ -71,19 +65,11 @@ defmodule AthashaTerminal.Input do
       end
 
     canvas = Canvas.move(canvas, orig_x, orig_y)
-    text = String.pad_trailing(text, width)
-    canvas = Canvas.write(canvas, text)
-
-    case {focus, enabled} do
-      {true, true} ->
-        Canvas.cursor(canvas, orig_x + cursor, orig_y)
-
-      _ ->
-        canvas
-    end
-  end
-
-  def get(state, field, defval \\ nil) do
-    Map.get(state, field, defval)
+    canvas = Canvas.write(canvas, "[")
+    canvas = Canvas.write(canvas, String.duplicate(" ", width - 2))
+    canvas = Canvas.write(canvas, "]")
+    offset = div(width - String.length(text), 2)
+    canvas = Canvas.move(canvas, orig_x + offset, orig_y)
+    Canvas.write(canvas, text)
   end
 end

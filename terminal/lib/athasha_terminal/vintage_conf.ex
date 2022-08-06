@@ -51,20 +51,20 @@ defmodule AthashaTerminal.VintageConf do
   def update(state, {:nic, nic, conf}) do
     case conf do
       %{mac: mac, type: VintageNetEthernet, ipv4: ipv4} ->
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, ipv4})
+        {state, nil} = App.kupdate(state, :eth, {:ipv4, nic, ipv4, nil})
         {state, nil} = App.kupdate(state, :nic, {:text, "#{nic}"})
         {state, nil} = App.kupdate(state, :mac, {:text, "#{mac}"})
         {state, nil}
 
-      %{mac: mac, type: VintageNetWiFi, ipv4: ipv4, vintage_net_wifi: _wifi} ->
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, ipv4})
+      %{mac: mac, type: VintageNetWiFi, ipv4: ipv4, vintage_net_wifi: wifi} ->
+        {state, nil} = App.kupdate(state, :eth, {:ipv4, nic, ipv4, wifi})
         {state, nil} = App.kupdate(state, :nic, {:text, "#{nic}"})
         {state, nil} = App.kupdate(state, :mac, {:text, "#{mac}"})
         {state, nil}
 
       other ->
         state = %{state | nic: nic, mac: nil}
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, nil})
+        {state, nil} = App.kupdate(state, :eth, {:ipv4, nil, nil, nil})
         {state, nil} = App.kupdate(state, :nic, {:text, ""})
         {state, nil} = App.kupdate(state, :mac, {:text, ""})
         {state, "#{inspect(other)}"}

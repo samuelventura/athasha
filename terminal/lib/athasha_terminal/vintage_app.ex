@@ -8,7 +8,7 @@ defmodule AthashaTerminal.VintageApp do
 
   def init(opts) do
     {width, height} = Keyword.fetch!(opts, :size)
-    origin = Keyword.get(opts, :origin, {2, 1})
+    origin = Keyword.get(opts, :origin, {0, 0})
 
     {orig_x, orig_y} = origin
 
@@ -20,15 +20,15 @@ defmodule AthashaTerminal.VintageApp do
     nh = 6
     cx = nx + 14
     cy = ny
-    cw = 48
+    cw = 32
     ch = 16
     ex = tx
-    ey = cy + ch
+    ey = height - 1
 
     {nics, nic} = App.init(VintageNics, focus: true, origin: {nx, ny}, size: {nw, nh})
     {conf, nil} = App.init(VintageConf, focus: false, origin: {cx, cy}, size: {cw, ch})
     {title, nil} = App.init(Label, origin: {tx, ty}, width: width, text: "Network Settings")
-    {alert, nil} = App.init(Label, origin: {ex, ey}, width: width, text: "")
+    {alert, nil} = App.init(Label, origin: {ex, ey}, width: width, text: "", foreground: :white)
 
     state = %{
       origin: origin,
@@ -46,16 +46,19 @@ defmodule AthashaTerminal.VintageApp do
   def update(%{active: active} = state, {:key, _, _} = event) do
     {state, events} = App.kupdate(state, active, event)
 
-    case events do
-      nil ->
+    case {active, events} do
+      {_, nil} ->
         {state, []}
 
-      {:nav, _} ->
+      {_, {:focus, _}} ->
         state = navigate(state)
         {state, []}
 
-      {:item, nic} ->
+      {:nics, {:item, nic}} ->
         {state, [{:get, nic}]}
+
+      {:conf, {:save, conf}} ->
+        {state, [{:save, conf}]}
     end
   end
 
@@ -64,12 +67,30 @@ defmodule AthashaTerminal.VintageApp do
 
     case error do
       nil ->
+        {alert, nil} = App.update(alert, {:background, :black})
         {alert, nil} = App.update(alert, {:text, ""})
         state = %{state | alert: alert}
         {state, nil}
 
       other ->
+        {alert, nil} = App.update(alert, {:background, :red})
         {alert, nil} = App.update(alert, {:text, "#{inspect(other)}"})
+        state = %{state | alert: alert}
+        {state, nil}
+    end
+  end
+
+  def update(%{alert: alert} = state, {:cmd, {:save, _conf}, res}) do
+    case res do
+      :ok ->
+        {alert, nil} = App.update(alert, {:background, :bblue})
+        {alert, nil} = App.update(alert, {:text, "Config saved successfully"})
+        state = %{state | alert: alert}
+        {state, nil}
+
+      {:error, error} ->
+        {alert, nil} = App.update(alert, {:background, :red})
+        {alert, nil} = App.update(alert, {:text, "#{inspect(error)}"})
         state = %{state | alert: alert}
         {state, nil}
     end
@@ -97,6 +118,11 @@ defmodule AthashaTerminal.VintageApp do
     mac = MACAddress.to_hex(mac)
     config = VintageLib.get_configuration(nic)
     Map.put(config, :mac, mac)
+  end
+
+  def execute({:save, conf}) do
+    IO.inspect(conf)
+    :ok
   end
 
   defp navigate(state) do

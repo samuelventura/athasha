@@ -36,6 +36,7 @@ defmodule AthashaTerminal.AppRunner do
     receive do
       {^port, {:data, data}} ->
         {buffer, events} = term.append(buffer, data)
+        # IO.inspect(events)
         model = apply_events(mod, model, events)
 
         # glitch on horizontal resize because of auto line wrapping
@@ -149,7 +150,7 @@ defmodule AthashaTerminal.AppRunner do
       _ ->
         data = Canvas.encode(term, diff)
         data = IO.iodata_to_binary(data)
-        IO.inspect(data)
+        # IO.inspect(data)
         Tty.write!(port, data)
         canvas2
     end
