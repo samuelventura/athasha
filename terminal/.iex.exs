@@ -8,3 +8,4 @@ alias AthashaTerminal.TermCode
 alias AthashaTerminal.AppRunner
 alias AthashaTerminal.VintageApp
 alias AthashaTerminal.VintageLib
+alias AthashaTerminal.VintageMain

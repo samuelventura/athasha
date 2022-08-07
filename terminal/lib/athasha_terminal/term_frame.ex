@@ -1,17 +1,19 @@
 defmodule AthashaTerminal.Frame do
+  @behaviour AthashaTerminal.Window
   alias AthashaTerminal.Canvas
-  alias AthashaTerminal.App
+  alias AthashaTerminal.Theme
 
   def init(opts) do
-    size = Keyword.fetch!(opts, :size)
-    focus = Keyword.fetch!(opts, :focus)
-    title = Keyword.fetch!(opts, :title)
+    size = Keyword.get(opts, :size, {0, 0})
+    focus = Keyword.get(opts, :focus, false)
+    title = Keyword.get(opts, :title, "")
     style = Keyword.get(opts, :style, :single)
     origin = Keyword.get(opts, :origin, {0, 0})
-    bgcolor = Keyword.get(opts, :bgcolor, App.theme(:back))
-    fgcolor = Keyword.get(opts, :fgcolor, App.theme(:fore))
+    theme = Keyword.get(opts, :theme, Theme.get())
+    bgcolor = Keyword.get(opts, :bgcolor, theme.back_readonly)
+    fgcolor = Keyword.get(opts, :fgcolor, theme.fore_readonly)
 
-    state = %{
+    %{
       size: size,
       style: style,
       focus: focus,
@@ -20,22 +22,15 @@ defmodule AthashaTerminal.Frame do
       bgcolor: bgcolor,
       fgcolor: fgcolor
     }
-
-    {state, nil}
   end
 
-  def update(state, {:focus, focus}) do
-    state = %{state | focus: focus}
-    {state, nil}
-  end
-
-  def update(state, _event), do: {state, nil}
+  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
+  def update(state, name, value), do: Map.put(state, name, value)
 
   def render(state, canvas) do
     %{
       focus: focus,
       style: style,
-      origin: {orig_x, orig_y},
       size: {width, height},
       title: title,
       bgcolor: bgcolor,
@@ -50,7 +45,7 @@ defmodule AthashaTerminal.Frame do
     canvas =
       for r <- 0..last, reduce: canvas do
         canvas ->
-          canvas = Canvas.move(canvas, orig_x, orig_y + r)
+          canvas = Canvas.move(canvas, 0, r)
           horizontal = border_char(style, :horizontal)
           vertical = border_char(style, :vertical)
 
@@ -77,7 +72,7 @@ defmodule AthashaTerminal.Frame do
           Canvas.write(canvas, border)
       end
 
-    canvas = Canvas.move(canvas, orig_x + 1, orig_y)
+    canvas = Canvas.move(canvas, 1, 0)
 
     title =
       case focus do

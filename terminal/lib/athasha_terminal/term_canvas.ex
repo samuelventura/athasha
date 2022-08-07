@@ -12,8 +12,34 @@ defmodule AthashaTerminal.Canvas do
       height: height,
       cursor: {false, 0, 0},
       fgcolor: @white,
-      bgcolor: @black
+      bgcolor: @black,
+      clip: {0, 0, width, height},
+      clips: []
     }
+  end
+
+  def push(%{clips: clips} = canvas, bounds) do
+    canvas = %{canvas | clips: [bounds | clips]}
+    update_clip(canvas)
+  end
+
+  def pop(%{clips: [_ | tail]} = canvas) do
+    canvas = %{canvas | clips: tail}
+    update_clip(canvas)
+  end
+
+  defp update_clip(%{width: width, height: height, clips: clips} = canvas) do
+    clip = {0, 0, width, height}
+
+    clip =
+      for {ix, iy, iw, ih} <- Enum.reverse(clips), reduce: clip do
+        {ax, ay, aw, ah} ->
+          w = min(iw, aw - ix)
+          h = min(ih, ah - iy)
+          {ax + ix, ay + iy, w, h}
+      end
+
+    %{canvas | clip: clip}
   end
 
   def get(%{width: width, height: height}, :size) do
@@ -24,24 +50,16 @@ defmodule AthashaTerminal.Canvas do
     cursor
   end
 
-  def clear(%{width: width, height: height}, :all) do
-    new(width, height)
-  end
-
-  def clear(canvas, :screen) do
-    %{canvas | data: %{}}
-  end
-
   def clear(canvas, :colors) do
     %{canvas | fgcolor: @white, bgcolor: @black}
   end
 
-  def move(canvas, x, y) do
-    %{canvas | x: x, y: y}
+  def move(%{clip: {cx, cy, _, _}} = canvas, x, y) do
+    %{canvas | x: cx + x, y: cy + y}
   end
 
-  def cursor(canvas, x, y) do
-    %{canvas | cursor: {true, x, y}}
+  def cursor(%{clip: {cx, cy, _, _}} = canvas, x, y) do
+    %{canvas | cursor: {true, cx + x, cy + y}}
   end
 
   def color(canvas, :fgcolor, name) do
@@ -60,22 +78,24 @@ defmodule AthashaTerminal.Canvas do
       data: data,
       fgcolor: fg,
       bgcolor: bg,
-      height: height,
-      width: width
+      clip: {cx, cy, cw, ch}
     } = canvas
+
+    mx = cx + cw
+    my = cy + ch
 
     {data, x, y} =
       chardata
       |> IO.chardata_to_string()
       |> String.to_charlist()
-      |> Enum.reduce({data, x, y}, fn c, {data, x, y} ->
-        case x >= width || y >= height do
+      |> Enum.reduce_while({data, x, y}, fn c, {data, x, y} ->
+        case x < cx || y < cy || x >= mx || y >= my do
           true ->
-            {data, x, y}
+            {:halt, {data, x, y}}
 
           false ->
             data = Map.put(data, {x, y}, {c, fg, bg})
-            {data, x + 1, y}
+            {:cont, {data, x + 1, y}}
         end
       end)
 
@@ -177,53 +197,6 @@ defmodule AthashaTerminal.Canvas do
       end
 
     list
-  end
-
-  def encode(term, canvas) when is_map(canvas) do
-    %{
-      x: x,
-      y: y,
-      data: data,
-      height: height,
-      width: width,
-      cursor: cursor
-    } = canvas
-
-    list =
-      for row <- 0..(height - 1), col <- 0..(width - 1) do
-        case Map.get(data, {col, row}) do
-          nil ->
-            nil
-
-          {c, f, b, s} ->
-            sb = Bitwise.band(s, @bold) > 0
-            sd = Bitwise.band(s, @dimmed) > 0
-            si = Bitwise.band(s, @inverse) > 0
-
-            [
-              term.cursor(col, row),
-              term.reset(:normal),
-              term.reset(:inverse),
-              if(sb, do: term.set(:bold)),
-              if(sd, do: term.set(:dimmed)),
-              if(si, do: term.set(:inverse)),
-              term.color(:fgcolor, f),
-              term.color(:bgcolor, b),
-              IO.chardata_to_string([c])
-            ]
-            |> Enum.filter(&(&1 != nil))
-        end
-      end
-
-    list = Enum.filter(list, &(&1 != nil))
-
-    list =
-      case cursor do
-        false -> [term.hide(:cursor) | list]
-        true -> [term.show(:cursor) | list]
-      end
-
-    [term.cursor(x, y) | list]
   end
 
   def encode(term, list) when is_list(list) do
