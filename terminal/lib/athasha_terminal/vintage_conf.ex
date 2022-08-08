@@ -42,40 +42,40 @@ defmodule AthashaTerminal.VintageConf do
     {state, nil}
   end
 
-  def update(state, {:focus, _} = event) do
-    {state, _} = App.kupdate(state, :frame, event)
-    {state, _} = App.kupdate(state, :eth, event)
+  def handle(state, {:focus, _} = event) do
+    {state, _} = App.khandle(state, :frame, event)
+    {state, _} = App.khandle(state, :eth, event)
     {state, nil}
   end
 
-  def update(state, {:nic, nic, conf}) do
+  def handle(state, {:nic, nic, conf}) do
     case conf do
       %{mac: mac, type: VintageNetEthernet, ipv4: ipv4} ->
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, nic, ipv4, nil})
-        {state, nil} = App.kupdate(state, :nic, {:text, "#{nic}"})
-        {state, nil} = App.kupdate(state, :mac, {:text, "#{mac}"})
+        {state, nil} = App.khandle(state, :eth, {:ipv4, nic, ipv4, nil})
+        {state, nil} = App.khandle(state, :nic, {:text, "#{nic}"})
+        {state, nil} = App.khandle(state, :mac, {:text, "#{mac}"})
         {state, nil}
 
       %{mac: mac, type: VintageNetWiFi, ipv4: ipv4, vintage_net_wifi: wifi} ->
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, nic, ipv4, wifi})
-        {state, nil} = App.kupdate(state, :nic, {:text, "#{nic}"})
-        {state, nil} = App.kupdate(state, :mac, {:text, "#{mac}"})
+        {state, nil} = App.khandle(state, :eth, {:ipv4, nic, ipv4, wifi})
+        {state, nil} = App.khandle(state, :nic, {:text, "#{nic}"})
+        {state, nil} = App.khandle(state, :mac, {:text, "#{mac}"})
         {state, nil}
 
       other ->
         state = %{state | nic: nic, mac: nil}
-        {state, nil} = App.kupdate(state, :eth, {:ipv4, nil, nil, nil})
-        {state, nil} = App.kupdate(state, :nic, {:text, ""})
-        {state, nil} = App.kupdate(state, :mac, {:text, ""})
+        {state, nil} = App.khandle(state, :eth, {:ipv4, nil, nil, nil})
+        {state, nil} = App.khandle(state, :nic, {:text, ""})
+        {state, nil} = App.khandle(state, :mac, {:text, ""})
         {state, "#{inspect(other)}"}
     end
   end
 
-  def update(state, {:key, _, _} = event) do
-    App.kupdate(state, :eth, event)
+  def handle(state, {:key, _, _} = event) do
+    App.khandle(state, :eth, event)
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{

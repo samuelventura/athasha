@@ -1,6 +1,6 @@
 defmodule AthashaTerminal.App do
   @callback init(opts :: any()) :: {any(), [any()]}
-  @callback update(state :: any(), event :: any()) :: {any(), [any()]}
+  @callback handle(state :: any(), event :: any()) :: {any(), [any()]}
   @callback render(state :: any(), canvas :: any()) :: any()
   @callback execute(cmd :: any()) :: any()
 
@@ -9,7 +9,7 @@ defmodule AthashaTerminal.App do
     {{module, state}, events}
   end
 
-  def update(mote, event) do
+  def handle(mote, event) do
     {module, state} = mote
     {state, events} = module.update(state, event)
     {{module, state}, events}
@@ -30,9 +30,9 @@ defmodule AthashaTerminal.App do
     module.get(state, field, defval)
   end
 
-  def kupdate(map, key, event) do
+  def khandle(map, key, event) do
     mote = Map.get(map, key)
-    {mote, events} = update(mote, event)
+    {mote, events} = handle(mote, event)
     map = Map.put(map, key, mote)
     {map, events}
   end

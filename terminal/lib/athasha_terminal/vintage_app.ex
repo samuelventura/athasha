@@ -43,8 +43,8 @@ defmodule AthashaTerminal.VintageApp do
     {state, [{:get, nic}]}
   end
 
-  def update(%{active: active} = state, {:key, _, _} = event) do
-    {state, events} = App.kupdate(state, active, event)
+  def handle(%{active: active} = state, {:key, _, _} = event) do
+    {state, events} = App.khandle(state, active, event)
 
     case {active, events} do
       {_, nil} ->
@@ -62,41 +62,41 @@ defmodule AthashaTerminal.VintageApp do
     end
   end
 
-  def update(%{alert: alert} = state, {:cmd, {:get, nic}, res}) do
-    {state, error} = App.kupdate(state, :conf, {:nic, nic, res})
+  def handle(%{alert: alert} = state, {:cmd, {:get, nic}, res}) do
+    {state, error} = App.khandle(state, :conf, {:nic, nic, res})
 
     case error do
       nil ->
-        {alert, nil} = App.update(alert, {:bgcolor, :black})
-        {alert, nil} = App.update(alert, {:text, ""})
+        {alert, nil} = App.handle(alert, {:bgcolor, :black})
+        {alert, nil} = App.handle(alert, {:text, ""})
         state = %{state | alert: alert}
         {state, nil}
 
       other ->
-        {alert, nil} = App.update(alert, {:bgcolor, :red})
-        {alert, nil} = App.update(alert, {:text, "#{inspect(other)}"})
+        {alert, nil} = App.handle(alert, {:bgcolor, :red})
+        {alert, nil} = App.handle(alert, {:text, "#{inspect(other)}"})
         state = %{state | alert: alert}
         {state, nil}
     end
   end
 
-  def update(%{alert: alert} = state, {:cmd, {:save, _conf}, res}) do
+  def handle(%{alert: alert} = state, {:cmd, {:save, _conf}, res}) do
     case res do
       :ok ->
-        {alert, nil} = App.update(alert, {:bgcolor, :bblue})
-        {alert, nil} = App.update(alert, {:text, "Config saved successfully"})
+        {alert, nil} = App.handle(alert, {:bgcolor, :bblue})
+        {alert, nil} = App.handle(alert, {:text, "Config saved successfully"})
         state = %{state | alert: alert}
         {state, nil}
 
       {:error, error} ->
-        {alert, nil} = App.update(alert, {:bgcolor, :red})
-        {alert, nil} = App.update(alert, {:text, "#{inspect(error)}"})
+        {alert, nil} = App.handle(alert, {:bgcolor, :red})
+        {alert, nil} = App.handle(alert, {:text, "#{inspect(error)}"})
         state = %{state | alert: alert}
         {state, nil}
     end
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{
@@ -127,9 +127,9 @@ defmodule AthashaTerminal.VintageApp do
 
   defp navigate(state) do
     %{active: active} = state
-    {state, _} = App.kupdate(state, active, {:focus, false})
+    {state, _} = App.khandle(state, active, {:focus, false})
     active = next(active)
-    {state, _} = App.kupdate(state, active, {:focus, true})
+    {state, _} = App.khandle(state, active, {:focus, true})
     %{state | active: active}
   end
 

@@ -32,17 +32,17 @@ defmodule AthashaTerminal.VintageNics do
     {state, @eth0}
   end
 
-  def update(state, {:focus, _} = event) do
-    {state, _} = App.kupdate(state, :frame, event)
-    {state, _} = App.kupdate(state, :nics, event)
+  def handle(state, {:focus, _} = event) do
+    {state, _} = App.khandle(state, :frame, event)
+    {state, _} = App.khandle(state, :nics, event)
     {state, nil}
   end
 
-  def update(state, {:key, _, _} = event) do
-    App.kupdate(state, :nics, event)
+  def handle(state, {:key, _, _} = event) do
+    App.khandle(state, :nics, event)
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{

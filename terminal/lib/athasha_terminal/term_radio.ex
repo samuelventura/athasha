@@ -28,17 +28,17 @@ defmodule AthashaTerminal.Radio do
     {state, {:item, item}}
   end
 
-  def update(state, {:focus, focus}) do
+  def handle(state, {:focus, focus}) do
     state = %{state | focus: focus}
     {state, nil}
   end
 
-  def update(state, {:selected, selected}) do
+  def handle(state, {:selected, selected}) do
     state = %{state | selected: selected}
     {state, nil}
   end
 
-  def update(state, {:key, _, :arrow_right}) do
+  def handle(state, {:key, _, :arrow_right}) do
     %{items: items, count: count, selected: selected} = state
     selected = if selected < count - 1, do: selected + 1, else: selected
     state = %{state | selected: selected}
@@ -46,7 +46,7 @@ defmodule AthashaTerminal.Radio do
     {state, {:item, item}}
   end
 
-  def update(state, {:key, _, :arrow_left}) do
+  def handle(state, {:key, _, :arrow_left}) do
     %{items: items, selected: selected} = state
     selected = if selected > 0, do: selected - 1, else: selected
     state = %{state | selected: selected}
@@ -54,17 +54,17 @@ defmodule AthashaTerminal.Radio do
     {state, {:item, item}}
   end
 
-  def update(state, {:key, _, "\t"}) do
+  def handle(state, {:key, _, "\t"}) do
     {state, {:focus, :next}}
   end
 
-  def update(state, {:key, _, "\r"}) do
+  def handle(state, {:key, _, "\r"}) do
     %{items: items, selected: selected} = state
     item = Map.get(items, selected)
     {state, {:item, item}}
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{

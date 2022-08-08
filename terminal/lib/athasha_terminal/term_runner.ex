@@ -66,7 +66,7 @@ defmodule AthashaTerminal.AppRunner do
   defp apply_events(_, model, []), do: model
 
   defp apply_events(mod, model, [event | tail]) do
-    {model, cmds} = mod.update(model, event)
+    {model, cmds} = mod.handle(model, event)
     execute_cmds(mod, cmds)
     apply_events(mod, model, tail)
   end

@@ -60,27 +60,27 @@ defmodule AthashaTerminal.VintageEth do
     {state, nil}
   end
 
-  def update(%{active: nil} = state, {:focus, true}) do
-    {state, _} = App.kupdate(state, :radio, {:focus, true})
+  def handle(%{active: nil} = state, {:focus, true}) do
+    {state, _} = App.khandle(state, :radio, {:focus, true})
     state = %{state | active: :radio, focus: true}
     {state, nil}
   end
 
-  def update(%{active: active} = state, {:focus, focus}) do
-    {state, _} = App.kupdate(state, :radio, {:focus, focus && active == :radio})
-    {state, _} = App.kupdate(state, :ip, {:focus, focus && active == :ip})
-    {state, _} = App.kupdate(state, :nm, {:focus, focus && active == :nm})
-    {state, _} = App.kupdate(state, :gw, {:focus, focus && active == :gw})
-    {state, _} = App.kupdate(state, :ns, {:focus, focus && active == :ns})
-    {state, _} = App.kupdate(state, :btn, {:focus, focus && active == :btn})
+  def handle(%{active: active} = state, {:focus, focus}) do
+    {state, _} = App.khandle(state, :radio, {:focus, focus && active == :radio})
+    {state, _} = App.khandle(state, :ip, {:focus, focus && active == :ip})
+    {state, _} = App.khandle(state, :nm, {:focus, focus && active == :nm})
+    {state, _} = App.khandle(state, :gw, {:focus, focus && active == :gw})
+    {state, _} = App.khandle(state, :ns, {:focus, focus && active == :ns})
+    {state, _} = App.khandle(state, :btn, {:focus, focus && active == :btn})
     state = %{state | focus: focus}
     {state, nil}
   end
 
-  def update(state, {:ipv4, nic, ipv4, wifi}) do
+  def handle(state, {:ipv4, nic, ipv4, wifi}) do
     type = get(ipv4, :type, @dhcp)
     selected = get(ipv4, :selected, 0)
-    {state, _} = App.kupdate(state, :radio, {:selected, selected})
+    {state, _} = App.khandle(state, :radio, {:selected, selected})
     state = set(state, ipv4, :ip)
     state = set(state, ipv4, :nm)
     state = set(state, ipv4, :gw)
@@ -89,21 +89,21 @@ defmodule AthashaTerminal.VintageEth do
     {state, nil}
   end
 
-  def update(%{active: active, type: type} = state, {:key, _, _} = event) do
-    {state, events} = App.kupdate(state, active, event)
+  def handle(%{active: active, type: type} = state, {:key, _, _} = event) do
+    {state, events} = App.khandle(state, active, event)
 
     case {active, events} do
       {:radio, {:item, type}} ->
         enabled = type == @static
-        {state, _} = App.kupdate(state, :ip, {:enabled, enabled})
-        {state, _} = App.kupdate(state, :nm, {:enabled, enabled})
-        {state, _} = App.kupdate(state, :gw, {:enabled, enabled})
-        {state, _} = App.kupdate(state, :ns, {:enabled, enabled})
+        {state, _} = App.khandle(state, :ip, {:enabled, enabled})
+        {state, _} = App.khandle(state, :nm, {:enabled, enabled})
+        {state, _} = App.khandle(state, :gw, {:enabled, enabled})
+        {state, _} = App.khandle(state, :ns, {:enabled, enabled})
         state = %{state | type: type}
         {state, nil}
 
       {_, {:focus, _}} ->
-        {state, _} = App.kupdate(state, active, {:focus, false})
+        {state, _} = App.khandle(state, active, {:focus, false})
         active = next(active, type)
         state = %{state | active: active}
 
@@ -112,7 +112,7 @@ defmodule AthashaTerminal.VintageEth do
             {state, events}
 
           _ ->
-            {state, _} = App.kupdate(state, active, {:focus, true})
+            {state, _} = App.khandle(state, active, {:focus, true})
             {state, nil}
         end
 
@@ -130,7 +130,7 @@ defmodule AthashaTerminal.VintageEth do
     end
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{
@@ -163,9 +163,9 @@ defmodule AthashaTerminal.VintageEth do
     defval = App.kget(state, key, :text)
     newval = get(ipv4, key, defval)
     enabled = get(ipv4, :enabled, false)
-    {state, _} = App.kupdate(state, key, {:enabled, enabled})
-    {state, _} = App.kupdate(state, key, {:focus, false})
-    {state, _} = App.kupdate(state, key, {:text, newval})
+    {state, _} = App.khandle(state, key, {:enabled, enabled})
+    {state, _} = App.khandle(state, key, {:focus, false})
+    {state, _} = App.khandle(state, key, {:text, newval})
     state
   end
 

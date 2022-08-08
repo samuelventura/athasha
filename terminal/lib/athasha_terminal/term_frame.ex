@@ -5,9 +5,9 @@ defmodule AthashaTerminal.Frame do
 
   def init(opts) do
     size = Keyword.get(opts, :size, {0, 0})
-    focus = Keyword.get(opts, :focus, false)
     title = Keyword.get(opts, :title, "")
     style = Keyword.get(opts, :style, :single)
+    bracket = Keyword.get(opts, :bracket, false)
     origin = Keyword.get(opts, :origin, {0, 0})
     theme = Keyword.get(opts, :theme, Theme.get())
     bgcolor = Keyword.get(opts, :bgcolor, theme.back_readonly)
@@ -16,7 +16,7 @@ defmodule AthashaTerminal.Frame do
     %{
       size: size,
       style: style,
-      focus: focus,
+      bracket: bracket,
       title: title,
       origin: origin,
       bgcolor: bgcolor,
@@ -24,12 +24,14 @@ defmodule AthashaTerminal.Frame do
     }
   end
 
-  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
   def update(state, name, value), do: Map.put(state, name, value)
+  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(state, name, value), do: Map.get(state, name, value)
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{
-      focus: focus,
+      bracket: bracket,
       style: style,
       size: {width, height},
       title: title,
@@ -75,7 +77,7 @@ defmodule AthashaTerminal.Frame do
     canvas = Canvas.move(canvas, 1, 0)
 
     title =
-      case focus do
+      case bracket do
         true -> "[#{title}]"
         false -> " #{title} "
       end

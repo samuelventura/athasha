@@ -6,7 +6,7 @@ defmodule AthashaTerminal.TermDemo do
     {nil, []}
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(_state, canvas) do
     canvas = Canvas.clear(canvas, :colors)

@@ -20,8 +20,10 @@ defmodule AthashaTerminal.Label do
     }
   end
 
-  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
   def update(state, name, value), do: Map.put(state, name, value)
+  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(state, name, value), do: Map.get(state, name, value)
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{

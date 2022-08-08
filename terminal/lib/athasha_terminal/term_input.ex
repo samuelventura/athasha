@@ -22,26 +22,26 @@ defmodule AthashaTerminal.Input do
     {state, nil}
   end
 
-  def update(state, {:focus, focus}) do
+  def handle(state, {:focus, focus}) do
     state = %{state | focus: focus}
     {state, nil}
   end
 
-  def update(state, {:enabled, enabled}) do
+  def handle(state, {:enabled, enabled}) do
     state = %{state | enabled: enabled}
     {state, nil}
   end
 
-  def update(state, {:text, text}) do
+  def handle(state, {:text, text}) do
     state = %{state | text: text, cursor: String.length(text)}
     {state, nil}
   end
 
-  def update(state, {:key, _, "\t"}) do
+  def handle(state, {:key, _, "\t"}) do
     {state, {:focus, :next}}
   end
 
-  def update(state, _event), do: {state, nil}
+  def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do
     %{
