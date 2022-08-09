@@ -1,37 +1,32 @@
 defmodule AthashaTerminal.Button do
+  @behaviour AthashaTerminal.Window
   alias AthashaTerminal.Canvas
-  alias AthashaTerminal.App
+  alias AthashaTerminal.Theme
 
   def init(opts) do
-    width = Keyword.fetch!(opts, :width)
-    text = Keyword.fetch!(opts, :text)
-    focus = Keyword.get(opts, :focus, false)
+    text = Keyword.get(opts, :text, "")
+    size = Keyword.get(opts, :size, {String.length(text) + 2, 1})
+    focused = Keyword.get(opts, :focused, false)
     enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
+    theme = Keyword.get(opts, :theme, :default)
 
-    state = %{
-      focus: focus,
+    %{
+      focused: focused,
       enabled: enabled,
-      width: width,
+      theme: theme,
+      size: size,
       text: text,
       origin: origin
     }
-
-    {state, nil}
   end
 
-  def handle(state, {:focus, focus}) do
-    state = %{state | focus: focus}
-    {state, nil}
-  end
-
-  def handle(state, {:enabled, enabled}) do
-    state = %{state | enabled: enabled}
-    {state, nil}
-  end
+  def update(state, name, value), do: Map.put(state, name, value)
+  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, "\t"}) do
-    {state, {:focus, :next}}
+    {state, {:focused, :next}}
   end
 
   def handle(%{enabled: true, text: text} = state, {:key, _, "\r"}) do
@@ -43,33 +38,35 @@ defmodule AthashaTerminal.Button do
   def render(state, canvas) do
     %{
       text: text,
-      focus: focus,
-      width: width,
-      enabled: enabled,
-      origin: {orig_x, orig_y}
+      theme: theme,
+      focused: focused,
+      size: {width, _},
+      enabled: enabled
     } = state
 
+    theme = Theme.get(theme)
+
     canvas =
-      case {enabled, focus} do
+      case {enabled, focused} do
         {false, _} ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_disabled))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_disabled))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_disabled)
+          Canvas.color(canvas, :bgcolor, theme.back_disabled)
 
         {true, true} ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_focused))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_focused))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_focused)
+          Canvas.color(canvas, :bgcolor, theme.back_focused)
 
         _ ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_data))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_data))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_editable)
+          Canvas.color(canvas, :bgcolor, theme.back_editable)
       end
 
-    canvas = Canvas.move(canvas, orig_x, orig_y)
+    canvas = Canvas.move(canvas, 0, 0)
     canvas = Canvas.write(canvas, "[")
     canvas = Canvas.write(canvas, String.duplicate(" ", width - 2))
     canvas = Canvas.write(canvas, "]")
     offset = div(width - String.length(text), 2)
-    canvas = Canvas.move(canvas, orig_x + offset, orig_y)
+    canvas = Canvas.move(canvas, offset, 0)
     Canvas.write(canvas, text)
   end
 end

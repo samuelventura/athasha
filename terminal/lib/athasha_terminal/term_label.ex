@@ -5,9 +5,10 @@ defmodule AthashaTerminal.Label do
 
   def init(opts) do
     text = Keyword.get(opts, :text, "")
-    theme = Keyword.get(opts, :theme, Theme.get())
     origin = Keyword.get(opts, :origin, {0, 0})
     size = Keyword.get(opts, :size, {String.length(text), 1})
+    theme = Keyword.get(opts, :theme, :default)
+    theme = Theme.get(theme)
     bgcolor = Keyword.get(opts, :bgcolor, theme.back_readonly)
     fgcolor = Keyword.get(opts, :fgcolor, theme.fore_readonly)
 

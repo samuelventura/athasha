@@ -1,5 +1,5 @@
 defmodule AthashaTerminal.Theme do
-  def get(), do: get(:blue)
+  def get(:default), do: get(:blue)
 
   def get(:blue) do
     %{

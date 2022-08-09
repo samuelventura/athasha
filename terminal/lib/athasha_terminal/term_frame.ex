@@ -9,7 +9,8 @@ defmodule AthashaTerminal.Frame do
     style = Keyword.get(opts, :style, :single)
     bracket = Keyword.get(opts, :bracket, false)
     origin = Keyword.get(opts, :origin, {0, 0})
-    theme = Keyword.get(opts, :theme, Theme.get())
+    theme = Keyword.get(opts, :theme, :default)
+    theme = Theme.get(theme)
     bgcolor = Keyword.get(opts, :bgcolor, theme.back_readonly)
     fgcolor = Keyword.get(opts, :fgcolor, theme.fore_readonly)
 

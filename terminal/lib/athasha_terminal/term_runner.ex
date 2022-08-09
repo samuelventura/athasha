@@ -14,8 +14,8 @@ defmodule AthashaTerminal.AppRunner do
     size = query_size(port, term)
     {width, height} = size
     canvas = Canvas.new(width, height)
-    {model, cmds} = mod.init(opts ++ [size: size])
-    execute_cmds(mod, cmds)
+    {model, cmd} = mod.init(opts ++ [size: size])
+    execute_cmd(mod, cmd)
     canvas = render(port, term, mod, model, canvas)
     loop(port, term, "", mod, model, canvas)
   end
@@ -54,7 +54,7 @@ defmodule AthashaTerminal.AppRunner do
         loop(port, term, buffer, mod, model, canvas)
 
       {:cmd, cmd, res} ->
-        model = apply_events(mod, model, [{:cmd, cmd, res}])
+        model = apply_event(mod, model, {:cmd, cmd, res})
         canvas = render(port, term, mod, model, canvas)
         loop(port, term, buffer, mod, model, canvas)
 
@@ -66,9 +66,14 @@ defmodule AthashaTerminal.AppRunner do
   defp apply_events(_, model, []), do: model
 
   defp apply_events(mod, model, [event | tail]) do
-    {model, cmds} = mod.handle(model, event)
-    execute_cmds(mod, cmds)
+    model = apply_event(mod, model, event)
     apply_events(mod, model, tail)
+  end
+
+  defp apply_event(mod, model, event) do
+    {model, cmd} = mod.handle(model, event)
+    execute_cmd(mod, cmd)
+    model
   end
 
   defp find_resize(events) do
@@ -89,15 +94,9 @@ defmodule AthashaTerminal.AppRunner do
     {w, h}
   end
 
-  defp execute_cmds(_, nil), do: nil
-  defp execute_cmds(_, []), do: nil
+  defp execute_cmd(_, nil), do: nil
 
-  defp execute_cmds(mod, [cmd | tail]) do
-    execute_one(mod, cmd)
-    execute_cmds(mod, tail)
-  end
-
-  defp execute_one(mod, cmd) do
+  defp execute_cmd(mod, cmd) do
     self = self()
 
     spawn(fn ->

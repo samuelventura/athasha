@@ -1,41 +1,32 @@
 defmodule AthashaTerminal.Input do
+  @behaviour AthashaTerminal.Window
   alias AthashaTerminal.Canvas
-  alias AthashaTerminal.App
+  alias AthashaTerminal.Theme
 
   def init(opts) do
-    width = Keyword.fetch!(opts, :width)
     text = Keyword.get(opts, :text, "")
-    focus = Keyword.get(opts, :focus, false)
-    enabled = Keyword.get(opts, :enabled, false)
+    size = Keyword.get(opts, :size, {String.length(text), 1})
+    focused = Keyword.get(opts, :focused, false)
+    enabled = Keyword.get(opts, :enabled, true)
+    theme = Keyword.get(opts, :theme, :default)
     cursor = Keyword.get(opts, :cursor, String.length(text))
     origin = Keyword.get(opts, :origin, {0, 0})
 
-    state = %{
-      focus: focus,
+    %{
+      focused: focused,
       cursor: cursor,
       enabled: enabled,
+      theme: theme,
       text: text,
-      width: width,
+      size: size,
       origin: origin
     }
-
-    {state, nil}
   end
 
-  def handle(state, {:focus, focus}) do
-    state = %{state | focus: focus}
-    {state, nil}
-  end
-
-  def handle(state, {:enabled, enabled}) do
-    state = %{state | enabled: enabled}
-    {state, nil}
-  end
-
-  def handle(state, {:text, text}) do
-    state = %{state | text: text, cursor: String.length(text)}
-    {state, nil}
-  end
+  def update(state, :text, text), do: %{state | text: text, cursor: String.length(text)}
+  def update(state, name, value), do: Map.put(state, name, value)
+  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, "\t"}) do
     {state, {:focus, :next}}
@@ -45,45 +36,42 @@ defmodule AthashaTerminal.Input do
 
   def render(state, canvas) do
     %{
-      focus: focus,
+      focused: focused,
+      theme: theme,
       cursor: cursor,
       enabled: enabled,
-      origin: {orig_x, orig_y},
-      width: width,
+      size: {width, _},
       text: text
     } = state
 
+    theme = Theme.get(theme)
     canvas = Canvas.clear(canvas, :colors)
 
     canvas =
-      case {enabled, focus} do
+      case {enabled, focused} do
         {false, _} ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_disabled))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_disabled))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_disabled)
+          Canvas.color(canvas, :bgcolor, theme.back_disabled)
 
         {true, true} ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_focused))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_focused))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_focused)
+          Canvas.color(canvas, :bgcolor, theme.back_focused)
 
         _ ->
-          canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_data))
-          Canvas.color(canvas, :bgcolor, App.theme(:back_data))
+          canvas = Canvas.color(canvas, :fgcolor, theme.fore_editable)
+          Canvas.color(canvas, :bgcolor, theme.back_editable)
       end
 
-    canvas = Canvas.move(canvas, orig_x, orig_y)
+    canvas = Canvas.move(canvas, 0, 0)
     text = String.pad_trailing(text, width)
     canvas = Canvas.write(canvas, text)
 
-    case {focus, enabled} do
+    case {focused, enabled} do
       {true, true} ->
-        Canvas.cursor(canvas, orig_x + cursor, orig_y)
+        Canvas.cursor(canvas, 0 + cursor, 0)
 
       _ ->
         canvas
     end
-  end
-
-  def get(state, field, defval \\ nil) do
-    Map.get(state, field, defval)
   end
 end

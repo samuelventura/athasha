@@ -1,13 +1,17 @@
 defmodule AthashaTerminal.Radio do
+  @behaviour AthashaTerminal.Window
   alias AthashaTerminal.Canvas
-  alias AthashaTerminal.App
+  alias AthashaTerminal.Theme
 
   def init(opts) do
-    items = Keyword.fetch!(opts, :items)
-    focus = Keyword.get(opts, :focus, false)
+    items = Keyword.get(opts, :items, [])
+    size = Keyword.get(opts, :size, {0, 0})
+    focused = Keyword.get(opts, :focused, false)
     enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
     selected = Keyword.get(opts, :selected, 0)
+    theme = Keyword.get(opts, :theme, :default)
+    findex = Keyword.get(opts, :findex, 0)
 
     {count, items} =
       for item <- items, reduce: {0, %{}} do
@@ -15,28 +19,23 @@ defmodule AthashaTerminal.Radio do
           {count + 1, Map.put(map, count, item)}
       end
 
-    state = %{
-      focus: focus,
+    %{
+      size: size,
+      theme: theme,
+      focused: focused,
+      findex: findex,
       enabled: enabled,
-      items: items,
       count: count,
+      items: items,
       origin: origin,
       selected: selected
     }
-
-    item = Map.get(items, selected)
-    {state, {:item, item}}
   end
 
-  def handle(state, {:focus, focus}) do
-    state = %{state | focus: focus}
-    {state, nil}
-  end
-
-  def handle(state, {:selected, selected}) do
-    state = %{state | selected: selected}
-    {state, nil}
-  end
+  def update(state, name, value), do: Map.put(state, name, value)
+  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(%{items: items, selected: selected}, :item, _), do: Map.get(items, selected)
+  def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, :arrow_right}) do
     %{items: items, count: count, selected: selected} = state
@@ -55,7 +54,7 @@ defmodule AthashaTerminal.Radio do
   end
 
   def handle(state, {:key, _, "\t"}) do
-    {state, {:focus, :next}}
+    {state, {:focused, :next}}
   end
 
   def handle(state, {:key, _, "\r"}) do
@@ -68,13 +67,15 @@ defmodule AthashaTerminal.Radio do
 
   def render(state, canvas) do
     %{
-      focus: focus,
+      focused: focused,
       enabled: enabled,
+      theme: theme,
       count: count,
       items: items,
-      origin: {orig_x, orig_y},
       selected: selected
     } = state
+
+    theme = Theme.get(theme)
 
     {canvas, _} =
       for i <- 0..(count - 1), reduce: {canvas, 0} do
@@ -85,27 +86,27 @@ defmodule AthashaTerminal.Radio do
               _ -> " "
             end
 
-          canvas = Canvas.move(canvas, orig_x + x, orig_y)
+          canvas = Canvas.move(canvas, x, 0)
           canvas = Canvas.clear(canvas, :colors)
           canvas = Canvas.write(canvas, prefix)
 
           canvas =
-            case {enabled, focus, i == selected} do
+            case {enabled, focused, i == selected} do
               {false, _, _} ->
-                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_disabled))
-                Canvas.color(canvas, :bgcolor, App.theme(:back_disabled))
+                canvas = Canvas.color(canvas, :fgcolor, theme.fore_disabled)
+                Canvas.color(canvas, :bgcolor, theme.back_disabled)
 
               {true, true, true} ->
-                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_focused))
-                Canvas.color(canvas, :bgcolor, App.theme(:back_focused))
+                canvas = Canvas.color(canvas, :fgcolor, theme.fore_focused)
+                Canvas.color(canvas, :bgcolor, theme.back_focused)
 
               {true, false, true} ->
-                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_selected))
-                Canvas.color(canvas, :bgcolor, App.theme(:back_selected))
+                canvas = Canvas.color(canvas, :fgcolor, theme.fore_selected)
+                Canvas.color(canvas, :bgcolor, theme.back_selected)
 
               _ ->
-                canvas = Canvas.color(canvas, :fgcolor, App.theme(:fore_data))
-                Canvas.color(canvas, :bgcolor, App.theme(:back_data))
+                canvas = Canvas.color(canvas, :fgcolor, theme.fore_editable)
+                Canvas.color(canvas, :bgcolor, theme.back_editable)
             end
 
           item = Map.get(items, i)
