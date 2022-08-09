@@ -10,10 +10,12 @@ defmodule AthashaTerminal.Button do
     enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
     theme = Keyword.get(opts, :theme, :default)
+    findex = Keyword.get(opts, :findex, 0)
 
     %{
       focused: focused,
       enabled: enabled,
+      findex: findex,
       theme: theme,
       size: size,
       text: text,
@@ -23,6 +25,7 @@ defmodule AthashaTerminal.Button do
 
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
   def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, "\t"}) do

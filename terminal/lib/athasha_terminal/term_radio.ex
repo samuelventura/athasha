@@ -35,6 +35,7 @@ defmodule AthashaTerminal.Radio do
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
   def select(%{items: items, selected: selected}, :item, _), do: Map.get(items, selected)
+  def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
   def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, :arrow_right}) do
@@ -54,7 +55,7 @@ defmodule AthashaTerminal.Radio do
   end
 
   def handle(state, {:key, _, "\t"}) do
-    {state, {:focused, :next}}
+    {state, {:focus, :next}}
   end
 
   def handle(state, {:key, _, "\r"}) do

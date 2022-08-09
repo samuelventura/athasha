@@ -16,11 +16,10 @@ defmodule AthashaTerminal.VintageMain do
   @dhcp "DHCP"
   @static "Static"
 
-  @nics [@eth0, @wlan0]
+  @nics [@eth0, @wlan0, "wlan1"]
 
   def init(opts) do
-    state = Panel.init(opts ++ [focused: true])
-
+    state = Panel.init(opts ++ [focused: true, root: true])
     ids = %{}
     {state, _} = Panel.append(state, Label, text: "Network Settings")
     {state, _} = Panel.append(state, Frame, origin: {0, 2}, size: {12, 8}, title: "NICs")
@@ -34,7 +33,7 @@ defmodule AthashaTerminal.VintageMain do
     ids = Map.put(ids, :labels, labels)
 
     {state, ids} =
-      Panel.id_callback(state, labels, ids, fn state, _ ->
+      Panel.id_callback(state, labels, ids, fn state, ids ->
         {state, _} = Grid.append(state, Label, text: "NIC:")
         {state, nic} = Grid.append(state, Label)
         ids = Map.put(ids, :nic, nic)
@@ -52,13 +51,15 @@ defmodule AthashaTerminal.VintageMain do
         items: [@disabled, @dhcp, @static]
       )
 
+    ids = Map.put(ids, :radio, radio)
+
     {state, editors} =
       Panel.append(state, Grid, origin: {14, 6}, size: {30, 7}, columns: [12, 18])
 
     ids = Map.put(ids, :editors, editors)
 
     {state, ids} =
-      Panel.id_callback(state, editors, ids, fn state, _ ->
+      Panel.id_callback(state, editors, ids, fn state, ids ->
         {state, _} = Grid.append(state, Label, text: "Address:")
         {state, address} = Grid.append(state, Input, enabled: false)
         ids = Map.put(ids, :address, address)
@@ -83,21 +84,68 @@ defmodule AthashaTerminal.VintageMain do
         {state, ids}
       end)
 
-    ids = Map.put(ids, :radio, radio)
+    %{size: {width, height}} = state
+
+    {state, alert} =
+      Panel.append(state, Label, origin: {0, height - 1}, size: {width, 1}, text: "")
+
+    ids = Map.put(ids, :alert, alert)
+    IO.inspect(ids)
     state = Map.put(state, :ids, ids)
     nic = Panel.id_select(state, select, :item, nil)
     {state, {:get, nic}}
   end
 
-  def handle(state, {:cmd, {:get, _nic}, _res}) do
-    {state, nil}
+  def handle(%{ids: ids} = state, {:cmd, {:get, nic}, res}) do
+    case res do
+      %{mac: mac, ipv4: ipv4} ->
+        state = Panel.id_updates(state, ids.alert, bgcolor: :black, fgcolor: :white, text: "")
+
+        {state, _} =
+          Panel.id_callback(state, ids.labels, nil, fn state, _ ->
+            state = Panel.id_update(state, ids.nic, :text, nic)
+            state = Panel.id_update(state, ids.mac, :text, mac)
+            {state, nil}
+          end)
+
+        state =
+          case ipv4 do
+            %{method: :dhcp} ->
+              Panel.id_updates(state, ids.radio, enabled: true, selected: 1)
+
+            %{method: :static} ->
+              Panel.id_updates(state, ids.radio, enabled: true, selected: 2)
+          end
+
+        {state, nil}
+
+      _ ->
+        state =
+          Panel.id_updates(state, ids.alert,
+            bgcolor: :red,
+            fgcolor: :white,
+            text: "#{inspect(res)}"
+          )
+
+        {state, _} =
+          Panel.id_callback(state, ids.labels, nil, fn state, _ ->
+            state = Panel.id_update(state, ids.nic, :text, nic)
+            state = Panel.id_update(state, ids.mac, :text, "")
+            {state, nil}
+          end)
+
+        state = Panel.id_updates(state, ids.radio, enabled: false)
+
+        {state, nil}
+    end
   end
 
-  def handle(state, event) do
+  def handle(%{ids: ids} = state, event) do
     {state, event} = Panel.handle(state, event)
+    select = ids.select
 
     case event do
-      {_, {:item, nic}} -> {state, {:get, nic}}
+      {^select, {:item, nic}} -> {state, {:get, nic}}
       _ -> {state, nil}
     end
   end

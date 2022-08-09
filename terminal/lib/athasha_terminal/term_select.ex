@@ -37,6 +37,7 @@ defmodule AthashaTerminal.Select do
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
   def select(%{items: items, selected: selected}, :item, _), do: Map.get(items, selected)
+  def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
   def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, :arrow_down}) do

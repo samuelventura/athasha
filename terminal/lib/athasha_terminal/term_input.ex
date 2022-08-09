@@ -11,10 +11,12 @@ defmodule AthashaTerminal.Input do
     theme = Keyword.get(opts, :theme, :default)
     cursor = Keyword.get(opts, :cursor, String.length(text))
     origin = Keyword.get(opts, :origin, {0, 0})
+    findex = Keyword.get(opts, :findex, 0)
 
     %{
       focused: focused,
       cursor: cursor,
+      findex: findex,
       enabled: enabled,
       theme: theme,
       text: text,
@@ -26,6 +28,7 @@ defmodule AthashaTerminal.Input do
   def update(state, :text, text), do: %{state | text: text, cursor: String.length(text)}
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+  def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
   def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, "\t"}) do

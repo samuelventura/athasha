@@ -10,8 +10,10 @@ defmodule AthashaTerminal.Panel do
     focused = Keyword.get(opts, :focused, false)
     findex = Keyword.get(opts, :findex, 0)
     focus = Keyword.get(opts, :focus, -1)
+    root = Keyword.get(opts, :root, true)
 
     %{
+      root: root,
       origin: origin,
       theme: theme,
       enabled: enabled,
@@ -26,13 +28,58 @@ defmodule AthashaTerminal.Panel do
 
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
+
+  def select(state, :focusable, _) do
+    %{findex: findex, enabled: enabled, index: index} = state
+
+    count =
+      for i <- index, reduce: 0 do
+        count ->
+          mote = Map.get(state, i)
+
+          case mote_select(mote, :focusable, false) do
+            false -> count
+            true -> count + 1
+          end
+      end
+
+    findex >= 0 && enabled && count > 0
+  end
+
   def select(state, name, value), do: Map.get(state, name, value)
 
   # strict to catch focus handling bugs
-  def handle(%{focus: focus} = state, {:key, _, _} = event) do
+  def handle(%{focus: focus, root: root} = state, {:key, _, _} = event) do
     mote = Map.get(state, focus)
     {mote, event} = mote_handle(mote, event)
-    {Map.put(state, focus, mote), {focus, event}}
+
+    case event do
+      {:focus, :next} ->
+        {first, next} = focus_next(state)
+
+        next =
+          case {root, next} do
+            {true, nil} -> first
+            _ -> next
+          end
+
+        case next do
+          nil ->
+            {Map.put(state, focus, mote), {focus, event}}
+
+          _ ->
+            mote = Map.get(state, focus)
+            mote = mote_update(mote, :focused, false)
+            state = Map.put(state, focus, mote)
+            mote = Map.get(state, next)
+            mote = mote_update(mote, :focused, true)
+            state = Map.put(state, next, mote)
+            {Map.put(state, :focus, next), nil}
+        end
+
+      _ ->
+        {Map.put(state, focus, mote), {focus, event}}
+    end
   end
 
   def handle(state, _event), do: {state, nil}
@@ -60,6 +107,43 @@ defmodule AthashaTerminal.Panel do
     end
   end
 
+  defp focus_next(state) do
+    %{
+      focus: focus,
+      index: index
+    } = state
+
+    index = Enum.filter(index, &id_focusable(state, &1))
+    index = Enum.reverse(index)
+    index = Enum.sort(index, &focus_compare(state, &1, &2))
+
+    {next, _} =
+      for i <- index, reduce: {nil, false} do
+        {nil, true} ->
+          {i, true}
+
+        {next, true} ->
+          {next, true}
+
+        {_, false} ->
+          case i do
+            ^focus -> {nil, true}
+            _ -> {nil, false}
+          end
+      end
+
+    case index do
+      [] -> {nil, next}
+      [first | _] -> {first, next}
+    end
+  end
+
+  defp focus_compare(state, i1, i2) do
+    fi1 = id_select(state, i1, :findex, -1)
+    fi2 = id_select(state, i2, :findex, -1)
+    fi1 <= fi2
+  end
+
   defp focus_update(state) do
     %{
       enabled: enabled,
@@ -68,7 +152,7 @@ defmodule AthashaTerminal.Panel do
       index: index
     } = state
 
-    index = Enum.filter(index, &(id_findex(state, &1) >= 0))
+    index = Enum.filter(index, &id_focusable(state, &1))
     mote = Map.get(state, focus)
 
     case {index, mote, enabled && focused} do
@@ -106,13 +190,26 @@ defmodule AthashaTerminal.Panel do
     Map.put(state, id, mote)
   end
 
+  def id_updates(state, id, opts) do
+    mote = Map.get(state, id)
+
+    mote =
+      for {name, value} <- opts, reduce: mote do
+        mote ->
+          mote_update(mote, name, value)
+      end
+
+    Map.put(state, id, mote)
+  end
+
   def id_callback(state, id, param, callback) do
     mote = Map.get(state, id)
     {mote, param} = mote_callback(mote, param, callback)
     {Map.put(state, id, mote), param}
   end
 
-  defp id_findex(state, id), do: id_select(state, id, :findex, -1)
+  defp id_focusable(state, id), do: id_select(state, id, :focusable, false)
+
   defp mote_bounds(mote), do: mote_select(mote, :bounds, {0, 0, 0, 0})
 
   defp mote_callback({module, state}, param, callback) do
