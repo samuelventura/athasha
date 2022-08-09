@@ -1,5 +1,6 @@
 defmodule AthashaTerminal.Panel do
   @behaviour AthashaTerminal.Window
+  import AthashaTerminal.Window
   alias AthashaTerminal.Canvas
 
   def init(opts) do
@@ -10,7 +11,7 @@ defmodule AthashaTerminal.Panel do
     focused = Keyword.get(opts, :focused, false)
     findex = Keyword.get(opts, :findex, 0)
     focus = Keyword.get(opts, :focus, -1)
-    root = Keyword.get(opts, :root, true)
+    root = Keyword.get(opts, :root, false)
 
     %{
       root: root,
@@ -24,6 +25,11 @@ defmodule AthashaTerminal.Panel do
       count: 0,
       index: []
     }
+  end
+
+  def update(state, :focused, focused) do
+    state = Map.put(state, :focused, focused)
+    focus_update(state)
   end
 
   def update(state, name, value), do: Map.put(state, name, value)
@@ -65,10 +71,9 @@ defmodule AthashaTerminal.Panel do
 
         case next do
           nil ->
-            {Map.put(state, focus, mote), {focus, event}}
+            {Map.put(state, focus, mote), {:focus, :next}}
 
           _ ->
-            mote = Map.get(state, focus)
             mote = mote_update(mote, :focused, false)
             state = Map.put(state, focus, mote)
             mote = Map.get(state, next)
@@ -108,14 +113,8 @@ defmodule AthashaTerminal.Panel do
   end
 
   defp focus_next(state) do
-    %{
-      focus: focus,
-      index: index
-    } = state
-
-    index = Enum.filter(index, &id_focusable(state, &1))
-    index = Enum.reverse(index)
-    index = Enum.sort(index, &focus_compare(state, &1, &2))
+    %{focus: focus} = state
+    index = focus_list(state)
 
     {next, _} =
       for i <- index, reduce: {nil, false} do
@@ -138,6 +137,13 @@ defmodule AthashaTerminal.Panel do
     end
   end
 
+  defp focus_list(state) do
+    %{index: index} = state
+    index = Enum.filter(index, &id_focusable(state, &1))
+    index = Enum.reverse(index)
+    Enum.sort(index, &focus_compare(state, &1, &2))
+  end
+
   defp focus_compare(state, i1, i2) do
     fi1 = id_select(state, i1, :findex, -1)
     fi2 = id_select(state, i2, :findex, -1)
@@ -148,11 +154,10 @@ defmodule AthashaTerminal.Panel do
     %{
       enabled: enabled,
       focused: focused,
-      focus: focus,
-      index: index
+      focus: focus
     } = state
 
-    index = Enum.filter(index, &id_focusable(state, &1))
+    index = focus_list(state)
     mote = Map.get(state, focus)
 
     case {index, mote, enabled && focused} do
@@ -177,60 +182,5 @@ defmodule AthashaTerminal.Panel do
       _ ->
         state
     end
-  end
-
-  def id_select(state, id, name, value) do
-    mote = Map.get(state, id)
-    mote_select(mote, name, value)
-  end
-
-  def id_update(state, id, name, value) do
-    mote = Map.get(state, id)
-    mote = mote_update(mote, name, value)
-    Map.put(state, id, mote)
-  end
-
-  def id_updates(state, id, opts) do
-    mote = Map.get(state, id)
-
-    mote =
-      for {name, value} <- opts, reduce: mote do
-        mote ->
-          mote_update(mote, name, value)
-      end
-
-    Map.put(state, id, mote)
-  end
-
-  def id_callback(state, id, param, callback) do
-    mote = Map.get(state, id)
-    {mote, param} = mote_callback(mote, param, callback)
-    {Map.put(state, id, mote), param}
-  end
-
-  defp id_focusable(state, id), do: id_select(state, id, :focusable, false)
-
-  defp mote_bounds(mote), do: mote_select(mote, :bounds, {0, 0, 0, 0})
-
-  defp mote_callback({module, state}, param, callback) do
-    {state, param} = callback.(state, param)
-    {{module, state}, param}
-  end
-
-  defp mote_handle({module, state}, event) do
-    {state, event} = module.handle(state, event)
-    {{module, state}, event}
-  end
-
-  defp mote_update({module, state}, name, value) do
-    {module, module.update(state, name, value)}
-  end
-
-  defp mote_select({module, state}, name, value) do
-    module.select(state, name, value)
-  end
-
-  defp mote_render({module, state}, canvas) do
-    module.render(state, canvas)
   end
 end

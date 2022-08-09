@@ -1,5 +1,6 @@
 defmodule AthashaTerminal.Grid do
   @behaviour AthashaTerminal.Window
+  import AthashaTerminal.Window
   alias AthashaTerminal.Panel
 
   def init(opts) do
@@ -16,10 +17,10 @@ defmodule AthashaTerminal.Grid do
     Map.put(state, :columns, columns)
   end
 
-  def update(state, name, value), do: Panel.update(state, name, value)
-  def select(state, name, value), do: Panel.select(state, name, value)
-  def handle(state, event), do: Panel.handle(state, event)
-  def render(state, canvas), do: Panel.render(state, canvas)
+  defdelegate update(state, name, value), to: Panel
+  defdelegate select(state, name, value), to: Panel
+  defdelegate handle(state, event), to: Panel
+  defdelegate render(state, canvas), to: Panel
 
   def append(state, module, opts \\ []) do
     %{columns: columns} = state
@@ -28,8 +29,8 @@ defmodule AthashaTerminal.Grid do
     column = rem(id, count)
     row = div(id, count)
     {width, x} = Map.get(columns, column)
-    state = Panel.id_update(state, id, :origin, {x, row})
-    state = Panel.id_update(state, id, :size, {width, 1})
+    state = id_update(state, id, :origin, {x, row})
+    state = id_update(state, id, :size, {width, 1})
     {state, id}
   end
 end

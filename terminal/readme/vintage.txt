@@ -5,6 +5,12 @@ VintageNet.info()
 VintageNet.get_by_prefix([])
 
 VintageNet.deconfigure("wlan0", persist: false)
+VintageNet.get_configuration("wlan0")
+%{type: VintageNet.Technology.Null}
+
+VintageNet.deconfigure("eth0", persist: false) 
+VintageNet.get_configuration("eth0")          
+%{type: VintageNet.Technology.Null}
 
 VintageNet.reset_to_defaults("eth0")
 

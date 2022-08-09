@@ -1,5 +1,6 @@
 defmodule AthashaTerminal.VintageMain do
   @behaviour AthashaTerminal.App
+  import AthashaTerminal.Window
   alias AthashaTerminal.Panel
   alias AthashaTerminal.Label
   alias AthashaTerminal.Frame
@@ -33,7 +34,7 @@ defmodule AthashaTerminal.VintageMain do
     ids = Map.put(ids, :labels, labels)
 
     {state, ids} =
-      Panel.id_callback(state, labels, ids, fn state, ids ->
+      id_callback(state, labels, ids, fn state, ids ->
         {state, _} = Grid.append(state, Label, text: "NIC:")
         {state, nic} = Grid.append(state, Label)
         ids = Map.put(ids, :nic, nic)
@@ -59,7 +60,7 @@ defmodule AthashaTerminal.VintageMain do
     ids = Map.put(ids, :editors, editors)
 
     {state, ids} =
-      Panel.id_callback(state, editors, ids, fn state, ids ->
+      id_callback(state, editors, ids, fn state, ids ->
         {state, _} = Grid.append(state, Label, text: "Address:")
         {state, address} = Grid.append(state, Input, enabled: false)
         ids = Map.put(ids, :address, address)
@@ -92,49 +93,69 @@ defmodule AthashaTerminal.VintageMain do
     ids = Map.put(ids, :alert, alert)
     IO.inspect(ids)
     state = Map.put(state, :ids, ids)
-    nic = Panel.id_select(state, select, :item, nil)
+    nic = id_select(state, select, :item, nil)
     {state, {:get, nic}}
   end
 
   def handle(%{ids: ids} = state, {:cmd, {:get, nic}, res}) do
-    case res do
-      %{mac: mac, ipv4: ipv4} ->
-        state = Panel.id_updates(state, ids.alert, bgcolor: :black, fgcolor: :white, text: "")
+    state = id_updates(state, ids.alert, bgcolor: :black, fgcolor: :white, text: "")
 
+    {state, _} =
+      id_callback(state, ids.labels, nil, fn state, _ ->
+        state = id_update(state, ids.nic, :text, nic)
+        state = id_update(state, ids.mac, :text, "")
+        {state, nil}
+      end)
+
+    {state, _} =
+      id_callback(state, ids.editors, nil, fn state, _ ->
+        state = id_updates(state, ids.address, enabled: false, text: "")
+        state = id_updates(state, ids.netmask, enabled: false, text: "")
+        state = id_updates(state, ids.gateway, enabled: false, text: "")
+        state = id_updates(state, ids.nameserver, enabled: false, text: "")
+        state = id_updates(state, ids.ssid, enabled: false, text: "")
+        state = id_updates(state, ids.password, enabled: false, text: "")
+        state = id_updates(state, ids.save, enabled: false)
+        {state, nil}
+      end)
+
+    case res do
+      %{ok: true, mac: mac} ->
         {state, _} =
-          Panel.id_callback(state, ids.labels, nil, fn state, _ ->
-            state = Panel.id_update(state, ids.nic, :text, nic)
-            state = Panel.id_update(state, ids.mac, :text, mac)
+          id_callback(state, ids.labels, nil, fn state, _ ->
+            state = id_updates(state, ids.mac, text: mac)
             {state, nil}
           end)
 
         state =
-          case ipv4 do
-            %{method: :dhcp} ->
-              Panel.id_updates(state, ids.radio, enabled: true, selected: 1)
+          case res do
+            %{type: VintageNet.Technology.Null} ->
+              id_updates(state, ids.radio, enabled: true, selected: 0)
 
-            %{method: :static} ->
-              Panel.id_updates(state, ids.radio, enabled: true, selected: 2)
+            %{ipv4: %{method: :dhcp}} ->
+              id_updates(state, ids.radio, enabled: true, selected: 1)
+
+            %{ipv4: %{method: :static}} ->
+              id_updates(state, ids.radio, enabled: true, selected: 2)
           end
+
+        {state, _} =
+          id_callback(state, ids.editors, nil, fn state, _ ->
+            state = id_updates(state, ids.save, enabled: true)
+            {state, nil}
+          end)
 
         {state, nil}
 
       _ ->
         state =
-          Panel.id_updates(state, ids.alert,
+          id_updates(state, ids.alert,
             bgcolor: :red,
             fgcolor: :white,
             text: "#{inspect(res)}"
           )
 
-        {state, _} =
-          Panel.id_callback(state, ids.labels, nil, fn state, _ ->
-            state = Panel.id_update(state, ids.nic, :text, nic)
-            state = Panel.id_update(state, ids.mac, :text, "")
-            {state, nil}
-          end)
-
-        state = Panel.id_updates(state, ids.radio, enabled: false)
+        state = id_updates(state, ids.radio, enabled: false)
 
         {state, nil}
     end
@@ -158,7 +179,8 @@ defmodule AthashaTerminal.VintageMain do
     mac = VintageLib.get_mac!(nic)
     mac = MACAddress.to_hex(mac)
     config = VintageLib.get_configuration(nic)
-    Map.put(config, :mac, mac)
+    config = Map.put(config, :mac, mac)
+    Map.put(config, :ok, true)
   end
 
   def execute(_cmd), do: nil

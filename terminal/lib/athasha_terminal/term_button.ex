@@ -29,7 +29,7 @@ defmodule AthashaTerminal.Button do
   def select(state, name, value), do: Map.get(state, name, value)
 
   def handle(state, {:key, _, "\t"}) do
-    {state, {:focused, :next}}
+    {state, {:focus, :next}}
   end
 
   def handle(%{enabled: true, text: text} = state, {:key, _, "\r"}) do
