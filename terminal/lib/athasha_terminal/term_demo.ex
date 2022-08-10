@@ -2,6 +2,8 @@ defmodule AthashaTerminal.TermDemo do
   @behaviour AthashaTerminal.App
   alias AthashaTerminal.Canvas
 
+  def deps(_opts), do: nil
+
   def init(_opts) do
     {nil, []}
   end

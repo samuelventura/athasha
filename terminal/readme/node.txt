@@ -17,25 +17,25 @@ Node.start :"code@172.31.255.10"
 Node.set_cookie :COOKIE
 Node.connect :"target@172.31.255.9"
 System.put_env("VintageNode", "target@172.31.255.9")
-{:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.tty", :code
+{:ok, pid} = AppRunner.start_link VintageMain, "/tmp/ash.tty", :code
 Process.exit pid, :kill
 recompile
 
-{:ok, pid} = AppRunner.start_link VintageApp, "/tmp/ash.socat", :linux
+{:ok, pid} = AppRunner.start_link VintageMain, "/tmp/ash.socat", :linux
 while true; do socat pty,link=/tmp/ash.socat,waitslave,echo=0,raw tcp:172.31.255.9:8080; done
 socat pty,link=/tmp/ash.socat,waitslave,echo=0,raw tcp:172.31.255.9:8080
 {:ok, pid} = Tty.export_start_link "/dev/tty2", 8080
 Process.exit pid, :kill
 
 :rpc.call(:"target@172.31.255.9", Tty, :chvt, [2])
-{:ok, pid} = :rpc.call(:"target@172.31.255.9", AppRunner, :start_link, [VintageApp, "/dev/tty2", :linux])
+{:ok, pid} = :rpc.call(:"target@172.31.255.9", AppRunner, :start_link, [VintageMain, "/dev/tty2", :linux])
 :rpc.call(:"target@172.31.255.9", Process, :alive?, [pid])
 Process.exit pid, :kill
 :rpc.call(:"target@172.31.255.9", Tty, :chvt, [1])
 
 AthashaTerminal.Tty.chvt 1
 AthashaTerminal.Tty.chvt 2
-{:ok, pid} = AthashaTerminal.AppRunner.start_link AthashaTerminal.VintageApp, "/dev/tty2", :linux
+{:ok, pid} = AthashaTerminal.AppRunner.start_link AthashaTerminal.VintageMain, "/dev/tty2", :linux
 Process.exit pid, :kill
 
 #########################################################################

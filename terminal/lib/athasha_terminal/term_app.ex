@@ -1,4 +1,5 @@
 defmodule AthashaTerminal.App do
+  @callback deps(opts :: any()) :: any()
   @callback init(opts :: any()) :: {any(), [any()]}
   @callback handle(state :: any(), event :: any()) :: {any(), [any()]}
   @callback render(state :: any(), canvas :: any()) :: any()

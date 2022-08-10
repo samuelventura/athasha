@@ -3,18 +3,32 @@ defmodule AthashaTerminal.AppRunner do
   alias AthashaTerminal.Term
   alias AthashaTerminal.Canvas
 
+  def child_spec(params) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [params.mod, params.tty, params.term, params.opts]}
+    }
+  end
+
   def start_link(mod, tty, term, opts \\ []) do
     Task.start_link(fn -> run(mod, tty, term, opts) end)
   end
 
   def run(mod, tty, term, opts) do
+    if Tty.target() != :host do
+      [^tty, ns] = Regex.run(~r"/dev/tty(\d+)", tty)
+      Tty.chvt(ns)
+    end
+
+    # wait for deps before size query
+    deps = mod.deps(opts)
     term = Term.init(term)
     port = Tty.open(tty)
     init(port, term)
     size = query_size(port, term)
     {width, height} = size
     canvas = Canvas.new(width, height)
-    {model, cmd} = mod.init(opts ++ [size: size])
+    {model, cmd} = mod.init(opts ++ [size: size, deps: deps])
     execute_cmd(mod, cmd)
     canvas = render(port, term, mod, model, canvas)
     loop(port, term, "", mod, model, canvas)
@@ -106,8 +120,6 @@ defmodule AthashaTerminal.AppRunner do
         send(self, {:cmd, cmd, res})
       rescue
         e ->
-          IO.inspect(e)
-          IO.inspect(__STACKTRACE__)
           send(self, {:cmd, cmd, e})
       end
     end)

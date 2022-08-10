@@ -1,4 +1,6 @@
 defmodule AthashaTerminal.Application do
+  alias AthashaTerminal.VintageMain
+  alias AthashaTerminal.AppRunner
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -35,6 +37,7 @@ defmodule AthashaTerminal.Application do
       # Children for all targets except host
       # Starts a worker by calling: AthashaTerminal.Worker.start_link(arg)
       # {AthashaTerminal.Worker, arg},
+      {AppRunner, %{mod: VintageMain, tty: "/dev/tty2", term: :linux, opts: []}}
     ]
   end
 

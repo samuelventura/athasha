@@ -10,21 +10,43 @@ defmodule AthashaTerminal.VintageMain do
   alias AthashaTerminal.Input
   alias AthashaTerminal.Button
   alias AthashaTerminal.VintageLib
+  import AthashaTerminal.Vintage
 
-  @eth0 "eth0"
-  @wlan0 "wlan0"
   @disabled "Disabled"
   @dhcp "DHCP"
   @static "Static"
 
-  @nics [@eth0, @wlan0]
+  def deps(_opts) do
+    # cheating
+    nics = configured_nics()
+
+    Enum.reduce_while(1..1000, nil, fn _, _ ->
+      count =
+        Enum.count(nics, fn nic ->
+          case get_mac(nic) do
+            "" -> false
+            _ -> true
+          end
+        end)
+
+      case length(nics) do
+        ^count ->
+          {:halt, nics}
+
+        _ ->
+          :timer.sleep(100)
+          {:cont, nil}
+      end
+    end)
+  end
 
   def init(opts) do
+    nics = Keyword.get(opts, :deps, [])
     state = Panel.init(opts ++ [focused: true, root: true])
     ids = %{}
     {state, _} = Panel.append(state, Label, text: "Network Settings")
     {state, _} = Panel.append(state, Frame, origin: {0, 2}, size: {12, 8}, title: "NICs")
-    {state, select} = Panel.append(state, Select, origin: {1, 3}, size: {10, 6}, items: @nics)
+    {state, select} = Panel.append(state, Select, origin: {1, 3}, size: {10, 6}, items: nics)
     ids = Map.put(ids, :select, select)
 
     {state, _} =
@@ -117,7 +139,7 @@ defmodule AthashaTerminal.VintageMain do
   def handle(%{ids: ids} = state, {:cmd, {:get, nic}, res}) do
     state = Map.delete(state, :wifi)
     state = id_updates(state, ids.editors, enabled: false)
-    state = id_updates(state, ids.alert, bgcolor: :black, fgcolor: :white, text: "")
+    state = id_updates(state, ids.alert, bgcolor: :blue, fgcolor: :white, text: "")
 
     {state, _} =
       id_callback(state, ids.labels, nil, fn state, _ ->
@@ -314,9 +336,9 @@ defmodule AthashaTerminal.VintageMain do
 
         %{type: 2, address: address, gateway: gateway, netmask: netmask, nameserver: nameserver} ->
           valid_ip!(address, "Invalid address")
-          valid_ip!(nameserver, "Invalid nameserver")
-          valid_ip!(gateway, "Invalid gateway")
           valid_ip!(netmask, "Invalid netmask")
+          valid_ip!(gateway, "Invalid gateway")
+          valid_ip!(nameserver, "Invalid nameserver")
           same_segment!(netmask, address, gateway)
 
           %{
@@ -421,61 +443,5 @@ defmodule AthashaTerminal.VintageMain do
       end
 
     {:ok, mac, config}
-  end
-
-  defp ips({a, b, c, d}), do: "#{a}.#{b}.#{c}.#{d}"
-  defp nms(n), do: ips(VintageLib.prefix_length_to_subnet_mask(n))
-
-  defp nmn(nm) do
-    {:ok, ip} = :inet.parse_address(String.to_charlist(nm))
-
-    case VintageLib.subnet_mask_to_prefix_length(ip) do
-      {:ok, n} -> n
-      {:error, _} -> raise "Invalid netmask #{nm}"
-    end
-  end
-
-  defp valid_ip!(text, msg) do
-    case :inet.parse_address(String.to_charlist(text)) do
-      {:ok, _} -> nil
-      {:error, _} -> raise "#{msg} #{text}"
-    end
-  end
-
-  defp same_segment!(netmask, address, gateway) do
-    {:ok, {n0, n1, n2, n3}} = :inet.parse_address(String.to_charlist(netmask))
-    {:ok, {a0, a1, a2, a3}} = :inet.parse_address(String.to_charlist(address))
-    {:ok, {g0, g1, g2, g3}} = :inet.parse_address(String.to_charlist(gateway))
-    as = {Bitwise.band(n0, a0), Bitwise.band(n1, a1), Bitwise.band(n2, a2), Bitwise.band(n3, a3)}
-    gs = {Bitwise.band(n0, g0), Bitwise.band(n1, g1), Bitwise.band(n2, g2), Bitwise.band(n3, g3)}
-    if as != gs, do: raise("Invalid gateway segment #{gateway}")
-  end
-
-  defp get_address_netmask(nic) do
-    [{["interface", ^nic, "addresses"], list}] =
-      VintageLib.get_by_prefix(["interface", nic, "addresses"])
-
-    Enum.find_value(list, {"", ""}, fn m ->
-      %{family: f, address: ip, netmask: nm} = m
-
-      case f do
-        :inet -> {ips(ip), ips(nm)}
-        _ -> false
-      end
-    end)
-  end
-
-  defp get_mac(nic) do
-    case VintageLib.get_by_prefix(["interface", nic, "mac_address"]) do
-      [{["interface", ^nic, "mac_address"], value}] -> value
-      _ -> ""
-    end
-  end
-
-  defp get_default(nic) do
-    env = VintageLib.get_all_env()
-    defaults = Keyword.fetch!(env, :config)
-    defaults = Enum.into(defaults, %{})
-    Map.fetch!(defaults, nic)
   end
 end

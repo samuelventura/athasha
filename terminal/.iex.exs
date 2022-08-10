@@ -6,6 +6,6 @@ alias AthashaTerminal.TermDemo
 alias AthashaTerminal.TermLinux
 alias AthashaTerminal.TermCode
 alias AthashaTerminal.AppRunner
-alias AthashaTerminal.VintageApp
-alias AthashaTerminal.VintageLib
 alias AthashaTerminal.VintageMain
+alias AthashaTerminal.VintageLib
+alias AthashaTerminal.Vintage
