@@ -27,15 +27,8 @@ defmodule AthashaTerminal.Button do
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
   def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
   def select(state, name, value), do: Map.get(state, name, value)
-
-  def handle(state, {:key, _, "\t"}) do
-    {state, {:focus, :next}}
-  end
-
-  def handle(%{enabled: true, text: text} = state, {:key, _, "\r"}) do
-    {state, {:click, text}}
-  end
-
+  def handle(state, {:key, _, "\t"}), do: {state, {:focus, :next}}
+  def handle(%{text: text} = state, {:key, _, "\r"}), do: {state, {:click, text}}
   def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do

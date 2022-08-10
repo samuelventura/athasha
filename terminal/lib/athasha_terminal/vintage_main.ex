@@ -77,7 +77,7 @@ defmodule AthashaTerminal.VintageMain do
         {state, ssid} = Grid.append(state, Input, enabled: false)
         ids = Map.put(ids, :ssid, ssid)
         {state, _} = Grid.append(state, Label, text: "Password:")
-        {state, password} = Grid.append(state, Input, enabled: false)
+        {state, password} = Grid.append(state, Input, enabled: false, password: true)
         ids = Map.put(ids, :password, password)
         {state, _} = Grid.append(state, Label)
         {state, save} = Grid.append(state, Button, enabled: false, text: "Save")
@@ -91,7 +91,7 @@ defmodule AthashaTerminal.VintageMain do
       Panel.append(state, Label, origin: {0, height - 1}, size: {width, 1}, text: "")
 
     ids = Map.put(ids, :alert, alert)
-    IO.inspect(ids)
+    # IO.inspect(ids)
     state = Map.put(state, :ids, ids)
     nic = id_select(state, select, :item, nil)
     {state, {:get, nic}}
@@ -189,7 +189,7 @@ defmodule AthashaTerminal.VintageMain do
               {state, _} =
                 id_callback(state, ids.editors, nil, fn state, _ ->
                   state = id_updates(state, ids.ssid, enabled: true, text: ssid)
-                  state = id_updates(state, ids.password, enabled: true, password: password)
+                  state = id_updates(state, ids.password, enabled: true, text: password)
                   {state, nil}
                 end)
 
@@ -306,6 +306,12 @@ defmodule AthashaTerminal.VintageMain do
           %{method: :dhcp}
 
         %{type: 2, address: address, gateway: gateway, netmask: netmask, nameserver: nameserver} ->
+          valid_ip!(address, "Invalid address")
+          valid_ip!(nameserver, "Invalid nameserver")
+          valid_ip!(gateway, "Invalid gateway")
+          valid_ip!(netmask, "Invalid netmask")
+          same_segment!(netmask, address, gateway)
+
           %{
             method: :static,
             address: address,
@@ -335,7 +341,7 @@ defmodule AthashaTerminal.VintageMain do
           }
         })
 
-      %{type: 1, nic: nic, wifi: false} ->
+      %{nic: nic, wifi: false} ->
         VintageLib.configure(nic, %{type: VintageNetEthernet, ipv4: ipv4})
     end
   end
@@ -413,13 +419,31 @@ defmodule AthashaTerminal.VintageMain do
     {:ok, mac, config}
   end
 
-  def execute(_cmd), do: nil
-
   defp ips({a, b, c, d}), do: "#{a}.#{b}.#{c}.#{d}"
-  defp nms(24), do: "255.255.255.0"
-  defp nms(16), do: "255.255.0.0"
-  defp nms(8), do: "255.0.0.0"
-  defp nmn("255.255.255.0"), do: 24
-  defp nmn("255.255.0.0"), do: 16
-  defp nmn("255.0.0.0"), do: 8
+  defp nms(n), do: ips(VintageLib.prefix_length_to_subnet_mask(n))
+
+  defp nmn(nm) do
+    {:ok, ip} = :inet.parse_address(String.to_charlist(nm))
+
+    case VintageLib.subnet_mask_to_prefix_length(ip) do
+      {:ok, n} -> n
+      {:error, _} -> raise "Invalid netmask #{nm}"
+    end
+  end
+
+  defp valid_ip!(text, msg) do
+    case :inet.parse_address(String.to_charlist(text)) do
+      {:ok, _} -> nil
+      {:error, _} -> raise "#{msg} #{text}"
+    end
+  end
+
+  defp same_segment!(netmask, address, gateway) do
+    {:ok, {n0, n1, n2, n3}} = :inet.parse_address(String.to_charlist(netmask))
+    {:ok, {a0, a1, a2, a3}} = :inet.parse_address(String.to_charlist(address))
+    {:ok, {g0, g1, g2, g3}} = :inet.parse_address(String.to_charlist(gateway))
+    as = {Bitwise.band(n0, a0), Bitwise.band(n1, a1), Bitwise.band(n2, a2), Bitwise.band(n3, a3)}
+    gs = {Bitwise.band(n0, g0), Bitwise.band(n1, g1), Bitwise.band(n2, g2), Bitwise.band(n3, g3)}
+    if as != gs, do: raise("Invalid gateway segment #{gateway}")
+  end
 end

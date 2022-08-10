@@ -45,4 +45,18 @@ defmodule AthashaTerminal.VintageLib do
       node -> :rpc.call(node, VintageNet, :reset_to_defaults, [nic])
     end
   end
+
+  def prefix_length_to_subnet_mask(prefix) do
+    case remote() do
+      :none -> apply(VintageNet.IP, :prefix_length_to_subnet_mask, [:inet, prefix])
+      node -> :rpc.call(node, VintageNet.IP, :prefix_length_to_subnet_mask, [:inet, prefix])
+    end
+  end
+
+  def subnet_mask_to_prefix_length(netmask) do
+    case remote() do
+      :none -> apply(VintageNet.IP, :subnet_mask_to_prefix_length, [netmask])
+      node -> :rpc.call(node, VintageNet.IP, :subnet_mask_to_prefix_length, [netmask])
+    end
+  end
 end

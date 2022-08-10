@@ -43,7 +43,7 @@ defmodule AthashaTerminal.TermLinux do
 
   @resize ~r/^\e\[(\d+);(\d+)R/
 
-  # thinkpad usb us keyboard
+  # thinkpad/corsair usb us keyboard
   @escapes [
     {"\e[[A", :f1},
     {"\e[[B", :f2},

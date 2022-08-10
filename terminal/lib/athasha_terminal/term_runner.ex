@@ -35,6 +35,7 @@ defmodule AthashaTerminal.AppRunner do
   defp loop(port, term, buffer, mod, model, canvas) do
     receive do
       {^port, {:data, data}} ->
+        # IO.inspect(data)
         {buffer, events} = term.append(buffer, data)
         # IO.inspect(events)
         model = apply_events(mod, model, events)

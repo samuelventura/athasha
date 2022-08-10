@@ -32,6 +32,11 @@ defmodule AthashaTerminal.Panel do
     focus_update(state)
   end
 
+  def update(state, :enabled, enabled) do
+    state = Map.put(state, :enabled, enabled)
+    focus_update(state)
+  end
+
   def update(state, name, value), do: Map.put(state, name, value)
   def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
 

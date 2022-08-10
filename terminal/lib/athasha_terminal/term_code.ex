@@ -54,7 +54,7 @@ defmodule AthashaTerminal.TermCode do
   @mouse_down ~r/^\e\[<(\d+);(\d+);(\d+)M/
   @mouse_up ~r/^\e\[<(\d+);(\d+);(\d+)m/
 
-  # thinkpad usb us keyboard
+  # thinkpad/corsair usb us keyboard
   @escapes [
     {"\e[[A", :f1},
     {"\e[[B", :f2},
@@ -68,10 +68,10 @@ defmodule AthashaTerminal.TermCode do
     {"\e[21~", :f10},
     {"\e[23~", :f11},
     {"\e[24~", :f12},
-    {"\e[1~", :home},
+    {"\e[H", :home},
     {"\e[2~", :insert},
     {"\e[3~", :delete},
-    {"\e[4~", :end},
+    {"\e[F", :end},
     {"\e[5~", :page_up},
     {"\e[6~", :page_down},
     {"\e[A", :arrow_up},
