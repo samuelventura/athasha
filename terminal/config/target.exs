@@ -12,6 +12,7 @@ config :shoehorn, init: [:nerves_runtime, :nerves_pack]
 
 config :nerves,
   erlinit: [
+    ctty: "ttyS0",
     hostname_pattern: "athasha-%s"
   ]
 

@@ -37,7 +37,7 @@ defmodule AthashaTerminal.Application do
       # Children for all targets except host
       # Starts a worker by calling: AthashaTerminal.Worker.start_link(arg)
       # {AthashaTerminal.Worker, arg},
-      {AppRunner, %{mod: VintageMain, tty: "/dev/tty2", term: :linux, opts: []}}
+      {AppRunner, %{mod: VintageMain, tty: "/dev/tty1", term: :linux, opts: []}}
     ]
   end
 
