@@ -165,7 +165,7 @@ defmodule AthashaTerminal.Panel do
         state
 
       {_, nil, true} ->
-        [focus | _] = Enum.reverse(index)
+        [focus | _] = index
         mote = Map.get(state, focus)
         mote = mote_update(mote, :focused, true)
         state = Map.put(state, :focus, focus)

@@ -104,7 +104,10 @@ defmodule AthashaTerminal.AppRunner do
         res = mod.execute(cmd)
         send(self, {:cmd, cmd, res})
       rescue
-        e -> send(self, {:cmd, cmd, e})
+        e ->
+          IO.inspect(e)
+          IO.inspect(__STACKTRACE__)
+          send(self, {:cmd, cmd, e})
       end
     end)
   end

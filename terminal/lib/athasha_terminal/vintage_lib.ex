@@ -18,6 +18,13 @@ defmodule AthashaTerminal.VintageLib do
     end
   end
 
+  def get_all_env() do
+    case remote() do
+      :none -> apply(Application, :get_all_env, [:vintage_net])
+      node -> :rpc.call(node, Application, :get_all_env, [:vintage_net])
+    end
+  end
+
   def configure(nic, config) do
     case remote() do
       :none -> apply(VintageNet, :configure, [nic, config])
@@ -32,7 +39,7 @@ defmodule AthashaTerminal.VintageLib do
     end
   end
 
-  def defaults(nic) do
+  def reset_to_defaults(nic) do
     case remote() do
       :none -> apply(VintageNet, :reset_to_defaults, [nic])
       node -> :rpc.call(node, VintageNet, :reset_to_defaults, [nic])

@@ -9,7 +9,7 @@ defmodule AthashaTerminal.Window do
 
   def mote_bounds(mote), do: mote_select(mote, :bounds, {0, 0, 0, 0})
 
-  def id_select(state, id, name, value) do
+  def id_select(state, id, name, value \\ nil) do
     mote = Map.get(state, id)
     mote_select(mote, name, value)
   end
@@ -52,7 +52,7 @@ defmodule AthashaTerminal.Window do
     {module, module.update(state, name, value)}
   end
 
-  def mote_select({module, state}, name, value) do
+  def mote_select({module, state}, name, value \\ nil) do
     module.select(state, name, value)
   end
 

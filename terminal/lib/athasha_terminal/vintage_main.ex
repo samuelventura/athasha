@@ -97,7 +97,26 @@ defmodule AthashaTerminal.VintageMain do
     {state, {:get, nic}}
   end
 
+  def handle(%{ids: ids} = state, {:cmd, {:save, _config}, res}) do
+    state =
+      case res do
+        :ok ->
+          id_updates(state, ids.alert,
+            bgcolor: :blue,
+            fgcolor: :white,
+            text: "Success configuring interface"
+          )
+
+        _ ->
+          id_updates(state, ids.alert, bgcolor: :red, fgcolor: :white, text: "#{inspect(res)}")
+      end
+
+    {state, nil}
+  end
+
   def handle(%{ids: ids} = state, {:cmd, {:get, nic}, res}) do
+    state = Map.delete(state, :wifi)
+    state = id_updates(state, ids.editors, enabled: false)
     state = id_updates(state, ids.alert, bgcolor: :black, fgcolor: :white, text: "")
 
     {state, _} =
@@ -120,7 +139,11 @@ defmodule AthashaTerminal.VintageMain do
       end)
 
     case res do
-      %{ok: true, mac: mac} ->
+      {:ok, mac, res} ->
+        %{wifi: wifi} = res
+        state = Map.put(state, :wifi, wifi)
+        state = id_updates(state, ids.editors, enabled: true)
+
         {state, _} =
           id_callback(state, ids.labels, nil, fn state, _ ->
             state = id_updates(state, ids.mac, text: mac)
@@ -129,14 +152,48 @@ defmodule AthashaTerminal.VintageMain do
 
         state =
           case res do
-            %{type: VintageNet.Technology.Null} ->
+            %{type: @disabled} ->
               id_updates(state, ids.radio, enabled: true, selected: 0)
 
-            %{ipv4: %{method: :dhcp}} ->
+            %{type: @dhcp} ->
               id_updates(state, ids.radio, enabled: true, selected: 1)
 
-            %{ipv4: %{method: :static}} ->
+            %{
+              type: @static,
+              address: address,
+              netmask: netmask,
+              gateway: gateway,
+              nameserver: nameserver
+            } ->
+              {state, _} =
+                id_callback(state, ids.editors, nil, fn state, _ ->
+                  state = id_updates(state, ids.address, enabled: true, text: address)
+                  state = id_updates(state, ids.netmask, enabled: true, text: netmask)
+                  state = id_updates(state, ids.gateway, enabled: true, text: gateway)
+                  state = id_updates(state, ids.nameserver, enabled: true, text: nameserver)
+                  {state, nil}
+                end)
+
               id_updates(state, ids.radio, enabled: true, selected: 2)
+          end
+
+        state =
+          case res do
+            %{wifi: false} ->
+              state
+
+            %{type: @disabled} ->
+              state
+
+            %{ssid: ssid, password: password} ->
+              {state, _} =
+                id_callback(state, ids.editors, nil, fn state, _ ->
+                  state = id_updates(state, ids.ssid, enabled: true, text: ssid)
+                  state = id_updates(state, ids.password, enabled: true, password: password)
+                  {state, nil}
+                end)
+
+              state
           end
 
         {state, _} =
@@ -161,13 +218,77 @@ defmodule AthashaTerminal.VintageMain do
     end
   end
 
+  def handle(%{ids: ids} = state, {:resize, width, height}) do
+    state = id_updates(state, ids.alert, origin: {0, height - 1}, size: {width, 1})
+    {state, nil}
+  end
+
   def handle(%{ids: ids} = state, event) do
     {state, event} = Panel.handle(state, event)
     select = ids.select
+    radio = ids.radio
+    save = ids.save
+    editors = ids.editors
 
     case event do
-      {^select, {:item, nic}} -> {state, {:get, nic}}
-      _ -> {state, nil}
+      {^radio, {:item, type}} ->
+        enabled = type == @static
+        wifi = Map.get(state, :wifi, false) && type != @disabled
+
+        {state, _} =
+          id_callback(state, ids.editors, nil, fn state, _ ->
+            state = id_updates(state, ids.address, enabled: enabled)
+            state = id_updates(state, ids.netmask, enabled: enabled)
+            state = id_updates(state, ids.gateway, enabled: enabled)
+            state = id_updates(state, ids.nameserver, enabled: enabled)
+            state = id_updates(state, ids.ssid, enabled: wifi)
+            state = id_updates(state, ids.password, enabled: wifi)
+            {state, nil}
+          end)
+
+        {state, nil}
+
+      {^select, {:item, nic}} ->
+        state =
+          id_updates(state, ids.alert,
+            bgcolor: :blue,
+            fgcolor: :white,
+            text: "Getting configuration..."
+          )
+
+        {state, {:get, nic}}
+
+      {^editors, {^save, {:click, _}}} ->
+        state =
+          id_updates(state, ids.alert,
+            bgcolor: :blue,
+            fgcolor: :white,
+            text: "Saving configuration..."
+          )
+
+        {state, config} =
+          id_callback(state, ids.labels, %{}, fn state, config ->
+            config = Map.put(config, :nic, id_select(state, ids.nic, :text))
+            {state, config}
+          end)
+
+        {state, config} =
+          id_callback(state, ids.editors, config, fn state, config ->
+            config = Map.put(config, :address, id_select(state, ids.address, :text))
+            config = Map.put(config, :netmask, id_select(state, ids.netmask, :text))
+            config = Map.put(config, :gateway, id_select(state, ids.gateway, :text))
+            config = Map.put(config, :nameserver, id_select(state, ids.nameserver, :text))
+            config = Map.put(config, :ssid, id_select(state, ids.ssid, :text))
+            config = Map.put(config, :password, id_select(state, ids.password, :text))
+            {state, config}
+          end)
+
+        config = Map.put(config, :type, id_select(state, ids.radio, :selected))
+        config = Map.put(config, :wifi, Map.get(state, :wifi))
+        {state, {:save, config}}
+
+      _ ->
+        {state, nil}
     end
   end
 
@@ -175,13 +296,130 @@ defmodule AthashaTerminal.VintageMain do
     Panel.render(state, canvas)
   end
 
+  def execute({:save, config}) do
+    ipv4 =
+      case config do
+        %{type: 0} ->
+          nil
+
+        %{type: 1} ->
+          %{method: :dhcp}
+
+        %{type: 2, address: address, gateway: gateway, netmask: netmask, nameserver: nameserver} ->
+          %{
+            method: :static,
+            address: address,
+            gateway: gateway,
+            prefix_length: nmn(netmask),
+            name_servers: [nameserver]
+          }
+      end
+
+    case config do
+      %{type: 0, nic: nic} ->
+        VintageLib.deconfigure(nic)
+
+      %{nic: nic, wifi: true, ssid: ssid, password: password} ->
+        VintageLib.configure(nic, %{
+          type: VintageNetWiFi,
+          ipv4: ipv4,
+          vintage_net_wifi: %{
+            regulatory_domain: "US",
+            networks: [
+              %{
+                ssid: ssid,
+                key_mgmt: :wpa_psk,
+                psk: password
+              }
+            ]
+          }
+        })
+
+      %{type: 1, nic: nic, wifi: false} ->
+        VintageLib.configure(nic, %{type: VintageNetEthernet, ipv4: ipv4})
+    end
+  end
+
   def execute({:get, nic}) do
     mac = VintageLib.get_mac!(nic)
     mac = MACAddress.to_hex(mac)
+    env = VintageLib.get_all_env()
+    defaults = Keyword.fetch!(env, :config)
+    defaults = Enum.into(defaults, %{})
+    default = Map.fetch!(defaults, nic)
     config = VintageLib.get_configuration(nic)
-    config = Map.put(config, :mac, mac)
-    Map.put(config, :ok, true)
+
+    config =
+      case config do
+        %{type: VintageNet.Technology.Null} ->
+          %{wifi: false, type: @disabled}
+
+        %{type: VintageNetEthernet, ipv4: %{method: :dhcp}} ->
+          %{wifi: false, type: @dhcp}
+
+        %{
+          type: VintageNetEthernet,
+          ipv4: %{
+            method: :static,
+            address: address,
+            gateway: gateway,
+            name_servers: [nameserver],
+            prefix_length: netmask
+          }
+        } ->
+          %{
+            wifi: false,
+            type: @static,
+            address: ips(address),
+            gateway: ips(gateway),
+            nameserver: ips(nameserver),
+            netmask: nms(netmask)
+          }
+
+        %{
+          type: VintageNetWiFi,
+          ipv4: %{method: :dhcp},
+          vintage_net_wifi: %{networks: [%{ssid: ssid, psk: _password}]}
+        } ->
+          %{wifi: true, type: @dhcp, ssid: ssid, password: ""}
+
+        %{
+          type: VintageNetWiFi,
+          ipv4: %{
+            method: :static,
+            address: address,
+            gateway: gateway,
+            name_servers: [nameserver],
+            prefix_length: netmask
+          }
+        } ->
+          %{
+            wifi: true,
+            type: @static,
+            address: ips(address),
+            gateway: ips(gateway),
+            nameserver: ips(nameserver),
+            netmask: nms(netmask)
+          }
+      end
+
+    # deconfigured nics wont report real type
+    config =
+      case default do
+        %{type: VintageNetWiFi} -> %{config | wifi: true}
+        %{type: VintageNetEthernet} -> %{config | wifi: false}
+      end
+
+    {:ok, mac, config}
   end
 
   def execute(_cmd), do: nil
+
+  defp ips({a, b, c, d}), do: "#{a}.#{b}.#{c}.#{d}"
+  defp nms(24), do: "255.255.255.0"
+  defp nms(16), do: "255.255.0.0"
+  defp nms(8), do: "255.0.0.0"
+  defp nmn("255.255.255.0"), do: 24
+  defp nmn("255.255.0.0"), do: 16
+  defp nmn("255.0.0.0"), do: 8
 end

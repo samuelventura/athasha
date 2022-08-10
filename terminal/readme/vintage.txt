@@ -1,5 +1,41 @@
 https://hexdocs.pm/vintage_net/cookbook.html
 
+Application.get_all_env :vintage_net
+[
+  udhcpc_handler: VintageNet.Interface.Udhcpc,
+  resolvconf: "/etc/resolv.conf",
+  power_managers: [],
+  persistence_dir: "/root/vintage_net",
+  muontrap_options: [],
+  internet_host_list: [
+    {{1, 1, 1, 1}, 53},
+    {{8, 8, 8, 8}, 53},
+    {{208, 67, 222, 222}, 53},
+    {{9, 9, 9, 9}, 53},
+    {{156, 154, 70, 5}, 53}
+  ],
+  tmpdir: "/tmp/vintage_net",
+  udhcpd_handler: VintageNet.Interface.Udhcpd,
+  regulatory_domain: "US",
+  persistence_secret: "obfuscate_things",
+  persistence: VintageNet.Persistence.FlatFile,
+  max_interface_count: 8,
+  path: "/usr/sbin:/usr/bin:/sbin:/bin",
+  config: [
+    {"usb0", %{type: VintageNetDirect}},
+    {"eth0", %{ipv4: %{method: :dhcp}, type: VintageNetEthernet}},
+    {"wlan0", %{type: VintageNetWiFi}}
+  ],
+  route_metric_fun: &VintageNet.Route.DefaultMetric.compute_metric/2
+]
+
+Application.get_env :vintage_net, :config
+[
+  {"usb0", %{type: VintageNetDirect}},
+  {"eth0", %{ipv4: %{method: :dhcp}, type: VintageNetEthernet}},
+  {"wlan0", %{type: VintageNetWiFi}}
+]
+
 VintageNet.info()
 #this below shows GW/DNS info
 VintageNet.get_by_prefix([])
