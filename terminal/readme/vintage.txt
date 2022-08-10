@@ -40,6 +40,45 @@ VintageNet.info()
 #this below shows GW/DNS info
 VintageNet.get_by_prefix([])
 
+VintageNet.get_by_prefix(["interface", "eth0"])
+[
+  {["interface", "eth0", "addresses"],
+   [
+     %{
+       address: {65152, 0, 0, 0, 58975, 511, 65111, 19047},
+       family: :inet6,
+       netmask: {65535, 65535, 65535, 65535, 0, 0, 0, 0},
+       prefix_length: 64,
+       scope: :link
+     },
+     %{
+       address: {10, 77, 5, 10},
+       family: :inet,
+       netmask: {255, 0, 0, 0},
+       prefix_length: 8,
+       scope: :universe
+     }
+   ]},
+  {["interface", "eth0", "config"],
+   %{
+     ipv4: %{
+       address: {10, 77, 5, 10},
+       gateway: {10, 77, 0, 1},
+       method: :static,
+       name_servers: [{10, 77, 0, 1}],
+       prefix_length: 8
+     },
+     type: VintageNetEthernet
+   }},
+  {["interface", "eth0", "connection"], :internet},
+  {["interface", "eth0", "hw_path"], "/devices/platform/scb/fd580000.ethernet"},
+  {["interface", "eth0", "lower_up"], true},
+  {["interface", "eth0", "mac_address"], "e4:5f:01:57:4a:67"},
+  {["interface", "eth0", "present"], true},
+  {["interface", "eth0", "state"], :configured},
+  {["interface", "eth0", "type"], VintageNetEthernet}
+]
+
 VintageNet.deconfigure("wlan0", persist: false)
 VintageNet.get_configuration("wlan0")
 %{type: VintageNet.Technology.Null}

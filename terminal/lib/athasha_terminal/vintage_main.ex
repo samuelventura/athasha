@@ -17,7 +17,7 @@ defmodule AthashaTerminal.VintageMain do
   @dhcp "DHCP"
   @static "Static"
 
-  @nics [@eth0, @wlan0, "wlan1"]
+  @nics [@eth0, @wlan0]
 
   def init(opts) do
     state = Panel.init(opts ++ [focused: true, root: true])
@@ -155,7 +155,14 @@ defmodule AthashaTerminal.VintageMain do
             %{type: @disabled} ->
               id_updates(state, ids.radio, enabled: true, selected: 0)
 
-            %{type: @dhcp} ->
+            %{type: @dhcp, address: address, netmask: netmask} ->
+              {state, _} =
+                id_callback(state, ids.editors, nil, fn state, _ ->
+                  state = id_updates(state, ids.address, text: address)
+                  state = id_updates(state, ids.netmask, text: netmask)
+                  {state, nil}
+                end)
+
               id_updates(state, ids.radio, enabled: true, selected: 1)
 
             %{
@@ -330,7 +337,6 @@ defmodule AthashaTerminal.VintageMain do
           type: VintageNetWiFi,
           ipv4: ipv4,
           vintage_net_wifi: %{
-            regulatory_domain: "US",
             networks: [
               %{
                 ssid: ssid,
@@ -347,12 +353,8 @@ defmodule AthashaTerminal.VintageMain do
   end
 
   def execute({:get, nic}) do
-    mac = VintageLib.get_mac!(nic)
-    mac = MACAddress.to_hex(mac)
-    env = VintageLib.get_all_env()
-    defaults = Keyword.fetch!(env, :config)
-    defaults = Enum.into(defaults, %{})
-    default = Map.fetch!(defaults, nic)
+    mac = get_mac(nic)
+    default = get_default(nic)
     config = VintageLib.get_configuration(nic)
 
     config =
@@ -361,7 +363,8 @@ defmodule AthashaTerminal.VintageMain do
           %{wifi: false, type: @disabled}
 
         %{type: VintageNetEthernet, ipv4: %{method: :dhcp}} ->
-          %{wifi: false, type: @dhcp}
+          {address, netmask} = get_address_netmask(nic)
+          %{wifi: false, type: @dhcp, address: address, netmask: netmask}
 
         %{
           type: VintageNetEthernet,
@@ -387,7 +390,8 @@ defmodule AthashaTerminal.VintageMain do
           ipv4: %{method: :dhcp},
           vintage_net_wifi: %{networks: [%{ssid: ssid, psk: _password}]}
         } ->
-          %{wifi: true, type: @dhcp, ssid: ssid, password: ""}
+          {address, netmask} = get_address_netmask(nic)
+          %{wifi: true, type: @dhcp, ssid: ssid, password: "", address: address, netmask: netmask}
 
         %{
           type: VintageNetWiFi,
@@ -445,5 +449,33 @@ defmodule AthashaTerminal.VintageMain do
     as = {Bitwise.band(n0, a0), Bitwise.band(n1, a1), Bitwise.band(n2, a2), Bitwise.band(n3, a3)}
     gs = {Bitwise.band(n0, g0), Bitwise.band(n1, g1), Bitwise.band(n2, g2), Bitwise.band(n3, g3)}
     if as != gs, do: raise("Invalid gateway segment #{gateway}")
+  end
+
+  defp get_address_netmask(nic) do
+    [{["interface", ^nic, "addresses"], list}] =
+      VintageLib.get_by_prefix(["interface", nic, "addresses"])
+
+    Enum.find_value(list, {"", ""}, fn m ->
+      %{family: f, address: ip, netmask: nm} = m
+
+      case f do
+        :inet -> {ips(ip), ips(nm)}
+        _ -> false
+      end
+    end)
+  end
+
+  defp get_mac(nic) do
+    case VintageLib.get_by_prefix(["interface", nic, "mac_address"]) do
+      [{["interface", ^nic, "mac_address"], value}] -> value
+      _ -> ""
+    end
+  end
+
+  defp get_default(nic) do
+    env = VintageLib.get_all_env()
+    defaults = Keyword.fetch!(env, :config)
+    defaults = Enum.into(defaults, %{})
+    Map.fetch!(defaults, nic)
   end
 end
