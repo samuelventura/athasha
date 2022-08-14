@@ -1,4 +1,4 @@
-defmodule AthashaFw.Application do
+defmodule AthashaFirmware.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -9,13 +9,13 @@ defmodule AthashaFw.Application do
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: AthashaFw.Supervisor]
+    opts = [strategy: :one_for_one, name: AthashaFirmware.Supervisor]
 
     children =
       [
         # Children for all targets
-        # Starts a worker by calling: AthashaFw.Worker.start_link(arg)
-        # {AthashaFw.Worker, arg},
+        # Starts a worker by calling: AthashaFirmware.Worker.start_link(arg)
+        # {AthashaFirmware.Worker, arg},
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)
@@ -25,20 +25,20 @@ defmodule AthashaFw.Application do
   def children(:host) do
     [
       # Children that only run on the host
-      # Starts a worker by calling: AthashaFw.Worker.start_link(arg)
-      # {AthashaFw.Worker, arg},
+      # Starts a worker by calling: AthashaFirmware.Worker.start_link(arg)
+      # {AthashaFirmware.Worker, arg},
     ]
   end
 
   def children(_target) do
     [
       # Children for all targets except host
-      # Starts a worker by calling: AthashaFw.Worker.start_link(arg)
-      # {AthashaFw.Worker, arg},
+      # Starts a worker by calling: AthashaFirmware.Worker.start_link(arg)
+      # {AthashaFirmware.Worker, arg},
     ]
   end
 
   def target() do
-    Application.get_env(:athasha_fw, :target)
+    Application.get_env(:athasha_firmware, :target)
   end
 end
