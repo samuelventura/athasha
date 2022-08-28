@@ -10,6 +10,7 @@ defmodule AthashaFirmware.MixProject do
       app: @app,
       version: @version,
       elixir: "~> 1.11",
+      make_clean: ["clean"],
       archives: [nerves_bootstrap: "~> 1.11"],
       compilers: [:elixir_make | Mix.compilers()],
       start_permanent: Mix.env() == :prod,
