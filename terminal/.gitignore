@@ -16,10 +16,11 @@
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
-*.so
-*.o
-*.a
+# Also ignore archive artifacts (built via "mix archive.build").
+*.ez
 
-/priv/native
+# Ignore package tarball (built via "mix hex.build").
+athasha_terminal-*.tar
 
-*.img
+# Temporary files, for example, from tests.
+/tmp/

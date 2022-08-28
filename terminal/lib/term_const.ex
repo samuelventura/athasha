@@ -1,11 +1,4 @@
-defmodule AthashaTerminal.Term do
-  def init(term) do
-    case term do
-      :linux -> AthashaTerminal.TermLinux
-      :code -> AthashaTerminal.TermCode
-    end
-  end
-
+defmodule AthashaTerminal.Const do
   defmacro __using__(_) do
     quote do
       @ctl 1

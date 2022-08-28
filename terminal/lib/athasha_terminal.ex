@@ -1,6 +1,6 @@
 defmodule AthashaTerminal do
   @moduledoc """
-  Documentation for AthashaTerminal.
+  Documentation for `AthashaTerminal`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule AthashaTerminal do
 
   ## Examples
 
-      iex> AthashaTerminal.hello
+      iex> AthashaTerminal.hello()
       :world
 
   """

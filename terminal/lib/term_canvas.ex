@@ -1,5 +1,5 @@
 defmodule AthashaTerminal.Canvas do
-  use AthashaTerminal.Term
+  use AthashaTerminal.Const
 
   @cell {' ', @white, @black}
 
@@ -197,72 +197,5 @@ defmodule AthashaTerminal.Canvas do
       end
 
     list
-  end
-
-  def encode(term, list) when is_list(list) do
-    list = encode(term, [], list)
-    :lists.reverse(list)
-  end
-
-  defp encode(_, list, []), do: list
-
-  defp encode(term, list, [{:m, x, y} | tail]) do
-    d = term.cursor(x, y)
-    encode(term, [d | list], tail)
-  end
-
-  defp encode(term, list, [{:d, d} | tail]) do
-    d = :lists.reverse(d)
-    d = IO.chardata_to_string(d)
-    encode(term, [d | list], tail)
-  end
-
-  defp encode(term, list, [{:s, s1, s2} | tail]) do
-    b1 = Bitwise.band(s1, @bold)
-    b2 = Bitwise.band(s2, @bold)
-    d1 = Bitwise.band(s1, @dimmed)
-    d2 = Bitwise.band(s2, @dimmed)
-    i1 = Bitwise.band(s1, @inverse)
-    i2 = Bitwise.band(s2, @inverse)
-
-    list =
-      case {b1, b2, d1, d2} do
-        {@bold, 0, _, @dimmed} -> [term.reset(:normal), term.set(:dimmed) | list]
-        {_, @bold, @dimmed, 0} -> [term.reset(:normal), term.set(:bold) | list]
-        {@bold, 0, _, _} -> [term.reset(:normal) | list]
-        {_, _, @dimmed, 0} -> [term.reset(:normal) | list]
-        {0, @bold, _, _} -> [term.set(:bold) | list]
-        {_, _, 0, @dimmed} -> [term.set(:dimmed) | list]
-        _ -> list
-      end
-
-    list =
-      case {i1, i2} do
-        {0, @inverse} -> [term.set(:inverse) | list]
-        {@inverse, 0} -> [term.reset(:inverse) | list]
-        _ -> list
-      end
-
-    encode(term, list, tail)
-  end
-
-  defp encode(term, list, [{:b, b} | tail]) do
-    d = term.color(:bgcolor, b)
-    encode(term, [d | list], tail)
-  end
-
-  defp encode(term, list, [{:f, f} | tail]) do
-    d = term.color(:fgcolor, f)
-    encode(term, [d | list], tail)
-  end
-
-  defp encode(term, list, [{:c, c} | tail]) do
-    d =
-      case c do
-        true -> term.show(:cursor)
-        false -> term.hide(:cursor)
-      end
-
-    encode(term, [d | list], tail)
   end
 end

@@ -2,15 +2,11 @@ defmodule AthashaTerminal.TermDemo do
   @behaviour AthashaTerminal.App
   alias AthashaTerminal.Canvas
 
-  def deps(_opts), do: nil
+  def app_init(_opts), do: {nil, nil}
+  def app_handle(state, _event), do: {state, nil}
+  def app_execute(_cmd), do: nil
 
-  def init(_opts) do
-    {nil, []}
-  end
-
-  def handle(state, _event), do: {state, nil}
-
-  def render(_state, canvas) do
+  def app_render(_state, canvas) do
     canvas = Canvas.clear(canvas, :colors)
 
     # these are the linux usable colors
@@ -31,6 +27,18 @@ defmodule AthashaTerminal.TermDemo do
 
     canvas
   end
+end
 
-  def execute(_cmd), do: nil
+defmodule AthashaTerminal.TermCodeSocketDemo do
+  use AthashaTerminal.Runner,
+    term: AthashaTerminal.TermCode,
+    tty: AthashaTerminal.SocketTty,
+    app: AthashaTerminal.TermDemo
+
+  # socat STDIO fails with: Inappropriate ioctl for device
+  # socat /dev/tty,raw,echo=0,escape=0x03 TCP-LISTEN:8880,reuseaddr,fork
+  def launch(ip: ip, port: port) do
+    tty = [ip: ip, port: port]
+    start_link(tty, [])
+  end
 end
