@@ -38,16 +38,16 @@ endif
 
 all: $(CH_TARGET) $(SLV_TARGET) $(MTR_TARGET)
 
-$(DSTDIR):
-	mkdir -p $(DSTDIR)
-
-$(SLV_TARGET): $(DSTDIR) $(SLV_SOURCES) 
+$(SLV_TARGET): $(SLV_SOURCES) 
+	[ -d $(DSTDIR) ] || mkdir -p $(DSTDIR)
 	$(CC) $(SLV_CFLAGS) $(SLV_SOURCES) -o $@ $(SLV_LDFLAGS)
 
-$(MTR_TARGET): $(DSTDIR) $(MTR_SOURCES) 
+$(MTR_TARGET): $(MTR_SOURCES) 
+	[ -d $(DSTDIR) ] || mkdir -p $(DSTDIR)
 	$(CC) $(MTR_CFLAGS) $(MTR_SOURCES) -o $@ $(MTR_LDFLAGS)
 
-$(CH_TARGET): $(DSTDIR) $(CH_SOURCES) 
+$(CH_TARGET): $(CH_SOURCES) 
+	[ -d $(DSTDIR) ] || mkdir -p $(DSTDIR)
 	$(CC) $(CH_CFLAGS) $(CH_SOURCES) -o $@ $(CH_LDFLAGS)
 	
 clean:
