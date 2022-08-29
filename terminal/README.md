@@ -1,6 +1,9 @@
 # Terminal
 
-**TODO: Add description**
+```elixir
+{:ok, pid} = Runner.start_link {Teletype, "/tmp/teletype.pts"}, Code, {Demo, []}
+Process.exit pid, :kill
+```
 
 ## Installation
 

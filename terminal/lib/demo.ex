@@ -2,17 +2,11 @@ defmodule Terminal.Demo do
   @behaviour Terminal.App
   alias Terminal.Canvas
 
-  def deps(_opts), do: nil
-
-  def init(_opts) do
-    {nil, []}
-  end
-
+  def init(_opts), do: {nil, nil}
   def handle(state, _event), do: {state, nil}
 
   def render(_state, canvas) do
     canvas = Canvas.clear(canvas, :colors)
-
     # these are the linux usable colors
     # combinations of dimmed/bold mess with these usable
     # colors if in excess of the 16 available slots

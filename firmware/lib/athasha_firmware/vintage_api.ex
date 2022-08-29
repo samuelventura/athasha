@@ -1,4 +1,4 @@
-defmodule AthashaFirmware.Vintage do
+defmodule AthashaFirmware.VintageApi do
   alias AthashaFirmware.VintageLib
 
   def nameservers() do

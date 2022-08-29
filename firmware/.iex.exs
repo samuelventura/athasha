@@ -1,4 +1,4 @@
 alias AthashaFirmware
 alias AthashaFirmware.VintageLib
-alias AthashaFirmware.VintageMain
-alias AthashaFirmware.Vintage
+alias AthashaFirmware.VintageApp
+alias AthashaFirmware.VintageApi
