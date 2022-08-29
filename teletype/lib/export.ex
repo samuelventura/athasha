@@ -1,5 +1,5 @@
-defmodule Teletype.TtyExport do
-  alias Teletype.TtySlave
+defmodule Teletype.Export do
+  alias Teletype.Slave
 
   def start_link(tty, port) do
     Task.start_link(fn -> run(tty, port) end)
@@ -16,14 +16,14 @@ defmodule Teletype.TtyExport do
 
     {:ok, listener} = :gen_tcp.listen(port, opts)
     {:ok, socket} = :gen_tcp.accept(listener)
-    port = TtySlave.open(tty)
+    port = Slave.open(tty)
     loop(listener, port, socket)
   end
 
   defp loop(listener, port, socket) do
     receive do
       {:tcp, _, data} ->
-        TtySlave.write!(port, data)
+        Slave.write!(port, data)
         loop(listener, port, socket)
 
       {^port, {:data, data}} ->

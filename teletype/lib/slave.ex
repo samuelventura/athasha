@@ -1,6 +1,6 @@
-defmodule Teletype.TtySlave do
+defmodule Teletype.Slave do
   def open(tty) do
-    exec = :code.priv_dir(:teletype) ++ '/native/tty_slave'
+    exec = :code.priv_dir(:teletype) ++ '/slave'
     opts = [:binary, :exit_status, :stream, args: [tty]]
     Port.open({:spawn_executable, exec}, opts)
   end

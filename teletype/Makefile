@@ -4,25 +4,25 @@
 #  mix clean
 
 SRCDIR = src
-DSTDIR = priv/native
+DSTDIR = priv
 UNAME := $(shell uname -s)
 MIX_TARGET ?= host
 
 C_CFLAGS = -g -O3 -Werror -pedantic -Wall -Wextra -D_XOPEN_SOURCE=700
 C_LDFLAGS = -fPIC
 
-CH_TARGET = $(DSTDIR)/tty_chvt
-CH_SOURCES = $(SRCDIR)/tty_chvt.c
+CH_TARGET = $(DSTDIR)/chvt
+CH_SOURCES = $(SRCDIR)/chvt.c
 CH_CFLAGS = $(C_CFLAGS)
 CH_LDFLAGS= $(C_LDFLAGS)
 
-SLV_TARGET = $(DSTDIR)/tty_slave
-SLV_SOURCES = $(SRCDIR)/tty_slave.c
+SLV_TARGET = $(DSTDIR)/slave
+SLV_SOURCES = $(SRCDIR)/slave.c
 SLV_CFLAGS = $(C_CFLAGS)
 SLV_LDFLAGS= $(C_LDFLAGS)
 
-MTR_TARGET = $(DSTDIR)/tty_master
-MTR_SOURCES = $(SRCDIR)/tty_master.c
+MTR_TARGET = $(DSTDIR)/master
+MTR_SOURCES = $(SRCDIR)/master.c
 MTR_CFLAGS = $(C_CFLAGS)
 MTR_LDFLAGS= $(C_LDFLAGS)
 
@@ -51,4 +51,4 @@ $(CH_TARGET): $(CH_SOURCES)
 	$(CC) $(CH_CFLAGS) $(CH_SOURCES) -o $@ $(CH_LDFLAGS)
 	
 clean:
-	rm -fR $(DSTDIR)
+	rm -fR $(DSTDIR)/*

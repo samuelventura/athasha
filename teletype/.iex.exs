@@ -1,3 +1,3 @@
 alias Teletype
-alias Teletype.TtySlave
-alias Teletype.TtyExport
+alias Teletype.Slave
+alias Teletype.Export
