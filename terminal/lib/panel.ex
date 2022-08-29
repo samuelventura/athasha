@@ -1,6 +1,6 @@
 defmodule Terminal.Panel do
   @behaviour Terminal.Window
-  import Terminal.Window
+  import Terminal.Imports
   alias Terminal.Canvas
 
   def init(opts) do

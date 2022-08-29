@@ -1,6 +1,6 @@
 defmodule AthashaFirmware.VintageApp do
   @behaviour Terminal.App
-  import Terminal.Window
+  import Terminal.Imports
   alias Terminal.Panel
   alias Terminal.Label
   alias Terminal.Frame

@@ -1,6 +1,6 @@
 defmodule Terminal.Grid do
   @behaviour Terminal.Window
-  import Terminal.Window
+  import Terminal.Imports
   alias Terminal.Panel
 
   def init(opts) do

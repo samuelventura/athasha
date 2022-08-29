@@ -1,4 +1,4 @@
-defmodule Terminal.Teletype do
+defmodule Teletype.Tty do
   alias Teletype.Slave
 
   def open(tty), do: Slave.open(tty)

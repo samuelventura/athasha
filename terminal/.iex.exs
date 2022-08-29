@@ -4,7 +4,8 @@ alias Terminal.Term
 alias Terminal.Theme
 alias Terminal.Canvas
 alias Terminal.Runner
-alias Terminal.Teletype
+alias Terminal.Socket
+alias Terminal.Imports
 alias Terminal.Linux
 alias Terminal.Code
 alias Terminal.Demo
