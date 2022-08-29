@@ -1,6 +1,6 @@
-defmodule AthashaTty.TtySlave do
+defmodule Teletype.TtySlave do
   def open(tty) do
-    exec = :code.priv_dir(:athasha_tty) ++ '/native/tty_slave'
+    exec = :code.priv_dir(:teletype) ++ '/native/tty_slave'
     opts = [:binary, :exit_status, :stream, args: [tty]]
     Port.open({:spawn_executable, exec}, opts)
   end

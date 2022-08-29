@@ -12,7 +12,11 @@ MIX_TARGET=rpi4 mix deps.get
 MIX_TARGET=rpi4 mix compile
 MIX_TARGET=rpi4 mix firmware
 MIX_TARGET=rpi4 mix upload athasha-4ad8.local
-ssh athasha-4ad8
+ssh athasha-4ad8.local
+```
+
+```elixir
+{:ok, pid} = TtyExport.start_link 1, 8080
 ```
 
 FIXME: Configure NIC over BLE.

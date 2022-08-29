@@ -1,5 +1,5 @@
-defmodule AthashaTty.TtyExport do
-  alias AthashaTty.TtySlave
+defmodule Teletype.TtyExport do
+  alias Teletype.TtySlave
 
   def start_link(tty, port) do
     Task.start_link(fn -> run(tty, port) end)
