@@ -1,3 +1,4 @@
 alias AthashaFirmware
-alias AthashaFirmware.TtySlave
-alias AthashaFirmware.TtyExport
+alias AthashaFirmware.VintageLib
+alias AthashaFirmware.VintageMain
+alias AthashaFirmware.Vintage

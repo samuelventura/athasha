@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
   int rp[2];
   fd_set fds;
   unsigned char buf[256];
-  char *link = "/tmp/ash.tty";
+  char *link = "/tmp/teletype.pts";
   unlink(link);
   fd = posix_openpt(O_RDWR|O_NOCTTY);
   if (fd<0) crash("open master %d", fd);

@@ -1,6 +1,6 @@
 # Teletype
 
-**TODO: Add description**
+TTY and PTY native ports.
 
 ## Installation
 

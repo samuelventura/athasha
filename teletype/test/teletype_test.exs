@@ -10,7 +10,7 @@ defmodule TeletypeTest do
     {:ok, _, stdin} = :exec.run(exec, opts)
     # crash open -1 not such file or directory
     :timer.sleep(100)
-    port = Slave.open("/tmp/ash.tty")
+    port = Slave.open("/tmp/teletype.pts")
     Slave.write!(port, "ping")
 
     receive do
