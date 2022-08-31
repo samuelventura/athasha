@@ -17,24 +17,6 @@
 #
 # echo -en "\033[1mThis is bold text.\033[0m" | nc 127.0.0.1 8880
 # to test server end honors escapes
-{:ok, pid} = Runner.start_link {Socket, ip: "127.0.0.1", port: 8880}, Code, {Demo, []}
+{:ok, pid} = Runner.start_link tty: {Socket, ip: "127.0.0.1", port: 8880}, term: Code, app: {Demo, []}
 Process.exit pid, :kill
 ```
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `terminal` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:terminal, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/terminal>.
-

@@ -14,7 +14,8 @@ defmodule AthashaFirmware.VintageApp do
 
   def init(opts) do
     nics = Keyword.fetch!(opts, :nics)
-    state = Panel.init(opts ++ [focused: true, root: true])
+    size = Keyword.fetch!(opts, :size)
+    state = Panel.init(size: size, focused: true, root: true)
     ids = %{}
     {state, _} = Panel.append(state, Label, text: "Network Settings")
     {state, _} = Panel.append(state, Frame, origin: {0, 2}, size: {12, 8}, title: "NICs")

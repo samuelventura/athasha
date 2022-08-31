@@ -26,7 +26,7 @@ Node.start :"code@172.31.255.10"
 Node.set_cookie :COOKIE
 Node.connect :"target@172.31.255.9"
 System.put_env("VintageNode", "target@172.31.255.9")
-{:ok, pid} = Terminal.Runner.start_link {Teletype.Tty, "/tmp/slave.pts"}, Terminal.Code, {VintageApp, nics: VintageApi.available_nics()}
+{:ok, pid} = Terminal.Runner.start_link tty: {Teletype.Tty, "/tmp/slave.pts"}, term: Terminal.Code, app: {VintageApp, nics: VintageApi.available_nics()}
 Process.exit pid, :kill
 System.cmd "killall",["master"]
 # socat file:/dev/tty,icanon=0,echo=0,min=0,escape=0x03 tcp-l:8880,reuseaddr
@@ -43,6 +43,5 @@ System.cmd "killall",["master"]
 #
 # echo -en "\033[1mThis is bold text.\033[0m" | nc 127.0.0.1 8880
 # to test server end honors escapes
-{:ok, pid} = Terminal.Runner.start_link {Terminal.Socket, ip: "127.0.0.1", port: 8880}, Terminal.Code, {VintageApp, nics: VintageApi.available_nics()}
-{:ok, pid} = Terminal.Runner.start_link {Terminal.Socket, ip: "127.0.0.1", port: 8880}, Terminal.Code, {Terminal.Demo, []}
+{:ok, pid} = Terminal.Runner.start_link tty: {Terminal.Socket, ip: "127.0.0.1", port: 8880}, term: Terminal.Code, app: {VintageApp, nics: VintageApi.available_nics()}
 ```

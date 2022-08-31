@@ -1,8 +1,12 @@
 defmodule TerminalTest do
   use ExUnit.Case
-  doctest Terminal
+  alias Terminal.Canvas
 
-  test "greets the world" do
-    assert Terminal.hello() == :world
+  test "canvas basic check" do
+    c1 = Canvas.new(10, 10)
+    {w, h} = Canvas.get(c1, :size)
+    c2 = Canvas.new(w, h)
+    d = Canvas.diff(c1, c2)
+    assert d == []
   end
 end

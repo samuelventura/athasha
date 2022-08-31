@@ -3,18 +3,18 @@ defmodule Terminal.Runner do
   alias Terminal.App
   alias Terminal.Canvas
 
-  def child_spec(tty: tty, term: term, app: app) do
+  def child_spec(opts) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, [tty, term, app]}
+      start: {__MODULE__, :start_link, opts}
     }
   end
 
-  def start_link(tty, term, app) do
-    Task.start_link(fn -> run(tty, term, app) end)
+  def start_link(opts) do
+    Task.start_link(fn -> run(opts) end)
   end
 
-  def run(tty, term, app) do
+  def run(tty: tty, term: term, app: app) do
     tty = Tty.open(tty)
     tty = init_tty(tty, term)
     {tty, size} = query_size(tty, term)

@@ -94,10 +94,13 @@ defmodule Terminal.Panel do
 
   def handle(state, _event), do: {state, nil}
 
-  def append(state, module, opts \\ []) do
-    %{theme: theme, count: count} = state
+  def append(%{theme: theme} = state, module, opts) do
     opts = opts ++ [theme: theme]
     mote = {module, module.init(opts)}
+    append(state, mote)
+  end
+
+  def append(%{count: count} = state, mote) do
     state = Map.put(state, :count, count + 1)
     state = Map.update!(state, :index, &[count | &1])
     state = Map.put(state, count, mote)
