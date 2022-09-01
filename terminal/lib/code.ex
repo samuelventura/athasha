@@ -160,12 +160,10 @@ defmodule Terminal.Code do
   end
 
   defp scan(<<k>> <> _) do
-    nil
-    |> singles(<<k>>)
-    |> default({<<k>>, {:key, 0, <<k>>}})
+    singles(<<k>>) |> default({<<k>>, {:key, 0, <<k>>}})
   end
 
-  defp singles(nil, single) do
+  defp singles(single) do
     case Map.get(@singles_map, single) do
       nil ->
         nil
@@ -175,8 +173,6 @@ defmodule Terminal.Code do
         {single, {:key, flag, key}}
     end
   end
-
-  defp singles(prev, _), do: prev
 
   defp mouse(nil, buffer, regex) do
     case Regex.run(regex, buffer) do
@@ -190,8 +186,6 @@ defmodule Terminal.Code do
         nil
     end
   end
-
-  defp mouse(prev, _, _), do: prev
 
   defp mouse_ex(nil, buffer, regex, name) do
     case Regex.run(regex, buffer) do

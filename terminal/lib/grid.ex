@@ -1,6 +1,6 @@
 defmodule Terminal.Grid do
   @behaviour Terminal.Window
-  import Terminal.Imports
+  @behaviour Terminal.Container
   alias Terminal.Panel
 
   def init(opts) do
@@ -17,20 +17,25 @@ defmodule Terminal.Grid do
     Map.put(state, :columns, columns)
   end
 
-  defdelegate update(state, name, value), to: Panel
-  defdelegate select(state, name, value), to: Panel
+  defdelegate count(state), to: Panel
+  defdelegate bounds(state), to: Panel
+  defdelegate bounds(state, rect), to: Panel
+  defdelegate focusable(state), to: Panel
+  defdelegate focused(state, focused), to: Panel
+  defdelegate findex(state), to: Panel
+
   defdelegate handle(state, event), to: Panel
   defdelegate render(state, canvas), to: Panel
 
-  def append(state, module, opts \\ []) do
-    %{columns: columns} = state
-    {state, id} = Panel.append(state, module, opts)
+  def append(%{columns: columns} = state, mote) do
+    id = Panel.count(state) + 1
     count = columns.count
     column = rem(id, count)
     row = div(id, count)
     {width, x} = Map.get(columns, column)
-    state = id_update(state, id, :origin, {x, row})
-    state = id_update(state, id, :size, {width, 1})
-    {state, id}
+    mote = mote_bounds(mote, {x, row, width, 1})
+    Panel.append(state, mote)
   end
+
+  defp mote_bounds({module, state}, rect), do: module.bounds(state, rect)
 end

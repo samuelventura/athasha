@@ -27,11 +27,11 @@ defmodule Terminal.Input do
     }
   end
 
-  def update(state, :text, text), do: %{state | text: text, cursor: String.length(text)}
-  def update(state, name, value), do: Map.put(state, name, value)
-  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
-  def select(%{findex: findex, enabled: enabled}, :focusable, _), do: findex >= 0 && enabled
-  def select(state, name, value), do: Map.get(state, name, value)
+  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
+  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
+  def focusable(%{findex: findex, enabled: enabled}), do: findex >= 0 && enabled
+  def focused(state, focused), do: Map.put(state, :focused, focused)
+  def findex(%{findex: findex}), do: findex
 
   def handle(state, {:key, _, "\t"}), do: {state, {:focus, :next}}
   def handle(state, {:key, _, "\r"}), do: {state, {:focus, :next}}

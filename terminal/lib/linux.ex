@@ -151,12 +151,10 @@ defmodule Terminal.Linux do
   end
 
   defp scan(<<k>> <> _) do
-    nil
-    |> singles(<<k>>)
-    |> default({<<k>>, {:key, 0, <<k>>}})
+    singles(<<k>>) |> default({<<k>>, {:key, 0, <<k>>}})
   end
 
-  defp singles(nil, single) do
+  defp singles(single) do
     case Map.get(@singles_map, single) do
       nil ->
         nil
@@ -166,8 +164,6 @@ defmodule Terminal.Linux do
         {single, {:key, flag, key}}
     end
   end
-
-  defp singles(prev, _), do: prev
 
   defp escapes(nil, buffer) do
     Enum.find_value(@escapes, fn {prefix, code} ->
@@ -180,8 +176,6 @@ defmodule Terminal.Linux do
       end
     end)
   end
-
-  defp escapes(prev, _), do: prev
 
   defp resize(nil, buffer) do
     case Regex.run(@resize, buffer) do

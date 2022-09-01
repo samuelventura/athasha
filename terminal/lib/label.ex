@@ -21,9 +21,12 @@ defmodule Terminal.Label do
     }
   end
 
-  def update(state, name, value), do: Map.put(state, name, value)
-  def select(%{origin: {x, y}, size: {w, h}}, :bounds, _), do: {x, y, w, h}
-  def select(state, name, value), do: Map.get(state, name, value)
+  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
+  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
+  def focused(state, focused), do: Map.put(state, :focused, focused)
+  def focusable(_), do: false
+  def findex(_), do: -1
+
   def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do

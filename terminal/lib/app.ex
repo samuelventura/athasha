@@ -1,8 +1,8 @@
 defmodule Terminal.App do
-  @callback init(opts :: any()) :: {any(), any()}
-  @callback handle(state :: any(), event :: any()) :: {any(), any()}
-  @callback render(state :: any(), canvas :: any()) :: any()
-  @callback execute(cmd :: any()) :: any()
+  @callback init(opts :: any()) :: {state :: any(), cmd :: any()}
+  @callback handle(state :: any(), event :: any()) :: {state :: any(), cmd :: any()}
+  @callback render(state :: any(), canvas :: any()) :: canvas :: any()
+  @callback execute(cmd :: any()) :: result :: any()
 
   def init({module, opts}, extras \\ []) do
     {state, cmd} = module.init(opts ++ extras)
