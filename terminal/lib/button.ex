@@ -11,6 +11,7 @@ defmodule Terminal.Button do
     origin = Keyword.get(opts, :origin, {0, 0})
     theme = Keyword.get(opts, :theme, :default)
     findex = Keyword.get(opts, :findex, 0)
+    on_click = Keyword.get(opts, :on_click, nil)
 
     %{
       focused: focused,
@@ -19,7 +20,8 @@ defmodule Terminal.Button do
       theme: theme,
       size: size,
       text: text,
-      origin: origin
+      origin: origin,
+      on_click: on_click
     }
   end
 
@@ -30,7 +32,7 @@ defmodule Terminal.Button do
   def findex(%{findex: findex}), do: findex
 
   def handle(state, {:key, _, "\t"}), do: {state, {:focus, :next}}
-  def handle(%{text: text} = state, {:key, _, "\r"}), do: {state, {:click, text}}
+  def handle(%{on_click: on_click} = state, {:key, _, "\n"}), do: {state, on_click.()}
   def handle(state, _event), do: {state, nil}
 
   def render(state, canvas) do

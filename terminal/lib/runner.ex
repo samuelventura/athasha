@@ -56,12 +56,12 @@ defmodule Terminal.Runner do
             # glitch on horizontal resize because of auto line wrapping
             {tty, canvas} =
               case find_resize(events) do
-                nil ->
-                  {tty, canvas}
-
                 {:resize, width, height} ->
                   tty = init_tty(tty, term)
                   canvas = Canvas.new(width, height)
+                  {tty, canvas}
+
+                _ ->
                   {tty, canvas}
               end
 
@@ -99,10 +99,17 @@ defmodule Terminal.Runner do
   defp query_size(tty, term) do
     query = term.query(:size)
     tty = Tty.write!(tty, query)
+    wait_size(tty, term)
+  end
+
+  defp wait_size(tty, term) do
     {tty, data} = Tty.read!(tty)
-    {"", [event]} = term.append("", data)
-    {:resize, w, h} = event
-    {tty, {w, h}}
+    {"", events} = term.append("", data)
+    # ignores buffered events
+    case find_resize(events) do
+      {:resize, w, h} -> {tty, {w, h}}
+      _ -> wait_size(tty, term)
+    end
   end
 
   defp execute_cmd(_, nil), do: nil
