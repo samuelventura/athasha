@@ -8,4 +8,6 @@ alias Terminal.Socket
 alias Terminal.Imports
 alias Terminal.Linux
 alias Terminal.Code
+alias Terminal.React
+alias Terminal.State
 alias Terminal.Demo

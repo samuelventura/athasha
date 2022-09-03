@@ -1,36 +1,35 @@
 defmodule Terminal.Demo do
-  @behaviour Terminal.App
+  use Terminal.React.App
   alias Terminal.Panel
   alias Terminal.Button
   alias Terminal.Label
-  alias Terminal.React
-  import Terminal.React
 
   def init(opts) do
     size = Keyword.fetch!(opts, :size)
-    React.init(&counter/2, size: size)
+    app_init(&counter/2, size: size)
   end
 
-  defdelegate handle(state, event), to: React
-  defdelegate render(state, canvas), to: React
-  defdelegate execute(cmd), to: React
-
   def counter(react, %{size: size}) do
-    {count, set_count} = use_state(react, 0)
+    {count, set_count} = use_state(react, :count, 0)
 
-    on_click = fn ->
-      IO.inspect(count)
-      set_count.(count + 1)
-    end
+    increment = fn -> set_count.(count + 1) end
+    decrement = fn -> set_count.(count - 1) end
 
-    markup Panel, size: size do
-      markup(Label, origin: {0, 0}, size: {12, 1}, text: "#{count}")
+    markup :panel, Panel, size: size do
+      markup(:label, Label, origin: {0, 0}, size: {12, 1}, text: "#{count}")
 
-      markup(Button,
+      markup(:inc, Button,
         origin: {0, 1},
         size: {12, 1},
         text: "Increment",
-        on_click: on_click
+        on_click: increment
+      )
+
+      markup(:dec, Button,
+        origin: {0, 2},
+        size: {12, 1},
+        text: "Decrement",
+        on_click: decrement
       )
     end
   end
