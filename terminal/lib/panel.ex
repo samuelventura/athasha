@@ -10,7 +10,6 @@ defmodule Terminal.Panel do
     enabled = Keyword.get(opts, :enabled, true)
     focused = Keyword.get(opts, :focused, false)
     findex = Keyword.get(opts, :findex, 0)
-    focus = Keyword.get(opts, :focus, -1)
     root = Keyword.get(opts, :root, false)
 
     %{
@@ -21,26 +20,48 @@ defmodule Terminal.Panel do
       focused: focused,
       findex: findex,
       children: %{},
-      focus: focus,
+      focus: nil,
       size: size,
-      count: 0,
       index: []
     }
+  end
+
+  def children(%{index: index, children: children}) do
+    for id <- index, reduce: [] do
+      list -> [{id, children[id]} | list]
+    end
+  end
+
+  def children(state, children) do
+    {index, children} =
+      for {id, child} <- children, reduce: {[], %{}} do
+        {index, map} ->
+          {[id | index], Map.put(map, id, child)}
+      end
+
+    state = Map.put(state, :children, children)
+    state = Map.put(state, :index, index)
+    focus_update(state)
+  end
+
+  def update(state, props) do
+    props = Enum.into(props, %{})
+    Map.merge(state, props)
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
   def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
   def focused(state, focused), do: Map.put(state, :focused, focused)
   def findex(%{findex: findex}), do: findex
-  def count(%{count: count}), do: count
+  def count(_), do: 0
 
   def focusable(%{children: children} = state) do
     %{findex: findex, enabled: enabled, index: index} = state
 
     count =
-      for i <- index, reduce: 0 do
+      for id <- index, reduce: 0 do
         count ->
-          mote = Map.get(children, i)
+          mote = Map.get(children, id)
 
           case mote_focusable(mote) do
             false -> count
@@ -61,7 +82,7 @@ defmodule Terminal.Panel do
   end
 
   # strict to catch focus handling bugs
-  def handle(%{focus: -1} = state, {:key, _, _}), do: {state, nil}
+  def handle(%{focus: nil} = state, {:key, _, _}), do: {state, nil}
 
   def handle(%{focus: focus, root: root} = state, {:key, _, _} = event) do
     mote = get_child(state, focus)
@@ -83,10 +104,10 @@ defmodule Terminal.Panel do
 
           _ ->
             mote = mote_focused(mote, false)
-            state = Map.put(state, focus, mote)
+            state = put_in(state, [:children, focus], mote)
             mote = get_child(state, next)
             mote = mote_focused(mote, true)
-            state = Map.put(state, next, mote)
+            state = put_in(state, [:children, next], mote)
             {Map.put(state, :focus, next), nil}
         end
 
@@ -97,8 +118,8 @@ defmodule Terminal.Panel do
 
   def handle(state, _event), do: {state, nil}
 
-  def render(%{children: children} = state, canvas) do
-    for id <- Enum.reverse(state.index), reduce: canvas do
+  def render(%{index: index, children: children}, canvas) do
+    for id <- Enum.reverse(index), reduce: canvas do
       canvas ->
         mote = Map.get(children, id)
         bounds = mote_bounds(mote)
@@ -114,15 +135,15 @@ defmodule Terminal.Panel do
     index = focus_list(state)
 
     {next, _} =
-      for i <- index, reduce: {nil, false} do
+      for id <- index, reduce: {nil, false} do
         {nil, true} ->
-          {i, true}
+          {id, true}
 
         {next, true} ->
           {next, true}
 
         {_, false} ->
-          case i do
+          case id do
             ^focus -> {nil, true}
             _ -> {nil, false}
           end
@@ -141,9 +162,9 @@ defmodule Terminal.Panel do
     Enum.sort(index, &focus_compare(state, &1, &2))
   end
 
-  defp focus_compare(state, i1, i2) do
-    fi1 = child_findex(state, i1)
-    fi2 = child_findex(state, i2)
+  defp focus_compare(state, id1, id2) do
+    fi1 = child_findex(state, id1)
+    fi2 = child_findex(state, id2)
     fi1 <= fi2
   end
 
@@ -159,7 +180,7 @@ defmodule Terminal.Panel do
 
     case {index, mote, enabled && focused} do
       {[], nil, true} ->
-        %{state | focus: -1}
+        %{state | focus: nil}
 
       {_, nil, true} ->
         [focus | _] = index
@@ -169,11 +190,11 @@ defmodule Terminal.Panel do
         put_child(state, focus, mote)
 
       {_, nil, false} ->
-        %{state | focus: -1}
+        %{state | focus: nil}
 
       {_, _, false} ->
         mote = mote_focused(mote, false)
-        state = %{state | focus: -1}
+        state = %{state | focus: nil}
         put_child(state, focus, mote)
 
       _ ->

@@ -1,5 +1,5 @@
 defmodule Terminal.Demo do
-  use Terminal.React.App
+  use Terminal.Reapp
   alias Terminal.Panel
   alias Terminal.Button
   alias Terminal.Label

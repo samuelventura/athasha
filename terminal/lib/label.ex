@@ -21,6 +21,14 @@ defmodule Terminal.Label do
     }
   end
 
+  def children(_state), do: []
+  def children(state, _), do: state
+
+  def update(state, props) do
+    props = Enum.into(props, %{})
+    Map.merge(state, props)
+  end
+
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
   def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
   def focused(state, focused), do: Map.put(state, :focused, focused)
