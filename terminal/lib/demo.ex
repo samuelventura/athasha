@@ -1,5 +1,5 @@
 defmodule Terminal.Demo do
-  use Terminal.Reapp
+  use Terminal.App
   alias Terminal.Panel
   alias Terminal.Button
   alias Terminal.Label
@@ -21,6 +21,7 @@ defmodule Terminal.Demo do
       markup(:inc, Button,
         origin: {0, 1},
         size: {12, 1},
+        enabled: rem(count, 3) != 2,
         text: "Increment",
         on_click: increment
       )
@@ -29,6 +30,7 @@ defmodule Terminal.Demo do
         origin: {0, 2},
         size: {12, 1},
         text: "Decrement",
+        enabled: rem(count, 3) != 0,
         on_click: decrement
       )
     end

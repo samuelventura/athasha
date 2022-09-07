@@ -6,6 +6,7 @@ defmodule Terminal.Radio do
   def init(opts) do
     items = Keyword.get(opts, :items, [])
     size = Keyword.get(opts, :size, {0, 0})
+    visible = Keyword.get(opts, :visible, true)
     focused = Keyword.get(opts, :focused, false)
     enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
@@ -20,23 +21,34 @@ defmodule Terminal.Radio do
       end
 
     %{
-      size: size,
-      theme: theme,
       focused: focused,
-      findex: findex,
-      enabled: enabled,
       count: count,
       items: items,
+      size: size,
+      theme: theme,
+      visible: visible,
+      findex: findex,
+      enabled: enabled,
       origin: origin,
       selected: selected
     }
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
-  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
-  def focusable(%{findex: findex, enabled: enabled}), do: findex >= 0 && enabled
+  def focusable(%{enabled: false}), do: false
+  def focusable(%{visible: false}), do: false
+  def focusable(%{findex: findex}), do: findex >= 0
+  def focused(%{focused: focused}), do: focused
   def focused(state, focused), do: Map.put(state, :focused, focused)
   def findex(%{findex: findex}), do: findex
+  def children(_state), do: []
+  def children(state, _), do: state
+
+  def update(state, props) do
+    props = Enum.into(props, %{})
+    props = Map.drop(props, [:focused, :count, :items])
+    Map.merge(state, props)
+  end
 
   def handle(state, {:key, _, :arrow_right}) do
     %{items: items, count: count, selected: selected} = state
@@ -65,6 +77,8 @@ defmodule Terminal.Radio do
   end
 
   def handle(state, _event), do: {state, nil}
+
+  def render(%{visible: false}, canvas), do: canvas
 
   def render(state, canvas) do
     %{

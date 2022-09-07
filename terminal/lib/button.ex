@@ -6,6 +6,7 @@ defmodule Terminal.Button do
   def init(opts) do
     text = Keyword.get(opts, :text, "")
     size = Keyword.get(opts, :size, {String.length(text) + 2, 1})
+    visible = Keyword.get(opts, :visible, true)
     focused = Keyword.get(opts, :focused, false)
     enabled = Keyword.get(opts, :enabled, true)
     origin = Keyword.get(opts, :origin, {0, 0})
@@ -15,6 +16,7 @@ defmodule Terminal.Button do
 
     %{
       focused: focused,
+      visible: visible,
       enabled: enabled,
       findex: findex,
       theme: theme,
@@ -25,23 +27,27 @@ defmodule Terminal.Button do
     }
   end
 
+  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
+  def focusable(%{enabled: false}), do: false
+  def focusable(%{visible: false}), do: false
+  def focusable(%{findex: findex}), do: findex >= 0
+  def focused(%{focused: focused}), do: focused
+  def focused(state, focused), do: Map.put(state, :focused, focused)
+  def findex(%{findex: findex}), do: findex
   def children(_state), do: []
   def children(state, _), do: state
 
   def update(state, props) do
     props = Enum.into(props, %{})
+    props = Map.drop(props, [:focused])
     Map.merge(state, props)
   end
-
-  def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
-  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
-  def focusable(%{findex: findex, enabled: enabled}), do: findex >= 0 && enabled
-  def focused(state, focused), do: Map.put(state, :focused, focused)
-  def findex(%{findex: findex}), do: findex
 
   def handle(state, {:key, _, "\t"}), do: {state, {:focus, :next}}
   def handle(%{on_click: on_click} = state, {:key, _, "\n"}), do: {state, on_click.()}
   def handle(state, _event), do: {state, nil}
+
+  def render(%{visible: false}, canvas), do: canvas
 
   def render(state, canvas) do
     %{

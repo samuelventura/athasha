@@ -1,24 +1,72 @@
 defmodule Terminal.App do
-  @callback init(opts :: any()) :: {state :: any(), cmd :: any()}
-  @callback handle(state :: any(), event :: any()) :: {state :: any(), cmd :: any()}
-  @callback render(state :: any(), canvas :: any()) :: canvas :: any()
-  @callback execute(cmd :: any()) :: result :: any()
+  alias Terminal.State
+  alias Terminal.App
 
-  def init({module, opts}, extras \\ []) do
-    {state, cmd} = module.init(opts ++ extras)
-    {{module, state}, cmd}
+  defmacro __using__(_opts) do
+    quote do
+      @behaviour Terminal.Runnable
+      import Terminal.React
+      import Terminal.App, only: [app_init: 2]
+      defdelegate handle(state, event), to: App
+      defdelegate render(state, canvas), to: App
+      defdelegate execute(cmd), to: App
+    end
   end
 
-  def handle({module, state}, event) do
+  defdelegate app_init(function, props), to: App, as: :init
+
+  def init(func, opts) do
+    opts = Enum.into(opts, %{})
+    react = State.init()
+    markup = func.(react, opts)
+    {key, mote} = realize(react, markup, %{}, focused: true, root: true)
+    state = %{func: func, opts: opts, key: key, mote: mote, react: react}
+    {state, nil}
+  end
+
+  def handle(%{func: func, opts: opts, key: key, mote: mote, react: react}, event) do
+    {mote, _} = mote_handle(mote, event)
+    current = mote_to_map(mote, [key], %{})
+    State.reset(react)
+    markup = func.(react, opts)
+    {key, mote} = realize(react, markup, current, focused: true, root: true)
+    state = %{func: func, opts: opts, key: key, mote: mote, react: react}
+    {state, nil}
+  end
+
+  def render(%{mote: {module, substate}}, canvas), do: module.render(substate, canvas)
+  def execute(_cmd), do: nil
+
+  defp mote_to_map({module, state}, keys, map) do
+    map =
+      for {key, mote} <- module.children(state), reduce: map do
+        map -> mote_to_map(mote, [key | keys], map)
+      end
+
+    Map.put(map, keys, {module, state})
+  end
+
+  defp mote_handle({module, state}, event) do
     {state, cmd} = module.handle(state, event)
     {{module, state}, cmd}
   end
 
-  def render({module, state}, canvas) do
-    module.render(state, canvas)
-  end
+  defp realize(react, markup, current, extras \\ []) do
+    {key, module, opts, inner} = markup
+    keys = State.push(react, key)
+    inner = for item <- inner, do: realize(react, item, current)
+    State.pop(react)
 
-  def execute({module, _state}, cmd) do
-    module.execute(cmd)
+    state =
+      case Map.get(current, keys) do
+        {^module, state} ->
+          module.update(state, opts)
+
+        _ ->
+          module.init(opts ++ extras)
+      end
+
+    state = module.children(state, inner)
+    {key, {module, state}}
   end
 end

@@ -1,6 +1,5 @@
 defmodule Terminal.Panel do
   @behaviour Terminal.Window
-  @behaviour Terminal.Container
   alias Terminal.Canvas
 
   def init(opts) do
@@ -8,21 +7,23 @@ defmodule Terminal.Panel do
     origin = Keyword.get(opts, :origin, {0, 0})
     size = Keyword.get(opts, :size, {0, 0})
     enabled = Keyword.get(opts, :enabled, true)
+    visible = Keyword.get(opts, :visible, true)
     focused = Keyword.get(opts, :focused, false)
     findex = Keyword.get(opts, :findex, 0)
     root = Keyword.get(opts, :root, false)
 
     %{
       root: root,
-      origin: origin,
-      theme: theme,
-      enabled: enabled,
-      focused: focused,
-      findex: findex,
+      index: [],
       children: %{},
       focus: nil,
-      size: size,
-      index: []
+      focused: focused,
+      theme: theme,
+      origin: origin,
+      visible: visible,
+      enabled: enabled,
+      findex: findex,
+      size: size
     }
   end
 
@@ -46,17 +47,26 @@ defmodule Terminal.Panel do
 
   def update(state, props) do
     props = Enum.into(props, %{})
-    Map.merge(state, props)
+    props = Map.drop(props, [:root, :children, :focus, :index, :focused])
+    state = Map.merge(state, props)
+    focus_update(state)
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
   def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
-  def focused(state, focused), do: Map.put(state, :focused, focused)
+  def focused(state, focused), do: Map.put(state, :focused, focused) |> focus_update
+  def focused(%{focused: focused}), do: focused
   def findex(%{findex: findex}), do: findex
   def count(_), do: 0
 
-  def focusable(%{children: children} = state) do
-    %{findex: findex, enabled: enabled, index: index} = state
+  def focusable(state) do
+    %{
+      children: children,
+      enabled: enabled,
+      visible: visible,
+      findex: findex,
+      index: index
+    } = state
 
     count =
       for id <- index, reduce: 0 do
@@ -69,19 +79,9 @@ defmodule Terminal.Panel do
           end
       end
 
-    findex >= 0 && enabled && count > 0
+    findex >= 0 && visible && enabled && count > 0
   end
 
-  def append(%{count: count, children: children} = state, mote) do
-    state = Map.put(state, :count, count + 1)
-    state = Map.update!(state, :index, &[count | &1])
-    children = Map.put(children, count, mote)
-    state = Map.put(state, :children, children)
-    state = focus_update(state)
-    {state, count}
-  end
-
-  # strict to catch focus handling bugs
   def handle(%{focus: nil} = state, {:key, _, _}), do: {state, nil}
 
   def handle(%{focus: focus, root: root} = state, {:key, _, _} = event) do
@@ -90,7 +90,7 @@ defmodule Terminal.Panel do
 
     case event do
       {:focus, :next} ->
-        {first, next} = focus_next(state)
+        {first, next} = focus_next(state, focus)
 
         next =
           case {root, next} do
@@ -104,10 +104,10 @@ defmodule Terminal.Panel do
 
           _ ->
             mote = mote_focused(mote, false)
-            state = put_in(state, [:children, focus], mote)
+            state = put_child(state, focus, mote)
             mote = get_child(state, next)
             mote = mote_focused(mote, true)
-            state = put_in(state, [:children, next], mote)
+            state = put_child(state, next, mote)
             {Map.put(state, :focus, next), nil}
         end
 
@@ -117,6 +117,8 @@ defmodule Terminal.Panel do
   end
 
   def handle(state, _event), do: {state, nil}
+
+  def render(%{visible: false}, canvas), do: canvas
 
   def render(%{index: index, children: children}, canvas) do
     for id <- Enum.reverse(index), reduce: canvas do
@@ -130,28 +132,30 @@ defmodule Terminal.Panel do
     end
   end
 
-  defp focus_next(state) do
-    %{focus: focus} = state
+  defp focus_next(state, focus) do
     index = focus_list(state)
 
-    {next, _} =
-      for id <- index, reduce: {nil, false} do
-        {nil, true} ->
-          {id, true}
-
-        {next, true} ->
-          {next, true}
-
-        {_, false} ->
-          case id do
-            ^focus -> {nil, true}
-            _ -> {nil, false}
-          end
-      end
-
     case index do
-      [] -> {nil, next}
-      [first | _] -> {first, next}
+      [] ->
+        {nil, nil}
+
+      [first | _] ->
+        {next, _} =
+          for id <- index, reduce: {nil, false} do
+            {nil, true} ->
+              {id, true}
+
+            {next, true} ->
+              {next, true}
+
+            {_, false} ->
+              case id do
+                ^focus -> {nil, true}
+                _ -> {nil, false}
+              end
+          end
+
+        {first, next}
     end
   end
 
@@ -170,32 +174,63 @@ defmodule Terminal.Panel do
 
   defp focus_update(state) do
     %{
+      visible: visible,
       enabled: enabled,
       focused: focused,
       focus: focus
     } = state
 
-    index = focus_list(state)
-    mote = get_child(state, focus)
+    expected = visible && enabled && focused
 
-    case {index, mote, enabled && focused} do
-      {[], nil, true} ->
-        %{state | focus: nil}
+    {state, focus} =
+      case focus do
+        nil ->
+          {state, nil}
 
-      {_, nil, true} ->
-        [focus | _] = index
-        mote = get_child(state, focus)
-        mote = mote_focused(mote, true)
-        state = Map.put(state, :focus, focus)
-        put_child(state, focus, mote)
+        _ ->
+          case get_child(state, focus) do
+            nil ->
+              state = Map.put(state, :focus, nil)
+              {state, nil}
 
-      {_, nil, false} ->
-        %{state | focus: nil}
+            mote ->
+              focused = mote_focused(mote)
+              focusable = mote_focusable(mote)
 
-      {_, _, false} ->
-        mote = mote_focused(mote, false)
-        state = %{state | focus: nil}
-        put_child(state, focus, mote)
+              case {focusable && expected, focused} do
+                {false, false} ->
+                  state = Map.put(state, :focus, nil)
+                  {state, nil}
+
+                {false, true} ->
+                  mote = mote_focused(mote, false)
+                  state = put_child(state, focus, mote)
+                  state = Map.put(state, :focus, nil)
+                  {state, nil}
+
+                {true, false} ->
+                  mote = mote_focused(mote, true)
+                  state = put_child(state, focus, mote)
+                  {state, focus}
+
+                {true, true} ->
+                  {state, focus}
+              end
+          end
+      end
+
+    case {expected, focus} do
+      {true, nil} ->
+        case focus_list(state) do
+          [] ->
+            state
+
+          [focus | _] ->
+            mote = get_child(state, focus)
+            mote = mote_focused(mote, true)
+            state = put_child(state, focus, mote)
+            Map.put(state, :focus, focus)
+        end
 
       _ ->
         state
@@ -204,11 +239,12 @@ defmodule Terminal.Panel do
 
   defp get_child(state, id), do: get_in(state, [:children, id])
   defp put_child(state, id, child), do: put_in(state, [:children, id], child)
-  defp mote_bounds({module, state}), do: module.bounds(state)
   defp child_focusable(state, id), do: mote_focusable(get_child(state, id))
   defp child_findex(state, id), do: mote_findex(get_child(state, id))
+  defp mote_bounds({module, state}), do: module.bounds(state)
   defp mote_findex({module, state}), do: module.findex(state)
   defp mote_focusable({module, state}), do: module.focusable(state)
+  defp mote_focused({module, state}), do: module.focused(state)
   defp mote_focused({module, state}, focused), do: {module, module.focused(state, focused)}
   defp mote_render({module, state}, canvas), do: module.render(state, canvas)
 

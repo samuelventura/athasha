@@ -1,6 +1,6 @@
 defmodule Terminal.Runner do
   alias Terminal.Tty
-  alias Terminal.App
+  alias Terminal.Runnable
   alias Terminal.Canvas
 
   def child_spec(opts) do
@@ -20,7 +20,7 @@ defmodule Terminal.Runner do
     {tty, size} = query_size(tty, term)
     {width, height} = size
     canvas = Canvas.new(width, height)
-    {app, cmd} = App.init(app, size: size)
+    {app, cmd} = Runnable.init(app, size: size)
     execute_cmd(app, cmd)
     {tty, canvas} = render(tty, term, app, canvas)
     loop(tty, term, "", app, canvas)
@@ -82,7 +82,7 @@ defmodule Terminal.Runner do
   end
 
   defp apply_event(app, event) do
-    {app, cmd} = App.handle(app, event)
+    {app, cmd} = Runnable.handle(app, event)
     execute_cmd(app, cmd)
     app
   end
@@ -119,7 +119,7 @@ defmodule Terminal.Runner do
 
     spawn(fn ->
       try do
-        res = App.execute(app, cmd)
+        res = Runnable.execute(app, cmd)
         send(self, {:cmd, cmd, res})
       rescue
         e ->
@@ -131,7 +131,7 @@ defmodule Terminal.Runner do
   defp render(tty, term, app, canvas1) do
     {width, size} = Canvas.get(canvas1, :size)
     canvas2 = Canvas.new(width, size)
-    canvas2 = App.render(app, canvas2)
+    canvas2 = Runnable.render(app, canvas2)
     {cursor1, _, _} = Canvas.get(canvas1, :cursor)
     {cursor2, _, _} = Canvas.get(canvas2, :cursor)
     diff = Canvas.diff(canvas1, canvas2)

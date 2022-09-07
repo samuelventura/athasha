@@ -5,8 +5,9 @@ defmodule Terminal.Frame do
 
   def init(opts) do
     size = Keyword.get(opts, :size, {0, 0})
-    title = Keyword.get(opts, :title, "")
+    text = Keyword.get(opts, :text, "")
     style = Keyword.get(opts, :style, :single)
+    visible = Keyword.get(opts, :visible, true)
     bracket = Keyword.get(opts, :bracket, false)
     origin = Keyword.get(opts, :origin, {0, 0})
     theme = Keyword.get(opts, :theme, :default)
@@ -17,8 +18,9 @@ defmodule Terminal.Frame do
     %{
       size: size,
       style: style,
+      visible: visible,
       bracket: bracket,
-      title: title,
+      text: text,
       origin: origin,
       bgcolor: bgcolor,
       fgcolor: fgcolor
@@ -26,19 +28,28 @@ defmodule Terminal.Frame do
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
-  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
-  def focused(state, focused), do: Map.put(state, :focused, focused)
+  def focused(state, _), do: state
+  def focused(_), do: false
   def focusable(_), do: false
   def findex(_), do: -1
+  def children(_state), do: []
+  def children(state, _), do: state
+
+  def update(state, props) do
+    props = Enum.into(props, %{})
+    Map.merge(state, props)
+  end
 
   def handle(state, _event), do: {state, nil}
+
+  def render(%{visible: false}, canvas), do: canvas
 
   def render(state, canvas) do
     %{
       bracket: bracket,
       style: style,
       size: {width, height},
-      title: title,
+      text: text,
       bgcolor: bgcolor,
       fgcolor: fgcolor
     } = state
@@ -80,13 +91,13 @@ defmodule Terminal.Frame do
 
     canvas = Canvas.move(canvas, 1, 0)
 
-    title =
+    text =
       case bracket do
-        true -> "[#{title}]"
-        false -> " #{title} "
+        true -> "[#{text}]"
+        false -> " #{text} "
       end
 
-    Canvas.write(canvas, title)
+    Canvas.write(canvas, text)
   end
 
   # https://en.wikipedia.org/wiki/Box-drawing_character

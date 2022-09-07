@@ -6,6 +6,7 @@ defmodule Terminal.Input do
   def init(opts) do
     text = Keyword.get(opts, :text, "")
     size = Keyword.get(opts, :size, {String.length(text), 1})
+    visible = Keyword.get(opts, :visible, true)
     focused = Keyword.get(opts, :focused, false)
     enabled = Keyword.get(opts, :enabled, true)
     theme = Keyword.get(opts, :theme, :default)
@@ -18,6 +19,7 @@ defmodule Terminal.Input do
       focused: focused,
       cursor: cursor,
       findex: findex,
+      visible: visible,
       enabled: enabled,
       password: password,
       theme: theme,
@@ -28,13 +30,24 @@ defmodule Terminal.Input do
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
-  def bounds(state, {x, y, w, h}), do: state |> Map.put(:size, {w, h}) |> Map.put(:origin, {x, y})
-  def focusable(%{findex: findex, enabled: enabled}), do: findex >= 0 && enabled
+  def focusable(%{enabled: false}), do: false
+  def focusable(%{visible: false}), do: false
+  def focusable(%{findex: findex}), do: findex >= 0
+  def focused(%{focused: focused}), do: focused
   def focused(state, focused), do: Map.put(state, :focused, focused)
   def findex(%{findex: findex}), do: findex
+  def children(_state), do: []
+  def children(state, _), do: state
+
+  def update(state, props) do
+    props = Enum.into(props, %{})
+    props = Map.drop(props, [:focused])
+    Map.merge(state, props)
+  end
 
   def handle(state, {:key, _, "\t"}), do: {state, {:focus, :next}}
   def handle(state, {:key, _, "\r"}), do: {state, {:focus, :next}}
+  def handle(state, {:key, _, "\n"}), do: {state, {:focus, :next}}
 
   def handle(%{cursor: cursor} = state, {:key, _, :arrow_left}) do
     cursor = if cursor > 0, do: cursor - 1, else: cursor
@@ -105,6 +118,8 @@ defmodule Terminal.Input do
   end
 
   def handle(state, _event), do: {state, nil}
+
+  def render(%{visible: false}, canvas), do: canvas
 
   def render(state, canvas) do
     %{
