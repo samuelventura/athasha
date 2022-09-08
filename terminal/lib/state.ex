@@ -28,7 +28,7 @@ defmodule Terminal.State do
 
   def use(agent, key, value) do
     Agent.get_and_update(agent, fn {keys, map1, map2} ->
-      if Map.has_key?(map1, key), do: raise("Duplicated key: #{key}")
+      if Map.has_key?(map1, key), do: raise("Duplicated key: #{inspect(key)}")
       value = Map.get(map2, key, value)
       map1 = Map.put(map1, key, value)
       {value, {keys, map1, map2}}

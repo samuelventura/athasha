@@ -5,6 +5,7 @@
 ```elixir
 # socat file:/dev/tty,raw,icanon=0,echo=0,min=0,escape=0x03 tcp-l:8880,reuseaddr
 # socat STDIO fails with: Inappropriate ioctl for device
+# no resize event is received with this method
 # raw required to avoid translating \r to \n
 # min=0 required to answer size query immediatelly
 # fork useless because term won't answer size query on reconnection
@@ -27,3 +28,5 @@ Process.exit pid, :kill
 - Event handlers triggered only from keyboard events
 - Use react state and widget events instead of getters (on_change instead of get_value)
     - Corollary: Select is not focusable if on_change is nil
+- Function components external children must be ignored
+- No mixing on logic and markup allowed.

@@ -25,8 +25,8 @@ defmodule Terminal.App do
   end
 
   def handle(%{func: func, opts: opts, key: key, mote: mote, react: react}, event) do
-    {mote, cmd} = mote_handle(mote, event)
-    IO.inspect({event, cmd})
+    {mote, _cmd} = mote_handle(mote, event)
+    # IO.inspect({event, cmd})
     current = mote_to_map(mote, [key], %{})
     State.reset(react)
     markup = func.(react, opts)
@@ -35,7 +35,7 @@ defmodule Terminal.App do
     {state, nil}
   end
 
-  def render(%{mote: {module, substate}}, canvas), do: module.render(substate, canvas)
+  def render(%{mote: {module, state}}, canvas), do: module.render(state, canvas)
   def execute(_cmd), do: nil
 
   defp mote_to_map({module, state}, keys, map) do
@@ -52,9 +52,22 @@ defmodule Terminal.App do
     {{module, state}, cmd}
   end
 
+  defp eval(react, {modfun, opts, inner}) do
+    cond do
+      is_function(modfun) ->
+        opts = Enum.into(opts, %{})
+        {_, modfun, opts, inner} = modfun.(react, opts)
+        eval(react, {modfun, opts, inner})
+
+      is_atom(modfun) ->
+        {modfun, opts, inner}
+    end
+  end
+
   defp realize(react, markup, current, extras \\ []) do
-    {key, module, opts, inner} = markup
+    {key, modfun, opts, inner} = markup
     keys = State.push(react, key)
+    {module, opts, inner} = eval(react, {modfun, opts, inner})
     inner = for item <- inner, do: realize(react, item, current)
     State.pop(react)
 

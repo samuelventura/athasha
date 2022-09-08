@@ -7,26 +7,21 @@ defmodule Terminal.React do
     end
   end
 
-  defmacro markup(key, modfun, props, do: inner) do
+  defmacro markup(key, module, props, do: inner) do
     inner = inner_to_list(inner)
 
     quote do
-      {unquote(key), unquote(modfun), unquote(props), unquote(inner)}
+      {unquote(key), unquote(module), unquote(props), unquote(inner)}
     end
   end
 
   def use_state(react, key, initial) do
-    key = State.key(react, key)
-    current = State.use(react, key, initial)
-    {current, fn value -> State.put(react, key, value) end}
+    keys = State.key(react, key)
+    current = State.use(react, keys, initial)
+    {current, fn value -> State.put(react, keys, value) end}
   end
 
-  defp inner_to_list(inner) do
-    list =
-      case inner do
-        {_, _, list} -> list
-      end
-
+  defp inner_to_list(list) when is_list(list) do
     list =
       for item <- list do
         quote do
@@ -41,5 +36,13 @@ defmodule Terminal.React do
     end
 
     list
+  end
+
+  defp inner_to_list({:__block__, [], list}) when is_list(list) do
+    inner_to_list(list)
+  end
+
+  defp inner_to_list({:markup, _, _} = single) do
+    inner_to_list([single])
   end
 end
