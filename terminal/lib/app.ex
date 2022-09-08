@@ -25,7 +25,8 @@ defmodule Terminal.App do
   end
 
   def handle(%{func: func, opts: opts, key: key, mote: mote, react: react}, event) do
-    {mote, _} = mote_handle(mote, event)
+    {mote, cmd} = mote_handle(mote, event)
+    IO.inspect({event, cmd})
     current = mote_to_map(mote, [key], %{})
     State.reset(react)
     markup = func.(react, opts)

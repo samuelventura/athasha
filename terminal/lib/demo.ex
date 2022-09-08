@@ -1,8 +1,10 @@
 defmodule Terminal.Demo do
   use Terminal.App
   alias Terminal.Panel
-  alias Terminal.Button
   alias Terminal.Label
+  alias Terminal.Button
+  alias Terminal.Frame
+  alias Terminal.Select
 
   def init(opts) do
     size = Keyword.fetch!(opts, :size)
@@ -32,6 +34,18 @@ defmodule Terminal.Demo do
         text: "Decrement",
         enabled: rem(count, 3) != 0,
         on_click: decrement
+      )
+
+      markup(:frame, Frame,
+        origin: {0, 3},
+        size: {12, 5},
+        text: "Frame"
+      )
+
+      markup(:select, Select,
+        origin: {1, 4},
+        size: {10, 3},
+        items: ["Item1", "Item2"]
       )
     end
   end

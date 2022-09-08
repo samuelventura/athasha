@@ -1,9 +1,10 @@
 defmodule Terminal.Label do
   @behaviour Terminal.Window
+  alias Terminal.Check
   alias Terminal.Canvas
   alias Terminal.Theme
 
-  def init(opts) do
+  def init(opts \\ []) do
     text = Keyword.get(opts, :text, "")
     origin = Keyword.get(opts, :origin, {0, 0})
     size = Keyword.get(opts, :size, {String.length(text), 1})
@@ -13,7 +14,7 @@ defmodule Terminal.Label do
     bgcolor = Keyword.get(opts, :bgcolor, theme.back_readonly)
     fgcolor = Keyword.get(opts, :fgcolor, theme.fore_readonly)
 
-    %{
+    state = %{
       text: text,
       size: size,
       origin: origin,
@@ -21,6 +22,8 @@ defmodule Terminal.Label do
       bgcolor: bgcolor,
       fgcolor: fgcolor
     }
+
+    check(state)
   end
 
   def bounds(%{origin: {x, y}, size: {w, h}}), do: {x, y, w, h}
@@ -33,7 +36,8 @@ defmodule Terminal.Label do
 
   def update(state, props) do
     props = Enum.into(props, %{})
-    Map.merge(state, props)
+    state = Map.merge(state, props)
+    check(state)
   end
 
   def handle(state, _event), do: {state, nil}
@@ -53,5 +57,15 @@ defmodule Terminal.Label do
     canvas = Canvas.color(canvas, :fgcolor, fgcolor)
     canvas = Canvas.move(canvas, 0, 0)
     Canvas.write(canvas, text)
+  end
+
+  defp check(state) do
+    Check.assert_string(:text, state.text)
+    Check.assert_point2d(:origin, state.origin)
+    Check.assert_point2d(:size, state.size)
+    Check.assert_boolean(:visible, state.visible)
+    Check.assert_atom(:bgcolor, state.bgcolor)
+    Check.assert_atom(:fgcolor, state.fgcolor)
+    state
   end
 end

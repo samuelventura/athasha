@@ -10,4 +10,5 @@ alias Terminal.Linux
 alias Terminal.Code
 alias Terminal.React
 alias Terminal.State
+alias Terminal.Check
 alias Terminal.Demo

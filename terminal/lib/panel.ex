@@ -93,14 +93,15 @@ defmodule Terminal.Panel do
         {first, next} = focus_next(state, focus)
 
         next =
-          case {root, next} do
-            {true, nil} -> first
+          case {root, first, next} do
+            {_, ^focus, nil} -> nil
+            {true, _, nil} -> first
             _ -> next
           end
 
         case next do
           nil ->
-            {Map.put(state, focus, mote), {:focus, :next}}
+            {put_child(state, focus, mote), {:focus, :next}}
 
           _ ->
             mote = mote_focused(mote, false)
@@ -112,7 +113,7 @@ defmodule Terminal.Panel do
         end
 
       _ ->
-        {Map.put(state, focus, mote), {focus, event}}
+        {put_child(state, focus, mote), {focus, event}}
     end
   end
 

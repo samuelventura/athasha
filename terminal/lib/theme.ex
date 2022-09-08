@@ -19,4 +19,6 @@ defmodule Terminal.Theme do
       fore_error: :white
     }
   end
+
+  def get(module), do: module.theme()
 end
