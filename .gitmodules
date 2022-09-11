@@ -1,3 +1,9 @@
 [submodule "terminal/src/termbox"]
 	path = terminal/src/termbox
 	url = git@github.com:samuelventura/termbox.git
+[submodule "terminal"]
+	path = terminal
+	url = git@github.com:samuelventura/terminal.git
+[submodule "teletype"]
+	path = teletype
+	url = git@github.com:samuelventura/teletype.git
