@@ -34,6 +34,11 @@ System.cmd "killall",["master"]
 # rpi4
 {:ok, pid} = Terminal.Runner.start_link tty: {Teletype.Tty, "/dev/tty1"}, term: Terminal.Linux, app: {AthashaFirmware.VintageApp, nics: VintageApi.configured_nics()}
 Process.exit pid, :kill
+# monitor linux keys
+tty = Teletype.Tty.open("/dev/tty1")
+{tty, data} = Teletype.Tty.read!(tty) 
+{"", events} = Terminal.Linux.append("", data)
+Teletype.Slave.close(tty) 
 # socat file:/dev/tty,raw,icanon=0,echo=0,min=0,escape=0x03 tcp-l:8881,reuseaddr
 # socat STDIO fails with: Inappropriate ioctl for device
 # no resize event is received with this method
