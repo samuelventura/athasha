@@ -29,12 +29,14 @@ System.put_env("VintageNode", "target@172.31.255.9")
 {:ok, pid} = Terminal.Runner.start_link tty: {Teletype.Tty, "/tmp/slave.pts"}, term: Terminal.Code, app: {VintageApp, nics: VintageApi.available_nics()}
 Process.exit pid, :kill
 System.cmd "killall",["master"]
-# socat file:/dev/tty,icanon=0,echo=0,min=0,escape=0x03 tcp-l:8881,reuseaddr
+# socat file:/dev/tty,raw,icanon=0,echo=0,min=0,escape=0x03 tcp-l:8881,reuseaddr
 # socat STDIO fails with: Inappropriate ioctl for device
+# no resize event is received with this method
+# raw required to avoid translating \r to \n
 # min=0 required to answer size query immediatelly
 # fork useless because term won't answer size query on reconnection
 # escape=0x03 required to honor escape sequences
-# while true; do socat file:/dev/tty,icanon=0,echo=0,escape=0x03,min=0 tcp-l:8881,reuseaddr; done
+# while true; do socat file:/dev/tty,raw,icanon=0,echo=0,escape=0x03,min=0 tcp-l:8881,reuseaddr; done
 # to exit: ctrl-z, then jobs, then kill %1
 #
 # socat file:/dev/tty,nonblock,raw,icanon=0,echo=0,min=0,escape=0x03 tcp:127.0.0.1:8881
@@ -43,5 +45,14 @@ System.cmd "killall",["master"]
 #
 # echo -en "\033[1mThis is bold text.\033[0m" | nc 127.0.0.1 8881
 # to test server end honors escapes
-{:ok, pid} = Terminal.Runner.start_link tty: {Terminal.Socket, ip: "127.0.0.1", port: 8881}, term: Terminal.Code, app: {VintageApp, nics: VintageApi.available_nics()}
+{:ok, pid} = Terminal.Runner.start_link tty: {Terminal.Socket, ip: "127.0.0.1", port: 8881}, term: Terminal.Code, app: {VintageApp, nics: VintageApi.configured_nics()}
 ```
+
+## Future
+
+- Hard reset of all interfaces
+- Static with optional gw/ns
+- Extract gw/ns from DHCP
+- Catch get_config errors
+- Wifi security selector
+- SSID scan selector

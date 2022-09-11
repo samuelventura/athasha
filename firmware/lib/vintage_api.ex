@@ -18,11 +18,15 @@ defmodule AthashaFirmware.VintageApi do
     |> Enum.map(fn {nic, _} -> nic end)
   end
 
+  # eth0 disapears if static without gw and ns
   def available_nics() do
     res = VintageLib.get_by_prefix(["available_interfaces"])
     [{["available_interfaces"], nics}] = res
     nics
   end
+
+  def ipso(""), do: ""
+  def ipso(ip), do: ips(ip)
 
   def ips({a, b, c, d}), do: "#{a}.#{b}.#{c}.#{d}"
   def nms(n), do: ips(VintageLib.prefix_length_to_subnet_mask(n))
@@ -35,6 +39,9 @@ defmodule AthashaFirmware.VintageApi do
       {:error, _} -> raise "Invalid netmask #{nm}"
     end
   end
+
+  def valid_ipo!("", _msg), do: nil
+  def valid_ipo!(text, msg), do: valid_ip!(text, msg)
 
   def valid_ip!(text, msg) do
     case :inet.parse_address(String.to_charlist(text)) do

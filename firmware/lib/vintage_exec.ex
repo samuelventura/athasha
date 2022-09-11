@@ -1,9 +1,9 @@
 defmodule AthashaFirmware.VintageExec do
   alias AthashaFirmware.VintageLib
-  import AthashaFirmware.VintageApi
+  alias AthashaFirmware.VintageApi
   use AthashaFirmware.VintageConst
 
-  def execute({:save, config}) do
+  def set_config(config) do
     ipv4 =
       case config do
         %{type: 0} ->
@@ -13,19 +13,22 @@ defmodule AthashaFirmware.VintageExec do
           %{method: :dhcp}
 
         %{type: 2, address: address, gateway: gateway, netmask: netmask, nameserver: nameserver} ->
-          valid_ip!(address, "Invalid address")
-          valid_ip!(netmask, "Invalid netmask")
-          valid_ip!(gateway, "Invalid gateway")
-          valid_ip!(nameserver, "Invalid nameserver")
-          same_segment!(netmask, address, gateway)
+          VintageApi.valid_ip!(address, "Invalid address")
+          VintageApi.valid_ip!(netmask, "Invalid netmask")
+          # gateway and nameserver are optional
+          VintageApi.valid_ipo!(gateway, "Invalid gateway")
+          VintageApi.valid_ipo!(nameserver, "Invalid nameserver")
+          if gateway != "", do: VintageApi.same_segment!(netmask, address, gateway)
+          name_servers = if nameserver == "", do: [], else: [nameserver]
+          append = fn map -> if gateway == "", do: map, else: Map.put(map, :gateway, gateway) end
 
           %{
             method: :static,
             address: address,
-            gateway: gateway,
-            prefix_length: nmn(netmask),
-            name_servers: [nameserver]
+            prefix_length: VintageApi.nmn(netmask),
+            name_servers: name_servers
           }
+          |> append.()
       end
 
     case config do
@@ -52,9 +55,9 @@ defmodule AthashaFirmware.VintageExec do
     end
   end
 
-  def execute({:get, nic}) do
-    mac = get_mac(nic)
-    default = get_default(nic)
+  def get_config(nic) do
+    mac = VintageApi.get_mac(nic)
+    default = VintageApi.get_default(nic)
     config = VintageLib.get_configuration(nic)
 
     config =
@@ -63,7 +66,7 @@ defmodule AthashaFirmware.VintageExec do
           %{wifi: false, type: @disabled}
 
         %{type: VintageNetEthernet, ipv4: %{method: :dhcp}} ->
-          {address, netmask} = get_address_netmask(nic)
+          {address, netmask} = VintageApi.get_address_netmask(nic)
           %{wifi: false, type: @dhcp, address: address, netmask: netmask}
 
         %{
@@ -71,18 +74,24 @@ defmodule AthashaFirmware.VintageExec do
           ipv4: %{
             method: :static,
             address: address,
-            gateway: gateway,
-            name_servers: [nameserver],
             prefix_length: netmask
           }
         } ->
+          gateway = Map.get(config, :gateway, "")
+
+          nameserver =
+            case Map.get(config, :name_servers, []) do
+              [] -> ""
+              [nameserver] -> nameserver
+            end
+
           %{
             wifi: false,
             type: @static,
-            address: ips(address),
-            gateway: ips(gateway),
-            nameserver: ips(nameserver),
-            netmask: nms(netmask)
+            address: VintageApi.ips(address),
+            gateway: VintageApi.ipso(gateway),
+            nameserver: VintageApi.ipso(nameserver),
+            netmask: VintageApi.nms(netmask)
           }
 
         %{
@@ -90,7 +99,7 @@ defmodule AthashaFirmware.VintageExec do
           ipv4: %{method: :dhcp},
           vintage_net_wifi: %{networks: [%{ssid: ssid, psk: _password}]}
         } ->
-          {address, netmask} = get_address_netmask(nic)
+          {address, netmask} = VintageApi.get_address_netmask(nic)
           %{wifi: true, type: @dhcp, ssid: ssid, password: "", address: address, netmask: netmask}
 
         %{
@@ -98,18 +107,24 @@ defmodule AthashaFirmware.VintageExec do
           ipv4: %{
             method: :static,
             address: address,
-            gateway: gateway,
-            name_servers: [nameserver],
             prefix_length: netmask
           }
         } ->
+          gateway = Map.get(config, :gateway, "")
+
+          nameserver =
+            case Map.get(config, :name_servers, []) do
+              [] -> ""
+              [nameserver] -> nameserver
+            end
+
           %{
             wifi: true,
             type: @static,
-            address: ips(address),
-            gateway: ips(gateway),
-            nameserver: ips(nameserver),
-            netmask: nms(netmask)
+            address: VintageApi.ips(address),
+            gateway: VintageApi.ipso(gateway),
+            nameserver: VintageApi.ipso(nameserver),
+            netmask: VintageApi.nms(netmask)
           }
       end
 
@@ -120,6 +135,6 @@ defmodule AthashaFirmware.VintageExec do
         %{type: VintageNetEthernet} -> %{config | wifi: false}
       end
 
-    {:ok, mac, config}
+    {mac, config}
   end
 end
