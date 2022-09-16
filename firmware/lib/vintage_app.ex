@@ -6,11 +6,12 @@ defmodule AthashaFirmware.VintageApp do
   def init(opts) do
     size = Keyword.fetch!(opts, :size)
     nics = Keyword.fetch!(opts, :nics)
-    app_init(&main/2, size: size, nics: nics)
+    on_event = fn e -> log("Event #{inspect(e)}") end
+    app_init(&main/2, size: size, nics: nics, on_event: on_event)
   end
 
   def main(react, %{size: {w, h} = size, nics: [first | _] = nics}) do
-    {{fgc, bgc, msg}, set_alert} = use_state(react, :alert, {:black, :black, ""})
+    {{fgc, bgc, msg}, set_alert} = use_state(react, :alert, {@black, @black, ""})
     {nic, set_nic} = use_state(react, :nic, nil)
     {mac, set_mac} = use_state(react, :mac, nil)
     {wifi, set_wifi} = use_state(react, :wifi, false)
@@ -25,7 +26,7 @@ defmodule AthashaFirmware.VintageApp do
     on_type = fn index, _name -> set_type.(index) end
 
     on_nic = fn _index, nic ->
-      set_alert.({:black, :black, ""})
+      set_alert.({@black, @black, ""})
       {mac, config} = VintageExec.get_config(nic)
       set_nic.(nic)
       set_mac.(mac)
@@ -53,7 +54,7 @@ defmodule AthashaFirmware.VintageApp do
     on_password = fn value -> set_password.(value) end
 
     on_save = fn ->
-      set_alert.({:white, :black, "Saving..."})
+      set_alert.({@white, @black, "Saving..."})
 
       config = %{
         nic: nic,
@@ -69,10 +70,10 @@ defmodule AthashaFirmware.VintageApp do
 
       try do
         VintageExec.set_config(config)
-        set_alert.({:white, :blue, "Saved OK"})
+        set_alert.({@white, @blue, "Saved OK"})
       rescue
         e ->
-          set_alert.({:white, :red, "#{inspect(e)}"})
+          set_alert.({@white, @red, "#{inspect(e)}"})
       end
     end
 
@@ -83,8 +84,8 @@ defmodule AthashaFirmware.VintageApp do
         origin: {0, h - 1},
         size: {w, 1},
         text: msg,
-        bgcolor: bgc,
-        fgcolor: fgc
+        back: bgc,
+        fore: fgc
       )
 
       markup(:nics_frame, Frame,
@@ -268,12 +269,5 @@ defmodule AthashaFirmware.VintageApp do
         on_change: on_nameserver
       )
     end
-  end
-
-  def log(msg) do
-    # 2022-09-10 20:02:49.684244Z
-    now = DateTime.utc_now()
-    now = String.slice("#{now}", 11..22)
-    IO.puts("#{now} #{inspect(self())} #{msg}")
   end
 end
