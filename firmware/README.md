@@ -7,6 +7,7 @@ cd firmware
 mix nerves.new . --app athasha_firmware
 MIX_TARGET=rpi4 mix deps.get
 MIX_TARGET=rpi4 mix compile
+#cd ../teletype && mix clean
 MIX_TARGET=rpi4 mix firmware
 MIX_TARGET=rpi4 mix upload athasha-4ad8.local
 ssh athasha-4ad8.local
@@ -32,7 +33,7 @@ System.put_env("VintageNode", "target@172.31.255.9")
 Process.exit pid, :kill
 System.cmd "killall",["master"]
 # rpi4
-{:ok, pid} = Terminal.Runner.start_link tty: {Teletype.Tty, "/dev/tty1"}, term: Terminal.Linux, app: {AthashaFirmware.VintageApp, nics: VintageApi.configured_nics()}
+{:ok, pid} = Terminal.Runner.start_link tty: {Teletype.Tty, "/dev/tty1"}, term: Terminal.Linux, app: {VintageApp, nics: VintageApi.configured_nics()}
 Process.exit pid, :kill
 # monitor linux keys
 tty = Teletype.Tty.open("/dev/tty1")

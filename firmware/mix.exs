@@ -32,7 +32,7 @@ defmodule AthashaFirmware.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:teletype, path: "../teletype"},
+      # {:teletype, path: "../teletype", override: true},
       {:terminal, path: "../terminal"},
       {:elixir_make, "~> 0.6", runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
