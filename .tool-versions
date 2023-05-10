@@ -1,0 +1,16 @@
+# https://github.com/nerves-project/nerves_system_rpi4/releases/tag/v1.20.2
+erlang 25.0.4
+# match version https://github.com/nerves-project/nerves_system_rpi4/blob/main/.circleci/config.yml
+elixir 1.13.4-otp-25
+
+# buildroot and cairo/meson/ninja
+python 3.10.5
+
+rust 1.64.0
+zig 0.9.1
+postgres 14.5
+nodejs 18.4.0
+yarn 1.22.19
+
+# packages under git
+dotnet-core 6.0.405

@@ -25,7 +25,8 @@ function deleted() {
 }
 
 function registerListener(callback) {
-    const mac = navigator.userAgentData.platform.match("Mac")
+    // navigator.userAgentData requires https secure context    
+    const mac = navigator.appVersion.indexOf('Mac') != -1
     const listener = (e) => {
         if (e.key === "s" && (mac ? e.metaKey : e.ctrlKey)) {
             e.preventDefault();
