@@ -7,6 +7,8 @@ defmodule Athasha.Application do
 
   @impl true
   def start(_type, _args) do
+    config()
+
     children = [
       Athasha.Bus,
       # Start the Ecto repository
@@ -41,5 +43,24 @@ defmodule Athasha.Application do
   def config_change(changed, _new, removed) do
     AthashaWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  def rt?(), do: System.get_env("DPI_RT") == "true"
+  def path(), do: System.get_env("DPI_PATH")
+  def data(), do: System.get_env("DPI_DATA")
+
+  def config(), do: config(rt?(), :athasha)
+
+  def config(false, _), do: nil
+
+  def config(true, app_name) do
+    exsp = Path.join([path(), "lib", "#{app_name}.exs"])
+    envp = Path.join([path(), "lib", "#{app_name}.env"])
+    content = File.read!(exsp)
+    eval = Config.Reader.eval!(exsp, content)
+    env = File.read!(envp) |> :erlang.binary_to_term()
+    config = Config.Reader.merge(env, eval)
+    :ok = Application.put_all_env(config)
+    Athasha.Release.migrate()
   end
 end

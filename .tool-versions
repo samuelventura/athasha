@@ -1,4 +1,4 @@
 elixir 1.13.4-otp-25
-erlang 25.0.2
+erlang 25.0.4
 nodejs 16.15.1
-dotnet-core 6.0.301
+dotnet-core 6.0.405
