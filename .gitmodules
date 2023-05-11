@@ -1,0 +1,3 @@
+[submodule "bbb_icu"]
+	path = bbb_icu
+	url = git@github.com:samuelventura/nerves_system_bbb_icu.git

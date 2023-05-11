@@ -54,11 +54,7 @@ defmodule AthashaFw.MixProject do
       {:nerves_system_bbb, "~> 2.13", runtime: false, targets: :bbb},
       {:nerves_system_osd32mp1, "~> 0.9", runtime: false, targets: :osd32mp1},
       {:nerves_system_x86_64, "~> 1.18", runtime: false, targets: :x86_64},
-      {:nerves_system_bbb_icu,
-       path: "../../nerves_system_bbb_icu",
-       runtime: false,
-       targets: :bbb_icu,
-       nerves: [compile: true]},
+      {:nerves_system_bbb_icu, path: "../bbb_icu", runtime: false, targets: :bbb_icu},
       {:jason, "~> 1.2"},
       {:athasha, path: "../backend"}
     ]

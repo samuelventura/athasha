@@ -1,5 +1,10 @@
 #!/bin/bash -xe
 
+#git submodule add git@github.com:samuelventura/nerves_system_bbb_icu.git bbb_icu
+#if precompiled artifact is not found, delete and reinstall deps
+#requires manual Athasha.Release.migrate from tio terminal
+
+#pinout in BBB album
 #tio /dev/ttyUSB0
 
 #http://athasha.local/
@@ -19,23 +24,30 @@ case $COMMAND in
     ;;
     build)
         cd firmware
+        [ -d deps ] || mix deps.get
 
         export MIX_ENV=dev
         export MIX_TARGET=bbb_icu
 
         mix firmware
+    ;;
+    burn)
+        cd firmware
 
-        #defaults to nerves.local
-        #ping athasha.local
-        #ping athasha-4199.local
-        #ping 10.77.4.240
-        mix upload athasha.local
+        export MIX_ENV=dev
+        export MIX_TARGET=bbb_icu
+        mix burn
     ;;
     upload)
         cd firmware
 
         export MIX_ENV=dev
         export MIX_TARGET=bbb_icu
+
+        #defaults to nerves.local
+        #ping athasha.local
+        #ping athasha-4199.local
+        #ping 10.77.4.240
         mix upload athasha.local
     ;;
 esac
